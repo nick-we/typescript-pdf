@@ -1,0 +1,119 @@
+{
+    "name": "typescript-pdf",
+    "version": "0.1.0",
+    "description": "A modern TypeScript library for programmatic PDF generation with a declarative API",
+    "keywords": [
+        "pdf",
+        "typescript",
+        "document",
+        "generation",
+        "layout",
+        "widgets",
+        "declarative"
+    ],
+    "author": "Nick Westendorf <nick@dunef.io>",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/nick-we/typescript-pdf.git"
+    },
+    "homepage": "https://github.com/nick-we/typescript-pdf#readme",
+    "bugs": {
+        "url": "https://github.com/nick-we/typescript-pdf/issues"
+    },
+    "main": "./dist/index.cjs.js",
+    "module": "./dist/index.esm.js",
+    "types": "./dist/index.d.ts",
+    "exports": {
+        ".": {
+            "import": "./dist/index.esm.js",
+            "require": "./dist/index.cjs.js",
+            "types": "./dist/index.d.ts"
+        }
+    },
+    "files": [
+        "dist",
+        "README.md",
+        "LICENSE"
+    ],
+    "engines": {
+        "node": ">=18.0.0"
+    },
+    "packageManager": "pnpm@8.0.0",
+    "scripts": {
+        "dev": "vite",
+        "build": "rollup -c rollup.config.js",
+        "build:types": "tsc --emitDeclarationOnly",
+        "build:watch": "rollup -c rollup.config.js --watch",
+        "test": "vitest",
+        "test:ui": "vitest --ui",
+        "test:coverage": "vitest --coverage",
+        "test:watch": "vitest --watch",
+        "lint": "eslint src --ext .ts,.tsx",
+        "lint:fix": "eslint src --ext .ts,.tsx --fix",
+        "format": "prettier --write \"src/**/*.{ts,tsx,json,md}\"",
+        "format:check": "prettier --check \"src/**/*.{ts,tsx,json,md}\"",
+        "type-check": "tsc --noEmit",
+        "clean": "rimraf dist",
+        "prebuild": "npm run clean && npm run type-check",
+        "prepublishOnly": "npm run build",
+        "prepare": "husky install",
+        "docs:dev": "vitepress dev docs",
+        "docs:build": "vitepress build docs",
+        "docs:preview": "vitepress preview docs",
+        "release": "semantic-release",
+        "size": "size-limit"
+    },
+    "devDependencies": {
+        "@rollup/plugin-commonjs": "^25.0.7",
+        "@rollup/plugin-node-resolve": "^15.2.3",
+        "@rollup/plugin-typescript": "^11.1.5",
+        "@size-limit/preset-small-lib": "^11.0.1",
+        "@types/node": "^20.10.5",
+        "@typescript-eslint/eslint-plugin": "^6.15.0",
+        "@typescript-eslint/parser": "^6.15.0",
+        "@vitest/coverage-v8": "^1.1.0",
+        "@vitest/ui": "^1.1.0",
+        "esbuild": "^0.19.9",
+        "eslint": "^8.56.0",
+        "eslint-config-prettier": "^9.1.0",
+        "eslint-plugin-import": "^2.29.1",
+        "happy-dom": "^12.10.3",
+        "husky": "^8.0.3",
+        "lint-staged": "^15.2.0",
+        "prettier": "^3.1.1",
+        "rimraf": "^5.0.5",
+        "rollup": "^4.9.1",
+        "rollup-plugin-dts": "^6.1.0",
+        "rollup-plugin-esbuild": "^6.1.0",
+        "rollup-plugin-filesize": "^10.0.0",
+        "semantic-release": "^22.0.12",
+        "size-limit": "^11.0.1",
+        "tslib": "^2.6.2",
+        "typescript": "^5.3.3",
+        "vite": "^5.0.10",
+        "vitepress": "^1.0.0-rc.31",
+        "vitest": "^1.1.0"
+    },
+    "dependencies": {},
+    "peerDependencies": {},
+    "lint-staged": {
+        "*.{ts,tsx}": [
+            "eslint --fix",
+            "prettier --write"
+        ],
+        "*.{json,md}": [
+            "prettier --write"
+        ]
+    },
+    "size-limit": [
+        {
+            "path": "dist/index.esm.js",
+            "limit": "100 KB"
+        },
+        {
+            "path": "dist/index.cjs.js",
+            "limit": "100 KB"
+        }
+    ]
+}
