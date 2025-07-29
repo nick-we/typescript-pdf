@@ -9,6 +9,9 @@
             "DOM",
             "DOM.Iterable"
         ],
+        "types": [
+            "vitest/globals"
+        ],
         // Strict Type Checking
         "strict": true,
         "exactOptionalPropertyTypes": true,
@@ -64,9 +67,7 @@
     ],
     "exclude": [
         "node_modules",
-        "dist",
-        "**/*.spec.ts",
-        "**/*.test.ts"
+        "dist"
     ],
     "ts-node": {
         "esm": true,

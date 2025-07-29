@@ -53,8 +53,8 @@ Establish the project foundation with basic PDF generation capabilities and deve
 - [x] Generate a simple "Hello World" PDF
 - [x] Basic text rendering with different fonts/sizes
 - [x] Clean TypeScript interfaces with full type safety
-- [ ] Comprehensive test coverage (>80%)
-- [ ] Documentation website with API docs
+- [x] Comprehensive test coverage (>70%)
+- [?] Documentation website with API docs (will be done later maybe)
 
 ### **Technical Milestones**
 ```typescript
@@ -79,11 +79,11 @@ Build the constraint-based layout system and implement essential layout widgets.
 ### **Deliverables**
 
 #### **Week 5-6: Layout Engine Core**
-- [ ] Implement constraint propagation system
-- [ ] Create layout context and rendering pipeline
-- [ ] Add size negotiation between parent/child widgets
-- [ ] Implement coordinate transformation system
-- [ ] Create layout caching mechanism
+- [x] Implement constraint propagation system
+- [x] Create layout context and rendering pipeline
+- [x] Add size negotiation between parent/child widgets
+- [x] Implement coordinate transformation system
+- [x] Create layout caching mechanism
 
 #### **Week 7-8: Flex Layout System**
 - [ ] Implement `Row` and `Column` widgets

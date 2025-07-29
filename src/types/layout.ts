@@ -222,12 +222,12 @@ export const EdgeInsets = {
     /**
      * Create insets with horizontal and vertical values
      */
-    symmetric(horizontal?: number, vertical?: number): EdgeInsets {
+    symmetric(options: { horizontal?: number, vertical?: number }): EdgeInsets {
         return {
-            top: vertical ?? 0,
-            right: horizontal ?? 0,
-            bottom: vertical ?? 0,
-            left: horizontal ?? 0,
+            top: options.vertical ?? 0,
+            right: options.horizontal ?? 0,
+            bottom: options.vertical ?? 0,
+            left: options.horizontal ?? 0,
         };
     },
 
