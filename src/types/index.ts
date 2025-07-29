@@ -1,9 +1,9 @@
 /**
  * Type definitions for typescript-pdf
- * 
+ *
  * This module contains all TypeScript type definitions, interfaces,
  * and enums used throughout the library.
- * 
+ *
  * @packageDocumentation
  */
 
@@ -12,6 +12,7 @@ export * from './core.js';
 
 // Layout and geometry types
 export * from './geometry.js';
+export * from './layout.js';
 
 // Widget types
 export * from './widgets.js';

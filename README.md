@@ -33,11 +33,17 @@ yarn add typescript-pdf
 ### Simple Document
 
 ```typescript
-import { Document, Text } from 'typescript-pdf';
+import { Document } from 'typescript-pdf/core';
+import { Text, Container, EdgeInsets } from 'typescript-pdf/widgets';
 
 const doc = new Document();
 doc.addPage({
-  build: () => new Text('Hello World', { fontSize: 24 })
+  build: () => new Container({
+    padding: EdgeInsets.all(20),
+    child: new Text('Hello World!', {
+      style: { fontSize: 24, color: '#1976d2' }
+    })
+  })
 });
 
 const pdfBytes = await doc.save();

@@ -279,7 +279,7 @@ interface LazyWidget extends Widget {
 
 ```typescript
 interface LayoutCache {
-  get(widget: Widget, constraints: BoxConstraints): LayoutResult | null;
+  get(widget: Widget, constraints: BoxConstraints): LayoutResult | undefined;
   set(widget: Widget, constraints: BoxConstraints, result: LayoutResult): void;
 }
 ```

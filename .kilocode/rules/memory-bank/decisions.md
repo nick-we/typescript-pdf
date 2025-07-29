@@ -237,7 +237,7 @@ for await (const chunk of document.stream()) {
 **Implementation**:
 ```typescript
 interface LayoutCache {
-  get(widget: Widget, constraints: BoxConstraints): LayoutResult | null;
+  get(widget: Widget, constraints: BoxConstraints): LayoutResult | undefined;
   set(widget: Widget, constraints: BoxConstraints, result: LayoutResult): void;
   invalidate(widget: Widget): void;
 }
