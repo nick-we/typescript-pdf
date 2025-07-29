@@ -1,0 +1,42 @@
+# Dependencies
+node_modules
+
+# Build outputs
+dist
+build
+coverage
+
+# Generated files
+*.d.ts
+*.min.js
+*.min.css
+
+# Package files
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+
+# Logs
+*.log
+logs
+
+# Cache directories
+.cache
+.parcel-cache
+.vscode
+.idea
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Documentation build
+docs/.vitepress/dist
+docs/.vitepress/cache
+
+# Temporary files
+*.tmp
+*.temp
+
+# Config files that should maintain their formatting
+.eslintrc.json

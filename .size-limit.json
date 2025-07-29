@@ -1,0 +1,30 @@
+[
+    {
+        "name": "ESM Bundle",
+        "path": "dist/index.esm.js",
+        "limit": "100 KB",
+        "gzip": true,
+        "webpack": false
+    },
+    {
+        "name": "CommonJS Bundle",
+        "path": "dist/index.cjs.js",
+        "limit": "100 KB",
+        "gzip": true,
+        "webpack": false
+    },
+    {
+        "name": "UMD Bundle",
+        "path": "dist/index.umd.js",
+        "limit": "120 KB",
+        "gzip": true,
+        "webpack": false
+    },
+    {
+        "name": "TypeScript Declarations",
+        "path": "dist/index.d.ts",
+        "limit": "50 KB",
+        "gzip": false,
+        "webpack": false
+    }
+]

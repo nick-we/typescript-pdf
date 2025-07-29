@@ -1,0 +1,29 @@
+packages:
+  - '.'
+  - 'packages/*'
+  - 'examples/*'
+  - 'docs'
+
+# Optional: Configure shared dependencies
+preferred-versions:
+  typescript: ^5.3.3
+  vitest: ^1.1.0
+  eslint: ^8.56.0
+  prettier: ^3.1.1
+
+# Hoisting settings
+hoist-pattern:
+  - '*eslint*'
+  - '*prettier*'
+  - '*typescript*'
+  - '*rollup*'
+  - '*vite*'
+
+# Shamefully hoist to avoid peer dependency issues
+shamefully-hoist: false
+
+# Enable strict peer dependencies
+strict-peer-dependencies: true
+
+# Enable auto-install peers
+auto-install-peers: true
