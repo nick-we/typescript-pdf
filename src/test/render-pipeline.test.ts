@@ -51,8 +51,8 @@ class MockWidget extends BaseWidget {
     public paintCallCount = 0;
 
     constructor(
-        private mockSize: Size = { width: 100, height: 50 },
-        private _children: MockWidget[] = [],
+        public _children: MockWidget[] = [],
+        public mockSize: Size = { width: 100, height: 50 },
         debugLabel?: string
     ) {
         super(debugLabel ? { debugLabel } : {});
@@ -76,32 +76,22 @@ class MockWidget extends BaseWidget {
 }
 
 // Mock container widget for testing
-class MockContainerWidget extends BaseWidget {
-    public layoutCallCount = 0;
-    public paintCallCount = 0;
+class MockContainerWidget extends MockWidget {
 
     constructor(
-        private _children: MockWidget[] = [],
-        private mockSize: Size = { width: 200, height: 100 },
+        _children: MockWidget[] = [],
+        mockSize: Size = { width: 200, height: 100 },
         debugLabel?: string
     ) {
-        super(debugLabel ? { debugLabel } : {});
+        super(_children, mockSize, debugLabel);
     }
 
-    get children() {
-        return this._children;
-    }
-
-    layout(context: LayoutContext): LayoutResult {
+    override layout(context: LayoutContext): LayoutResult {
         this.layoutCallCount++;
         return {
             size: this.mockSize,
             needsRepaint: true,
         };
-    }
-
-    paint(context: PaintContext): void {
-        this.paintCallCount++;
     }
 }
 
@@ -153,7 +143,7 @@ describe('RenderPipeline', () => {
 
     describe('buildRenderTree', () => {
         it('should build render tree for simple widget', () => {
-            const widget = new MockWidget({ width: 100, height: 50 }, [], 'test-widget');
+            const widget = new MockWidget([], { width: 100, height: 50 }, 'test-widget');
             const renderTree = pipeline.buildRenderTree(widget, mockContext);
 
             expect(renderTree).toBeDefined();
@@ -166,8 +156,8 @@ describe('RenderPipeline', () => {
         });
 
         it('should build render tree with children', () => {
-            const child1 = new MockWidget({ width: 50, height: 25 }, [], 'child1');
-            const child2 = new MockWidget({ width: 60, height: 30 }, [], 'child2');
+            const child1 = new MockWidget([], { width: 50, height: 25 }, 'child1');
+            const child2 = new MockWidget([], { width: 60, height: 30 }, 'child2');
             const container = new MockContainerWidget([child1, child2], { width: 200, height: 100 }, 'container');
 
             const renderTree = pipeline.buildRenderTree(container, mockContext);
@@ -180,14 +170,14 @@ describe('RenderPipeline', () => {
         });
 
         it('should handle widgets without children', () => {
-            const widget = new MockWidget({ width: 100, height: 50 });
+            const widget = new MockWidget([], { width: 100, height: 50 });
             const renderTree = pipeline.buildRenderTree(widget, mockContext);
 
             expect(renderTree.children).toHaveLength(0);
         });
 
         it('should enable performance monitoring when requested', () => {
-            const widget = new MockWidget({ width: 100, height: 50 }, [], 'perf-test');
+            const widget = new MockWidget([], { width: 100, height: 50 }, 'perf-test');
 
             pipeline.buildRenderTree(widget, mockContext, {
                 enablePerformanceMonitoring: true,
@@ -219,7 +209,7 @@ describe('RenderPipeline', () => {
 
     describe('layout', () => {
         it('should perform layout on render tree', () => {
-            const widget = new MockWidget({ width: 100, height: 50 });
+            const widget = new MockWidget([], { width: 100, height: 50 });
             const renderTree = pipeline.buildRenderTree(widget, mockContext);
 
             pipeline.layout(renderTree);
@@ -229,8 +219,8 @@ describe('RenderPipeline', () => {
         });
 
         it('should recursively layout children', () => {
-            const child1 = new MockWidget({ width: 50, height: 25 }, [], 'child1');
-            const child2 = new MockWidget({ width: 60, height: 30 }, [], 'child2');
+            const child1 = new MockWidget([], { width: 50, height: 25 }, 'child1');
+            const child2 = new MockWidget([], { width: 60, height: 30 }, 'child2');
             const container = new MockContainerWidget([child1, child2], { width: 200, height: 100 });
 
             const renderTree = pipeline.buildRenderTree(container, mockContext);
@@ -242,7 +232,7 @@ describe('RenderPipeline', () => {
         });
 
         it('should handle empty render tree', () => {
-            const widget = new MockWidget({ width: 0, height: 0 });
+            const widget = new MockWidget([], { width: 0, height: 0 });
             const renderTree = pipeline.buildRenderTree(widget, mockContext);
 
             expect(() => {
@@ -259,7 +249,7 @@ describe('RenderPipeline', () => {
         });
 
         it('should paint simple widget', () => {
-            const widget = new MockWidget({ width: 100, height: 50 });
+            const widget = new MockWidget([], { width: 100, height: 50 });
             const renderTree = pipeline.buildRenderTree(widget, mockContext);
 
             pipeline.paint(mockGraphics as any, renderTree);
@@ -269,7 +259,7 @@ describe('RenderPipeline', () => {
         });
 
         it('should save and restore graphics context', () => {
-            const widget = new MockWidget({ width: 100, height: 50 });
+            const widget = new MockWidget([], { width: 100, height: 50 });
             const renderTree = pipeline.buildRenderTree(widget, mockContext);
 
             const saveContextSpy = vi.spyOn(mockGraphics, 'saveContext');
@@ -282,7 +272,7 @@ describe('RenderPipeline', () => {
         });
 
         it('should apply transforms when needed', () => {
-            const widget = new MockWidget({ width: 100, height: 50 });
+            const widget = new MockWidget([], { width: 100, height: 50 });
             const renderTree = pipeline.buildRenderTree(widget, mockContext);
 
             // Modify transform to be non-identity
@@ -294,8 +284,8 @@ describe('RenderPipeline', () => {
         });
 
         it('should paint children recursively', () => {
-            const child1 = new MockWidget({ width: 50, height: 25 }, [], 'child1');
-            const child2 = new MockWidget({ width: 60, height: 30 }, [], 'child2');
+            const child1 = new MockWidget([], { width: 50, height: 25 }, 'child1');
+            const child2 = new MockWidget([], { width: 60, height: 30 }, 'child2');
             const container = new MockContainerWidget([child1, child2]);
 
             const renderTree = pipeline.buildRenderTree(container, mockContext);
@@ -308,7 +298,7 @@ describe('RenderPipeline', () => {
         });
 
         it('should handle clipping rectangle', () => {
-            const widget = new MockWidget({ width: 100, height: 50 });
+            const widget = new MockWidget([], { width: 100, height: 50 });
             const renderTree = pipeline.buildRenderTree(widget, mockContext);
 
             // Position widget outside clipping area
@@ -322,7 +312,7 @@ describe('RenderPipeline', () => {
         });
 
         it('should mark render object as painted', () => {
-            const widget = new MockWidget({ width: 100, height: 50 });
+            const widget = new MockWidget([], { width: 100, height: 50 });
             const renderTree = pipeline.buildRenderTree(widget, mockContext);
             renderTree.needsRepaint = true;
 
@@ -334,7 +324,7 @@ describe('RenderPipeline', () => {
 
     describe('invalidate', () => {
         it('should mark render object for repaint', () => {
-            const widget = new MockWidget({ width: 100, height: 50 });
+            const widget = new MockWidget([], { width: 100, height: 50 });
             const renderTree = pipeline.buildRenderTree(widget, mockContext);
             renderTree.needsRepaint = false;
 
@@ -344,7 +334,7 @@ describe('RenderPipeline', () => {
         });
 
         it('should propagate invalidation up the tree', () => {
-            const child = new MockWidget({ width: 50, height: 25 });
+            const child = new MockWidget([], { width: 50, height: 25 });
             const container = new MockContainerWidget([child]);
             const renderTree = pipeline.buildRenderTree(container, mockContext);
 
@@ -359,7 +349,7 @@ describe('RenderPipeline', () => {
         });
 
         it('should handle root level invalidation', () => {
-            const widget = new MockWidget({ width: 100, height: 50 });
+            const widget = new MockWidget([], { width: 100, height: 50 });
             const renderTree = pipeline.buildRenderTree(widget, mockContext);
             renderTree.needsRepaint = false;
 
@@ -371,7 +361,7 @@ describe('RenderPipeline', () => {
 
     describe('hitTest', () => {
         it('should find render object at specific point', () => {
-            const widget = new MockWidget({ width: 100, height: 50 });
+            const widget = new MockWidget([], { width: 100, height: 50 });
             const renderTree = pipeline.buildRenderTree(widget, mockContext);
 
             const hit = pipeline.hitTest({ x: 25, y: 25 }, renderTree);
@@ -380,7 +370,7 @@ describe('RenderPipeline', () => {
         });
 
         it('should return null for point outside render object', () => {
-            const widget = new MockWidget({ width: 100, height: 50 });
+            const widget = new MockWidget([], { width: 100, height: 50 });
             const renderTree = pipeline.buildRenderTree(widget, mockContext);
 
             const hit = pipeline.hitTest({ x: 200, y: 200 }, renderTree);
@@ -389,7 +379,7 @@ describe('RenderPipeline', () => {
         });
 
         it('should test children before parent', () => {
-            const child = new MockWidget({ width: 50, height: 25 });
+            const child = new MockWidget([], { width: 50, height: 25 });
             const container = new MockContainerWidget([child], { width: 200, height: 100 });
             const renderTree = pipeline.buildRenderTree(container, mockContext);
 
@@ -402,7 +392,7 @@ describe('RenderPipeline', () => {
         });
 
         it('should handle nested widgets correctly', () => {
-            const grandchild = new MockWidget({ width: 25, height: 12 });
+            const grandchild = new MockWidget([], { width: 25, height: 12 });
             const child = new MockContainerWidget([grandchild], { width: 50, height: 25 });
             const container = new MockContainerWidget([child], { width: 200, height: 100 }, 'container');
 
@@ -420,7 +410,7 @@ describe('RenderPipeline', () => {
 
     describe('performance monitoring', () => {
         it('should track performance statistics', () => {
-            const widget = new MockWidget({ width: 100, height: 50 }, [], 'perf-widget');
+            const widget = new MockWidget([], { width: 100, height: 50 }, 'perf-widget');
 
             pipeline.buildRenderTree(widget, mockContext, {
                 enablePerformanceMonitoring: true,
@@ -432,7 +422,7 @@ describe('RenderPipeline', () => {
         });
 
         it('should clear performance statistics', () => {
-            const widget = new MockWidget({ width: 100, height: 50 }, [], 'clear-test');
+            const widget = new MockWidget([], { width: 100, height: 50 }, 'clear-test');
 
             pipeline.buildRenderTree(widget, mockContext, {
                 enablePerformanceMonitoring: true,
@@ -453,7 +443,7 @@ describe('RenderPipeline', () => {
         });
 
         it('should handle invalid transform matrix', () => {
-            const widget = new MockWidget({ width: 100, height: 50 });
+            const widget = new MockWidget([], { width: 100, height: 50 });
             const renderTree = pipeline.buildRenderTree(widget, mockContext);
 
             // Set an invalid transform (all zeros would be non-invertible)
@@ -469,8 +459,8 @@ describe('RenderPipeline', () => {
 
     describe('render tree structure', () => {
         it('should maintain parent-child relationships', () => {
-            const child1 = new MockWidget({ width: 50, height: 25 }, [], 'child1');
-            const child2 = new MockWidget({ width: 60, height: 30 }, [], 'child2');
+            const child1 = new MockWidget([], { width: 50, height: 25 }, 'child1');
+            const child2 = new MockWidget([], { width: 60, height: 30 }, 'child2');
             const container = new MockContainerWidget([child1, child2], { width: 200, height: 100 }, 'container');
 
             const renderTree = pipeline.buildRenderTree(container, mockContext);
@@ -481,7 +471,7 @@ describe('RenderPipeline', () => {
         });
 
         it('should assign unique transform matrices to each render object', () => {
-            const child = new MockWidget({ width: 50, height: 25 });
+            const child = new MockWidget([], { width: 50, height: 25 });
             const container = new MockContainerWidget([child]);
             const renderTree = pipeline.buildRenderTree(container, mockContext);
 
@@ -491,7 +481,7 @@ describe('RenderPipeline', () => {
         });
 
         it('should properly set initial positions', () => {
-            const widget = new MockWidget({ width: 100, height: 50 });
+            const widget = new MockWidget([], { width: 100, height: 50 });
             const renderTree = pipeline.buildRenderTree(widget, mockContext);
 
             expect(renderTree.position).toEqual({ x: 0, y: 0 });
@@ -505,7 +495,7 @@ describe('globalRenderPipeline', () => {
     });
 
     it('should maintain state between calls', () => {
-        const widget = new MockWidget({ width: 100, height: 50 }, [], 'global-test');
+        const widget = new MockWidget([], { width: 100, height: 50 }, 'global-test');
         const context: LayoutContext = {
             constraints: {
                 minWidth: 0,
@@ -528,7 +518,7 @@ describe('globalRenderPipeline', () => {
 
     it('should use global constraint solver by default', () => {
         // The global render pipeline should work without throwing errors
-        const widget = new MockWidget({ width: 100, height: 50 });
+        const widget = new MockWidget([], { width: 100, height: 50 });
         const context: LayoutContext = {
             constraints: {
                 minWidth: 0,
@@ -551,7 +541,7 @@ describe('globalRenderPipeline', () => {
 
 describe('RenderObject interface', () => {
     it('should have all required properties', () => {
-        const widget = new MockWidget({ width: 100, height: 50 });
+        const widget = new MockWidget([], { width: 100, height: 50 });
         const pipeline = new RenderPipeline();
         const context: LayoutContext = {
             constraints: {

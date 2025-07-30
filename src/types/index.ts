@@ -14,15 +14,3 @@ export * from './core.js';
 export * from './geometry.js';
 export * from './layout.js';
 export * from './flex.js';
-
-// Widget types
-export * from './widgets.js';
-
-// Style and theme types
-export * from './styles.js';
-
-// TODO: Define comprehensive type system based on dart-pdf analysis
-// - Base interfaces for Document, Page, Widget
-// - Geometry types (Point, Rect, Size, Matrix)
-// - Constraint and layout system types
-// - Color, font, and styling type hierarchies

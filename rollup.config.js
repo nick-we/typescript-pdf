@@ -82,7 +82,7 @@ export default defineConfig([
                 // Define globals for external dependencies if needed
             }
         },
-        external: external.filter(dep => !dep.startsWith('node:')),
+        external: external.filter(dep => typeof dep === 'string' && !dep.startsWith('node:')),
         plugins: [
             ...plugins,
             esbuild({
