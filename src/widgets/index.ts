@@ -29,6 +29,15 @@ export {
     type TextDecoration,
 } from './text.js';
 
+// RichText widget and related types
+export {
+    RichText,
+    createRichText,
+    TextSpans,
+    type RichTextProps,
+    type TextSpan,
+} from './rich-text.js';
+
 // Container widget and related types
 export {
     Container,

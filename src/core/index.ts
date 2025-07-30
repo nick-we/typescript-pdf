@@ -7,14 +7,34 @@
  * @packageDocumentation
  */
 
-// Placeholder exports - to be implemented in Phase 2
+// Document and page management
 export { Document } from './document.js';
 export { Page } from './page.js';
 
-// TODO: Implement core PDF functionality
-// - PDF document structure
-// - Page management system
-// - Graphics context and drawing operations
-// - Font loading and text measurement
-// - Constraint-based layout system
-// - Transformation and coordinate systems
+// PDF primitives
+export * from './pdf/index.js';
+
+// Font system and fallback
+export {
+    FontFallbackSystem,
+    FontUtils,
+    FontWeight,
+    FontStyle,
+    FontCategory,
+    defaultFontFallback,
+    type FontDescriptor,
+} from './font-fallback.js';
+
+// Text measurement and metrics
+export {
+    TextMetricsEngine,
+    TextMeasurementUtils,
+    defaultTextMetrics,
+    type CharacterMetrics,
+    type WordMetrics,
+    type LineMetrics,
+    type ParagraphMetrics,
+    type EnhancedFontMetrics,
+    type TextMeasurementOptions,
+    type LineBreakingOptions,
+} from './text-metrics.js';
