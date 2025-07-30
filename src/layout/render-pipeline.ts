@@ -193,7 +193,7 @@ export class RenderPipeline {
     /**
      * Find render object at a specific point
      */
-    hitTest(point: Point, renderObject: RenderObject = this.getRenderTree()): RenderObject | null {
+    hitTest(point: Point, renderObject: RenderObject = this.getRenderTree()): RenderObject | undefined {
         // Transform point to local coordinates
         const localPoint = this.transformPointToLocal(point, renderObject);
 
@@ -204,7 +204,7 @@ export class RenderPipeline {
             width: renderObject.size.width,
             height: renderObject.size.height,
         })) {
-            return null;
+            return undefined;
         }
 
         // Check children first (front to back)

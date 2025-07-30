@@ -375,7 +375,7 @@ describe('RenderPipeline', () => {
 
             const hit = pipeline.hitTest({ x: 200, y: 200 }, renderTree);
 
-            expect(hit).toBeNull();
+            expect(hit).toBeUndefined();
         });
 
         it('should test children before parent', () => {
