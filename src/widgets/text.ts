@@ -16,6 +16,16 @@ import type {
     PaintContext,
 } from '../types/layout.js';
 import type { Size } from '../types/geometry.js';
+import type {
+    TextStyle as ComprehensiveTextStyle,
+} from '../types/theming.js';
+import {
+    TextStyleUtils,
+    TextDecoration as ComprehensiveTextDecoration,
+    TextDecorationStyle,
+    FontWeight,
+    FontStyle,
+} from '../types/theming.js';
 
 /**
  * Text alignment options
@@ -38,9 +48,10 @@ export enum TextOverflow {
 }
 
 /**
- * Text decoration options
+ * Text decoration options (legacy compatibility)
+ * @deprecated Use TextDecoration from theming system instead
  */
-export interface TextDecoration {
+export interface LegacyTextDecoration {
     /** Whether text is underlined */
     underline?: boolean;
     /** Whether text has strikethrough */
@@ -51,10 +62,14 @@ export interface TextDecoration {
     thickness?: number;
 }
 
+// Re-export comprehensive TextDecoration for compatibility
+export type TextDecoration = ComprehensiveTextDecoration;
+
 /**
- * Text style configuration
+ * Text style configuration (legacy compatibility - use comprehensive TextStyle from theming)
+ * @deprecated Use TextStyle from theming system instead
  */
-export interface TextStyle {
+export interface LegacyTextStyle {
     /** Font size in points */
     fontSize?: number;
     /** Font family */
@@ -72,8 +87,11 @@ export interface TextStyle {
     /** Line height multiplier */
     lineHeight?: number;
     /** Text decoration */
-    decoration?: TextDecoration;
+    decoration?: TextDecoration | LegacyTextDecoration;
 }
+
+// Re-export comprehensive TextStyle for compatibility
+export type TextStyle = ComprehensiveTextStyle;
 
 /**
  * Text widget properties
@@ -81,8 +99,8 @@ export interface TextStyle {
 export interface TextProps extends WidgetProps {
     /** The text content to display */
     content: string;
-    /** Text styling */
-    style?: TextStyle;
+    /** Text styling - supports both legacy and comprehensive styles */
+    style?: ComprehensiveTextStyle | LegacyTextStyle;
     /** Text alignment */
     textAlign?: TextAlign;
     /** Text overflow behavior */
@@ -118,7 +136,7 @@ interface TextMeasurement {
  */
 export class Text extends BaseWidget {
     private readonly content: string;
-    private readonly style: Required<TextStyle>;
+    private readonly style: ComprehensiveTextStyle;
     private readonly textAlign: TextAlign;
     private readonly overflow: TextOverflow;
     private readonly maxLines?: number;
@@ -133,63 +151,71 @@ export class Text extends BaseWidget {
         props.maxLines && (this.maxLines = props.maxLines);
         this.softWrap = props.softWrap ?? true;
 
-        // Default text style
-        this.style = {
-            fontSize: props.style?.fontSize ?? 12,
-            fontFamily: props.style?.fontFamily ?? PdfStandardFont.Helvetica,
-            fontWeight: props.style?.fontWeight ?? 'normal',
-            fontStyle: props.style?.fontStyle ?? 'normal',
-            color: props.style?.color ?? '#000000',
-            letterSpacing: props.style?.letterSpacing ?? 0,
-            wordSpacing: props.style?.wordSpacing ?? 0,
-            lineHeight: props.style?.lineHeight ?? 1.2,
-            decoration: props.style?.decoration ?? {},
-        };
+        // Convert legacy style to comprehensive style if needed
+        this.style = this.normalizeTextStyle(props.style);
     }
 
     /**
-     * Get the appropriate PDF font based on style
+     * Normalize text style to comprehensive format
+     */
+    private normalizeTextStyle(inputStyle?: ComprehensiveTextStyle | LegacyTextStyle): ComprehensiveTextStyle {
+        if (!inputStyle) {
+            return TextStyleUtils.createInheriting({
+                fontSize: 12,
+                fontFamily: PdfStandardFont.Helvetica,
+                fontWeight: FontWeight.Normal,
+                fontStyle: FontStyle.Normal,
+                color: '#000000',
+                letterSpacing: 0,
+                wordSpacing: 1,
+                lineSpacing: 1.2,
+                decoration: ComprehensiveTextDecoration.none,
+            });
+        }
+
+        // If already comprehensive style, return as-is
+        if ('inherit' in inputStyle) {
+            return inputStyle as ComprehensiveTextStyle;
+        }
+
+        // Convert legacy style
+        const legacyStyle = inputStyle as LegacyTextStyle;
+
+        // Convert legacy decoration to comprehensive
+        let decoration = ComprehensiveTextDecoration.none;
+        if (legacyStyle.decoration) {
+            const legacyDec = legacyStyle.decoration as LegacyTextDecoration;
+            const decorations: ComprehensiveTextDecoration[] = [];
+            if (legacyDec.underline) decorations.push(ComprehensiveTextDecoration.underline);
+            if (legacyDec.strikethrough) decorations.push(ComprehensiveTextDecoration.lineThrough);
+            decoration = decorations.length > 0
+                ? ComprehensiveTextDecoration.combine(decorations)
+                : ComprehensiveTextDecoration.none;
+        }
+
+        const styleObj: any = { decoration };
+
+        if (legacyStyle.fontSize !== undefined) styleObj.fontSize = legacyStyle.fontSize;
+        if (legacyStyle.fontFamily !== undefined) styleObj.fontFamily = legacyStyle.fontFamily;
+        if (legacyStyle.fontWeight !== undefined) {
+            styleObj.fontWeight = legacyStyle.fontWeight === 'bold' ? FontWeight.Bold : FontWeight.Normal;
+        }
+        if (legacyStyle.fontStyle !== undefined) {
+            styleObj.fontStyle = legacyStyle.fontStyle === 'italic' ? FontStyle.Italic : FontStyle.Normal;
+        }
+        if (legacyStyle.color !== undefined) styleObj.color = legacyStyle.color;
+        if (legacyStyle.letterSpacing !== undefined) styleObj.letterSpacing = legacyStyle.letterSpacing;
+        if (legacyStyle.wordSpacing !== undefined) styleObj.wordSpacing = legacyStyle.wordSpacing;
+        if (legacyStyle.lineHeight !== undefined) styleObj.lineSpacing = legacyStyle.lineHeight;
+
+        return TextStyleUtils.createInheriting(styleObj);
+    }
+
+    /**
+     * Get the appropriate PDF font based on style using theming system
      */
     private getPdfFont(): PdfStandardFont {
-        const { fontFamily, fontWeight, fontStyle } = this.style;
-
-        // Handle font variations for Helvetica
-        if (fontFamily === PdfStandardFont.Helvetica) {
-            if (fontWeight === 'bold' && fontStyle === 'italic') {
-                return PdfStandardFont.HelveticaBoldOblique;
-            } else if (fontWeight === 'bold') {
-                return PdfStandardFont.HelveticaBold;
-            } else if (fontStyle === 'italic') {
-                return PdfStandardFont.HelveticaOblique;
-            }
-            return PdfStandardFont.Helvetica;
-        }
-
-        // Handle font variations for Times
-        if (fontFamily === PdfStandardFont.TimesRoman) {
-            if (fontWeight === 'bold' && fontStyle === 'italic') {
-                return PdfStandardFont.TimesBoldItalic;
-            } else if (fontWeight === 'bold') {
-                return PdfStandardFont.TimesBold;
-            } else if (fontStyle === 'italic') {
-                return PdfStandardFont.TimesItalic;
-            }
-            return PdfStandardFont.TimesRoman;
-        }
-
-        // Handle font variations for Courier
-        if (fontFamily === PdfStandardFont.Courier) {
-            if (fontWeight === 'bold' && fontStyle === 'italic') {
-                return PdfStandardFont.CourierBoldOblique;
-            } else if (fontWeight === 'bold') {
-                return PdfStandardFont.CourierBold;
-            } else if (fontStyle === 'italic') {
-                return PdfStandardFont.CourierOblique;
-            }
-            return PdfStandardFont.Courier;
-        }
-
-        return fontFamily;
+        return TextStyleUtils.resolveFontFamily(this.style);
     }
 
     /**
@@ -216,11 +242,12 @@ export class Text extends BaseWidget {
      */
     private measureText(
         maxWidth: number,
-        fontRegistry: any // TODO: Add proper type when available
+        fontRegistry: any, // TODO: Add proper type when available
+        effectiveStyle: ComprehensiveTextStyle
     ): TextMeasurement {
         const font = fontRegistry.getFont(this.getPdfFont());
-        const fontSize = this.style.fontSize;
-        const lineHeight = fontSize * this.style.lineHeight;
+        const fontSize = effectiveStyle.fontSize || 12;
+        const lineHeight = fontSize * (effectiveStyle.lineSpacing || 1.2);
 
         // Simple text measurement - in a real implementation this would be more sophisticated
         const charWidth = font.measureTextWidth('M', fontSize); // Use 'M' as average character width
@@ -288,6 +315,11 @@ export class Text extends BaseWidget {
     layout(context: LayoutContext): LayoutResult {
         this.validateConstraints(context.constraints);
 
+        // Merge with theme's default text style if this style inherits
+        const effectiveStyle = this.style.inherit
+            ? TextStyleUtils.merge(context.theme.defaultTextStyle, this.style)
+            : this.style;
+
         // For now, we'll use a mock font registry - in a real implementation
         // this would come from the context or be injected
         const mockFontRegistry = {
@@ -305,7 +337,7 @@ export class Text extends BaseWidget {
             ? 1000 // Default max width
             : context.constraints.maxWidth;
 
-        const measurement = this.measureText(maxWidth, mockFontRegistry);
+        const measurement = this.measureText(maxWidth, mockFontRegistry, effectiveStyle);
 
         const size: Size = {
             width: Math.min(measurement.width, context.constraints.maxWidth),
@@ -326,7 +358,13 @@ export class Text extends BaseWidget {
         }
 
         const { graphics, size, theme } = context;
-        const color = this.parseColor(this.style.color);
+
+        // Merge with theme's default text style if this style inherits
+        const effectiveStyle = this.style.inherit
+            ? TextStyleUtils.merge(context.theme.defaultTextStyle, this.style)
+            : this.style;
+
+        const color = this.parseColor(effectiveStyle.color || '#000000');
 
         // Set text color
         graphics.setColor(color);
@@ -347,14 +385,16 @@ export class Text extends BaseWidget {
 
         // Simple single-line text rendering
         let x = 0;
-        const y = this.style.fontSize; // Start from baseline
+        const y = effectiveStyle.fontSize || 12; // Start from baseline
+
+        const fontSize = effectiveStyle.fontSize || 12;
 
         // Apply text alignment
         if (this.textAlign === TextAlign.Center) {
-            const textWidth = mockFont.measureTextWidth(this.content, this.style.fontSize);
+            const textWidth = mockFont.measureTextWidth(this.content, fontSize);
             x = (size.width - textWidth) / 2;
         } else if (this.textAlign === TextAlign.Right) {
-            const textWidth = mockFont.measureTextWidth(this.content, this.style.fontSize);
+            const textWidth = mockFont.measureTextWidth(this.content, fontSize);
             x = size.width - textWidth;
         }
 
@@ -363,12 +403,27 @@ export class Text extends BaseWidget {
 
         graphics.endText();
 
-        // TODO: Implement text decorations (underline, strikethrough)
-        if (this.style.decoration?.underline) {
-            const textWidth = mockFont.measureTextWidth(this.content, this.style.fontSize);
-            const underlineY = y - 2; // Offset below baseline
-            graphics.drawLine(x, underlineY, x + textWidth, underlineY);
-            graphics.strokePath();
+        // Implement text decorations using comprehensive system
+        if (effectiveStyle.decoration) {
+            const textWidth = mockFont.measureTextWidth(this.content, fontSize);
+
+            if (effectiveStyle.decoration.hasUnderline) {
+                const underlineY = y - 2; // Offset below baseline
+                graphics.drawLine(x, underlineY, x + textWidth, underlineY);
+                graphics.strokePath();
+            }
+
+            if (effectiveStyle.decoration.hasLineThrough) {
+                const lineThroughY = y + fontSize * 0.3; // Middle of text
+                graphics.drawLine(x, lineThroughY, x + textWidth, lineThroughY);
+                graphics.strokePath();
+            }
+
+            if (effectiveStyle.decoration.hasOverline) {
+                const overlineY = y + fontSize * 0.8; // Above text
+                graphics.drawLine(x, overlineY, x + textWidth, overlineY);
+                graphics.strokePath();
+            }
         }
     }
 }
@@ -387,35 +442,35 @@ export const TextStyles = {
     /** Heading 1 style */
     h1: {
         fontSize: 24,
-        fontWeight: 'bold' as const,
+        fontWeight: FontWeight.Bold,
         fontFamily: PdfStandardFont.Helvetica,
     },
 
     /** Heading 2 style */
     h2: {
         fontSize: 20,
-        fontWeight: 'bold' as const,
+        fontWeight: FontWeight.Bold,
         fontFamily: PdfStandardFont.Helvetica,
     },
 
     /** Heading 3 style */
     h3: {
         fontSize: 16,
-        fontWeight: 'bold' as const,
+        fontWeight: FontWeight.Bold,
         fontFamily: PdfStandardFont.Helvetica,
     },
 
     /** Body text style */
     body: {
         fontSize: 12,
-        fontWeight: 'normal' as const,
+        fontWeight: FontWeight.Normal,
         fontFamily: PdfStandardFont.Helvetica,
     },
 
     /** Caption text style */
     caption: {
         fontSize: 10,
-        fontWeight: 'normal' as const,
+        fontWeight: FontWeight.Normal,
         fontFamily: PdfStandardFont.Helvetica,
         color: '#666666',
     },
@@ -423,8 +478,8 @@ export const TextStyles = {
     /** Code text style */
     code: {
         fontSize: 11,
-        fontWeight: 'normal' as const,
+        fontWeight: FontWeight.Normal,
         fontFamily: PdfStandardFont.Courier,
         color: '#333333',
     },
-} satisfies Record<string, Partial<TextStyle>>;
+} satisfies Record<string, Partial<LegacyTextStyle>>;

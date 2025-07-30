@@ -13,7 +13,7 @@ import type {
     LayoutResult,
     PaintContext,
 } from '../types/layout.js';
-import { Alignment, AlignmentUtils } from '../types/layout.js';
+import { Alignment, AlignmentUtils, TextDirection } from '../types/layout.js';
 import type { Size } from '../types/geometry.js';
 
 /**
@@ -210,7 +210,7 @@ export class Align extends BaseWidget {
                 minHeight: 0,
                 maxHeight: size.height,
             },
-            textDirection: context.theme ? context.theme.textStyle ? 'ltr' as any : 'ltr' as any : 'ltr' as any,
+            textDirection: context.theme ? context.theme.defaultTextStyle ? TextDirection.LeftToRight : TextDirection.LeftToRight : TextDirection.LeftToRight,
             theme: context.theme,
         };
 

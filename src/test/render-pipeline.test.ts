@@ -14,6 +14,7 @@ import { Matrix4 } from '../core/pdf/graphics.js';
 import type { LayoutContext, LayoutResult, PaintContext } from '../types/layout.js';
 import { TextDirection } from '../types/layout.js';
 import type { Size, Point } from '../types/geometry.js';
+import { FontWeight } from '@/types/theming.js';
 
 // Mock graphics interface for testing
 class MockGraphics {
@@ -112,9 +113,9 @@ describe('RenderPipeline', () => {
             },
             textDirection: TextDirection.LeftToRight,
             theme: {
-                textStyle: {
+                defaultTextStyle: {
                     fontSize: 12,
-                    fontWeight: 'normal',
+                    fontWeight: FontWeight.Normal,
                     color: '#000000',
                 },
                 colors: {

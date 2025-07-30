@@ -124,43 +124,17 @@ export enum TextDirection {
     RightToLeft = 'rtl',
 }
 
-/**
- * Theme data for consistent styling
- */
-export interface ThemeData {
-    /** Default text style */
-    readonly textStyle: {
-        fontSize: number;
-        fontWeight: 'normal' | 'bold';
-        color: string;
-    };
-    /** Default colors */
-    readonly colors: {
-        primary: string;
-        secondary: string;
-        background: string;
-        surface: string;
-        text: string;
-    };
-}
+import type {
+    ThemeData as ComprehensiveThemeData,
+} from './theming.js';
 
-/**
- * Default theme
- */
-export const defaultTheme: ThemeData = {
-    textStyle: {
-        fontSize: 12,
-        fontWeight: 'normal',
-        color: '#000000',
-    },
-    colors: {
-        primary: '#1976d2',
-        secondary: '#dc004e',
-        background: '#ffffff',
-        surface: '#ffffff',
-        text: '#000000',
-    },
-};
+import {
+    defaultTheme as comprehensiveDefaultTheme,
+} from './theming.js';
+
+// Use the comprehensive theme system
+export type ThemeData = ComprehensiveThemeData;
+export const defaultTheme: ThemeData = comprehensiveDefaultTheme;
 
 /**
  * Layout context provides environmental information during layout

@@ -114,6 +114,23 @@ export {
     type FlexChild,
 } from './flex.js';
 
+// Theme widgets and related types
+export {
+    Theme,
+    DefaultTextStyle,
+    ThemedWidget,
+    ThemeConsumer,
+    ThemeHelpers,
+    createTheme,
+    createThemedWidget,
+    createDefaultTextStyle,
+    type ThemeProps,
+    type DefaultTextStyleProps,
+    type ThemedWidgetProps,
+    type ThemeConsumerProps,
+    type ThemeContext,
+} from './theme.js';
+
 // Layout system exports
 export {
     BoxConstraints,

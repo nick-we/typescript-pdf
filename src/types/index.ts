@@ -14,3 +14,19 @@ export * from './core.js';
 export * from './geometry.js';
 export * from './layout.js';
 export * from './flex.js';
+
+// Theming system - export only non-conflicting items
+export type {
+    ColorScheme,
+    SpacingSystem,
+    TypographyScale,
+    TextDecorationStyle,
+    TextDecorationFlag,
+} from './theming.js';
+
+export {
+    TextStyleUtils,
+    ThemeUtils,
+    ColorSchemes,
+    defaultSpacing,
+} from './theming.js';

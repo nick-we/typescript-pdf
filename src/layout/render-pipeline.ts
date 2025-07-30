@@ -9,6 +9,7 @@
 
 import type { Point, Size } from '../types/geometry.js';
 import type { LayoutContext, PaintContext, LayoutResult } from '../types/layout.js';
+import { defaultTheme } from '../types/layout.js';
 import type { Widget } from '../widgets/widget.js';
 import { ConstraintSolver, globalConstraintSolver, globalPerformanceMonitor } from './constraint-solver.js';
 import { Matrix4, type PdfGraphics } from '../core/pdf/graphics.js';
@@ -159,7 +160,7 @@ export class RenderPipeline {
         const paintContext: PaintContext = {
             graphics,
             size: renderObject.size,
-            theme: this.getDefaultTheme(), // Would come from context in real implementation
+            theme: defaultTheme, // Use comprehensive default theme
         };
 
         renderObject.widget.paint(paintContext);
@@ -399,25 +400,7 @@ export class RenderPipeline {
         );
     }
 
-    /**
-     * Get default theme (simplified)
-     */
-    private getDefaultTheme() {
-        return {
-            textStyle: {
-                fontSize: 12,
-                fontWeight: 'normal' as const,
-                color: '#000000',
-            },
-            colors: {
-                primary: '#1976d2',
-                secondary: '#dc004e',
-                background: '#ffffff',
-                surface: '#ffffff',
-                text: '#000000',
-            },
-        };
-    }
+    // Removed getDefaultTheme - using defaultTheme from comprehensive theming system
 }
 
 /**

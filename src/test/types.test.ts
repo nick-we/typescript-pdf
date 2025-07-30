@@ -8,6 +8,7 @@
 
 import type { Point, Size, Rect, Matrix } from '../types/geometry.js';
 import { BoxConstraints, EdgeInsets, Alignment, AlignmentUtils, defaultTheme } from '../types/layout.js';
+import { FontWeight } from '../types/theming.js';
 
 describe('Type System Tests', () => {
     describe('Geometry Types', () => {
@@ -116,10 +117,10 @@ describe('Type System Tests', () => {
 
     describe('Default Theme', () => {
         test('should have sensible defaults', () => {
-            expect(defaultTheme.textStyle.fontSize).toBe(12);
-            expect(defaultTheme.textStyle.fontWeight).toBe('normal');
-            expect(defaultTheme.colors.primary).toBe('#1976d2');
-            expect(defaultTheme.colors.background).toBe('#ffffff');
+            expect(defaultTheme.defaultTextStyle.fontSize).toBe(12);
+            expect(defaultTheme.defaultTextStyle.fontWeight).toBe(FontWeight.Normal);
+            expect(defaultTheme.colorScheme.primary).toBe('#1976d2');
+            expect(defaultTheme.colorScheme.background).toBe('#ffffff');
         });
     });
 
