@@ -14,7 +14,7 @@ import { Matrix4 } from '../core/pdf/graphics.js';
 import type { LayoutContext, LayoutResult, PaintContext } from '../types/layout.js';
 import { TextDirection } from '../types/layout.js';
 import type { Size, Point } from '../types/geometry.js';
-import { FontWeight } from '@/types/theming.js';
+import { FontWeight, ThemeUtils, TextStyleUtils } from '../types/theming.js';
 
 // Mock graphics interface for testing
 class MockGraphics {
@@ -112,20 +112,7 @@ describe('RenderPipeline', () => {
                 maxHeight: 300,
             },
             textDirection: TextDirection.LeftToRight,
-            theme: {
-                defaultTextStyle: {
-                    fontSize: 12,
-                    fontWeight: FontWeight.Normal,
-                    color: '#000000',
-                },
-                colors: {
-                    primary: '#1976d2',
-                    secondary: '#dc004e',
-                    background: '#ffffff',
-                    surface: '#ffffff',
-                    text: '#000000',
-                },
-            },
+            theme: ThemeUtils.light(),
         };
     });
 
@@ -505,10 +492,7 @@ describe('globalRenderPipeline', () => {
                 maxHeight: 100,
             },
             textDirection: TextDirection.LeftToRight,
-            theme: {
-                textStyle: { fontSize: 12, fontWeight: 'normal', color: '#000000' },
-                colors: { primary: '#1976d2', secondary: '#dc004e', background: '#ffffff', surface: '#ffffff', text: '#000000' },
-            },
+            theme: ThemeUtils.light(),
         };
 
         const renderTree = globalRenderPipeline.buildRenderTree(widget, context);
@@ -528,10 +512,7 @@ describe('globalRenderPipeline', () => {
                 maxHeight: 100,
             },
             textDirection: TextDirection.LeftToRight,
-            theme: {
-                textStyle: { fontSize: 12, fontWeight: 'normal', color: '#000000' },
-                colors: { primary: '#1976d2', secondary: '#dc004e', background: '#ffffff', surface: '#ffffff', text: '#000000' },
-            },
+            theme: ThemeUtils.light(),
         };
 
         expect(() => {
@@ -552,10 +533,7 @@ describe('RenderObject interface', () => {
                 maxHeight: 100,
             },
             textDirection: TextDirection.LeftToRight,
-            theme: {
-                textStyle: { fontSize: 12, fontWeight: 'normal', color: '#000000' },
-                colors: { primary: '#1976d2', secondary: '#dc004e', background: '#ffffff', surface: '#ffffff', text: '#000000' },
-            },
+            theme: ThemeUtils.light(),
         };
 
         const renderTree = pipeline.buildRenderTree(widget, context);

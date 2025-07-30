@@ -122,7 +122,7 @@ export class TextDecoration {
  */
 export interface TextStyle {
     /** Whether this style inherits from parent styles */
-    inherit: boolean;
+    inherit?: boolean;
 
     /** Text color (hex string) */
     color?: string;
@@ -303,7 +303,7 @@ export const TextStyleUtils = {
         if (!override.inherit) return override;
 
         // Merge properties, with override taking precedence
-        const result: TextStyle = { inherit: base.inherit };
+        const result: TextStyle = { inherit: base.inherit ?? true };
 
         // Helper function to merge properties only if they exist
         const mergeProperty = <K extends keyof TextStyle>(key: K) => {

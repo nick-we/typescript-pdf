@@ -14,6 +14,7 @@ import type {
     PaintContext,
 } from '../types/layout.js';
 import type { Size } from '../types/geometry.js';
+import { ThemeUtils } from '../types/theming.js';
 
 /**
  * Positioned widget properties
@@ -253,16 +254,7 @@ export class Positioned extends BaseWidget {
         const mockContext: LayoutContext = {
             constraints: childInfo.constraints,
             textDirection: 'ltr' as any,
-            theme: {
-                textStyle: { fontSize: 12, fontWeight: 'normal', color: '#000000' },
-                colors: {
-                    primary: '#1976d2',
-                    secondary: '#dc004e',
-                    background: '#ffffff',
-                    surface: '#ffffff',
-                    text: '#000000',
-                },
-            },
+            theme: ThemeUtils.light(),
         };
 
         const childLayout = this.child.layout(mockContext);

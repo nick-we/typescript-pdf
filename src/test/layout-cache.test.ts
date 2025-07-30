@@ -14,6 +14,7 @@ import { BaseWidget } from '../widgets/widget.js';
 import type { LayoutContext, LayoutResult, BoxConstraints } from '../types/layout.js';
 import { TextDirection } from '../types/layout.js';
 import type { Size } from '../types/geometry.js';
+import { ThemeUtils } from '../types/theming.js';
 
 // Mock widget for testing
 class MockWidget extends BaseWidget {
@@ -54,20 +55,7 @@ describe('LayoutCache', () => {
         mockContext = {
             constraints: mockConstraints,
             textDirection: TextDirection.LeftToRight,
-            theme: {
-                textStyle: {
-                    fontSize: 12,
-                    fontWeight: 'normal',
-                    color: '#000000',
-                },
-                colors: {
-                    primary: '#1976d2',
-                    secondary: '#dc004e',
-                    background: '#ffffff',
-                    surface: '#ffffff',
-                    text: '#000000',
-                },
-            },
+            theme: ThemeUtils.light(),
         };
     });
 
@@ -404,20 +392,7 @@ describe('SmartLayoutCache', () => {
         mockContext = {
             constraints: mockConstraints,
             textDirection: TextDirection.LeftToRight,
-            theme: {
-                textStyle: {
-                    fontSize: 12,
-                    fontWeight: 'normal',
-                    color: '#000000',
-                },
-                colors: {
-                    primary: '#1976d2',
-                    secondary: '#dc004e',
-                    background: '#ffffff',
-                    surface: '#ffffff',
-                    text: '#000000',
-                },
-            },
+            theme: ThemeUtils.light(),
         };
     });
 
@@ -611,10 +586,7 @@ describe('globalLayoutCache', () => {
         const context: LayoutContext = {
             constraints,
             textDirection: TextDirection.LeftToRight,
-            theme: {
-                textStyle: { fontSize: 12, fontWeight: 'normal', color: '#000000' },
-                colors: { primary: '#1976d2', secondary: '#dc004e', background: '#ffffff', surface: '#ffffff', text: '#000000' },
-            },
+            theme: ThemeUtils.light(),
         };
         const result: LayoutResult = { size: { width: 100, height: 50 }, needsRepaint: false };
 

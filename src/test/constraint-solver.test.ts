@@ -5,9 +5,10 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ConstraintSolver, LayoutPerformanceMonitor, globalConstraintSolver, globalPerformanceMonitor } from '../layout/constraint-solver.js';
 import { BaseWidget } from '../widgets/widget.js';
-import type { LayoutContext, LayoutResult, BoxConstraints } from '../types/layout.js';
+import type { LayoutContext, LayoutResult, BoxConstraints, ThemeData } from '../types/layout.js';
 import { TextDirection } from '../types/layout.js';
 import type { Size } from '../types/geometry.js';
+import { FontWeight, ThemeUtils } from '../types/theming.js';
 
 // Mock widget for testing
 class MockWidget extends BaseWidget {
@@ -60,20 +61,7 @@ describe('ConstraintSolver', () => {
                 maxHeight: 100,
             },
             textDirection: TextDirection.LeftToRight,
-            theme: {
-                textStyle: {
-                    fontSize: 12,
-                    fontWeight: 'normal',
-                    color: '#000000',
-                },
-                colors: {
-                    primary: '#1976d2',
-                    secondary: '#dc004e',
-                    background: '#ffffff',
-                    surface: '#ffffff',
-                    text: '#000000',
-                },
-            },
+            theme: ThemeUtils.light(),
         };
     });
 
@@ -499,10 +487,7 @@ describe('global instances', () => {
         const context: LayoutContext = {
             constraints: { minWidth: 0, maxWidth: 100, minHeight: 0, maxHeight: 50 },
             textDirection: TextDirection.LeftToRight,
-            theme: {
-                textStyle: { fontSize: 12, fontWeight: 'normal', color: '#000000' },
-                colors: { primary: '#1976d2', secondary: '#dc004e', background: '#ffffff', surface: '#ffffff', text: '#000000' },
-            },
+            theme: ThemeUtils.light(),
         };
 
         // Populate global cache

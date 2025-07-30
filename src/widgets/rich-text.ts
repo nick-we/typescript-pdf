@@ -1,16 +1,18 @@
 /**
  * RichText widget implementation
- * 
+ *
  * Renders text with rich formatting using text spans.
  * Supports mixed styling within a single text widget.
- * 
+ *
  * @packageDocumentation
  */
 
 import { BaseWidget, type WidgetProps } from './widget.js';
 import { PdfStandardFont } from '../core/pdf/font.js';
 import { PdfColorRgb } from '../core/pdf/graphics.js';
-import type { TextStyle, TextAlign, TextOverflow, TextDecoration } from './text.js';
+import type { TextAlign, TextOverflow } from './text.js';
+import type { TextStyle } from '../types/theming.js';
+import { FontWeight, FontStyle, TextDecoration, TextDecorationStyle } from '../types/theming.js';
 import type {
     LayoutContext,
     LayoutResult,
@@ -112,15 +114,20 @@ export class RichText extends BaseWidget {
 
         // Default text style
         this.defaultStyle = {
+            inherit: false,
             fontSize: props.style?.fontSize ?? 12,
             fontFamily: props.style?.fontFamily ?? PdfStandardFont.Helvetica,
-            fontWeight: props.style?.fontWeight ?? 'normal',
-            fontStyle: props.style?.fontStyle ?? 'normal',
+            fontWeight: props.style?.fontWeight ?? FontWeight.Normal,
+            fontStyle: props.style?.fontStyle ?? FontStyle.Normal,
             color: props.style?.color ?? '#000000',
             letterSpacing: props.style?.letterSpacing ?? 0,
             wordSpacing: props.style?.wordSpacing ?? 0,
-            lineHeight: props.style?.lineHeight ?? 1.2,
-            decoration: props.style?.decoration ?? {},
+            lineSpacing: props.style?.lineSpacing ?? 1.2,
+            height: props.style?.height ?? 1,
+            decoration: props.style?.decoration ?? TextDecoration.none,
+            decorationColor: props.style?.decorationColor ?? '#000000',
+            decorationStyle: props.style?.decorationStyle ?? TextDecorationStyle.Solid,
+            decorationThickness: props.style?.decorationThickness ?? 1,
         };
     }
 
@@ -133,6 +140,7 @@ export class RichText extends BaseWidget {
 
         // Merge inherited style with span style
         const resolvedStyle: Required<TextStyle> = {
+            inherit: inheritedStyle.inherit,
             fontSize: span.style?.fontSize ?? inheritedStyle.fontSize,
             fontFamily: span.style?.fontFamily ?? inheritedStyle.fontFamily,
             fontWeight: span.style?.fontWeight ?? inheritedStyle.fontWeight,
@@ -140,11 +148,12 @@ export class RichText extends BaseWidget {
             color: span.style?.color ?? inheritedStyle.color,
             letterSpacing: span.style?.letterSpacing ?? inheritedStyle.letterSpacing,
             wordSpacing: span.style?.wordSpacing ?? inheritedStyle.wordSpacing,
-            lineHeight: span.style?.lineHeight ?? inheritedStyle.lineHeight,
-            decoration: {
-                ...inheritedStyle.decoration,
-                ...span.style?.decoration,
-            },
+            lineSpacing: span.style?.lineSpacing ?? inheritedStyle.lineSpacing,
+            height: span.style?.height ?? inheritedStyle.height,
+            decoration: span.style?.decoration ? inheritedStyle.decoration.merge(span.style.decoration) : inheritedStyle.decoration,
+            decorationColor: span.style?.decorationColor ?? inheritedStyle.decorationColor,
+            decorationStyle: span.style?.decorationStyle ?? inheritedStyle.decorationStyle,
+            decorationThickness: span.style?.decorationThickness ?? inheritedStyle.decorationThickness,
         };
 
         // Add text content as a segment
@@ -177,11 +186,11 @@ export class RichText extends BaseWidget {
 
         // Handle font variations for Helvetica
         if (fontFamily === PdfStandardFont.Helvetica) {
-            if (fontWeight === 'bold' && fontStyle === 'italic') {
+            if (fontWeight === FontWeight.Bold && fontStyle === FontStyle.Italic) {
                 return PdfStandardFont.HelveticaBoldOblique;
-            } else if (fontWeight === 'bold') {
+            } else if (fontWeight === FontWeight.Bold) {
                 return PdfStandardFont.HelveticaBold;
-            } else if (fontStyle === 'italic') {
+            } else if (fontStyle === FontStyle.Italic) {
                 return PdfStandardFont.HelveticaOblique;
             }
             return PdfStandardFont.Helvetica;
@@ -189,11 +198,11 @@ export class RichText extends BaseWidget {
 
         // Handle font variations for Times
         if (fontFamily === PdfStandardFont.TimesRoman) {
-            if (fontWeight === 'bold' && fontStyle === 'italic') {
+            if (fontWeight === FontWeight.Bold && fontStyle === FontStyle.Italic) {
                 return PdfStandardFont.TimesBoldItalic;
-            } else if (fontWeight === 'bold') {
+            } else if (fontWeight === FontWeight.Bold) {
                 return PdfStandardFont.TimesBold;
-            } else if (fontStyle === 'italic') {
+            } else if (fontStyle === FontStyle.Italic) {
                 return PdfStandardFont.TimesItalic;
             }
             return PdfStandardFont.TimesRoman;
@@ -201,11 +210,11 @@ export class RichText extends BaseWidget {
 
         // Handle font variations for Courier
         if (fontFamily === PdfStandardFont.Courier) {
-            if (fontWeight === 'bold' && fontStyle === 'italic') {
+            if (fontWeight === FontWeight.Bold && fontStyle === FontStyle.Italic) {
                 return PdfStandardFont.CourierBoldOblique;
-            } else if (fontWeight === 'bold') {
+            } else if (fontWeight === FontWeight.Bold) {
                 return PdfStandardFont.CourierBold;
-            } else if (fontStyle === 'italic') {
+            } else if (fontStyle === FontStyle.Italic) {
                 return PdfStandardFont.CourierOblique;
             }
             return PdfStandardFont.Courier;
@@ -246,12 +255,12 @@ export class RichText extends BaseWidget {
         if (segments.length === 0) {
             return {
                 width: 0,
-                height: this.defaultStyle.fontSize * this.defaultStyle.lineHeight,
+                height: this.defaultStyle.fontSize * this.defaultStyle.lineSpacing,
                 lineCount: 1,
                 lines: [{
                     segments: [],
                     width: 0,
-                    height: this.defaultStyle.fontSize * this.defaultStyle.lineHeight,
+                    height: this.defaultStyle.fontSize * this.defaultStyle.lineSpacing,
                     baseline: this.defaultStyle.fontSize * 0.8,
                 }],
             };
@@ -271,7 +280,7 @@ export class RichText extends BaseWidget {
             for (let i = 0; i < words.length; i++) {
                 const word = words[i]!;
                 const wordWidth = font.measureTextWidth(word, segment.style.fontSize);
-                const segmentHeight = segment.style.fontSize * segment.style.lineHeight;
+                const segmentHeight = segment.style.fontSize * segment.style.lineSpacing;
                 const baseline = font.getAscender(segment.style.fontSize);
 
                 // Check if we need to break the line
@@ -419,14 +428,14 @@ export class RichText extends BaseWidget {
                 graphics.showText(segment.text);
 
                 // Handle text decorations
-                if (segment.style.decoration?.underline) {
+                if (segment.style.decoration?.hasUnderline) {
                     const textWidth = mockFontRegistry.getFont(this.getPdfFont(segment.style)).measureTextWidth(segment.text, segment.style.fontSize);
                     const underlineY = lineY - 2;
                     graphics.drawLine(currentX, underlineY, currentX + textWidth, underlineY);
                     graphics.strokePath();
                 }
 
-                if (segment.style.decoration?.strikethrough) {
+                if (segment.style.decoration?.hasLineThrough) {
                     const textWidth = mockFontRegistry.getFont(this.getPdfFont(segment.style)).measureTextWidth(segment.text, segment.style.fontSize);
                     const strikeY = lineY + segment.style.fontSize * 0.3;
                     graphics.drawLine(currentX, strikeY, currentX + textWidth, strikeY);
@@ -464,20 +473,21 @@ export const TextSpans = {
     /** Create a bold text span */
     bold: (text: string, style?: TextStyle): TextSpan => ({
         text,
-        style: { fontWeight: 'bold', ...style },
+        style: { fontWeight: FontWeight.Bold, ...style },
     }),
 
     /** Create an italic text span */
     italic: (text: string, style?: TextStyle): TextSpan => ({
         text,
-        style: { fontStyle: 'italic', ...style },
+        style: { fontStyle: FontStyle.Italic, ...style },
     }),
 
     /** Create an underlined text span */
     underline: (text: string, style?: TextStyle): TextSpan => ({
         text,
         style: {
-            decoration: { underline: true },
+
+            decoration: TextDecoration.underline,
             ...style,
         },
     }),

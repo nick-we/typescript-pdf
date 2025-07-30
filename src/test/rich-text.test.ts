@@ -1,6 +1,6 @@
 /**
  * RichText widget tests
- * 
+ *
  * Tests for the RichText widget implementation including text spans,
  * mixed formatting, and complex text layouts.
  */
@@ -10,6 +10,7 @@ import { RichText, createRichText, TextSpans, type TextSpan } from '../widgets/r
 import { PdfStandardFont } from '../core/pdf/font.js';
 import { BoxConstraints, type LayoutContext, type PaintContext } from '../types/layout.js';
 import { TextAlign, TextOverflow } from '../widgets/text.js';
+import { FontWeight, FontStyle, TextDecoration } from '../types/theming.js';
 
 // Mock graphics context for testing
 class MockGraphicsContext {
@@ -83,7 +84,7 @@ describe('RichText Widget', () => {
                 style: {
                     fontSize: 16,
                     color: '#ff0000',
-                    fontWeight: 'bold',
+                    fontWeight: FontWeight.Bold,
                 },
             };
             const richText = new RichText({ text: span });
@@ -96,7 +97,7 @@ describe('RichText Widget', () => {
                 text: '',
                 children: [
                     { text: 'Hello ' },
-                    { text: 'World', style: { fontWeight: 'bold' } },
+                    { text: 'World', style: { fontWeight: FontWeight.Bold } },
                 ],
             };
             const richText = new RichText({ text: span });
@@ -227,7 +228,7 @@ describe('RichText Widget', () => {
             const span: TextSpan = {
                 text: 'Underlined',
                 style: {
-                    decoration: { underline: true },
+                    decoration: TextDecoration.underline,
                 },
             };
             const richText = new RichText({ text: span });
@@ -241,7 +242,7 @@ describe('RichText Widget', () => {
             const span: TextSpan = {
                 text: 'Strikethrough',
                 style: {
-                    decoration: { strikethrough: true },
+                    decoration: TextDecoration.lineThrough,
                 },
             };
             const richText = new RichText({ text: span });
@@ -256,7 +257,7 @@ describe('RichText Widget', () => {
         test('should handle bold text', () => {
             const span: TextSpan = {
                 text: 'Bold Text',
-                style: { fontWeight: 'bold' },
+                style: { fontWeight: FontWeight.Bold },
             };
             const richText = new RichText({ text: span });
 
@@ -267,7 +268,7 @@ describe('RichText Widget', () => {
         test('should handle italic text', () => {
             const span: TextSpan = {
                 text: 'Italic Text',
-                style: { fontStyle: 'italic' },
+                style: { fontStyle: FontStyle.Italic },
             };
             const richText = new RichText({ text: span });
 
@@ -332,7 +333,7 @@ describe('RichText Widget', () => {
                         children: [
                             {
                                 text: 'Child',
-                                style: { fontWeight: 'bold' },
+                                style: { fontWeight: FontWeight.Bold },
                                 children: [
                                     {
                                         text: 'Grandchild',
@@ -356,9 +357,9 @@ describe('RichText Widget', () => {
                 text: '',
                 children: [
                     { text: 'This is ' },
-                    { text: 'bold', style: { fontWeight: 'bold' } },
+                    { text: 'bold', style: { fontWeight: FontWeight.Bold } },
                     { text: ' and this is ' },
-                    { text: 'italic', style: { fontStyle: 'italic' } },
+                    { text: 'italic', style: { fontStyle: FontStyle.Italic } },
                     { text: ' and this is ' },
                     { text: 'colored', style: { color: '#ff0000' } },
                     { text: ' text that should wrap nicely across multiple lines.' },
@@ -388,19 +389,19 @@ describe('TextSpans Helper Functions', () => {
     test('should create bold text span', () => {
         const span = TextSpans.bold('Bold Text');
         expect(span.text).toBe('Bold Text');
-        expect(span.style?.fontWeight).toBe('bold');
+        expect(span.style?.fontWeight).toBe(FontWeight.Bold);
     });
 
     test('should create italic text span', () => {
         const span = TextSpans.italic('Italic Text');
         expect(span.text).toBe('Italic Text');
-        expect(span.style?.fontStyle).toBe('italic');
+        expect(span.style?.fontStyle).toBe(FontStyle.Italic);
     });
 
     test('should create underlined text span', () => {
         const span = TextSpans.underline('Underlined Text');
         expect(span.text).toBe('Underlined Text');
-        expect(span.style?.decoration?.underline).toBe(true);
+        expect(span.style?.decoration?.hasUnderline).toBe(true);
     });
 
     test('should create colored text span', () => {
