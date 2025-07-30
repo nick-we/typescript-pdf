@@ -1,3 +1,5 @@
+.gitignore
+
 # Dependencies
 node_modules/
 .pnp
@@ -7,6 +9,9 @@ node_modules/
 dist/
 build/
 *.tsbuildinfo
+
+.vscode/
+.kilocode/
 
 # Coverage reports
 coverage/
