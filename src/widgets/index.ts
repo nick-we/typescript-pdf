@@ -43,6 +43,18 @@ export {
     type BoxShadow,
 } from './container.js';
 
+// Flex layout widgets and related types
+export {
+    Flex,
+    Flexible,
+    Expanded,
+    Row,
+    Column,
+    FlexWidgets,
+    type FlexProps,
+    type FlexChild,
+} from './flex.js';
+
 // Layout system exports
 export {
     BoxConstraints,

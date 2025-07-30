@@ -1,3 +1,4 @@
+/// <reference types="vitest" />
 import { defineConfig } from 'vite';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -76,6 +77,18 @@ export default defineConfig({
     test: {
         globals: true,
         environment: 'happy-dom',
-        setupFiles: ['./src/test/setup.ts']
+        setupFiles: ['./src/test/setup.ts'],
+        coverage: {
+            include: ['src/**/*.ts'],
+            exclude: [
+                'examples/**',
+                'src/test/**',
+                '**/*.test.ts',
+                '**/*.spec.ts',
+                '**/node_modules/**',
+                'dist/**',
+                'coverage/**'
+            ]
+        }
     }
 });

@@ -86,11 +86,11 @@ Build the constraint-based layout system and implement essential layout widgets.
 - [x] Create layout caching mechanism
 
 #### **Week 7-8: Flex Layout System**
-- [ ] Implement `Row` and `Column` widgets
-- [ ] Add `Flex` widget with advanced alignment options
-- [ ] Create `Expanded` and `Flexible` widgets
-- [ ] Implement cross-axis and main-axis alignment
-- [ ] Add spacing and distribution controls
+- [x] Implement `Row` and `Column` widgets
+- [x] Add `Flex` widget with advanced alignment options
+- [x] Create `Expanded` and `Flexible` widgets
+- [x] Implement cross-axis and main-axis alignment
+- [x] Add spacing and distribution controls
 
 #### **Week 9-10: Container & Positioning**
 - [ ] Enhanced `Container` with padding, margin, decoration
@@ -161,7 +161,6 @@ Implement comprehensive text rendering capabilities and theming system.
 - [ ] Implement `Theme` and `ThemeData`
 - [ ] Create cascading style system
 - [ ] Add theme inheritance for widgets
-- [ ] Implement dark/light theme support
 - [ ] Create style composition utilities
 
 ### **Success Criteria**
@@ -295,7 +294,6 @@ Optimize performance, improve developer experience, and prepare for production u
 - [ ] Create interactive examples and tutorials
 - [ ] Add debugging and inspection tools
 - [ ] Implement error handling improvements
-- [ ] Create migration guides from other libraries
 
 #### **Week 39-40: Production Polish**
 - [ ] Comprehensive testing across platforms

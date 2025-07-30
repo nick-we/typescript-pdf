@@ -13,6 +13,7 @@ export * from './core.js';
 // Layout and geometry types
 export * from './geometry.js';
 export * from './layout.js';
+export * from './flex.js';
 
 // Widget types
 export * from './widgets.js';
