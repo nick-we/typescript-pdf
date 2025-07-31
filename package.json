@@ -22,13 +22,13 @@
     "bugs": {
         "url": "https://github.com/nick-we/typescript-pdf/issues"
     },
-    "main": "./dist/index.cjs.js",
+    "main": "./dist/index.cjs",
     "module": "./dist/index.esm.js",
     "types": "./dist/index.d.ts",
     "exports": {
         ".": {
             "import": "./dist/index.esm.js",
-            "require": "./dist/index.cjs.js",
+            "require": "./dist/index.cjs",
             "types": "./dist/index.d.ts"
         }
     },
@@ -114,7 +114,7 @@
             "limit": "100 KB"
         },
         {
-            "path": "dist/index.cjs.js",
+            "path": "dist/index.cjs",
             "limit": "100 KB"
         }
     ]

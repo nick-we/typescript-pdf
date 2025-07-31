@@ -11,6 +11,9 @@ import { PdfDocument, PdfPage } from './pdf/document.js';
 import { PdfStandardFont } from './pdf/font.js';
 import { PdfColorRgb } from './pdf/graphics.js';
 import type { PageOptions, DocumentInfo } from '../types/index.js';
+import type { Widget } from '../widgets/widget.js';
+import { BoxConstraints, TextDirection, defaultTheme, type LayoutContext, type PaintContext } from '../types/layout.js';
+import type { Size } from '../types/geometry.js';
 
 /**
  * Main Document class for PDF generation
@@ -73,11 +76,13 @@ export class Document {
 
         const page = new Page(pdfPage, this.pdfDocument);
 
-        // If build function is provided, call it
+        // If build function is provided, call it and render the widget
         if (options.build) {
             const content = options.build();
-            // In a complete implementation, we'd render the content to the page
-            // For now, this is a placeholder
+            this.renderWidgetToPage(content, page, {
+                width: options.width || 612,
+                height: options.height || 792
+            });
         }
 
         return page;
@@ -90,6 +95,40 @@ export class Document {
      */
     async save(): Promise<Uint8Array> {
         return await this.pdfDocument.save();
+    }
+
+    /**
+     * Render a widget tree to a PDF page
+     */
+    private renderWidgetToPage(widget: Widget, page: Page, pageSize: Size): void {
+        // Create layout context with page constraints
+        const constraints: any = {
+            minWidth: 0,
+            maxWidth: pageSize.width,
+            minHeight: 0,
+            maxHeight: pageSize.height,
+        };
+
+        const layoutContext: LayoutContext = {
+            constraints,
+            textDirection: TextDirection.LeftToRight,
+            theme: defaultTheme,
+        };
+
+        // Perform layout
+        const layoutResult = widget.layout(layoutContext);
+
+        // Create paint context
+        const graphics = page.getGraphics();
+        const paintContext: PaintContext = {
+            graphics,
+            size: layoutResult.size,
+            theme: defaultTheme,
+            fontRegistry: this.pdfDocument.fontRegistry,
+        };
+
+        // Paint the widget
+        widget.paint(paintContext);
     }
 }
 
@@ -154,4 +193,5 @@ export class Page {
             graphics.strokePath();
         }
     }
+
 }

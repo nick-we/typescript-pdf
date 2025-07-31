@@ -6,6 +6,8 @@
  * @packageDocumentation
  */
 
+import type { Widget } from "@/widgets";
+
 /**
  * Page configuration options
  * 
@@ -30,7 +32,7 @@ export interface PageOptions {
     orientation?: 'portrait' | 'landscape';
 
     /** Build function for page content */
-    build?: () => unknown;
+    build?: () => Widget;
 }
 
 /**

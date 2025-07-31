@@ -15,6 +15,7 @@ import type {
 } from '../types/layout.js';
 import { Alignment, AlignmentUtils, TextDirection } from '../types/layout.js';
 import type { Size } from '../types/geometry.js';
+import { Matrix4 } from '@/core/pdf/index.js';
 
 /**
  * Alignment factor interface for more precise control
@@ -221,11 +222,19 @@ export class Align extends BaseWidget {
         const alignment = this.resolveAlignment();
         const position = this.calculatePosition(size, childSize, alignment);
 
+        // Ensure position values are valid numbers
+        const x = isFinite(position.x) ? position.x : 0;
+        const y = isFinite(position.y) ? position.y : 0;
+
         // Save graphics state and translate to child position
         graphics.saveContext();
-        graphics.setTransform({
-            storage: [1, 0, 0, 1, position.x, position.y],
-        } as any);
+        const transformMatrix = new Matrix4([
+            1, 0, 0, 0,
+            0, 1, 0, 0,
+            0, 0, 1, 0,
+            x, y, 0, 1
+        ]);
+        graphics.setTransform(transformMatrix);
 
         // Paint child
         const childPaintContext: PaintContext = {

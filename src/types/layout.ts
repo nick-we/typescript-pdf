@@ -170,6 +170,8 @@ export interface PaintContext {
     readonly size: Size;
     /** Theme data for styling */
     readonly theme: ThemeData;
+    /** Font registry for accurate text measurements */
+    readonly fontRegistry?: any; // FontRegistry type - will be properly typed later
 }
 
 /**

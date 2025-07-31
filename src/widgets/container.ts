@@ -8,7 +8,7 @@
  */
 
 import { BaseWidget, type Widget, type WidgetProps } from './widget.js';
-import { PdfColorRgb } from '../core/pdf/graphics.js';
+import { PdfColorRgb, Matrix4 } from '../core/pdf/graphics.js';
 import type {
     LayoutContext,
     LayoutResult,
@@ -168,6 +168,7 @@ export class Container extends BaseWidget {
     private readonly maxHeight?: number;
     private readonly alignment: Alignment;
     private readonly decoration?: BoxDecoration;
+    private childLayoutResult?: LayoutResult;
 
     constructor(props: ContainerProps = {}) {
         super(props);
@@ -193,9 +194,22 @@ export class Container extends BaseWidget {
         if (color.startsWith('#')) {
             const hex = color.slice(1);
             if (hex.length === 6) {
+                // 6-character hex: #RRGGBB
                 const r = parseInt(hex.slice(0, 2), 16) / 255;
                 const g = parseInt(hex.slice(2, 4), 16) / 255;
                 const b = parseInt(hex.slice(4, 6), 16) / 255;
+                return new PdfColorRgb(r, g, b);
+            } else if (hex.length === 8) {
+                // 8-character hex: #RRGGBBAA (ignore alpha for now)
+                const r = parseInt(hex.slice(0, 2), 16) / 255;
+                const g = parseInt(hex.slice(2, 4), 16) / 255;
+                const b = parseInt(hex.slice(4, 6), 16) / 255;
+                return new PdfColorRgb(r, g, b);
+            } else if (hex.length === 3) {
+                // 3-character hex: #RGB (shorthand)
+                const r = parseInt(hex[0]! + hex[0]!, 16) / 255;
+                const g = parseInt(hex[1]! + hex[1]!, 16) / 255;
+                const b = parseInt(hex[2]! + hex[2]!, 16) / 255;
                 return new PdfColorRgb(r, g, b);
             }
         }
@@ -261,19 +275,33 @@ export class Container extends BaseWidget {
 
         if (this.child) {
             // Apply padding to constraints for child
-            const childConstraints = EdgeInsetsUtils.deflateConstraints(
+            let childConstraints = EdgeInsetsUtils.deflateConstraints(
                 this.padding,
                 containerConstraints
             );
+
+            // If this container has explicit dimensions, give the child looser constraints
+            // so it can size itself according to its own explicit dimensions
+            if (this.width !== undefined || this.height !== undefined) {
+                const availableWidth = (this.width ?? containerConstraints.maxWidth) - EdgeInsetsUtils.horizontal(this.padding);
+                const availableHeight = (this.height ?? containerConstraints.maxHeight) - EdgeInsetsUtils.vertical(this.padding);
+
+                childConstraints = {
+                    minWidth: 0,
+                    maxWidth: Math.max(0, availableWidth),
+                    minHeight: 0,
+                    maxHeight: Math.max(0, availableHeight),
+                };
+            }
 
             const childContext: LayoutContext = {
                 ...context,
                 constraints: childConstraints,
             };
 
-            const childLayout = this.child.layout(childContext);
-            childSize = childLayout.size;
-            childBaseline = childLayout.baseline;
+            this.childLayoutResult = this.child.layout(childContext);
+            childSize = this.childLayoutResult.size;
+            childBaseline = this.childLayoutResult.baseline;
         }
 
         // Calculate container size including padding
@@ -283,7 +311,8 @@ export class Container extends BaseWidget {
         };
 
         // Apply container constraints to final size
-        const constrainedSize: Size = {
+        // BUT: if we have explicit width/height, use those instead of child-driven size
+        let constrainedSize: Size = {
             width: Math.max(
                 containerConstraints.minWidth,
                 Math.min(containerConstraints.maxWidth, containerSize.width)
@@ -293,6 +322,14 @@ export class Container extends BaseWidget {
                 Math.min(containerConstraints.maxHeight, containerSize.height)
             ),
         };
+
+        // If we have explicit dimensions, ensure they're respected
+        if (this.width !== undefined) {
+            constrainedSize.width = this.width;
+        }
+        if (this.height !== undefined) {
+            constrainedSize.height = this.height;
+        }
 
         // Add margin to final size
         const finalSize: Size = {
@@ -325,9 +362,15 @@ export class Container extends BaseWidget {
 
         // Translate graphics context by margin offset
         graphics.saveContext();
-        graphics.setTransform({
-            storage: [1, 0, 0, 1, this.margin.left, this.margin.top],
-        } as any);
+        const transform = Matrix4.identity();
+        // Set translation in the matrix (columns 12,13 are tx,ty in a 4x4 matrix)
+        const transformMatrix = new Matrix4([
+            1, 0, 0, 0,
+            0, 1, 0, 0,
+            0, 0, 1, 0,
+            this.margin.left, this.margin.top, 0, 1
+        ]);
+        graphics.setTransform(transformMatrix);
 
         // Draw background if specified
         if (this.decoration?.color) {
@@ -362,18 +405,15 @@ export class Container extends BaseWidget {
         }
 
         // Paint child if present
-        if (this.child) {
+        if (this.child && this.childLayoutResult) {
             // Calculate child area (excluding padding)
             const childArea: Size = {
                 width: contentArea.width - EdgeInsetsUtils.horizontal(this.padding),
                 height: contentArea.height - EdgeInsetsUtils.vertical(this.padding),
             };
 
-            // Get child size from layout (simplified - we'd normally store this)
-            const childSize: Size = {
-                width: Math.min(childArea.width, childArea.width), // This would be the actual child size from layout
-                height: Math.min(childArea.height, childArea.height),
-            };
+            // Use the actual child size from layout result
+            const childSize: Size = this.childLayoutResult.size;
 
             // Calculate child position based on alignment
             const childPosition = AlignmentUtils.resolve(
@@ -384,13 +424,15 @@ export class Container extends BaseWidget {
 
             // Translate to child position (including padding)
             graphics.saveContext();
-            graphics.setTransform({
-                storage: [
-                    1, 0, 0, 1,
-                    this.padding.left + childPosition.x,
-                    this.padding.top + childPosition.y,
-                ],
-            } as any);
+            const childTransform = new Matrix4([
+                1, 0, 0, 0,
+                0, 1, 0, 0,
+                0, 0, 1, 0,
+                this.padding.left + childPosition.x,
+                this.padding.top + childPosition.y,
+                0, 1
+            ]);
+            graphics.setTransform(childTransform);
 
             // Paint child
             const childContext: PaintContext = {
