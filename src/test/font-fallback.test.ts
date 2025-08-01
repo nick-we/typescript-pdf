@@ -140,8 +140,8 @@ describe('FontFallbackSystem', () => {
         test('should handle string weight values', () => {
             const descriptor: FontDescriptor = {
                 family: 'Helvetica',
-                weight: 'bold',
-                style: 'normal',
+                weight: FontWeight.Bold,
+                style: FontStyle.Normal,
             };
 
             const resolved = fontFallback.resolveFontDescriptor(descriptor);
@@ -151,8 +151,8 @@ describe('FontFallbackSystem', () => {
         test('should handle string style values', () => {
             const descriptor: FontDescriptor = {
                 family: 'Helvetica',
-                weight: 'normal',
-                style: 'italic',
+                weight: FontWeight.Normal,
+                style: FontStyle.Italic,
             };
 
             const resolved = fontFallback.resolveFontDescriptor(descriptor);
@@ -285,7 +285,7 @@ describe('FontUtils', () => {
         });
 
         test('should resolve with weight and style', () => {
-            const resolved = FontUtils.resolveFont('Arial', 'bold', 'italic');
+            const resolved = FontUtils.resolveFont('Arial', FontWeight.Bold, FontStyle.Italic);
             expect(resolved).toBe(PdfStandardFont.HelveticaBoldOblique);
         });
 

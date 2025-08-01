@@ -170,7 +170,7 @@ export class PdfColorRgb implements PdfColor {
  */
 export class PdfGraphics {
     private static readonly COMMENT_INDENT = 35;
-    private static readonly INDENT_AMOUNT = 2;
+    private static readonly INDENT_AMOUNT = 1;
     private indent = PdfGraphics.INDENT_AMOUNT;
 
     private context: GraphicsContext;
@@ -389,6 +389,25 @@ export class PdfGraphics {
     }
 
     /**
+     * Clip the current path for subsequent drawing operations
+     */
+    clipPath(evenOdd: boolean = false): void {
+        let commentOffset = 0;
+
+        if (this.outputContext.verbose) {
+            commentOffset = this.buffer.offset;
+            this.buffer.putString(' '.repeat(this.indent));
+        }
+
+        this.buffer.putString(`W${evenOdd ? '*' : ''} n `);
+
+        if (this.outputContext.verbose) {
+            this.buffer.putString(' '.repeat(Math.max(0, PdfGraphics.COMMENT_INDENT - this.buffer.offset + commentOffset)));
+            this.buffer.putComment(`clipPath(evenOdd: ${evenOdd})`);
+        }
+    }
+
+    /**
      * Set line width
      */
     setLineWidth(width: number): void {
@@ -588,23 +607,32 @@ export class PdfGraphics {
             this.buffer.putString(' '.repeat(this.indent));
         }
 
-        // Font and size
+        // Font and size - ensure font name is properly formatted
         this.buffer.putString(`${font.name} `);
         new PdfNum(size).output(this.outputContext, this.buffer);
         this.buffer.putString(' Tf ');
 
-        // Optional text state parameters
-        if (options.charSpace !== undefined) {
+        // Set default text state for better compatibility
+        if (options.charSpace === undefined) {
+            new PdfNum(0).output(this.outputContext, this.buffer);
+            this.buffer.putString(' Tc ');
+        } else {
             new PdfNum(options.charSpace).output(this.outputContext, this.buffer);
             this.buffer.putString(' Tc ');
         }
 
-        if (options.wordSpace !== undefined) {
+        if (options.wordSpace === undefined) {
+            new PdfNum(0).output(this.outputContext, this.buffer);
+            this.buffer.putString(' Tw ');
+        } else {
             new PdfNum(options.wordSpace).output(this.outputContext, this.buffer);
             this.buffer.putString(' Tw ');
         }
 
-        if (options.scale !== undefined) {
+        if (options.scale === undefined) {
+            new PdfNum(100).output(this.outputContext, this.buffer);
+            this.buffer.putString(' Tz ');
+        } else {
             new PdfNum(options.scale * 100).output(this.outputContext, this.buffer);
             this.buffer.putString(' Tz ');
         }
@@ -614,9 +642,9 @@ export class PdfGraphics {
             this.buffer.putString(' Ts ');
         }
 
-        if (options.mode !== undefined && options.mode !== PdfTextRenderingMode.Fill) {
-            this.buffer.putString(`${options.mode} Tr `);
-        }
+        // Always set text rendering mode for consistency
+        const mode = options.mode ?? PdfTextRenderingMode.Fill;
+        this.buffer.putString(`${mode} Tr `);
 
         if (this.outputContext.verbose) {
             this.buffer.putString(' '.repeat(Math.max(0, PdfGraphics.COMMENT_INDENT - this.buffer.offset + commentOffset)));
@@ -635,25 +663,25 @@ export class PdfGraphics {
             this.buffer.putString(' '.repeat(this.indent));
         }
 
-        this.buffer.putString('[');
-        // Use font's putText method for proper escaping
+        // Use simple PDF string format with minimal escaping
+        // Over-escaping can cause character encoding issues on macOS
         this.buffer.putString('(');
-        // Simple escape for now - in real implementation, use font.putText()
+
+        // Only escape essential characters that break PDF syntax
         const escaped = text
-            .replace(/\\/g, '\\\\')
-            .replace(/\(/g, '\\(')
-            .replace(/\)/g, '\\)')
-            .replace(/\r/g, '\\r')
-            .replace(/\n/g, '\\n');
+            .replace(/\\/g, '\\\\')    // Escape backslashes
+            .replace(/\(/g, '\\(')     // Escape opening parentheses
+            .replace(/\)/g, '\\)');    // Escape closing parentheses
+
         this.buffer.putString(escaped);
-        this.buffer.putString(')');
-        this.buffer.putString(']TJ ');
+        this.buffer.putString(') Tj ');
 
         if (this.outputContext.verbose) {
             this.buffer.putString(' '.repeat(Math.max(0, PdfGraphics.COMMENT_INDENT - this.buffer.offset + commentOffset)));
             this.buffer.putComment(`showText("${text}")`);
         }
     }
+
 
     /**
      * Draw text string with font, size, and position

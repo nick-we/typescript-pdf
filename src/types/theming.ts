@@ -7,12 +7,26 @@
  * @packageDocumentation
  */
 
-import { FontStyle, FontWeight } from '@/core/fonts.js';
+import { FontStyle, FontWeight } from '../core/fonts.js';
 import { PdfStandardFont } from '../core/pdf/font.js';
 import type { EdgeInsets } from './layout.js';
+import { PdfColorRgb } from '../core/pdf/graphics.js';
 
 // Re-export FontWeight and FontStyle for convenience
 export { FontWeight, FontStyle };
+
+/**
+ * Paint phase for explicit background/foreground rendering separation
+ * Following dart-pdf's approach for macOS PDF compatibility
+ */
+export enum PaintPhase {
+    /** Paint both background and foreground */
+    All = 'all',
+    /** Paint only background elements (fills, shadows) */
+    Background = 'background',
+    /** Paint only foreground elements (borders, decorations) */
+    Foreground = 'foreground',
+}
 
 /**
  * Text decoration style
@@ -22,6 +36,57 @@ export enum TextDecorationStyle {
     Dashed = 'dashed',
     Dotted = 'dotted',
     Double = 'double',
+}
+
+/**
+ * Border style for BoxDecoration (local definition to avoid circular dependency)
+ */
+export enum BorderStyle {
+    None = 'none',
+    Solid = 'solid',
+    Dashed = 'dashed',
+    Dotted = 'dotted',
+    Double = 'double',
+}
+
+/**
+ * Border definition (local to avoid circular dependency)
+ */
+export interface Border {
+    width?: number;
+    color?: string;
+    style?: BorderStyle;
+}
+
+/**
+ * Border radius definition (local to avoid circular dependency)
+ */
+export interface BorderRadius {
+    topLeft?: number;
+    topRight?: number;
+    bottomLeft?: number;
+    bottomRight?: number;
+}
+
+/**
+ * Box shadow definition (local to avoid circular dependency)
+ */
+export interface BoxShadow {
+    offsetX: number;
+    offsetY: number;
+    blurRadius?: number;
+    spreadRadius?: number;
+    color?: string;
+}
+
+/**
+ * BoxDecoration interface (local definition to avoid circular dependency)
+ */
+export interface BoxDecoration {
+    color?: string;
+    border?: Border;
+    borderRadius?: BorderRadius;
+    boxShadow?: BoxShadow[];
 }
 
 /**
@@ -196,6 +261,7 @@ export interface TextStyle {
 export const TextStyleUtils = {
     /**
      * Create a default text style (non-inheriting)
+     * Following dart-pdf's strict validation approach
      */
     createDefault(overrides: Partial<Omit<TextStyle, 'inherit'>> = {}): TextStyle {
         const baseStyle: TextStyle = {
@@ -206,7 +272,7 @@ export const TextStyleUtils = {
             fontWeight: FontWeight.Normal,
             fontStyle: FontStyle.Normal,
             letterSpacing: 0,
-            wordSpacing: 1,
+            wordSpacing: 0,
             lineSpacing: 1.2,
             height: 1,
             decoration: TextDecoration.none,
@@ -222,6 +288,10 @@ export const TextStyleUtils = {
                 (result as any)[key] = value;
             }
         });
+
+        // CRITICAL: dart-pdf-style validation for macOS compatibility
+        // Non-inheriting styles must have all essential properties
+        TextStyleUtils.validateCompleteStyle(result);
 
         return result;
     },
@@ -328,15 +398,36 @@ export const TextStyleUtils = {
         // If override doesn't inherit, it completely replaces base
         if (!override.inherit) return override;
 
-        // Merge properties, with override taking precedence
-        const result: TextStyle = { inherit: base.inherit ?? true };
+        // CRITICAL: When merging with a complete base style, ensure result is complete for macOS
+        // If base has inherit: false (complete style), preserve completeness regardless of override inherit
+        const shouldEnsureComplete = base.inherit === false;
 
-        // Helper function to merge properties only if they exist
+        // Merge properties, with override taking precedence
+        const result: TextStyle = { inherit: shouldEnsureComplete ? false : (base.inherit ?? true) };
+
+        // Helper function to merge properties, ensuring completeness when needed
         const mergeProperty = <K extends keyof TextStyle>(key: K) => {
             if (override[key] !== undefined) {
                 result[key] = override[key];
             } else if (base[key] !== undefined) {
                 result[key] = base[key];
+            } else if (shouldEnsureComplete) {
+                // Fill in missing essential properties from defaults for macOS compatibility
+                const defaults: Partial<TextStyle> = {
+                    color: '#000000',
+                    fontFamily: PdfStandardFont.Helvetica,
+                    fontSize: 12,
+                    fontWeight: FontWeight.Normal,
+                    fontStyle: FontStyle.Normal,
+                    letterSpacing: 0,
+                    wordSpacing: 0,
+                    lineSpacing: 1.2,
+                    height: 1,
+                    decoration: TextDecoration.none,
+                };
+                if (key in defaults) {
+                    result[key] = (defaults as any)[key];
+                }
             }
         };
 
@@ -360,6 +451,8 @@ export const TextStyleUtils = {
             result.decoration = override.decoration;
         } else if (base.decoration !== undefined) {
             result.decoration = base.decoration;
+        } else if (shouldEnsureComplete) {
+            result.decoration = TextDecoration.none;
         }
 
         return result;
@@ -410,6 +503,220 @@ export const TextStyleUtils = {
         }
 
         return family;
+    },
+
+    /**
+     * Validate that a style is complete for macOS PDF compatibility
+     * Following dart-pdf's assert(inherit || property != null) pattern
+     */
+    validateCompleteStyle(style: TextStyle): void {
+        // dart-pdf pattern: assert(inherit || color != null)
+        if (!style.inherit) {
+            // Essential properties that must be present for non-inheriting styles
+            if (style.color === undefined || style.color === null) {
+                throw new Error('TextStyle validation failed: Non-inheriting style must have color (dart-pdf compatibility)');
+            }
+            if (style.fontFamily === undefined || style.fontFamily === null) {
+                throw new Error('TextStyle validation failed: Non-inheriting style must have fontFamily (dart-pdf compatibility)');
+            }
+            if (style.fontSize === undefined || style.fontSize === null) {
+                throw new Error('TextStyle validation failed: Non-inheriting style must have fontSize (dart-pdf compatibility)');
+            }
+            if (style.fontWeight === undefined || style.fontWeight === null) {
+                throw new Error('TextStyle validation failed: Non-inheriting style must have fontWeight (dart-pdf compatibility)');
+            }
+            if (style.fontStyle === undefined || style.fontStyle === null) {
+                throw new Error('TextStyle validation failed: Non-inheriting style must have fontStyle (dart-pdf compatibility)');
+            }
+            if (style.decoration === undefined || style.decoration === null) {
+                throw new Error('TextStyle validation failed: Non-inheriting style must have decoration (dart-pdf compatibility)');
+            }
+
+            // Numeric properties that must have valid values
+            if (typeof style.fontSize !== 'number' || style.fontSize <= 0) {
+                throw new Error('TextStyle validation failed: fontSize must be a positive number (dart-pdf compatibility)');
+            }
+            if (style.letterSpacing !== undefined && typeof style.letterSpacing !== 'number') {
+                throw new Error('TextStyle validation failed: letterSpacing must be a number (dart-pdf compatibility)');
+            }
+            if (style.wordSpacing !== undefined && typeof style.wordSpacing !== 'number') {
+                throw new Error('TextStyle validation failed: wordSpacing must be a number (dart-pdf compatibility)');
+            }
+            if (style.lineSpacing !== undefined && (typeof style.lineSpacing !== 'number' || style.lineSpacing <= 0)) {
+                throw new Error('TextStyle validation failed: lineSpacing must be a positive number (dart-pdf compatibility)');
+            }
+            if (style.height !== undefined && (typeof style.height !== 'number' || style.height <= 0)) {
+                throw new Error('TextStyle validation failed: height must be a positive number (dart-pdf compatibility)');
+            }
+        }
+    },
+
+    /**
+     * Ensure a style is complete for rendering, following dart-pdf's approach
+     * This is called before actual text rendering to guarantee completeness
+     */
+    ensureComplete(style: TextStyle): TextStyle {
+        // If style is inheriting, we can't make it complete here - that happens during inheritance resolution
+        if (style.inherit) {
+            return style;
+        }
+
+        // For non-inheriting styles, ensure all essential properties exist
+        const complete: TextStyle = {
+            inherit: false,
+            color: style.color ?? '#000000',
+            fontFamily: style.fontFamily ?? PdfStandardFont.Helvetica,
+            fontSize: style.fontSize ?? 12,
+            fontWeight: style.fontWeight ?? FontWeight.Normal,
+            fontStyle: style.fontStyle ?? FontStyle.Normal,
+            letterSpacing: style.letterSpacing ?? 0,
+            wordSpacing: style.wordSpacing ?? 1,
+            lineSpacing: style.lineSpacing ?? 1.2,
+            height: style.height ?? 1,
+            decoration: style.decoration ?? TextDecoration.none,
+            decorationStyle: style.decorationStyle ?? TextDecorationStyle.Solid,
+            decorationThickness: style.decorationThickness ?? 1,
+        };
+
+        // Add optional properties if they exist
+        if (style.decorationColor !== undefined) {
+            complete.decorationColor = style.decorationColor;
+        }
+
+        // Validate the completed style
+        TextStyleUtils.validateCompleteStyle(complete);
+
+        return complete;
+    },
+};
+
+/**
+ * BoxDecoration painting utilities with PaintPhase support
+ * Following dart-pdf's approach for macOS PDF compatibility
+ */
+export const BoxDecorationUtils = {
+    /**
+     * Paint a BoxDecoration with explicit phase control
+     * Following dart-pdf's decoration.paint() approach
+     */
+    paint(
+        decoration: BoxDecoration, // BoxDecoration type to avoid circular dependency
+        context: any, // PaintContext
+        rect: { x: number; y: number; width: number; height: number },
+        phase: PaintPhase = PaintPhase.All
+    ): void {
+        const { graphics } = context;
+
+        if (phase === PaintPhase.All || phase === PaintPhase.Background) {
+            // Background phase: colors, gradients, shadows
+            if (decoration.color) {
+                const color = BoxDecorationUtils.parseColor(decoration.color);
+
+                // Draw background rectangle
+                graphics.drawRect(rect.x, rect.y, rect.width, rect.height);
+
+                // CRITICAL: Explicit color state management following dart-pdf approach
+                // macOS PDF viewers require explicit color setting for each operation
+                graphics.setFillColor(color);
+                graphics.fillPath();
+            }
+
+            // Box shadows would go here (background phase)
+            if (decoration.boxShadow) {
+                // Shadow implementation would go here
+                // For now, shadows are not implemented
+            }
+        }
+
+        if (phase === PaintPhase.All || phase === PaintPhase.Foreground) {
+            // Foreground phase: borders, decorations
+            if (decoration.border && decoration.border.style !== 'none') {
+                const borderColor = BoxDecorationUtils.parseColor(decoration.border.color ?? '#000000');
+
+                // CRITICAL: Explicit stroke color setting for borders (dart-pdf approach)
+                graphics.setStrokeColor(borderColor);
+                graphics.setLineWidth(decoration.border.width ?? 1);
+                graphics.drawRect(rect.x, rect.y, rect.width, rect.height);
+                graphics.strokePath();
+            }
+        }
+    },
+
+    /**
+     * Parse color string to RGB values
+     */
+    parseColor(color: string): any {
+        // Simple hex color parsing
+        if (color.startsWith('#')) {
+            const hex = color.slice(1);
+            if (hex.length === 6) {
+                // 6-character hex: #RRGGBB
+                const r = parseInt(hex.slice(0, 2), 16) / 255;
+                const g = parseInt(hex.slice(2, 4), 16) / 255;
+                const b = parseInt(hex.slice(4, 6), 16) / 255;
+                return new PdfColorRgb(r, g, b);
+            } else if (hex.length === 8) {
+                // 8-character hex: #RRGGBBAA (ignore alpha for now)
+                const r = parseInt(hex.slice(0, 2), 16) / 255;
+                const g = parseInt(hex.slice(2, 4), 16) / 255;
+                const b = parseInt(hex.slice(4, 6), 16) / 255;
+                return new PdfColorRgb(r, g, b);
+            } else if (hex.length === 3) {
+                // 3-character hex: #RGB (shorthand)
+                const r = parseInt(hex[0]! + hex[0]!, 16) / 255;
+                const g = parseInt(hex[1]! + hex[1]!, 16) / 255;
+                const b = parseInt(hex[2]! + hex[2]!, 16) / 255;
+                return new PdfColorRgb(r, g, b);
+            }
+        }
+
+        // Default to black
+        return new PdfColorRgb(0, 0, 0);
+    },
+
+    /**
+     * Normalize BoxDecoration to ensure complete properties for macOS compatibility
+     */
+    normalize(inputDecoration?: BoxDecoration): BoxDecoration {
+        if (!inputDecoration) {
+            return {};
+        }
+
+        const result = { ...inputDecoration };
+
+        // Ensure border is complete if provided
+        if (result.border) {
+            const border = result.border;
+            result.border = {
+                width: border.width ?? 1,
+                color: border.color ?? '#000000',
+                style: border.style ?? BorderStyle.Solid,
+            };
+        }
+
+        // Ensure borderRadius is complete if provided
+        if (result.borderRadius) {
+            const radius = result.borderRadius;
+            result.borderRadius = {
+                topLeft: radius.topLeft ?? 0,
+                topRight: radius.topRight ?? 0,
+                bottomLeft: radius.bottomLeft ?? 0,
+                bottomRight: radius.bottomRight ?? 0,
+            };
+        }
+
+        // BoxShadow arrays should be complete if provided
+        if (result.boxShadow) {
+            result.boxShadow = result.boxShadow.map((shadow: any) => ({
+                offsetX: shadow.offsetX,
+                offsetY: shadow.offsetY,
+                blurRadius: shadow.blurRadius ?? 0,
+                spreadRadius: shadow.spreadRadius ?? 0,
+                color: shadow.color ?? '#000000',
+            }));
+        }
+
+        return result;
     },
 };
 

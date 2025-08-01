@@ -21,7 +21,7 @@ import {
     TableWidth,
     type TableColumnWidth,
 } from '../src/widgets/table.js';
-import { EdgeInsets as EdgeInsetsUtils } from '../src/types/layout.js';
+import { EdgeInsets } from '../src/types/layout.js';
 import { FontWeight } from '../src/types/theming.js';
 
 async function createTableShowcase() {
@@ -30,7 +30,7 @@ async function createTableShowcase() {
     // Example 1: Simple Table with Headers
     doc.addPage({
         build: () => new Container({
-            padding: EdgeInsetsUtils.all(20),
+            padding: EdgeInsets.all(20),
             child: TableHelper.simple([
                 ['Product', 'Price', 'Stock'],
                 ['Laptop', '$999', '15'],
@@ -39,7 +39,7 @@ async function createTableShowcase() {
             ], {
                 headers: ['Product', 'Price', 'Stock'],
                 border: TableBorders.all({ width: 1, color: '#000000' }),
-                cellPadding: EdgeInsetsUtils.all(12),
+                cellPadding: EdgeInsets.all(12),
             }),
         }),
     });
@@ -54,7 +54,7 @@ async function createTableShowcase() {
 
     doc.addPage({
         build: () => new Container({
-            padding: EdgeInsetsUtils.all(20),
+            padding: EdgeInsets.all(20),
             child: new Table({
                 columnWidths,
                 border: TableBorders.symmetric({
@@ -65,28 +65,28 @@ async function createTableShowcase() {
                     new TableRow({
                         children: [
                             new Container({
-                                padding: EdgeInsetsUtils.all(8),
+                                padding: EdgeInsets.all(8),
                                 decoration: { color: '#f0f0f0' },
                                 child: new Text('Name', {
                                     style: { fontWeight: FontWeight.Bold }
                                 }),
                             }),
                             new Container({
-                                padding: EdgeInsetsUtils.all(8),
+                                padding: EdgeInsets.all(8),
                                 decoration: { color: '#f0f0f0' },
                                 child: new Text('Description', {
                                     style: { fontWeight: FontWeight.Bold }
                                 }),
                             }),
                             new Container({
-                                padding: EdgeInsetsUtils.all(8),
+                                padding: EdgeInsets.all(8),
                                 decoration: { color: '#f0f0f0' },
                                 child: new Text('Score', {
                                     style: { fontWeight: FontWeight.Bold }
                                 }),
                             }),
                             new Container({
-                                padding: EdgeInsetsUtils.all(8),
+                                padding: EdgeInsets.all(8),
                                 decoration: { color: '#f0f0f0' },
                                 child: new Text('Status', {
                                     style: { fontWeight: FontWeight.Bold }
@@ -98,19 +98,19 @@ async function createTableShowcase() {
                     new TableRow({
                         children: [
                             new Container({
-                                padding: EdgeInsetsUtils.all(8),
+                                padding: EdgeInsets.all(8),
                                 child: new Text('John Smith'),
                             }),
                             new Container({
-                                padding: EdgeInsetsUtils.all(8),
+                                padding: EdgeInsets.all(8),
                                 child: new Text('Senior Developer with expertise in TypeScript and PDF generation'),
                             }),
                             new Container({
-                                padding: EdgeInsetsUtils.all(8),
+                                padding: EdgeInsets.all(8),
                                 child: new Text('95%'),
                             }),
                             new Container({
-                                padding: EdgeInsetsUtils.all(8),
+                                padding: EdgeInsets.all(8),
                                 child: new Text('Active'),
                             }),
                         ],
@@ -118,19 +118,19 @@ async function createTableShowcase() {
                     new TableRow({
                         children: [
                             new Container({
-                                padding: EdgeInsetsUtils.all(8),
+                                padding: EdgeInsets.all(8),
                                 child: new Text('Jane Doe'),
                             }),
                             new Container({
-                                padding: EdgeInsetsUtils.all(8),
+                                padding: EdgeInsets.all(8),
                                 child: new Text('UI/UX Designer focused on creating beautiful interfaces'),
                             }),
                             new Container({
-                                padding: EdgeInsetsUtils.all(8),
+                                padding: EdgeInsets.all(8),
                                 child: new Text('88%'),
                             }),
                             new Container({
-                                padding: EdgeInsetsUtils.all(8),
+                                padding: EdgeInsets.all(8),
                                 child: new Text('Away'),
                             }),
                         ],
@@ -152,7 +152,7 @@ async function createTableShowcase() {
 
     doc.addPage({
         build: () => new Container({
-            padding: EdgeInsetsUtils.all(20),
+            padding: EdgeInsets.all(20),
             child: TableHelper.fromTextArray({
                 data: salesData,
                 headers: ['Month', 'Revenue', 'Change %', 'Trend'],
@@ -162,7 +162,7 @@ async function createTableShowcase() {
                     color: '#ffffff'
                 },
                 headerDecoration: { color: '#4a90e2' },
-                cellPadding: EdgeInsetsUtils.all(10),
+                cellPadding: EdgeInsets.all(10),
 
                 // Custom cell formatting
                 cellFormat: (columnIndex: number, data: any, rowIndex: number) => {
@@ -210,7 +210,7 @@ async function createTableShowcase() {
     // Example 4: Striped Table with Alternating Colors
     doc.addPage({
         build: () => new Container({
-            padding: EdgeInsetsUtils.all(20),
+            padding: EdgeInsets.all(20),
             child: TableHelper.striped([
                 ['Task', 'Assignee', 'Priority', 'Due Date'],
                 ['Design UI mockups', 'Alice Johnson', 'High', '2024-01-15'],
@@ -224,7 +224,7 @@ async function createTableShowcase() {
                 evenRowColor: '#ffffff',
                 oddRowColor: '#f8f9fa',
                 headerColor: '#343a40',
-                cellPadding: EdgeInsetsUtils.all(12),
+                cellPadding: EdgeInsets.all(12),
             }),
         }),
     });
@@ -232,7 +232,7 @@ async function createTableShowcase() {
     // Example 5: Minimal Table (No Borders)
     doc.addPage({
         build: () => new Container({
-            padding: EdgeInsetsUtils.all(20),
+            padding: EdgeInsets.all(20),
             child: TableHelper.minimal([
                 ['Feature', 'Status'],
                 ['User Authentication', '✓ Complete'],
@@ -242,7 +242,7 @@ async function createTableShowcase() {
                 ['API Documentation', '❌ Pending'],
             ], {
                 headers: ['Feature', 'Status'],
-                cellPadding: EdgeInsetsUtils.symmetric({ horizontal: 16, vertical: 8 }),
+                cellPadding: EdgeInsets.symmetric({ horizontal: 16, vertical: 8 }),
                 headerStyle: {
                     fontWeight: FontWeight.Bold,
                     fontSize: 14,
@@ -262,7 +262,7 @@ async function createTableShowcase() {
 
     doc.addPage({
         build: () => new Container({
-            padding: EdgeInsetsUtils.all(20),
+            padding: EdgeInsets.all(20),
             child: TableHelper.fromTextArray({
                 data: financialData,
                 headers: ['Quarter', 'Revenue', 'Expenses', 'Profit', 'Margin %'],
@@ -283,7 +283,7 @@ async function createTableShowcase() {
                     fontSize: 12,
                 },
                 headerDecoration: { color: '#495057' },
-                cellPadding: EdgeInsetsUtils.all(10),
+                cellPadding: EdgeInsets.all(10),
 
                 // Format financial numbers
                 cellFormat: (columnIndex: number, data: any, rowIndex: number) => {

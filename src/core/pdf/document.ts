@@ -214,18 +214,41 @@ export class PdfPage extends PdfObject<PdfDict> {
             this.params.set('/Contents', PdfArray.fromObjects(activeContents));
         }
 
-        // Set up font resources
-        if (this.usedFonts.size > 0) {
-            const resources = this.params.get('/Resources') as PdfDict || new PdfDict();
+        // Always create a resources dictionary for better compatibility
+        const resources = this.params.get('/Resources') as PdfDict || new PdfDict();
+
+        // Set up font resources - ensure all fonts from registry are included
+        const allFonts = this.fontRegistry.getAllFonts();
+        if (allFonts.length > 0 || this.usedFonts.size > 0) {
             const fontDict = new PdfDict();
 
+            // Add explicitly used fonts
             for (const font of this.usedFonts) {
                 fontDict.set(font.name, font.ref());
             }
 
+            // Add any additional fonts from registry that might be used
+            for (const font of allFonts) {
+                if (!fontDict.get(font.name)) {
+                    fontDict.set(font.name, font.ref());
+                }
+            }
+
             resources.set('/Font', fontDict);
-            this.params.set('/Resources', resources);
         }
+
+        // Add ProcSet for better compatibility
+        const procSet = new PdfArray([
+            new PdfName('/PDF'),
+            new PdfName('/Text'),
+            new PdfName('/ImageB'),
+            new PdfName('/ImageC'),
+            new PdfName('/ImageI')
+        ]);
+        resources.set('/ProcSet', procSet);
+
+        // Always set resources dictionary
+        this.params.set('/Resources', resources);
     }
 
     writeContent(stream: PdfStream, context: PdfOutputContext): void {

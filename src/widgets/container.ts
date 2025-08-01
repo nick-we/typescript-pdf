@@ -14,9 +14,11 @@ import type {
     LayoutResult,
     PaintContext,
     EdgeInsets,
+    BoxConstraints,
 } from '../types/layout.js';
 import { EdgeInsets as EdgeInsetsUtils, AlignmentUtils, Alignment } from '../types/layout.js';
 import type { Size } from '../types/geometry.js';
+import { PaintPhase, BoxDecorationUtils } from '../types/theming.js';
 
 /**
  * Border style options
@@ -183,7 +185,7 @@ export class Container extends BaseWidget {
         props.maxWidth && (this.maxWidth = props.maxWidth);
         props.maxHeight && (this.maxHeight = props.maxHeight);
         this.alignment = props.alignment ?? Alignment.Center;
-        props.decoration && (this.decoration = props.decoration);
+        props.decoration && (this.decoration = this.normalizeBoxDecoration(props.decoration));
     }
 
     /**
@@ -219,9 +221,54 @@ export class Container extends BaseWidget {
     }
 
     /**
+     * Normalize BoxDecoration to ensure complete properties for macOS compatibility
+     */
+    private normalizeBoxDecoration(inputDecoration?: BoxDecoration): BoxDecoration {
+        if (!inputDecoration) {
+            return {};
+        }
+
+        const result: BoxDecoration = { ...inputDecoration };
+
+        // Ensure border is complete if provided
+        if (result.border) {
+            const border = result.border;
+            result.border = {
+                width: border.width ?? 1,
+                color: border.color ?? '#000000',
+                style: border.style ?? BorderStyle.Solid,
+            };
+        }
+
+        // Ensure borderRadius is complete if provided
+        if (result.borderRadius) {
+            const radius = result.borderRadius;
+            result.borderRadius = {
+                topLeft: radius.topLeft ?? 0,
+                topRight: radius.topRight ?? 0,
+                bottomLeft: radius.bottomLeft ?? 0,
+                bottomRight: radius.bottomRight ?? 0,
+            };
+        }
+
+        // BoxShadow arrays should be complete if provided
+        if (result.boxShadow) {
+            result.boxShadow = result.boxShadow.map(shadow => ({
+                offsetX: shadow.offsetX,
+                offsetY: shadow.offsetY,
+                blurRadius: shadow.blurRadius ?? 0,
+                spreadRadius: shadow.spreadRadius ?? 0,
+                color: shadow.color ?? '#000000',
+            }));
+        }
+
+        return result;
+    }
+
+    /**
      * Apply container size constraints
      */
-    private applyContainerConstraints(constraints: any): any {
+    private applyContainerConstraints(constraints: BoxConstraints): BoxConstraints {
         let minWidth = constraints.minWidth;
         let maxWidth = constraints.maxWidth;
         let minHeight = constraints.minHeight;
@@ -362,8 +409,6 @@ export class Container extends BaseWidget {
 
         // Translate graphics context by margin offset
         graphics.saveContext();
-        const transform = Matrix4.identity();
-        // Set translation in the matrix (columns 12,13 are tx,ty in a 4x4 matrix)
         const transformMatrix = new Matrix4([
             1, 0, 0, 0,
             0, 1, 0, 0,
@@ -372,39 +417,15 @@ export class Container extends BaseWidget {
         ]);
         graphics.setTransform(transformMatrix);
 
-        // Draw background if specified
-        if (this.decoration?.color) {
-            const bgColor = this.parseColor(this.decoration.color);
-            graphics.setColor(bgColor);
+        // CRITICAL: Use dart-pdf-style paint phase separation for macOS compatibility
+        const rect = { x: 0, y: 0, width: contentArea.width, height: contentArea.height };
 
-            if (this.decoration.borderRadius) {
-                // Draw rounded rectangle (simplified - just draw rectangle for now)
-                // In a real implementation, this would draw proper rounded corners
-                graphics.drawRect(0, 0, contentArea.width, contentArea.height);
-            } else {
-                graphics.drawRect(0, 0, contentArea.width, contentArea.height);
-            }
-
-            graphics.fillPath();
+        // Phase 1: Background (colors, gradients, shadows)
+        if (this.decoration) {
+            BoxDecorationUtils.paint(this.decoration, context, rect, PaintPhase.Background);
         }
 
-        // Draw border if specified
-        if (this.decoration?.border && this.decoration.border.style !== BorderStyle.None) {
-            const borderColor = this.parseColor(this.decoration.border.color ?? '#000000');
-            graphics.setColor(borderColor);
-            graphics.setLineWidth(this.decoration.border.width ?? 1);
-
-            if (this.decoration.borderRadius) {
-                // Draw rounded rectangle border (simplified)
-                graphics.drawRect(0, 0, contentArea.width, contentArea.height);
-            } else {
-                graphics.drawRect(0, 0, contentArea.width, contentArea.height);
-            }
-
-            graphics.strokePath();
-        }
-
-        // Paint child if present
+        // Paint child content between background and foreground phases
         if (this.child && this.childLayoutResult) {
             // Calculate child area (excluding padding)
             const childArea: Size = {
@@ -443,6 +464,11 @@ export class Container extends BaseWidget {
             this.child.paint(childContext);
 
             graphics.restoreContext();
+        }
+
+        // Phase 2: Foreground (borders, decorations)
+        if (this.decoration) {
+            BoxDecorationUtils.paint(this.decoration, context, rect, PaintPhase.Foreground);
         }
 
         graphics.restoreContext();

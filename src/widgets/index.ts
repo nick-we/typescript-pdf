@@ -25,7 +25,6 @@ export {
     TextAlign,
     TextOverflow,
     type TextProps,
-    type TextStyle,
     type TextDecoration,
 } from './text.js';
 

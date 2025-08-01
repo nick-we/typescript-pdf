@@ -8,7 +8,7 @@
  */
 
 import { BaseWidget, type WidgetProps } from './widget.js';
-import { PdfStandardFont } from '../core/pdf/font.js';
+import { PdfFont, PdfStandardFont } from '../core/pdf/font.js';
 import { PdfColorRgb } from '../core/pdf/graphics.js';
 import type {
     LayoutContext,
@@ -28,6 +28,16 @@ import {
 } from '../types/theming.js';
 import type { FontRegistry } from '../core/pdf/font-loader.js';
 import type { TtfParser } from '../core/pdf/ttf-parser.js';
+
+/**
+ * Interface for objects that can be used for text rendering
+ */
+interface RenderableFont {
+    name: string;
+    measureTextWidth(text: string, fontSize: number): number;
+    getAscender?(fontSize: number): number;
+    getDescender?(fontSize: number): number;
+}
 
 /**
  * Mock font interface for layout calculations
@@ -159,10 +169,11 @@ export class Text extends BaseWidget {
 
     /**
      * Normalize text style to comprehensive format
+     * Made public to ensure all Text widgets can normalize styles for macOS compatibility
      */
-    private normalizeTextStyle(inputStyle?: TextStyle): TextStyle {
+    public normalizeTextStyle(inputStyle?: TextStyle): TextStyle {
         if (!inputStyle) {
-            return TextStyleUtils.createInheriting({
+            return TextStyleUtils.createDefault({
                 fontSize: 12,
                 fontFamily: PdfStandardFont.Helvetica,
                 fontWeight: FontWeight.Normal,
@@ -175,23 +186,20 @@ export class Text extends BaseWidget {
             });
         }
 
-        // If already comprehensive style, return as-is
-        if ('inherit' in inputStyle) {
-            return inputStyle as TextStyle;
+        // CRITICAL: Use dart-pdf-style validation and completion
+        // If style is non-inheriting, validate completeness; if inheriting, allow partial
+        if (inputStyle.inherit === false) {
+            try {
+                TextStyleUtils.validateCompleteStyle(inputStyle);
+                return inputStyle; // Already complete and valid
+            } catch (error) {
+                // Style is marked as non-inheriting but incomplete - make it complete
+                return TextStyleUtils.ensureComplete(inputStyle);
+            }
+        } else {
+            // Inheriting style - preserve as-is but ensure it can be completed when merged
+            return inputStyle;
         }
-
-        // Convert legacy style to comprehensive format
-        return TextStyleUtils.createInheriting({
-            fontSize: inputStyle.fontSize || 12,
-            fontFamily: inputStyle.fontFamily || PdfStandardFont.Helvetica,
-            fontWeight: inputStyle.fontWeight || FontWeight.Normal,
-            fontStyle: inputStyle.fontStyle || FontStyle.Normal,
-            color: inputStyle.color || '#000000',
-            letterSpacing: inputStyle.letterSpacing || 0,
-            wordSpacing: inputStyle.wordSpacing || 1,
-            lineSpacing: inputStyle.lineSpacing || 1.2,
-            decoration: inputStyle.decoration || ComprehensiveTextDecoration.none,
-        });
     }
 
     /**
@@ -297,8 +305,8 @@ export class Text extends BaseWidget {
         // For now, create a more accurate mock that matches the font measurements
         let fontRegistry: FontRegistry | MockFontRegistry;
 
-        if ((context as any).fontRegistry) {
-            fontRegistry = (context as any).fontRegistry;
+        if ('fontRegistry' in context && context.fontRegistry) {
+            fontRegistry = context.fontRegistry as FontRegistry;
         } else {
             // Create a mock that uses the same measurement logic as paint
             fontRegistry = new MockFontRegistry();
@@ -338,9 +346,13 @@ export class Text extends BaseWidget {
         const { graphics, size, theme, fontRegistry } = context;
 
         // Merge with theme's default text style if this style inherits
-        const effectiveStyle = this.style.inherit
+        let effectiveStyle = this.style.inherit
             ? TextStyleUtils.merge(context.theme.defaultTextStyle, this.style)
             : this.style;
+
+        // CRITICAL: Ensure effective style is always complete for macOS compatibility
+        // Use dart-pdf-style validation to guarantee all properties are defined
+        effectiveStyle = TextStyleUtils.ensureComplete(effectiveStyle);
 
         const color = this.parseColor(effectiveStyle.color || '#000000');
         const fontSize = effectiveStyle.fontSize || 12;
@@ -348,20 +360,19 @@ export class Text extends BaseWidget {
         console.log(`Font size being used: ${fontSize}`);
         console.log(`Effective style: ${JSON.stringify(effectiveStyle)}`);
 
-        // Get real font from font registry for accurate measurements
-        let font: any;
+        let renderingFont: PdfFont | undefined = undefined;
         let actualWidth: number;
         let ascender: number;
         let descender: number;
 
         if (fontRegistry) {
-            // Use real font measurements
-            font = fontRegistry.getFont(this.getPdfFont());
-            console.log(`Using fontRegistry, font: ${JSON.stringify(font.name || 'unknown')}`);
-            actualWidth = font.measureTextWidth(this.content, fontSize);
+            // Use font registry for both measurement and rendering
+            renderingFont = fontRegistry.getFont(this.getPdfFont());
+            console.log(`Using fontRegistry, font name: ${renderingFont.name}`);
+            actualWidth = renderingFont.measureTextWidth(this.content, fontSize);
             console.log(`Font measureTextWidth result: ${actualWidth} for "${this.content}" at size ${fontSize}`);
-            ascender = font.getAscender(fontSize);
-            descender = Math.abs(font.getDescender(fontSize)); // Make positive for calculation
+            ascender = renderingFont.getAscender(fontSize);
+            descender = Math.abs(renderingFont.getDescender(fontSize)); // Make positive for calculation
         } else {
             // Fallback to estimations if no font registry available
             console.log(`Using fallback font measurements`);
@@ -369,16 +380,13 @@ export class Text extends BaseWidget {
             actualWidth = this.content.length * avgCharWidth;
             ascender = fontSize * 0.8;
             descender = fontSize * 0.2;
-            font = {
-                name: '/F1',
-                measureTextWidth: (text: string, size: number) => text.length * size * 0.6,
-            };
         }
 
         const totalTextHeight = ascender + descender;
 
-        // Center the text horizontally within the allocated space
-        let x = (size.width - actualWidth) / 2;
+        // Default to left alignment, but respect explicit textAlign setting
+        // Start with left alignment as default (more intuitive for table cells)
+        let x = 0;
 
         // Center the text vertically within the allocated space
         // In PDF coordinates (bottom-left origin), position the baseline
@@ -388,7 +396,7 @@ export class Text extends BaseWidget {
         // So: container_center = baseline + (ascender - descender) / 2
         // Therefore: baseline = container_center - (ascender - descender) / 2
         const containerCenter = size.height / 2;
-        let y = containerCenter - (ascender - descender) / 2;
+        let y = Math.max(0, containerCenter - (ascender - descender) / 2);
 
         console.log(`Text positioning debug:
     size: ${JSON.stringify(size)}
@@ -400,17 +408,53 @@ export class Text extends BaseWidget {
     calculated y: ${y}
     content: "${this.content}"`);
 
-        // Apply explicit text alignment if specified (overrides default centering)
+        // Apply text alignment based on textAlign property
         if (this.textAlign === TextAlign.Left) {
-            x = 0;
+            x = 0; // Already set above
+        } else if (this.textAlign === TextAlign.Center) {
+            x = Math.max(0, (size.width - actualWidth) / 2);
         } else if (this.textAlign === TextAlign.Right) {
-            x = size.width - actualWidth;
+            x = Math.max(0, size.width - actualWidth);
         }
-        // TextAlign.Center is already handled by default centering above
+        // TextAlign.Justify would need special handling (not implemented yet)
 
-        // Set color and render text using the PDF graphics drawString method
-        graphics.setColor(color);
-        (graphics as any).drawString(font, fontSize, this.content, x, y, {});
+        // CRITICAL: Explicit color state management following dart-pdf approach
+        // macOS PDF viewers require explicit color setting for each text span
+        // Always set fill color explicitly before text rendering
+        graphics.setFillColor(color);
+
+        // Also set stroke color for consistency (dart-pdf sets both)
+        graphics.setStrokeColor(color);
+
+        if (renderingFont) {
+            // Use the proper PdfFont from font registry with proper text spacing options
+            // CRITICAL: Pass through text style properties to prevent NUL bytes on macOS
+            graphics.drawString(renderingFont, fontSize, this.content, x, y, {
+                charSpace: effectiveStyle.letterSpacing || 0,
+                wordSpace: 0, // Always use 0 for word spacing to prevent NUL bytes on macOS
+                scale: 1.0, // Default scale
+            });
+        } else {
+            // Fallback: This should not happen in normal operation since fontRegistry should always be available
+            // But for robustness, we provide a fallback that logs the issue
+            console.warn('FontRegistry not available in PaintContext - text may not render properly');
+            console.warn(`Attempted to render: "${this.content}" at position (${x}, ${y}) with fontSize ${fontSize}`);
+
+            // Try to use low-level text operations with basic font setup
+            graphics.beginText();
+
+            // Try to use a basic font name that should be available in PDF
+            const basicFontObject = { name: '/Helvetica' };
+            try {
+                graphics.setFont(basicFontObject as PdfFont, fontSize);
+                graphics.moveTextPosition(x, y);
+                graphics.showText(this.content);
+            } catch (error) {
+                console.error('Failed to render text with fallback method:', error);
+            }
+
+            graphics.endText();
+        }
     }
 }
 

@@ -24,6 +24,8 @@ import { BoxConstraints, EdgeInsets as EdgeInsetsUtils } from '../types/layout.j
 import type { Size, Point } from '../types/geometry.js';
 import type { BoxDecoration } from './container.js';
 import { PdfColorRgb, Matrix4 } from '../core/pdf/graphics.js';
+import { FontWeight, TextStyleUtils, PaintPhase, BoxDecorationUtils } from '@/types/theming.js';
+import { PdfStandardFont } from '@/core/pdf/font.js';
 
 /**
  * Table cell vertical alignment options
@@ -378,13 +380,53 @@ export class Table extends BaseWidget {
             return;
         }
 
-        let currentY = 0;
         const rowCount = this.children.length;
 
-        // Layout each row
+        // First pass: calculate row heights
         for (let rowIndex = 0; rowIndex < rowCount; rowIndex++) {
             const row = this.children[rowIndex]!;
             let maxRowHeight = 0;
+
+            // Layout each cell in the row to determine height
+            for (let columnIndex = 0; columnIndex < row.children.length; columnIndex++) {
+                const child = row.children[columnIndex]!;
+                const columnWidth = this.calculatedColumnWidths[columnIndex] ?? 0;
+
+                // Create constraints for this cell
+                const cellConstraints: BoxConstraints = {
+                    minWidth: columnWidth,
+                    maxWidth: columnWidth,
+                    minHeight: 0,
+                    maxHeight: context.constraints.maxHeight,
+                };
+
+                const cellContext: LayoutContext = {
+                    ...context,
+                    constraints: cellConstraints,
+                };
+
+                // Layout the cell to get height
+                const cellLayout = child.layout(cellContext);
+                maxRowHeight = Math.max(maxRowHeight, cellLayout.size.height);
+            }
+
+            this.calculatedRowHeights.push(maxRowHeight);
+        }
+
+        // Calculate total table height
+        const totalTableHeight = this.calculatedRowHeights.reduce((sum, height) => sum + height, 0);
+
+        // Second pass: position cells from top to bottom (PDF coordinates from bottom)
+        let currentY = totalTableHeight; // Start from top in PDF coordinates
+
+        for (let rowIndex = 0; rowIndex < rowCount; rowIndex++) {
+            const row = this.children[rowIndex]!;
+            const rowHeight = this.calculatedRowHeights[rowIndex] ?? 0;
+
+            // Move to the top of current row
+            currentY -= rowHeight;
+            const rowTop = currentY;
+
             let currentX = 0;
 
             // Layout each cell in the row
@@ -397,7 +439,7 @@ export class Table extends BaseWidget {
                     minWidth: columnWidth,
                     maxWidth: columnWidth,
                     minHeight: 0,
-                    maxHeight: context.constraints.maxHeight - currentY,
+                    maxHeight: context.constraints.maxHeight,
                 };
 
                 const cellContext: LayoutContext = {
@@ -407,13 +449,55 @@ export class Table extends BaseWidget {
 
                 // Layout the cell
                 const cellLayout = child.layout(cellContext);
-                maxRowHeight = Math.max(maxRowHeight, cellLayout.size.height);
+
+                // Calculate cell Y position based on vertical alignment
+                const verticalAlignment = row.verticalAlignment ?? this.defaultVerticalAlignment;
+                let cellY = rowTop;
+
+                switch (verticalAlignment) {
+                    case TableCellVerticalAlignment.Top:
+                        cellY = rowTop + (rowHeight - cellLayout.size.height);
+                        break;
+                    case TableCellVerticalAlignment.Middle:
+                        cellY = rowTop + (rowHeight - cellLayout.size.height) / 2;
+                        break;
+                    case TableCellVerticalAlignment.Bottom:
+                        cellY = rowTop;
+                        break;
+                    case TableCellVerticalAlignment.Full:
+                        cellY = rowTop;
+                        // Re-layout with full height
+                        const fullHeightConstraints: BoxConstraints = {
+                            minWidth: columnWidth,
+                            maxWidth: columnWidth,
+                            minHeight: rowHeight,
+                            maxHeight: rowHeight,
+                        };
+                        const fullHeightContext: LayoutContext = {
+                            ...context,
+                            constraints: fullHeightConstraints,
+                        };
+                        const fullCellLayout = child.layout(fullHeightContext);
+
+                        // Store cell layout info with full height
+                        this.cellLayouts.push({
+                            widget: child,
+                            size: fullCellLayout.size,
+                            position: { x: currentX, y: cellY },
+                            layoutResult: fullCellLayout,
+                            rowIndex,
+                            columnIndex,
+                        });
+
+                        currentX += columnWidth;
+                        continue;
+                }
 
                 // Store cell layout info
                 this.cellLayouts.push({
                     widget: child,
                     size: cellLayout.size,
-                    position: { x: currentX, y: currentY },
+                    position: { x: currentX, y: cellY },
                     layoutResult: cellLayout,
                     rowIndex,
                     columnIndex,
@@ -422,66 +506,8 @@ export class Table extends BaseWidget {
                 currentX += columnWidth;
             }
 
-            // Handle vertical alignment within row
-            const verticalAlignment = row.verticalAlignment ?? this.defaultVerticalAlignment;
-
-            if (verticalAlignment === TableCellVerticalAlignment.Full) {
-                // Re-layout cells with full height
-                let tempX = 0;
-                for (let columnIndex = 0; columnIndex < row.children.length; columnIndex++) {
-                    const child = row.children[columnIndex]!;
-                    const columnWidth = this.calculatedColumnWidths[columnIndex] ?? 0;
-
-                    const fullHeightConstraints: BoxConstraints = {
-                        minWidth: columnWidth,
-                        maxWidth: columnWidth,
-                        minHeight: maxRowHeight,
-                        maxHeight: maxRowHeight,
-                    };
-
-                    const cellContext: LayoutContext = {
-                        ...context,
-                        constraints: fullHeightConstraints,
-                    };
-
-                    const cellLayout = child.layout(cellContext);
-
-                    // Update the stored layout info
-                    const cellInfo = this.cellLayouts.find(
-                        c => c.rowIndex === rowIndex && c.columnIndex === columnIndex
-                    );
-                    if (cellInfo) {
-                        cellInfo.size = cellLayout.size;
-                        cellInfo.layoutResult = cellLayout;
-                    }
-
-                    tempX += columnWidth;
-                }
-            } else {
-                // Adjust Y positions for vertical alignment
-                for (const cellInfo of this.cellLayouts) {
-                    if (cellInfo.rowIndex === rowIndex) {
-                        switch (verticalAlignment) {
-                            case TableCellVerticalAlignment.Middle:
-                                cellInfo.position.y = currentY + (maxRowHeight - cellInfo.size.height) / 2;
-                                break;
-                            case TableCellVerticalAlignment.Bottom:
-                                cellInfo.position.y = currentY + (maxRowHeight - cellInfo.size.height);
-                                break;
-                            case TableCellVerticalAlignment.Top:
-                            default:
-                                // Already positioned at top
-                                break;
-                        }
-                    }
-                }
-            }
-
-            this.calculatedRowHeights.push(maxRowHeight);
-            currentY += maxRowHeight;
-
             // Check if we exceed available height (for page spanning)
-            if (currentY > context.constraints.maxHeight) {
+            if (totalTableHeight > context.constraints.maxHeight) {
                 this.tableContext.lastRow = rowIndex;
                 break;
             }
@@ -544,7 +570,7 @@ export class Table extends BaseWidget {
         const { graphics, size } = context;
         const { left, top, right, bottom, horizontalInside, verticalInside } = this.border;
 
-        // Paint outer borders
+        // Paint outer borders (PDF coordinates: bottom-left origin)
         if (left?.style !== 'none' && left) {
             const color = this.parseColor(left.color);
             graphics.setColor(color);
@@ -591,15 +617,16 @@ export class Table extends BaseWidget {
             graphics.strokePath();
         }
 
-        // Paint horizontal inside borders
+        // Paint horizontal inside borders (corrected for PDF coordinates)
         if (horizontalInside?.style !== 'none' && horizontalInside) {
             const color = this.parseColor(horizontalInside.color);
             graphics.setColor(color);
             graphics.setLineWidth(horizontalInside.width);
 
-            let y = size.height;
-            for (let i = 0; i < this.calculatedRowHeights.length - 1; i++) {
-                y -= this.calculatedRowHeights[i]!;
+            // Start from bottom and work upward (PDF coordinates)
+            let y = 0;
+            for (let i = this.calculatedRowHeights.length - 1; i > 0; i--) {
+                y += this.calculatedRowHeights[i]!;
                 graphics.drawLine(0, y, size.width, y);
             }
             graphics.strokePath();
@@ -615,7 +642,28 @@ export class Table extends BaseWidget {
 
         graphics.saveContext();
 
-        // Paint row decorations first (backgrounds)
+        // CRITICAL: Use dart-pdf-style paint phase separation for macOS compatibility
+
+        // Phase 1: Background (row decorations, cell backgrounds)
+        this.paintBackground(context);
+
+        // Phase 2: Content (cell content)
+        this.paintCellContent(context);
+
+        // Phase 3: Foreground (borders, decorations)
+        this.paintForeground(context);
+
+        graphics.restoreContext();
+    }
+
+    /**
+     * Paint background phase: row decorations and cell backgrounds
+     * Following dart-pdf's PaintPhase.Background approach
+     */
+    private paintBackground(context: PaintContext): void {
+        const { graphics } = context;
+
+        // Paint row decorations (backgrounds)
         for (let rowIndex = this.tableContext.firstRow; rowIndex < this.tableContext.lastRow; rowIndex++) {
             const row = this.children[rowIndex];
             if (!row?.decoration) continue;
@@ -628,16 +676,20 @@ export class Table extends BaseWidget {
             const rowHeight = this.calculatedRowHeights[rowIndex] ?? 0;
             const rowWidth = this.calculatedColumnWidths.reduce((sum, width) => sum + width, 0);
 
-            // Paint row background if decoration has a color
-            if (row.decoration.color) {
-                const bgColor = this.parseColor(row.decoration.color);
-                graphics.setColor(bgColor);
-                graphics.drawRect(0, rowY, rowWidth, rowHeight);
-                graphics.fillPath();
-            }
+            // Use BoxDecorationUtils for consistent background painting
+            const rect = { x: 0, y: rowY, width: rowWidth, height: rowHeight };
+            BoxDecorationUtils.paint(row.decoration, context, rect, PaintPhase.Background);
         }
+    }
 
-        // Paint cells
+    /**
+     * Paint cell content phase
+     * Following dart-pdf's approach where content is painted between background and foreground
+     */
+    private paintCellContent(context: PaintContext): void {
+        const { graphics } = context;
+
+        // Paint cells with individual clipping boundaries
         for (const cellInfo of this.cellLayouts) {
             if (cellInfo.rowIndex < this.tableContext.firstRow ||
                 cellInfo.rowIndex >= this.tableContext.lastRow) {
@@ -655,10 +707,10 @@ export class Table extends BaseWidget {
             ]);
             graphics.setTransform(transform);
 
-            // Clip to cell bounds
+            // CRITICAL: Individual cell clipping for macOS compatibility
+            // This prevents text and content from overflowing cell boundaries
             graphics.drawRect(0, 0, cellInfo.size.width, cellInfo.size.height);
-            // TODO: Implement clipping when graphics API supports it
-            // graphics.clipPath();
+            graphics.clipPath();
 
             // Paint cell content
             const cellPaintContext: PaintContext = {
@@ -670,11 +722,32 @@ export class Table extends BaseWidget {
 
             graphics.restoreContext();
         }
+    }
 
-        // Paint borders on top
+    /**
+     * Paint foreground phase: borders and decorations
+     * Following dart-pdf's PaintPhase.Foreground approach
+     */
+    private paintForeground(context: PaintContext): void {
+        // Paint table borders on top of everything
         this.paintBorders(context);
 
-        graphics.restoreContext();
+        // Paint row decoration foreground elements (borders, etc.)
+        for (let rowIndex = this.tableContext.firstRow; rowIndex < this.tableContext.lastRow; rowIndex++) {
+            const row = this.children[rowIndex];
+            if (!row?.decoration) continue;
+
+            const rowCells = this.cellLayouts.filter(cell => cell.rowIndex === rowIndex);
+            if (rowCells.length === 0) continue;
+
+            const rowY = Math.min(...rowCells.map(cell => cell.position.y));
+            const rowHeight = this.calculatedRowHeights[rowIndex] ?? 0;
+            const rowWidth = this.calculatedColumnWidths.reduce((sum, width) => sum + width, 0);
+
+            // Use BoxDecorationUtils for consistent foreground painting
+            const rect = { x: 0, y: rowY, width: rowWidth, height: rowHeight };
+            BoxDecorationUtils.paint(row.decoration, context, rect, PaintPhase.Foreground);
+        }
     }
 
     /**
@@ -778,7 +851,12 @@ export const TableHelpers = {
                 new Container({
                     padding: options.cellPadding ?? EdgeInsetsUtils.all(8),
                     child: new Text(header, {
-                        style: { fontWeight: 'bold' as any },
+                        style: TextStyleUtils.createDefault({
+                            fontWeight: FontWeight.Bold,
+                            color: '#000000',
+                            fontFamily: PdfStandardFont.Helvetica,
+                            fontSize: 12,
+                        }),
                     }),
                 })
             );
@@ -790,7 +868,13 @@ export const TableHelpers = {
             const cells = rowData.map(cellData =>
                 new Container({
                     padding: options.cellPadding ?? EdgeInsetsUtils.all(8),
-                    child: new Text(cellData),
+                    child: new Text(cellData, {
+                        style: TextStyleUtils.createDefault({
+                            color: '#000000',
+                            fontFamily: PdfStandardFont.Helvetica,
+                            fontSize: 12,
+                        }),
+                    }),
                 })
             );
             rows.push(new TableRow({ children: cells }));

@@ -131,6 +131,7 @@ import type {
 import {
     defaultTheme as comprehensiveDefaultTheme,
 } from './theming.js';
+import type { FontRegistry } from '@/core/index.js';
 
 // Use the comprehensive theme system
 export type ThemeData = ComprehensiveThemeData;
@@ -171,7 +172,7 @@ export interface PaintContext {
     /** Theme data for styling */
     readonly theme: ThemeData;
     /** Font registry for accurate text measurements */
-    readonly fontRegistry?: any; // FontRegistry type - will be properly typed later
+    readonly fontRegistry?: FontRegistry;
 }
 
 /**

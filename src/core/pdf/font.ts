@@ -8,7 +8,7 @@
  */
 
 import { PdfStream } from './stream.js';
-import { PdfObject, PdfDict, PdfName, PdfString, type PdfOutputContext } from './types.js';
+import { PdfObject, PdfDict, PdfName, PdfString, type PdfOutputContext, PdfNum, PdfArray } from './types.js';
 import type { PdfDocument } from './document.js';
 
 /**
@@ -369,6 +369,38 @@ const FONT_METRICS: Record<PdfStandardFont, FontMetrics> = {
 };
 
 /**
+ * PDF Font Descriptor object
+ */
+export class PdfFontDescriptor extends PdfObject<PdfDict> {
+    constructor(document: PdfDocument, fontName: PdfStandardFont, metrics: FontMetrics) {
+        const dict = new PdfDict({
+            '/Type': new PdfName('/FontDescriptor'),
+            '/FontName': new PdfName(`/${fontName}`),
+            '/Flags': new PdfNum(32), // Symbolic flag
+            '/FontBBox': new PdfArray([
+                new PdfNum(-200), // Estimated left
+                new PdfNum(metrics.descender),
+                new PdfNum(1000), // Estimated right
+                new PdfNum(metrics.ascender)
+            ]),
+            '/ItalicAngle': new PdfNum(fontName.includes('Oblique') || fontName.includes('Italic') ? -12 : 0),
+            '/Ascent': new PdfNum(metrics.ascender),
+            '/Descent': new PdfNum(metrics.descender),
+            '/CapHeight': new PdfNum(metrics.capHeight),
+            '/XHeight': new PdfNum(metrics.xHeight),
+            '/StemV': new PdfNum(fontName.includes('Bold') ? 120 : 80),
+        });
+
+        super(document.genSerial(), 0, dict);
+        document.objects.add(this);
+    }
+
+    writeContent(stream: PdfStream, context: PdfOutputContext): void {
+        this.params.output(context, stream, context.verbose ? 0 : undefined);
+    }
+}
+
+/**
  * PDF Font object
  */
 export class PdfFont extends PdfObject<PdfDict> {
@@ -383,12 +415,22 @@ export class PdfFont extends PdfObject<PdfDict> {
             '/BaseFont': new PdfName(`/${fontName}`),
         });
 
+        // Add encoding for better compatibility
+        dict.set('/Encoding', new PdfName('/WinAnsiEncoding'));
+
+        // Add font descriptor information for better compatibility
+        const metrics = FONT_METRICS[fontName]!;
+        const fontDescriptor = new PdfFontDescriptor(document, fontName, metrics);
+
+        // Reference the font descriptor
+        dict.set('/FontDescriptor', fontDescriptor.ref());
+
         super(document.genSerial(), 0, dict);
         document.objects.add(this);
 
         this.fontName = fontName;
         this.name = name || `/F${this.objser}`;
-        this.metrics = FONT_METRICS[fontName]!;
+        this.metrics = metrics;
     }
 
     /**

@@ -8,7 +8,7 @@
  */
 
 import { PdfStandardFont } from './pdf/font.js';
-import { FontFallbackSystem, FontUtils, type FontDescriptor } from './font-fallback.js';
+import { FontFallbackSystem, FontStyle, FontUtils, FontWeight, type FontDescriptor } from './font-fallback.js';
 
 /**
  * Character-level metrics
@@ -705,7 +705,7 @@ export const TextMeasurementUtils = {
     ): number => {
         const options: TextMeasurementOptions = {
             fontSize,
-            font: { family: fontFamily, weight: 'normal', style: 'normal' },
+            font: { family: fontFamily, weight: FontWeight.Normal, style: FontStyle.Normal },
             lineHeight: 1.0,
             letterSpacing: 0,
             wordSpacing: 1.0,
@@ -744,7 +744,7 @@ export const TextMeasurementUtils = {
     ): { width: number; height: number; lineCount: number } => {
         const options: TextMeasurementOptions = {
             fontSize,
-            font: { family: fontFamily, weight: 'normal', style: 'normal' },
+            font: { family: fontFamily, weight: FontWeight.Normal, style: FontStyle.Normal },
             lineHeight: 1.2,
             letterSpacing: 0,
             wordSpacing: 1.0,

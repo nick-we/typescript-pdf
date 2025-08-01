@@ -25,8 +25,9 @@ import type { BoxDecoration } from './container.js';
 import type { EdgeInsets } from '../types/layout.js';
 import { EdgeInsets as EdgeInsetsUtils, Alignment } from '../types/layout.js';
 import { type Widget } from './widget.js';
-import { FontWeight, type TextStyle } from '../types/theming.js';
+import { FontStyle, FontWeight, TextDecoration, type TextStyle, TextStyleUtils } from '../types/theming.js';
 import { TextDirection } from '@/core/text-layout.js';
+import { PdfStandardFont } from '@/core/index.js';
 
 /**
  * Callback for custom cell formatting
@@ -195,7 +196,7 @@ export class TableHelper {
                     : new Text(
                         headerFormat ? headerFormat(columnIndex, cellData, rowIndex) : String(cellData),
                         {
-                            style: headerStyle ?? { fontWeight: FontWeight.Bold },
+                            style: headerStyle ?? { fontWeight: FontWeight.Bold, color: '#000000' },
                             textAlign: textAlign,
                         }
                     );
@@ -239,7 +240,7 @@ export class TableHelper {
                         : new Text(
                             headerFormat ? headerFormat(columnIndex, cellData, rowIndex) : String(cellData),
                             {
-                                style: headerStyle ?? { fontWeight: FontWeight.Bold },
+                                style: headerStyle ?? { fontWeight: FontWeight.Bold, color: '#000000' },
                                 textAlign: textAlign,
                             }
                         );
@@ -265,12 +266,36 @@ export class TableHelper {
                             cellContent = cellData as Widget;
                         } else {
                             // Get text style (custom or default)
-                            const textStyle = textStyleBuilder?.(columnIndex, cellData, rowIndex)
-                                ?? (isOddDataRow ? oddCellStyle : cellStyle);
+                            const customTextStyle = textStyleBuilder?.(columnIndex, cellData, rowIndex);
+                            const defaultTextStyle = isOddDataRow ? oddCellStyle : cellStyle;
+
+                            // Create a proper TextStyle using the theming system for maximum compatibility
+                            const baseTextStyle = TextStyleUtils.createDefault({
+                                fontSize: 12,
+                                fontFamily: PdfStandardFont.Helvetica,
+                                fontWeight: FontWeight.Normal,
+                                color: '#000000',
+                                letterSpacing: 0,
+                                wordSpacing: 1,
+                                lineSpacing: 1.2,
+                            });
+
+                            // Merge styles properly using the theming system
+                            let finalTextStyle;
+                            if (customTextStyle) {
+                                // Merge custom style with base style using TextStyleUtils
+                                finalTextStyle = TextStyleUtils.merge(baseTextStyle, customTextStyle);
+                            } else if (defaultTextStyle) {
+                                // Merge default style with base style using TextStyleUtils
+                                finalTextStyle = TextStyleUtils.merge(baseTextStyle, defaultTextStyle);
+                            } else {
+                                // Use complete base style
+                                finalTextStyle = baseTextStyle;
+                            }
 
                             cellContent = new Text(
                                 cellFormat ? cellFormat(columnIndex, cellData, rowIndex) : String(cellData),
-                                textStyle ? { style: textStyle, textAlign: textAlign } : { textAlign: textAlign }
+                                { style: finalTextStyle, textAlign: textAlign }
                             );
                         }
                     }
