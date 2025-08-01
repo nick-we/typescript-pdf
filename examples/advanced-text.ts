@@ -32,6 +32,7 @@ import {
     FontWeight,
     FontStyle,
 } from '../src/core/index.js';
+import { TextDecoration } from '../src/types/theming.js';
 
 /**
  * Example 1: Basic RichText with Mixed Formatting
@@ -48,7 +49,7 @@ function createBasicRichTextExample(): RichText {
     );
 
     return createRichText(span, {
-        style: { fontSize: 14, lineHeight: 1.4 },
+        style: { fontSize: 14, lineSpacing: 1.4 },
         textAlign: TextAlign.Left,
         softWrap: true,
     });
@@ -59,7 +60,7 @@ function createBasicRichTextExample(): RichText {
  */
 function createComplexRichTextExample(): RichText {
     const span = TextSpans.combine(
-        TextSpans.sized('Large Title', 24, { fontWeight: 'bold' }),
+        TextSpans.sized('Large Title', 24, { fontWeight: FontWeight.Bold }),
         TextSpans.text('\n\n'),
         TextSpans.text('This paragraph demonstrates '),
         TextSpans.bold('nested formatting'),
@@ -79,7 +80,7 @@ function createComplexRichTextExample(): RichText {
     );
 
     return createRichText(span, {
-        style: { fontSize: 12, lineHeight: 1.5 },
+        style: { fontSize: 12, lineSpacing: 1.5 },
         textAlign: TextAlign.Left,
         softWrap: true,
     });
@@ -107,7 +108,7 @@ function demonstrateFontFallback(): Container {
                 TextSpans.bold(resolvedFont, { color: '#0066cc' }),
                 TextSpans.text(` (${expected})`)
             ),
-            { style: { fontSize: 11, lineHeight: 1.3 } }
+            { style: { fontSize: 11, lineSpacing: 1.3 } }
         );
     });
 
@@ -198,7 +199,7 @@ function demonstrateLineBreaking(): Container {
                     createRichText(
                         TextSpans.text(longText),
                         {
-                            style: { fontSize: 10, lineHeight: 1.3 },
+                            style: { fontSize: 10, lineSpacing: 1.3 },
                             softWrap: true,
                         }
                     ),
@@ -238,7 +239,7 @@ function createTypographyShowcase(): Container {
         TextSpans.text(', '),
         TextSpans.underline('underlined text'),
         TextSpans.text(', and '),
-        TextSpans.text('text with strikethrough', { decoration: { strikethrough: true } }),
+        TextSpans.text('text with strikethrough', { decoration: TextDecoration.lineThrough }),
         TextSpans.text('.\n\nDifferent font sizes: '),
         TextSpans.sized('small', 8),
         TextSpans.text(', '),
@@ -264,11 +265,11 @@ function createTypographyShowcase(): Container {
             children: [
                 createRichText(headingSpan, {
                     textAlign: TextAlign.Center,
-                    style: { lineHeight: 1.2 },
+                    style: { lineSpacing: 1.2 },
                 }),
                 new Container({ height: 20 }), // Spacer
                 createRichText(bodySpan, {
-                    style: { fontSize: 12, lineHeight: 1.5 },
+                    style: { fontSize: 12, lineSpacing: 1.5 },
                     softWrap: true,
                 }),
             ],

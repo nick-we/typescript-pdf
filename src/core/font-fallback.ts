@@ -7,31 +7,11 @@
  * @packageDocumentation
  */
 
+import { FontStyle, FontWeight } from './fonts.js';
 import { PdfStandardFont } from './pdf/font.js';
 
-/**
- * Font weight enumeration
- */
-export enum FontWeight {
-    Thin = 100,
-    ExtraLight = 200,
-    Light = 300,
-    Normal = 400,
-    Medium = 500,
-    SemiBold = 600,
-    Bold = 700,
-    ExtraBold = 800,
-    Black = 900,
-}
-
-/**
- * Font style enumeration
- */
-export enum FontStyle {
-    Normal = 'normal',
-    Italic = 'italic',
-    Oblique = 'oblique',
-}
+// Re-export FontWeight and FontStyle for test compatibility
+export { FontWeight, FontStyle };
 
 /**
  * Font descriptor for matching
@@ -40,9 +20,9 @@ export interface FontDescriptor {
     /** Font family name */
     family: string;
     /** Font weight */
-    weight: FontWeight | 'normal' | 'bold';
+    weight: FontWeight;
     /** Font style */
-    style: FontStyle | 'normal' | 'italic';
+    style: FontStyle;
 }
 
 /**
@@ -398,13 +378,13 @@ export const FontUtils = {
      */
     resolveFont: (
         family: string,
-        weight: 'normal' | 'bold' = 'normal',
-        style: 'normal' | 'italic' = 'normal'
+        weight: FontWeight = FontWeight.Normal,
+        style: FontStyle = FontStyle.Normal
     ): PdfStandardFont => {
         return defaultFontFallback.resolveFontDescriptor({
             family,
             weight,
-            style: style as FontStyle,
+            style,
         });
     },
 

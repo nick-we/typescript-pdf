@@ -17,7 +17,7 @@ import type {
 } from '../types/layout.js';
 import type { Size } from '../types/geometry.js';
 import type {
-    TextStyle as ComprehensiveTextStyle,
+    TextStyle,
 } from '../types/theming.js';
 import {
     TextStyleUtils,
@@ -96,41 +96,13 @@ export interface LegacyTextDecoration {
 export type TextDecoration = ComprehensiveTextDecoration;
 
 /**
- * Text style configuration (legacy compatibility - use comprehensive TextStyle from theming)
- * @deprecated Use TextStyle from theming system instead
- */
-export interface LegacyTextStyle {
-    /** Font size in points */
-    fontSize?: number;
-    /** Font family */
-    fontFamily?: PdfStandardFont;
-    /** Font weight */
-    fontWeight?: 'normal' | 'bold';
-    /** Font style */
-    fontStyle?: 'normal' | 'italic';
-    /** Text color (hex string) */
-    color?: string;
-    /** Letter spacing */
-    letterSpacing?: number;
-    /** Word spacing */
-    wordSpacing?: number;
-    /** Line height multiplier */
-    lineHeight?: number;
-    /** Text decoration */
-    decoration?: TextDecoration | LegacyTextDecoration;
-}
-
-// Re-export comprehensive TextStyle for compatibility
-export type TextStyle = ComprehensiveTextStyle;
-
-/**
  * Text widget properties
  */
 export interface TextProps extends WidgetProps {
     /** The text content to display */
     content: string;
     /** Text styling - supports both legacy and comprehensive styles */
-    style?: ComprehensiveTextStyle | LegacyTextStyle;
+    style?: TextStyle;
     /** Text alignment */
     textAlign?: TextAlign;
     /** Text overflow behavior */
@@ -166,7 +138,7 @@ interface TextMeasurement {
  */
 export class Text extends BaseWidget {
     private readonly content: string;
-    private readonly style: ComprehensiveTextStyle;
+    private readonly style: TextStyle;
     private readonly textAlign: TextAlign;
     private readonly overflow: TextOverflow;
     private readonly maxLines?: number;
@@ -188,7 +160,7 @@ export class Text extends BaseWidget {
     /**
      * Normalize text style to comprehensive format
      */
-    private normalizeTextStyle(inputStyle?: ComprehensiveTextStyle | LegacyTextStyle): ComprehensiveTextStyle {
+    private normalizeTextStyle(inputStyle?: TextStyle): TextStyle {
         if (!inputStyle) {
             return TextStyleUtils.createInheriting({
                 fontSize: 12,
@@ -205,40 +177,21 @@ export class Text extends BaseWidget {
 
         // If already comprehensive style, return as-is
         if ('inherit' in inputStyle) {
-            return inputStyle as ComprehensiveTextStyle;
+            return inputStyle as TextStyle;
         }
 
-        // Convert legacy style
-        const legacyStyle = inputStyle as LegacyTextStyle;
-
-        // Convert legacy decoration to comprehensive
-        let decoration = ComprehensiveTextDecoration.none;
-        if (legacyStyle.decoration) {
-            const legacyDec = legacyStyle.decoration as LegacyTextDecoration;
-            const decorations: ComprehensiveTextDecoration[] = [];
-            if (legacyDec.underline) decorations.push(ComprehensiveTextDecoration.underline);
-            if (legacyDec.strikethrough) decorations.push(ComprehensiveTextDecoration.lineThrough);
-            decoration = decorations.length > 0
-                ? ComprehensiveTextDecoration.combine(decorations)
-                : ComprehensiveTextDecoration.none;
-        }
-
-        const styleObj: any = { decoration };
-
-        if (legacyStyle.fontSize !== undefined) styleObj.fontSize = legacyStyle.fontSize;
-        if (legacyStyle.fontFamily !== undefined) styleObj.fontFamily = legacyStyle.fontFamily;
-        if (legacyStyle.fontWeight !== undefined) {
-            styleObj.fontWeight = legacyStyle.fontWeight === 'bold' ? FontWeight.Bold : FontWeight.Normal;
-        }
-        if (legacyStyle.fontStyle !== undefined) {
-            styleObj.fontStyle = legacyStyle.fontStyle === 'italic' ? FontStyle.Italic : FontStyle.Normal;
-        }
-        if (legacyStyle.color !== undefined) styleObj.color = legacyStyle.color;
-        if (legacyStyle.letterSpacing !== undefined) styleObj.letterSpacing = legacyStyle.letterSpacing;
-        if (legacyStyle.wordSpacing !== undefined) styleObj.wordSpacing = legacyStyle.wordSpacing;
-        if (legacyStyle.lineHeight !== undefined) styleObj.lineSpacing = legacyStyle.lineHeight;
-
-        return TextStyleUtils.createInheriting(styleObj);
+        // Convert legacy style to comprehensive format
+        return TextStyleUtils.createInheriting({
+            fontSize: inputStyle.fontSize || 12,
+            fontFamily: inputStyle.fontFamily || PdfStandardFont.Helvetica,
+            fontWeight: inputStyle.fontWeight || FontWeight.Normal,
+            fontStyle: inputStyle.fontStyle || FontStyle.Normal,
+            color: inputStyle.color || '#000000',
+            letterSpacing: inputStyle.letterSpacing || 0,
+            wordSpacing: inputStyle.wordSpacing || 1,
+            lineSpacing: inputStyle.lineSpacing || 1.2,
+            decoration: inputStyle.decoration || ComprehensiveTextDecoration.none,
+        });
     }
 
     /**
@@ -273,7 +226,7 @@ export class Text extends BaseWidget {
     private measureText(
         maxWidth: number,
         fontRegistry: FontRegistry | MockFontRegistry,
-        effectiveStyle: ComprehensiveTextStyle
+        effectiveStyle: TextStyle
     ): TextMeasurement {
         const font = fontRegistry.getFont(this.getPdfFont());
         const fontSize = effectiveStyle.fontSize || 12;
@@ -365,11 +318,11 @@ export class Text extends BaseWidget {
         const constrainedSize = this.constrainSize(context.constraints, size);
 
         console.log(`Text layout debug:
-  content: "${this.content}"
-  fontSize: ${fontSize}
-  constraints: ${JSON.stringify(context.constraints)}
-  measurement: ${JSON.stringify(measurement)}
-  finalSize: ${JSON.stringify(constrainedSize)}`);
+    content: "${this.content}"
+    fontSize: ${fontSize}
+    constraints: ${JSON.stringify(context.constraints)}
+    measurement: ${JSON.stringify(measurement)}
+    finalSize: ${JSON.stringify(constrainedSize)}`);
 
         return this.createLayoutResult(constrainedSize, {
             baseline: measurement.baseline,
@@ -438,14 +391,14 @@ export class Text extends BaseWidget {
         let y = containerCenter - (ascender - descender) / 2;
 
         console.log(`Text positioning debug:
-  size: ${JSON.stringify(size)}
-  actualWidth: ${actualWidth}
-  totalTextHeight: ${totalTextHeight}
-  ascender: ${ascender}
-  descender: ${descender}
-  calculated x: ${x}
-  calculated y: ${y}
-  content: "${this.content}"`);
+    size: ${JSON.stringify(size)}
+    actualWidth: ${actualWidth}
+    totalTextHeight: ${totalTextHeight}
+    ascender: ${ascender}
+    descender: ${descender}
+    calculated x: ${x}
+    calculated y: ${y}
+    content: "${this.content}"`);
 
         // Apply explicit text alignment if specified (overrides default centering)
         if (this.textAlign === TextAlign.Left) {
@@ -515,4 +468,4 @@ export const TextStyles = {
         fontFamily: PdfStandardFont.Courier,
         color: '#333333',
     },
-} satisfies Record<string, Partial<LegacyTextStyle>>;
+} as const;

@@ -6,9 +6,9 @@
  * @packageDocumentation
  */
 
+import { FontWeight } from '@/core/fonts.js';
 import type { Point, Size, Rect, Matrix } from '../types/geometry.js';
 import { BoxConstraints, EdgeInsets, Alignment, AlignmentUtils, defaultTheme } from '../types/layout.js';
-import { FontWeight } from '../types/theming.js';
 
 describe('Type System Tests', () => {
     describe('Geometry Types', () => {

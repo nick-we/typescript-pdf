@@ -427,6 +427,7 @@ describe('Stack Widget', () => {
                 beginText: () => { },
                 moveTextPosition: () => { },
                 showText: () => { },
+                drawString: (font: any, fontSize: number, text: string, x: number, y: number, options: any) => { },
                 endText: () => { },
                 drawLine: () => { },
                 strokePath: () => { },

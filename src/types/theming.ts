@@ -7,24 +7,12 @@
  * @packageDocumentation
  */
 
+import { FontStyle, FontWeight } from '@/core/fonts.js';
 import { PdfStandardFont } from '../core/pdf/font.js';
 import type { EdgeInsets } from './layout.js';
 
-/**
- * Font weight enumeration
- */
-export enum FontWeight {
-    Normal = 'normal',
-    Bold = 'bold',
-}
-
-/**
- * Font style enumeration
- */
-export enum FontStyle {
-    Normal = 'normal',
-    Italic = 'italic',
-}
+// Re-export FontWeight and FontStyle for convenience
+export { FontWeight, FontStyle };
 
 /**
  * Text decoration style
@@ -51,22 +39,60 @@ export enum TextDecorationFlag {
  */
 export class TextDecoration {
     private readonly _mask: number;
+    public readonly underline?: boolean;
+    public readonly overline?: boolean;
+    public readonly strikethrough?: boolean;
+    public readonly color?: string;
+    public readonly thickness?: number;
+    public readonly style?: TextDecorationStyle;
 
-    private constructor(mask: number) {
+    private constructor(mask: number, options?: {
+        underline?: boolean;
+        overline?: boolean;
+        strikethrough?: boolean;
+        color?: string;
+        thickness?: number;
+        style?: TextDecorationStyle;
+    }) {
         this._mask = mask;
+        options?.underline && (this.underline = options?.underline);
+        options?.overline && (this.overline = options?.overline);
+        options?.strikethrough && (this.strikethrough = options?.strikethrough);
+        options?.color && (this.color = options?.color);
+        options?.thickness && (this.thickness = options?.thickness);
+        options?.style && (this.style = options?.style);
     }
 
     /** No decoration */
     static readonly none = new TextDecoration(TextDecorationFlag.None);
 
     /** Underline decoration */
-    static readonly underline = new TextDecoration(TextDecorationFlag.Underline);
+    static readonly underline = new TextDecoration(TextDecorationFlag.Underline, { underline: true });
 
     /** Overline decoration */
-    static readonly overline = new TextDecoration(TextDecorationFlag.Overline);
+    static readonly overline = new TextDecoration(TextDecorationFlag.Overline, { overline: true });
 
     /** Line through decoration */
-    static readonly lineThrough = new TextDecoration(TextDecorationFlag.LineThrough);
+    static readonly lineThrough = new TextDecoration(TextDecorationFlag.LineThrough, { strikethrough: true });
+
+    /**
+     * Create a custom decoration with properties
+     */
+    static create(options: {
+        underline?: boolean;
+        overline?: boolean;
+        strikethrough?: boolean;
+        color?: string;
+        thickness?: number;
+        style?: TextDecorationStyle;
+    }): TextDecoration {
+        let mask = TextDecorationFlag.None;
+        if (options.underline) mask |= TextDecorationFlag.Underline;
+        if (options.overline) mask |= TextDecorationFlag.Overline;
+        if (options.strikethrough) mask |= TextDecorationFlag.LineThrough;
+
+        return new TextDecoration(mask, options);
+    }
 
     /**
      * Combine multiple decorations
@@ -118,7 +144,7 @@ export class TextDecoration {
 }
 
 /**
- * Comprehensive text style configuration with inheritance support
+ * text style configuration with inheritance support
  */
 export interface TextStyle {
     /** Whether this style inherits from parent styles */

@@ -131,6 +131,37 @@ export {
     type ThemeContext,
 } from './theme.js';
 
+// Table widgets and related types
+export {
+    Table,
+    TableRow,
+    TableBorders,
+    TableHelpers,
+    FixedColumnWidth,
+    FlexColumnWidth,
+    IntrinsicColumnWidth,
+    FractionColumnWidth,
+    TableCellVerticalAlignment,
+    TableWidth,
+    createTable,
+    createTableRow,
+    type TableProps,
+    type TableRowProps,
+    type TableBorder,
+    type TableColumnWidth,
+    type BorderSide,
+    type ColumnLayout,
+} from './table.js';
+
+// Table helper utilities
+export {
+    TableHelper,
+    type OnCellFormat,
+    type OnCellDecoration,
+    type OnCellBuilder,
+    type OnCellTextStyle,
+} from './table-helper.js';
+
 // Layout system exports
 export {
     BoxConstraints,
