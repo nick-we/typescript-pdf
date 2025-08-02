@@ -149,19 +149,25 @@ export interface FlexibleWidget {
 }
 
 /**
- * Table cell data interface - replaces generic `any` in table handling
+ * Table cell data interface - supports both simple values and complex cell objects
  */
-export interface TableCellData {
-    /** Cell content */
-    value: string | number | boolean | null | undefined;
-    /** Optional formatted display value */
-    displayValue?: string;
-    /** Optional cell metadata */
-    metadata?: Record<string, unknown>;
-}
+export type TableCellData =
+    | string
+    | number
+    | boolean
+    | null
+    | undefined
+    | {
+        /** Cell content */
+        value: string | number | boolean | null | undefined;
+        /** Optional formatted display value */
+        displayValue?: string;
+        /** Optional cell metadata */
+        metadata?: Record<string, unknown>;
+    };
 
 /**
- * Table row data - replaces `any[]` 
+ * Table row data - replaces `any[]`
  */
 export type TableRowData = TableCellData[];
 
@@ -169,6 +175,29 @@ export type TableRowData = TableCellData[];
  * Table data structure - replaces `any[][]`
  */
 export type TableData = TableRowData[];
+
+/**
+ * Helper to extract the actual value from TableCellData
+ */
+export function getTableCellValue(cellData: TableCellData): string | number | boolean | null | undefined {
+    if (cellData === null || cellData === undefined || typeof cellData === 'string' || typeof cellData === 'number' || typeof cellData === 'boolean') {
+        return cellData;
+    }
+    return cellData.value;
+}
+
+/**
+ * Helper to get display value from TableCellData
+ */
+export function getTableCellDisplayValue(cellData: TableCellData): string {
+    if (cellData === null || cellData === undefined) {
+        return '';
+    }
+    if (typeof cellData === 'string' || typeof cellData === 'number' || typeof cellData === 'boolean') {
+        return String(cellData);
+    }
+    return cellData.displayValue ?? String(cellData.value);
+}
 
 /**
  * Generic object merger for type-safe property copying

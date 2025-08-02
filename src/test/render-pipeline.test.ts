@@ -12,9 +12,9 @@ import { ConstraintSolver } from '../layout/constraint-solver.js';
 import { BaseWidget } from '../widgets/widget.js';
 import { Matrix4 } from '../core/pdf/graphics.js';
 import type { LayoutContext, LayoutResult, PaintContext } from '../types/layout.js';
-import { TextDirection } from '../types/layout.js';
 import type { Size, Point } from '../types/geometry.js';
 import { FontWeight, ThemeUtils, TextStyleUtils } from '../types/theming.js';
+import { TextDirection } from '@/core/text-layout.js';
 
 // Mock graphics interface for testing
 class MockGraphics {

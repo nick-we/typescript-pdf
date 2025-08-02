@@ -5,8 +5,9 @@
 import { describe, it, expect } from 'vitest';
 import { Padding, PaddingHelpers } from '../widgets/padding.js';
 import { Text } from '../widgets/text.js';
-import { EdgeInsets, BoxConstraints, TextDirection, defaultTheme } from '../types/layout.js';
+import { EdgeInsets, BoxConstraints, defaultTheme } from '../types/layout.js';
 import type { LayoutContext } from '../types/layout.js';
+import { TextDirection } from '@/core/text-layout.js';
 
 describe('Padding Widget', () => {
     const createMockContext = (width = 200, height = 200): LayoutContext => ({

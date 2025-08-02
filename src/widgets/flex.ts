@@ -14,7 +14,6 @@ import type {
     PaintContext,
     BoxConstraints,
 } from '../types/layout.js';
-import { TextDirection } from '../types/layout.js';
 import type { Size, Point } from '../types/geometry.js';
 import {
     Axis,
@@ -27,6 +26,7 @@ import {
     type FlexLayoutData,
 } from '../types/flex.js';
 import { Matrix4 } from '../core/pdf/graphics.js';
+import { TextDirection } from '@/core/text-layout.js';
 
 /**
  * Properties for the Flex widget

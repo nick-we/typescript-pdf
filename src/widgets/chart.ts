@@ -20,12 +20,13 @@ import type {
     PaintContext,
     EdgeInsets,
 } from '../types/layout.js';
-import { BoxConstraints, EdgeInsets as EdgeInsetsUtils, TextDirection } from '../types/layout.js';
+import { BoxConstraints, EdgeInsets as EdgeInsetsUtils } from '../types/layout.js';
 import type { Size, Point, Rect } from '../types/geometry.js';
 import { Matrix4 } from '../core/pdf/graphics.js';
 import { FontWeight, TextStyleUtils, PaintPhase, type TextStyle } from '@/types/theming.js';
 import { PdfStandardFont } from '@/core/pdf/font.js';
 import { PdfColor } from '@/core/pdf/color.js';
+import { TextDirection } from '@/core/text-layout.js';
 
 /**
  * Chart data point representing a single value

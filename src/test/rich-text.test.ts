@@ -12,6 +12,7 @@ import { BoxConstraints, type LayoutContext, type PaintContext } from '../types/
 import { TextAlign, TextOverflow } from '../widgets/text.js';
 import { FontWeight, FontStyle, TextDecoration } from '../types/theming.js';
 import { PdfColor } from '@/core/pdf/color.js';
+import { TextDirection } from '@/core/text-layout.js';
 
 // Mock graphics context for testing
 class MockGraphicsContext {
@@ -60,7 +61,7 @@ describe('RichText Widget', () => {
 
         layoutContext = {
             constraints: BoxConstraints.loose({ width: 400, height: 600 }),
-            textDirection: 'ltr' as any,
+            textDirection: TextDirection.LeftToRight,
             theme: {} as any,
         };
 

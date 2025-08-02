@@ -1,11 +1,11 @@
 /**
  * Table Helper utility for advanced data-to-table conversion
- * 
+ *
  * Provides utilities for converting data arrays into fully formatted
  * tables with headers, cell decorations, styling, and formatting.
- * 
+ *
  * Based on the Dart PDF TableHelper implementation.
- * 
+ *
  * @packageDocumentation
  */
 
@@ -29,26 +29,28 @@ import { FontStyle, FontWeight, TextDecoration, type TextStyle, TextStyleUtils }
 import { TextDirection } from '@/core/text-layout.js';
 import { PdfStandardFont } from '@/core/index.js';
 import { PdfColor } from '../core/pdf/color.js';
+import type { TableData, TableRowData, TableCellData } from '../types/internal.js';
+import { getTableCellDisplayValue } from '../types/internal.js';
 
 /**
  * Callback for custom cell formatting
  */
-export type OnCellFormat = (columnIndex: number, data: any, rowIndex: number) => string;
+export type OnCellFormat = (columnIndex: number, data: TableCellData, rowIndex: number) => string;
 
 /**
  * Callback for custom cell decoration
  */
-export type OnCellDecoration = (columnIndex: number, data: any, rowIndex: number) => BoxDecoration | undefined;
+export type OnCellDecoration = (columnIndex: number, data: TableCellData, rowIndex: number) => BoxDecoration | undefined;
 
 /**
  * Callback for custom cell widget creation
  */
-export type OnCellBuilder = (columnIndex: number, data: any, rowIndex: number) => Widget | undefined;
+export type OnCellBuilder = (columnIndex: number, data: TableCellData, rowIndex: number) => Widget | undefined;
 
 /**
  * Callback for custom text style
  */
-export type OnCellTextStyle = (columnIndex: number, data: any, rowIndex: number) => TextStyle | undefined;
+export type OnCellTextStyle = (columnIndex: number, data: TableCellData, rowIndex: number) => TextStyle | undefined;
 
 /**
  * Alignment geometry for table cells
@@ -86,7 +88,7 @@ export class TableHelper {
      */
     static fromTextArray(options: {
         /** 2D array of data for table content */
-        data: any[][];
+        data: TableData;
         /** Cell padding for all cells */
         cellPadding?: EdgeInsets;
         /** Minimum cell height */
@@ -106,7 +108,7 @@ export class TableHelper {
         /** Number of header rows (starting from top) */
         headerCount?: number;
         /** Custom header row data (if different from data) */
-        headers?: any[];
+        headers?: TableRowData;
         /** Header cell padding */
         headerPadding?: EdgeInsets;
         /** Minimum header cell height */
@@ -192,10 +194,15 @@ export class TableHelper {
                 const alignment = headerAlignments.get(columnIndex) ?? headerAlignment;
                 const textAlign = TableHelper.textAlignToAlignment(alignment);
 
-                const cellContent = typeof cellData === 'object' && cellData && 'layout' in cellData
-                    ? cellData as Widget
+                // Check if cellData is a Widget (has layout and paint methods)
+                const isWidget = (obj: any): obj is Widget => {
+                    return obj && typeof obj === 'object' && 'layout' in obj && 'paint' in obj;
+                };
+
+                const cellContent = isWidget(cellData)
+                    ? cellData
                     : new Text(
-                        headerFormat ? headerFormat(columnIndex, cellData, rowIndex) : String(cellData),
+                        headerFormat ? headerFormat(columnIndex, cellData, rowIndex) : getTableCellDisplayValue(cellData),
                         {
                             style: headerStyle ?? { fontWeight: FontWeight.Bold, color: PdfColor.black },
                             textAlign: textAlign,
@@ -236,10 +243,15 @@ export class TableHelper {
                     const alignment = headerAlignments.get(columnIndex) ?? headerAlignment;
                     const textAlign = TableHelper.textAlignToAlignment(alignment);
 
-                    const cellContent = typeof cellData === 'object' && cellData && 'layout' in cellData
-                        ? cellData as Widget
+                    // Check if cellData is a Widget (has layout and paint methods)
+                    const isWidget = (obj: any): obj is Widget => {
+                        return obj && typeof obj === 'object' && 'layout' in obj && 'paint' in obj;
+                    };
+
+                    const cellContent = isWidget(cellData)
+                        ? cellData
                         : new Text(
-                            headerFormat ? headerFormat(columnIndex, cellData, rowIndex) : String(cellData),
+                            headerFormat ? headerFormat(columnIndex, cellData, rowIndex) : getTableCellDisplayValue(cellData),
                             {
                                 style: headerStyle ?? { fontWeight: FontWeight.Bold, color: PdfColor.black },
                                 textAlign: textAlign,
@@ -263,8 +275,13 @@ export class TableHelper {
                     let cellContent: Widget | undefined = cellBuilder?.(columnIndex, cellData, rowIndex);
 
                     if (!cellContent) {
-                        if (typeof cellData === 'object' && cellData && 'layout' in cellData) {
-                            cellContent = cellData as Widget;
+                        // Check if cellData is a Widget (has layout and paint methods)
+                        const isWidget = (obj: any): obj is Widget => {
+                            return obj && typeof obj === 'object' && 'layout' in obj && 'paint' in obj;
+                        };
+
+                        if (isWidget(cellData)) {
+                            cellContent = cellData;
                         } else {
                             // Get text style (custom or default)
                             const customTextStyle = textStyleBuilder?.(columnIndex, cellData, rowIndex);
@@ -295,7 +312,7 @@ export class TableHelper {
                             }
 
                             cellContent = new Text(
-                                cellFormat ? cellFormat(columnIndex, cellData, rowIndex) : String(cellData),
+                                cellFormat ? cellFormat(columnIndex, cellData, rowIndex) : getTableCellDisplayValue(cellData),
                                 { style: finalTextStyle, textAlign: textAlign }
                             );
                         }
@@ -344,7 +361,7 @@ export class TableHelper {
     /**
      * Create a simple data table with automatic formatting
      */
-    static simple(data: any[][], options: {
+    static simple(data: TableData, options: {
         headers?: string[];
         border?: TableBorder;
         cellPadding?: EdgeInsets;
@@ -365,7 +382,7 @@ export class TableHelper {
     /**
      * Create a striped table with alternating row colors
      */
-    static striped(data: any[][], options: {
+    static striped(data: TableData, options: {
         headers?: string[];
         border?: TableBorder;
         cellPadding?: EdgeInsets;
@@ -393,7 +410,7 @@ export class TableHelper {
     /**
      * Create a bordered table with custom styling
      */
-    static bordered(data: any[][], options: {
+    static bordered(data: TableData, options: {
         headers?: string[];
         borderWidth?: number;
         borderColor?: PdfColor;
@@ -424,7 +441,7 @@ export class TableHelper {
     /**
      * Create a minimal table with no borders
      */
-    static minimal(data: any[][], options: {
+    static minimal(data: TableData, options: {
         headers?: string[];
         cellPadding?: EdgeInsets;
         headerStyle?: TextStyle;

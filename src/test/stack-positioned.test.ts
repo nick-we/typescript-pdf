@@ -6,8 +6,9 @@ import { describe, it, expect } from 'vitest';
 import { Stack, StackHelpers, StackFit } from '../widgets/stack.js';
 import { Positioned, PositionedHelpers } from '../widgets/positioned.js';
 import { Text } from '../widgets/text.js';
-import { Alignment, TextDirection, defaultTheme } from '../types/layout.js';
+import { Alignment, defaultTheme } from '../types/layout.js';
 import type { LayoutContext } from '../types/layout.js';
+import { TextDirection } from '@/core/text-layout.js';
 
 describe('Positioned Widget', () => {
     const createMockContext = (width = 200, height = 200): LayoutContext => ({

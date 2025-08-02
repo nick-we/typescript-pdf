@@ -16,6 +16,7 @@ import type {
 import type { Size } from '../types/geometry.js';
 import { ThemeUtils } from '../types/theming.js';
 import { Matrix4 } from '../core/pdf/graphics.js';
+import { TextDirection } from '@/core/text-layout.js';
 
 /**
  * Positioned widget properties
@@ -215,7 +216,7 @@ export class Positioned extends BaseWidget {
         // Layout child to get its actual size
         const childContext: LayoutContext = {
             constraints: childInfo.constraints,
-            textDirection: context.theme ? 'ltr' as any : 'ltr' as any,
+            textDirection: context.theme ? TextDirection.LeftToRight : TextDirection.LeftToRight,
             theme: context.theme,
         };
 
@@ -232,10 +233,9 @@ export class Positioned extends BaseWidget {
         if (x !== 0 || y !== 0) {
             const translationMatrix = Matrix4.identity();
             // Safely modify the translation values using internal access
-            const matrixValues = (translationMatrix as any).values;
-            if (matrixValues && Array.isArray(matrixValues) && matrixValues.length === 16) {
-                matrixValues[12] = x; // X translation
-                matrixValues[13] = y; // Y translation
+            if (translationMatrix && Array.isArray(translationMatrix.values) && translationMatrix.values.length === 16) {
+                translationMatrix.values[12] = x; // X translation
+                translationMatrix.values[13] = y; // Y translation
                 graphics.setTransform(translationMatrix);
             }
         }
@@ -267,7 +267,7 @@ export class Positioned extends BaseWidget {
         // Create a mock context for layout
         const mockContext: LayoutContext = {
             constraints: childInfo.constraints,
-            textDirection: 'ltr' as any,
+            textDirection: TextDirection.LeftToRight,
             theme: ThemeUtils.light(),
         };
 

@@ -27,7 +27,6 @@ import {
     EdgeInsets,
     Alignment,
     AlignmentUtils,
-    TextDirection,
     defaultTheme,
     type LayoutContext,
     type PaintContext,
@@ -37,6 +36,7 @@ import { PdfGraphics } from '../core/pdf/graphics.js';
 import { FontStyle, FontWeight } from '@/core/fonts.js';
 import { TextDecoration } from '@/types/theming.js';
 import { PdfColor } from '@/core/pdf/color.js';
+import { TextDirection } from '@/core/text-layout.js';
 
 // Mock PdfGraphics for testing
 class MockPdfGraphics {

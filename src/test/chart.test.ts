@@ -30,7 +30,6 @@ import {
 import {
     BoxConstraints,
     EdgeInsets,
-    TextDirection,
     defaultTheme,
     type LayoutContext,
     type PaintContext,
@@ -38,6 +37,7 @@ import {
 import { PdfGraphics } from '../core/pdf/graphics.js';
 import { PdfContentStream } from '../core/pdf/document.js';
 import { PdfColor } from '@/core/pdf/color.js';
+import { TextDirection } from '@/core/text-layout.js';
 
 // Mock graphics context for testing
 class MockGraphics {

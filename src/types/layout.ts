@@ -116,14 +116,6 @@ export const BoxConstraints = {
     },
 };
 
-/**
- * Text direction for layout purposes
- */
-export enum TextDirection {
-    LeftToRight = 'ltr',
-    RightToLeft = 'rtl',
-}
-
 import type {
     ThemeData as ComprehensiveThemeData,
 } from './theming.js';
@@ -132,6 +124,7 @@ import {
     defaultTheme as comprehensiveDefaultTheme,
 } from './theming.js';
 import type { FontRegistry } from '@/core/index.js';
+import type { TextDirection } from '@/core/text-layout.js';
 
 // Use the comprehensive theme system
 export type ThemeData = ComprehensiveThemeData;

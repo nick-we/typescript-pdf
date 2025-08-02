@@ -11,6 +11,7 @@ import { FontStyle, FontWeight } from '../core/fonts.js';
 import { PdfStandardFont } from '../core/pdf/font.js';
 import type { EdgeInsets, PaintContext } from './layout.js';
 import { PdfColor } from '@/core/pdf/color.js';
+import { TypeSafeUtils } from './internal.js';
 
 // Re-export FontWeight and FontStyle for convenience
 export { FontWeight, FontStyle };
@@ -281,13 +282,7 @@ export const TextStyleUtils = {
         };
 
         // Only include override properties that are not undefined
-        const result: TextStyle = { ...baseStyle };
-        Object.keys(overrides).forEach(key => {
-            const value = (overrides as any)[key];
-            if (value !== undefined) {
-                (result as any)[key] = value;
-            }
-        });
+        const result: TextStyle = TypeSafeUtils.mergeObjects(baseStyle, overrides);
 
         // CRITICAL: dart-pdf-style validation for macOS compatibility
         // Non-inheriting styles must have all essential properties
@@ -300,33 +295,15 @@ export const TextStyleUtils = {
      * Create an inheriting text style
      */
     createInheriting(overrides: Partial<Omit<TextStyle, 'inherit'>> = {}): TextStyle {
-        const result: TextStyle = { inherit: true };
-
-        // Only include override properties that are not undefined
-        Object.keys(overrides).forEach(key => {
-            const value = (overrides as any)[key];
-            if (value !== undefined) {
-                (result as any)[key] = value;
-            }
-        });
-
-        return result;
+        // Use TypeSafeUtils.mergeObjects for type-safe merging
+        return TypeSafeUtils.mergeObjects({ inherit: true } as TextStyle, overrides as Partial<TextStyle>);
     },
 
     /**
      * Copy a text style with modifications
      */
     copyWith(style: TextStyle, overrides: Partial<TextStyle> = {}): TextStyle {
-        const result: TextStyle = { ...style };
-
-        // Only include override properties that are not undefined
-        Object.keys(overrides).forEach(key => {
-            const value = (overrides as any)[key];
-            if (value !== undefined) {
-                (result as any)[key] = value;
-            }
-        });
-
+        const result: TextStyle = TypeSafeUtils.mergeObjects(style, overrides);
         return result;
     },
 
@@ -425,8 +402,8 @@ export const TextStyleUtils = {
                     height: 1,
                     decoration: TextDecoration.none,
                 };
-                if (key in defaults) {
-                    result[key] = (defaults as any)[key];
+                if (key in defaults && defaults[key] !== undefined) {
+                    (result as Record<string, unknown>)[key] = defaults[key];
                 }
             }
         };
@@ -675,7 +652,7 @@ export const BoxDecorationUtils = {
 
         // BoxShadow arrays should be complete if provided
         if (result.boxShadow) {
-            result.boxShadow = result.boxShadow.map((shadow: any) => ({
+            result.boxShadow = result.boxShadow.map((shadow: BoxShadow) => ({
                 offsetX: shadow.offsetX,
                 offsetY: shadow.offsetY,
                 blurRadius: shadow.blurRadius ?? 0,

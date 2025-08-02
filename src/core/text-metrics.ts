@@ -9,6 +9,7 @@
 
 import { PdfStandardFont } from './pdf/font.js';
 import { FontFallbackSystem, FontStyle, FontUtils, FontWeight, type FontDescriptor } from './font-fallback.js';
+import { TextDirection } from './text-layout.js';
 
 /**
  * Character-level metrics
@@ -123,7 +124,7 @@ export interface TextMeasurementOptions {
     /** Enable kerning */
     kerning: boolean;
     /** Text direction */
-    direction: 'ltr' | 'rtl';
+    direction: TextDirection;
     /** Hyphenation settings */
     hyphenation: {
         enabled: boolean;
@@ -710,7 +711,7 @@ export const TextMeasurementUtils = {
             letterSpacing: 0,
             wordSpacing: 1.0,
             kerning: false,
-            direction: 'ltr',
+            direction: TextDirection.LeftToRight,
             hyphenation: {
                 enabled: false,
                 minWordLength: 6,
@@ -749,7 +750,7 @@ export const TextMeasurementUtils = {
             letterSpacing: 0,
             wordSpacing: 1.0,
             kerning: true,
-            direction: 'ltr',
+            direction: TextDirection.LeftToRight,
             hyphenation: {
                 enabled: false,
                 minWordLength: 6,

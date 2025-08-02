@@ -24,6 +24,7 @@ import {
     type FontDescriptor,
 } from '../core/font-fallback.js';
 import { PdfStandardFont } from '../core/pdf/font.js';
+import { TextDirection } from '@/core/text-layout.js';
 
 describe('TextMetricsEngine', () => {
     let textMetrics: TextMetricsEngine;
@@ -43,7 +44,7 @@ describe('TextMetricsEngine', () => {
                 letterSpacing: 0,
                 wordSpacing: 1.0,
                 kerning: false,
-                direction: 'ltr',
+                direction: TextDirection.LeftToRight,
                 hyphenation: {
                     enabled: false,
                     minWordLength: 6,
@@ -69,7 +70,7 @@ describe('TextMetricsEngine', () => {
                 letterSpacing: 0,
                 wordSpacing: 1.0,
                 kerning: false,
-                direction: 'ltr',
+                direction: TextDirection.LeftToRight,
                 hyphenation: {
                     enabled: false,
                     minWordLength: 6,
@@ -97,7 +98,7 @@ describe('TextMetricsEngine', () => {
                 letterSpacing: 0,
                 wordSpacing: 1.0,
                 kerning: false,
-                direction: 'ltr',
+                direction: TextDirection.LeftToRight,
                 hyphenation: {
                     enabled: false,
                     minWordLength: 6,
@@ -128,7 +129,7 @@ describe('TextMetricsEngine', () => {
                 letterSpacing: 0,
                 wordSpacing: 1.0,
                 kerning: false,
-                direction: 'ltr',
+                direction: TextDirection.LeftToRight,
                 hyphenation: {
                     enabled: false,
                     minWordLength: 6,
@@ -154,7 +155,7 @@ describe('TextMetricsEngine', () => {
                 letterSpacing: 0,
                 wordSpacing: 1.0,
                 kerning: false,
-                direction: 'ltr',
+                direction: TextDirection.LeftToRight,
                 hyphenation: {
                     enabled: true,
                     minWordLength: 6,
@@ -180,7 +181,7 @@ describe('TextMetricsEngine', () => {
                 letterSpacing: 0,
                 wordSpacing: 1.0,
                 kerning: false,
-                direction: 'ltr',
+                direction: TextDirection.LeftToRight,
                 hyphenation: {
                     enabled: false,
                     minWordLength: 6,
@@ -205,7 +206,7 @@ describe('TextMetricsEngine', () => {
                 letterSpacing: 0,
                 wordSpacing: 1.0,
                 kerning: false,
-                direction: 'ltr',
+                direction: TextDirection.LeftToRight,
                 hyphenation: {
                     enabled: false,
                     minWordLength: 6,
@@ -231,7 +232,7 @@ describe('TextMetricsEngine', () => {
                 letterSpacing: 0,
                 wordSpacing: 1.0,
                 kerning: false,
-                direction: 'ltr',
+                direction: TextDirection.LeftToRight,
                 hyphenation: {
                     enabled: false,
                     minWordLength: 6,
@@ -257,7 +258,7 @@ describe('TextMetricsEngine', () => {
                 letterSpacing: 0,
                 wordSpacing: 1.0,
                 kerning: false,
-                direction: 'ltr',
+                direction: TextDirection.LeftToRight,
                 hyphenation: {
                     enabled: false,
                     minWordLength: 6,
@@ -282,7 +283,7 @@ describe('TextMetricsEngine', () => {
                 letterSpacing: 0,
                 wordSpacing: 1.0,
                 kerning: false,
-                direction: 'ltr',
+                direction: TextDirection.LeftToRight,
                 hyphenation: {
                     enabled: false,
                     minWordLength: 6,
@@ -318,7 +319,7 @@ describe('TextMetricsEngine', () => {
                 letterSpacing: 0,
                 wordSpacing: 1.0,
                 kerning: false,
-                direction: 'ltr',
+                direction: TextDirection.LeftToRight,
                 hyphenation: {
                     enabled: false,
                     minWordLength: 6,
@@ -353,7 +354,7 @@ describe('TextMetricsEngine', () => {
                 letterSpacing: 0,
                 wordSpacing: 1.0,
                 kerning: false,
-                direction: 'ltr',
+                direction: TextDirection.LeftToRight,
                 hyphenation: {
                     enabled: false,
                     minWordLength: 6,
@@ -389,7 +390,7 @@ describe('TextMetricsEngine', () => {
                 letterSpacing: 0,
                 wordSpacing: 1.0,
                 kerning: false,
-                direction: 'ltr',
+                direction: TextDirection.LeftToRight,
                 hyphenation: {
                     enabled: false,
                     minWordLength: 6,
@@ -426,7 +427,7 @@ describe('TextMetricsEngine', () => {
                 letterSpacing: 0,
                 wordSpacing: 1.0,
                 kerning: false,
-                direction: 'ltr',
+                direction: TextDirection.LeftToRight,
                 hyphenation: {
                     enabled: false,
                     minWordLength: 6,
@@ -462,7 +463,7 @@ describe('TextMetricsEngine', () => {
                 letterSpacing: 0,
                 wordSpacing: 1.0,
                 kerning: false,
-                direction: 'ltr',
+                direction: TextDirection.LeftToRight,
                 hyphenation: {
                     enabled: false,
                     minWordLength: 6,
@@ -491,7 +492,7 @@ describe('TextMetricsEngine', () => {
                 letterSpacing: 0,
                 wordSpacing: 1.0,
                 kerning: false,
-                direction: 'ltr',
+                direction: TextDirection.LeftToRight,
                 hyphenation: {
                     enabled: false,
                     minWordLength: 6,
@@ -599,7 +600,7 @@ describe('Default Text Metrics', () => {
             letterSpacing: 0,
             wordSpacing: 1.0,
             kerning: false,
-            direction: 'ltr',
+            direction: TextDirection.LeftToRight,
             hyphenation: {
                 enabled: false,
                 minWordLength: 6,

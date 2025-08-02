@@ -13,9 +13,10 @@ import type {
     LayoutResult,
     PaintContext,
 } from '../types/layout.js';
-import { Alignment, AlignmentUtils, TextDirection } from '../types/layout.js';
+import { Alignment } from '../types/layout.js';
 import type { Size } from '../types/geometry.js';
 import { Matrix4 } from '@/core/pdf/index.js';
+import { TextDirection } from '@/core/text-layout.js';
 
 /**
  * Alignment factor interface for more precise control

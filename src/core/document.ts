@@ -11,9 +11,10 @@ import { PdfDocument, PdfPage } from './pdf/document.js';
 import { PdfStandardFont } from './pdf/font.js';
 import type { PageOptions, DocumentInfo } from '../types/index.js';
 import type { Widget } from '../widgets/widget.js';
-import { BoxConstraints, TextDirection, defaultTheme, type LayoutContext, type PaintContext } from '../types/layout.js';
+import { BoxConstraints, defaultTheme, type LayoutContext, type PaintContext } from '../types/layout.js';
 import type { Size } from '../types/geometry.js';
 import { PdfColor } from './pdf/color.js';
+import { TextDirection } from './text-layout.js';
 
 /**
  * Main Document class for PDF generation

@@ -6,8 +6,9 @@ import { describe, it, expect } from 'vitest';
 import { Align, AlignHelpers, type AlignmentGeometry } from '../widgets/align.js';
 import { Center, CenterHelpers } from '../widgets/center.js';
 import { Text } from '../widgets/text.js';
-import { Alignment, TextDirection, defaultTheme } from '../types/layout.js';
+import { Alignment, defaultTheme } from '../types/layout.js';
 import type { LayoutContext } from '../types/layout.js';
+import { TextDirection } from '@/core/text-layout.js';
 
 describe('Align Widget', () => {
     const createMockContext = (width = 200, height = 200): LayoutContext => ({

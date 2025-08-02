@@ -19,6 +19,7 @@ import type {
     PaintContext,
 } from '../types/layout.js';
 import type { Size } from '../types/geometry.js';
+import type { InternalFontRegistry, PdfFontResource } from '../types/internal.js';
 
 /**
  * Text span with its own styling
@@ -228,7 +229,7 @@ export class RichText extends BaseWidget {
      */
     private measureRichText(
         maxWidth: number,
-        fontRegistry: any // TODO: Add proper type when available
+        fontRegistry: InternalFontRegistry
     ): RichTextMeasurement {
         // Flatten spans into segments
         const segments = this.flattenSpans(this.textSpan, this.defaultStyle);
@@ -257,6 +258,11 @@ export class RichText extends BaseWidget {
         for (const segment of segments) {
             const words = segment.text.split(/(\s+)/); // Keep whitespace
             const font = fontRegistry.getFont(this.getPdfFont(segment.style));
+
+            if (!font) {
+                // Skip segment if font is not available
+                continue;
+            }
 
             for (let i = 0; i < words.length; i++) {
                 const word = words[i]!;
@@ -329,16 +335,21 @@ export class RichText extends BaseWidget {
         this.validateConstraints(context.constraints);
 
         // Mock font registry - in a real implementation this would come from context
-        const mockFontRegistry = {
-            getFont: (fontName: PdfStandardFont) => ({
+        const mockFontRegistry: InternalFontRegistry = {
+            getFont: (fontName: PdfStandardFont | string): PdfFontResource | undefined => ({
+                name: `/F${fontName}`,
                 measureTextWidth: (text: string, fontSize: number) => {
                     // Improved approximation based on font
-                    const baseWidth = fontName.includes('Courier') ? 0.6 : 0.5;
+                    const baseWidth = fontName.toString().includes('Courier') ? 0.6 : 0.5;
                     return text.length * fontSize * baseWidth;
                 },
                 getAscender: (fontSize: number) => fontSize * 0.8,
                 getDescender: (fontSize: number) => fontSize * -0.2,
+                getLineHeight: (fontSize: number) => fontSize * 1.2,
             }),
+            registerFont: () => { },
+            clear: () => { },
+            getRegisteredFontNames: () => [],
         };
 
         const maxWidth = context.constraints.maxWidth === Number.POSITIVE_INFINITY
@@ -364,14 +375,20 @@ export class RichText extends BaseWidget {
         const { graphics, size } = context;
 
         // Mock font registry for painting
-        const mockFontRegistry = {
-            getFont: (fontName: PdfStandardFont) => ({
-                name: '/F1', // Mock font resource name
+        const mockFontRegistry: InternalFontRegistry = {
+            getFont: (fontName: PdfStandardFont | string): PdfFontResource | undefined => ({
+                name: `/F${fontName}`,
                 measureTextWidth: (text: string, fontSize: number) => {
-                    const baseWidth = fontName.includes('Courier') ? 0.6 : 0.5;
+                    const baseWidth = fontName.toString().includes('Courier') ? 0.6 : 0.5;
                     return text.length * fontSize * baseWidth;
                 },
+                getAscender: (fontSize: number) => fontSize * 0.8,
+                getDescender: (fontSize: number) => fontSize * -0.2,
+                getLineHeight: (fontSize: number) => fontSize * 1.2,
             }),
+            registerFont: () => { },
+            clear: () => { },
+            getRegisteredFontNames: () => [],
         };
 
         const measurement = this.measureRichText(size.width, mockFontRegistry);
@@ -396,7 +413,9 @@ export class RichText extends BaseWidget {
                 if (!segment.text.trim()) {
                     // Skip rendering whitespace, but advance position
                     const font = mockFontRegistry.getFont(this.getPdfFont(segment.style));
-                    currentX += font.measureTextWidth(segment.text, segment.style.fontSize);
+                    if (font) {
+                        currentX += font.measureTextWidth(segment.text, segment.style.fontSize);
+                    }
                     continue;
                 }
 
@@ -409,21 +428,30 @@ export class RichText extends BaseWidget {
 
                 // Handle text decorations
                 if (segment.style.decoration?.hasUnderline) {
-                    const textWidth = mockFontRegistry.getFont(this.getPdfFont(segment.style)).measureTextWidth(segment.text, segment.style.fontSize);
-                    const underlineY = lineY - 2;
-                    graphics.drawLine(currentX, underlineY, currentX + textWidth, underlineY);
-                    graphics.strokePath();
+                    const font = mockFontRegistry.getFont(this.getPdfFont(segment.style));
+                    if (font) {
+                        const textWidth = font.measureTextWidth(segment.text, segment.style.fontSize);
+                        const underlineY = lineY - 2;
+                        graphics.drawLine(currentX, underlineY, currentX + textWidth, underlineY);
+                        graphics.strokePath();
+                    }
                 }
 
                 if (segment.style.decoration?.hasLineThrough) {
-                    const textWidth = mockFontRegistry.getFont(this.getPdfFont(segment.style)).measureTextWidth(segment.text, segment.style.fontSize);
-                    const strikeY = lineY + segment.style.fontSize * 0.3;
-                    graphics.drawLine(currentX, strikeY, currentX + textWidth, strikeY);
-                    graphics.strokePath();
+                    const font = mockFontRegistry.getFont(this.getPdfFont(segment.style));
+                    if (font) {
+                        const textWidth = font.measureTextWidth(segment.text, segment.style.fontSize);
+                        const strikeY = lineY + segment.style.fontSize * 0.3;
+                        graphics.drawLine(currentX, strikeY, currentX + textWidth, strikeY);
+                        graphics.strokePath();
+                    }
                 }
 
                 // Advance X position
-                currentX += mockFontRegistry.getFont(this.getPdfFont(segment.style)).measureTextWidth(segment.text, segment.style.fontSize);
+                const font = mockFontRegistry.getFont(this.getPdfFont(segment.style));
+                if (font) {
+                    currentX += font.measureTextWidth(segment.text, segment.style.fontSize);
+                }
             }
 
             currentY += line.height;

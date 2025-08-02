@@ -9,14 +9,15 @@
 
 import { BaseWidget, type Widget, type WidgetProps } from './widget.js';
 import { Positioned } from './positioned.js';
-import type {
-    LayoutContext,
-    LayoutResult,
-    PaintContext,
+import {
+    type LayoutContext,
+    type LayoutResult,
+    type PaintContext,
 } from '../types/layout.js';
 import { Alignment, AlignmentUtils } from '../types/layout.js';
 import type { Size } from '../types/geometry.js';
 import { Matrix4 } from '../core/pdf/graphics.js';
+import { TextDirection } from '@/core/text-layout.js';
 
 /**
  * Stack fit options determine how non-positioned children are sized
@@ -39,7 +40,7 @@ export interface StackProps extends WidgetProps {
     /** Alignment for non-positioned children */
     alignment?: Alignment;
     /** Text direction for alignment resolution */
-    textDirection?: 'ltr' | 'rtl';
+    textDirection?: TextDirection;
     /** How to size the stack */
     fit?: StackFit;
     /** Whether to clip children that overflow the stack bounds */
@@ -66,7 +67,7 @@ interface StackChild {
 export class Stack extends BaseWidget {
     private readonly children: Widget[];
     private readonly alignment: Alignment;
-    private readonly textDirection: 'ltr' | 'rtl';
+    private readonly textDirection: TextDirection;
     private readonly fit: StackFit;
     private readonly clipBehavior: 'antiAlias' | 'hardEdge' | 'none';
 
@@ -74,7 +75,7 @@ export class Stack extends BaseWidget {
         super(props);
         this.children = props.children;
         this.alignment = props.alignment ?? Alignment.TopLeft;
-        this.textDirection = props.textDirection ?? 'ltr';
+        this.textDirection = props.textDirection ?? TextDirection.LeftToRight;
         this.fit = props.fit ?? StackFit.Loose;
         this.clipBehavior = props.clipBehavior ?? 'hardEdge';
     }
@@ -242,7 +243,7 @@ export class Stack extends BaseWidget {
                         minHeight: 0,
                         maxHeight: stackSize.height,
                     },
-                    textDirection: this.textDirection === 'rtl' ? 'rtl' as any : 'ltr' as any,
+                    textDirection: this.textDirection,
                     theme: context.theme,
                 };
 

@@ -30,10 +30,11 @@ import {
 import { TableHelper } from '../widgets/table-helper.js';
 import { Text } from '../widgets/text.js';
 import { Container } from '../widgets/container.js';
-import { BoxConstraints, EdgeInsets as EdgeInsetsUtils, TextDirection, defaultTheme } from '../types/layout.js';
+import { BoxConstraints, EdgeInsets as EdgeInsetsUtils, defaultTheme } from '../types/layout.js';
 import type { LayoutContext, PaintContext } from '../types/layout.js';
 import { FontWeight } from '../types/theming.js';
 import { PdfColor } from '@/core/pdf/color.js';
+import { TextDirection } from '@/core/text-layout.js';
 
 describe('Table Widget', () => {
     let layoutContext: LayoutContext;

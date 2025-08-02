@@ -6,9 +6,9 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ConstraintSolver, LayoutPerformanceMonitor, globalConstraintSolver, globalPerformanceMonitor } from '../layout/constraint-solver.js';
 import { BaseWidget } from '../widgets/widget.js';
 import type { LayoutContext, LayoutResult, BoxConstraints, ThemeData } from '../types/layout.js';
-import { TextDirection } from '../types/layout.js';
 import type { Size } from '../types/geometry.js';
 import { FontWeight, ThemeUtils } from '../types/theming.js';
+import { TextDirection } from '@/core/text-layout.js';
 
 // Mock widget for testing
 class MockWidget extends BaseWidget {

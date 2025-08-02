@@ -31,11 +31,11 @@ export interface PdfOutputContext {
  * PDF Number primitive
  */
 export class PdfNum implements PdfDataType {
-    constructor(public readonly value: number) {
+    public readonly value: number;
+
+    constructor(value: number) {
         // Ensure value is a valid number, default to 0 if not
-        if (typeof value !== 'number' || isNaN(value)) {
-            (this as any).value = 0;
-        }
+        this.value = (typeof value === 'number' && !isNaN(value)) ? value : 0;
     }
 
     output(context: PdfOutputContext, stream: PdfStream): void {
@@ -238,9 +238,19 @@ export class PdfDict implements PdfDataType {
     }
 
     /**
-     * Dictionary access using bracket notation
+     * Get a value with type checking
      */
-    [key: string]: any;
+    getTyped<T extends PdfDataType>(key: string): T | undefined {
+        const value = this.entries.get(key);
+        return value as T | undefined;
+    }
+
+    /**
+     * Set a value with proper typing
+     */
+    setTyped<T extends PdfDataType>(key: string, value: T): void {
+        this.entries.set(key, value);
+    }
 
     output(context: PdfOutputContext, stream: PdfStream, indent?: number): void {
         stream.putString('<<');

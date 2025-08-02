@@ -196,7 +196,6 @@ export {
     EdgeInsets,
     AlignmentUtils,
     Alignment,
-    TextDirection,
     defaultTheme,
     type LayoutContext,
     type LayoutResult,
@@ -220,11 +219,11 @@ import {
     BoxConstraints,
     EdgeInsets,
     Alignment,
-    TextDirection,
     defaultTheme
 } from '../types/layout.js';
 import { Text, TextAlign, TextStyles } from './text.js';
 import { Container, ContainerDecorations } from './container.js';
+import { TextDirection } from '@/core/text-layout.js';
 
 /**
  * Widget builder function type for creating page content

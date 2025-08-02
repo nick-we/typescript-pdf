@@ -12,9 +12,9 @@ import {
 } from '../layout/layout-cache.js';
 import { BaseWidget } from '../widgets/widget.js';
 import type { LayoutContext, LayoutResult, BoxConstraints } from '../types/layout.js';
-import { TextDirection } from '../types/layout.js';
 import type { Size } from '../types/geometry.js';
 import { ThemeUtils } from '../types/theming.js';
+import { TextDirection } from '@/core/text-layout.js';
 
 // Mock widget for testing
 class MockWidget extends BaseWidget {

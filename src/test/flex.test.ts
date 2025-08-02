@@ -25,11 +25,10 @@ import {
 } from '../types/flex.js';
 import {
     BoxConstraints,
-    TextDirection,
     defaultTheme,
     type LayoutContext,
 } from '../types/layout.js';
-import type { Size } from '../types/geometry.js';
+import { TextDirection } from '@/core/text-layout.js';
 
 describe('Flex Layout System', () => {
     let mockLayoutContext: LayoutContext;
