@@ -23,9 +23,10 @@ import type {
 import { BoxConstraints, EdgeInsets as EdgeInsetsUtils } from '../types/layout.js';
 import type { Size, Point } from '../types/geometry.js';
 import type { BoxDecoration } from './container.js';
-import { PdfColorRgb, Matrix4 } from '../core/pdf/graphics.js';
+import { Matrix4 } from '../core/pdf/graphics.js';
 import { FontWeight, TextStyleUtils, PaintPhase, BoxDecorationUtils } from '@/types/theming.js';
 import { PdfStandardFont } from '@/core/pdf/font.js';
+import { PdfColor } from '@/core/pdf/color.js';
 
 /**
  * Table cell vertical alignment options
@@ -53,8 +54,8 @@ export enum TableWidth {
 export interface BorderSide {
     /** Border width in points */
     width: number;
-    /** Border color (hex string) */
-    color: string;
+    /** Border color */
+    color: PdfColor;
     /** Border style */
     style: 'solid' | 'dashed' | 'dotted' | 'none';
 }
@@ -218,8 +219,8 @@ export class TableRow extends BaseWidget {
         super(props);
         this.children = props.children;
         this.repeat = props.repeat ?? false;
-        props.verticalAlignment && (this.verticalAlignment = props.verticalAlignment);
-        props.decoration && (this.decoration = props.decoration);
+        if (props.verticalAlignment) this.verticalAlignment = props.verticalAlignment;
+        if (props.decoration) this.decoration = props.decoration;
     }
 
     layout(context: LayoutContext): LayoutResult {
@@ -294,7 +295,7 @@ export class Table extends BaseWidget {
         super(props);
 
         this.children = props.children ?? [];
-        props.border && (this.border = props.border);
+        if (props.border) this.border = props.border;
         this.defaultVerticalAlignment = props.defaultVerticalAlignment ?? TableCellVerticalAlignment.Top;
         this.columnWidths = props.columnWidths ?? new Map();
         this.defaultColumnWidth = props.defaultColumnWidth ?? new IntrinsicColumnWidth();
@@ -541,27 +542,6 @@ export class Table extends BaseWidget {
     }
 
     /**
-     * Parse color string to RGB values
-     */
-    private parseColor(color: string): PdfColorRgb {
-        if (color.startsWith('#')) {
-            const hex = color.slice(1);
-            if (hex.length === 6) {
-                const r = parseInt(hex.slice(0, 2), 16) / 255;
-                const g = parseInt(hex.slice(2, 4), 16) / 255;
-                const b = parseInt(hex.slice(4, 6), 16) / 255;
-                return new PdfColorRgb(r, g, b);
-            } else if (hex.length === 3) {
-                const r = parseInt(hex[0]! + hex[0]!, 16) / 255;
-                const g = parseInt(hex[1]! + hex[1]!, 16) / 255;
-                const b = parseInt(hex[2]! + hex[2]!, 16) / 255;
-                return new PdfColorRgb(r, g, b);
-            }
-        }
-        return PdfColorRgb.black;
-    }
-
-    /**
      * Paint table borders
      */
     private paintBorders(context: PaintContext): void {
@@ -572,32 +552,28 @@ export class Table extends BaseWidget {
 
         // Paint outer borders (PDF coordinates: bottom-left origin)
         if (left?.style !== 'none' && left) {
-            const color = this.parseColor(left.color);
-            graphics.setColor(color);
+            graphics.setColor(left.color);
             graphics.setLineWidth(left.width);
             graphics.drawLine(0, 0, 0, size.height);
             graphics.strokePath();
         }
 
         if (top?.style !== 'none' && top) {
-            const color = this.parseColor(top.color);
-            graphics.setColor(color);
+            graphics.setColor(top.color);
             graphics.setLineWidth(top.width);
             graphics.drawLine(0, size.height, size.width, size.height);
             graphics.strokePath();
         }
 
         if (right?.style !== 'none' && right) {
-            const color = this.parseColor(right.color);
-            graphics.setColor(color);
+            graphics.setColor(right.color);
             graphics.setLineWidth(right.width);
             graphics.drawLine(size.width, 0, size.width, size.height);
             graphics.strokePath();
         }
 
         if (bottom?.style !== 'none' && bottom) {
-            const color = this.parseColor(bottom.color);
-            graphics.setColor(color);
+            graphics.setColor(bottom.color);
             graphics.setLineWidth(bottom.width);
             graphics.drawLine(0, 0, size.width, 0);
             graphics.strokePath();
@@ -605,8 +581,7 @@ export class Table extends BaseWidget {
 
         // Paint vertical inside borders
         if (verticalInside?.style !== 'none' && verticalInside) {
-            const color = this.parseColor(verticalInside.color);
-            graphics.setColor(color);
+            graphics.setColor(verticalInside.color);
             graphics.setLineWidth(verticalInside.width);
 
             let x = 0;
@@ -619,8 +594,7 @@ export class Table extends BaseWidget {
 
         // Paint horizontal inside borders (corrected for PDF coordinates)
         if (horizontalInside?.style !== 'none' && horizontalInside) {
-            const color = this.parseColor(horizontalInside.color);
-            graphics.setColor(color);
+            graphics.setColor(horizontalInside.color);
             graphics.setLineWidth(horizontalInside.width);
 
             // Start from bottom and work upward (PDF coordinates)
@@ -779,10 +753,10 @@ export const TableBorders = {
     /**
      * Create uniform border for all sides
      */
-    all(options: { width?: number; color?: string; style?: 'solid' | 'dashed' | 'dotted' } = {}): TableBorder {
+    all(options: { width?: number; color?: PdfColor; style?: 'solid' | 'dashed' | 'dotted' } = {}): TableBorder {
         const borderSide: BorderSide = {
             width: options.width ?? 1,
-            color: options.color ?? '#000000',
+            color: options.color ?? PdfColor.black,
             style: options.style ?? 'solid',
         };
 
@@ -800,18 +774,18 @@ export const TableBorders = {
      * Create border with different inside/outside styles
      */
     symmetric(options: {
-        inside?: { width?: number; color?: string; style?: 'solid' | 'dashed' | 'dotted' };
-        outside?: { width?: number; color?: string; style?: 'solid' | 'dashed' | 'dotted' };
+        inside?: { width?: number; color?: PdfColor; style?: 'solid' | 'dashed' | 'dotted' };
+        outside?: { width?: number; color?: PdfColor; style?: 'solid' | 'dashed' | 'dotted' };
     } = {}): TableBorder {
         const outsideBorder: BorderSide = {
             width: options.outside?.width ?? 1,
-            color: options.outside?.color ?? '#000000',
+            color: options.outside?.color ?? PdfColor.black,
             style: options.outside?.style ?? 'solid',
         };
 
         const insideBorder: BorderSide = {
             width: options.inside?.width ?? 1,
-            color: options.inside?.color ?? '#000000',
+            color: options.inside?.color ?? PdfColor.black,
             style: options.inside?.style ?? 'solid',
         };
 
@@ -853,7 +827,7 @@ export const TableHelpers = {
                     child: new Text(header, {
                         style: TextStyleUtils.createDefault({
                             fontWeight: FontWeight.Bold,
-                            color: '#000000',
+                            color: PdfColor.black,
                             fontFamily: PdfStandardFont.Helvetica,
                             fontSize: 12,
                         }),
@@ -870,7 +844,7 @@ export const TableHelpers = {
                     padding: options.cellPadding ?? EdgeInsetsUtils.all(8),
                     child: new Text(cellData, {
                         style: TextStyleUtils.createDefault({
-                            color: '#000000',
+                            color: PdfColor.black,
                             fontFamily: PdfStandardFont.Helvetica,
                             fontSize: 12,
                         }),

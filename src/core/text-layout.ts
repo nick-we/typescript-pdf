@@ -405,8 +405,8 @@ export class TextLayoutEngine {
         startPos: number,
         endPos: number,
         maxWidth: number
-    ): BreakOpportunity | null {
-        let bestBreak: BreakOpportunity | null = null;
+    ): BreakOpportunity | undefined {
+        let bestBreak: BreakOpportunity | undefined = undefined;
 
         for (const opportunity of opportunities) {
             if (opportunity.position <= startPos || opportunity.position >= endPos) {

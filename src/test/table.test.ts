@@ -33,6 +33,7 @@ import { Container } from '../widgets/container.js';
 import { BoxConstraints, EdgeInsets as EdgeInsetsUtils, TextDirection, defaultTheme } from '../types/layout.js';
 import type { LayoutContext, PaintContext } from '../types/layout.js';
 import { FontWeight } from '../types/theming.js';
+import { PdfColor } from '@/core/pdf/color.js';
 
 describe('Table Widget', () => {
     let layoutContext: LayoutContext;
@@ -208,7 +209,7 @@ describe('Table Widget', () => {
 
     describe('Table Borders', () => {
         test('should create uniform borders', () => {
-            const border = TableBorders.all({ width: 2, color: '#ff0000', style: 'solid' });
+            const border = TableBorders.all({ width: 2, color: PdfColor.fromHex('#ff0000'), style: 'solid' });
 
             expect(border.left?.width).toBe(2);
             expect(border.top?.width).toBe(2);
@@ -217,20 +218,20 @@ describe('Table Widget', () => {
             expect(border.horizontalInside?.width).toBe(2);
             expect(border.verticalInside?.width).toBe(2);
 
-            expect(border.left?.color).toBe('#ff0000');
+            expect(border.left?.color).toStrictEqual(PdfColor.fromHex('#ff0000'));
             expect(border.left?.style).toBe('solid');
         });
 
         test('should create symmetric borders', () => {
             const border = TableBorders.symmetric({
-                inside: { width: 1, color: '#cccccc', style: 'solid' },
-                outside: { width: 3, color: '#000000', style: 'solid' },
+                inside: { width: 1, color: PdfColor.fromHex('#cccccc'), style: 'solid' },
+                outside: { width: 3, color: PdfColor.fromHex('#000000'), style: 'solid' },
             });
 
             expect(border.left?.width).toBe(3);
             expect(border.horizontalInside?.width).toBe(1);
-            expect(border.left?.color).toBe('#000000');
-            expect(border.horizontalInside?.color).toBe('#cccccc');
+            expect(border.left?.color).toStrictEqual(PdfColor.fromHex('#000000'));
+            expect(border.horizontalInside?.color).toStrictEqual(PdfColor.fromHex('#cccccc'));
         });
 
         test('should create table with borders', () => {
@@ -261,7 +262,7 @@ describe('Table Widget', () => {
         });
 
         test('should support row decorations', () => {
-            const decoration = { color: '#f0f0f0' };
+            const decoration = { color: PdfColor.fromHex('#f0f0f0') };
             const row = new TableRow({
                 children: [new Text('A'), new Text('B')],
                 decoration,
@@ -409,7 +410,7 @@ describe('Table Widget', () => {
                 children: [
                     new TableRow({
                         children: [new Text('A'), new Text('B')],
-                        decoration: { color: '#f8f8f8' },
+                        decoration: { color: PdfColor.fromHex('#f8f8f8') },
                     }),
                 ],
             });
@@ -461,9 +462,9 @@ describe('TableHelper Utilities', () => {
 
             const table = TableHelper.striped(data, {
                 headers: ['Column A', 'Column B'],
-                evenRowColor: '#ffffff',
-                oddRowColor: '#f8f8f8',
-                headerColor: '#e8e8e8',
+                evenRowColor: PdfColor.fromHex('#ffffff'),
+                oddRowColor: PdfColor.fromHex('#f8f8f8'),
+                headerColor: PdfColor.fromHex('#e8e8e8'),
             });
 
             expect(table).toBeInstanceOf(Table);
@@ -476,8 +477,8 @@ describe('TableHelper Utilities', () => {
             const table = TableHelper.bordered(data, {
                 headers: ['H1', 'H2'],
                 borderWidth: 2,
-                borderColor: '#000000',
-                headerBackgroundColor: '#cccccc',
+                borderColor: PdfColor.fromHex('#000000'),
+                headerBackgroundColor: PdfColor.fromHex('#cccccc'),
             });
 
             expect(table).toBeInstanceOf(Table);
@@ -516,11 +517,11 @@ describe('TableHelper Utilities', () => {
                 data,
                 cellDecoration: (columnIndex: number, data: any, rowIndex: number) => {
                     if (rowIndex % 2 === 0) {
-                        return { color: '#f0f0f0' };
+                        return { color: PdfColor.fromHex('#f0f0f0') };
                     }
                     return undefined;
                 },
-                rowDecoration: { color: '#ffffff' },
+                rowDecoration: { color: PdfColor.white },
             });
 
             expect(table).toBeInstanceOf(Table);

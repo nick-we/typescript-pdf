@@ -43,6 +43,7 @@ import {
     type PaintContext,
 } from '../types/layout.js';
 import { PdfGraphics } from '../core/pdf/graphics.js';
+import { PdfColor } from '@/core/pdf/color.js';
 
 describe('TextDecoration', () => {
     describe('basic functionality', () => {
@@ -118,7 +119,7 @@ describe('TextStyleUtils', () => {
             const style = TextStyleUtils.createDefault();
 
             expect(style.inherit).toBe(false);
-            expect(style.color).toBe('#000000');
+            expect(style.color).toStrictEqual(PdfColor.fromHex('#000000'));
             expect(style.fontFamily).toBe(PdfStandardFont.Helvetica);
             expect(style.fontSize).toBe(12);
             expect(style.fontWeight).toBe(FontWeight.Normal);
@@ -130,13 +131,13 @@ describe('TextStyleUtils', () => {
             const style = TextStyleUtils.createDefault({
                 fontSize: 16,
                 fontWeight: FontWeight.Bold,
-                color: '#ff0000',
+                color: PdfColor.fromHex('#ff0000'),
             });
 
             expect(style.inherit).toBe(false);
             expect(style.fontSize).toBe(16);
             expect(style.fontWeight).toBe(FontWeight.Bold);
-            expect(style.color).toBe('#ff0000');
+            expect(style.color).toStrictEqual(PdfColor.fromHex('#ff0000'));
             expect(style.fontFamily).toBe(PdfStandardFont.Helvetica); // Should keep default
         });
 
@@ -147,7 +148,7 @@ describe('TextStyleUtils', () => {
             });
 
             expect(style.fontSize).toBe(16);
-            expect(style.color).toBe('#000000'); // Should use default
+            expect(style.color).toStrictEqual(PdfColor.fromHex('#000000')); // Should use default
         });
     });
 
@@ -177,7 +178,7 @@ describe('TextStyleUtils', () => {
         it('should copy style with modifications', () => {
             const baseStyle = TextStyleUtils.createDefault({
                 fontSize: 12,
-                color: '#000000',
+                color: PdfColor.fromHex('#000000'),
                 fontWeight: FontWeight.Normal,
             });
 
@@ -188,7 +189,7 @@ describe('TextStyleUtils', () => {
 
             expect(modifiedStyle.fontSize).toBe(16);
             expect(modifiedStyle.fontWeight).toBe(FontWeight.Bold);
-            expect(modifiedStyle.color).toBe('#000000'); // Should preserve
+            expect(modifiedStyle.color).toStrictEqual(PdfColor.fromHex('#000000')); // Should preserve
             expect(modifiedStyle.inherit).toBe(false); // Should preserve
         });
     });
@@ -231,7 +232,7 @@ describe('TextStyleUtils', () => {
         it('should merge two inheriting styles', () => {
             const baseStyle = TextStyleUtils.createInheriting({
                 fontSize: 12,
-                color: '#000000',
+                color: PdfColor.fromHex('#000000'),
                 fontWeight: FontWeight.Normal,
             });
 
@@ -243,7 +244,7 @@ describe('TextStyleUtils', () => {
             const merged = TextStyleUtils.merge(baseStyle, overrideStyle);
 
             expect(merged.fontSize).toBe(16); // Override wins
-            expect(merged.color).toBe('#000000'); // Base preserved
+            expect(merged.color).toStrictEqual(PdfColor.fromHex('#000000')); // Base preserved
             expect(merged.fontStyle).toBe(FontStyle.Italic); // Override added
             expect(merged.fontWeight).toBe(FontWeight.Normal); // Base preserved
         });
@@ -251,12 +252,12 @@ describe('TextStyleUtils', () => {
         it('should replace base with non-inheriting override', () => {
             const baseStyle = TextStyleUtils.createInheriting({
                 fontSize: 12,
-                color: '#000000',
+                color: PdfColor.fromHex('#000000'),
             });
 
             const overrideStyle = TextStyleUtils.createDefault({
                 fontSize: 16,
-                color: '#ff0000',
+                color: PdfColor.fromHex('#ff0000'),
             });
 
             const merged = TextStyleUtils.merge(baseStyle, overrideStyle);
@@ -364,8 +365,8 @@ describe('ColorSchemes', () => {
             expect(scheme.info).toBeDefined();
 
             // Should be valid hex colors
-            expect(scheme.primary).toMatch(/^#[0-9a-fA-F]{6}$/);
-            expect(scheme.background).toMatch(/^#[0-9a-fA-F]{6}$/);
+            expect(scheme.primary.toHex()).toMatch(/^#[0-9a-fA-F]{6}$/);
+            expect(scheme.background.toHex()).toMatch(/^#[0-9a-fA-F]{6}$/);
         });
     });
 });
@@ -434,12 +435,12 @@ describe('ThemeUtils', () => {
         it('should copy theme with modifications', () => {
             const baseTheme = ThemeUtils.light();
             const modifiedTheme = ThemeUtils.copyWith(baseTheme, {
-                colorScheme: { primary: '#ff0000' },
+                colorScheme: { primary: PdfColor.fromHex('#ff0000') },
                 spacing: { lg: 20 },
             });
 
-            expect(modifiedTheme.colorScheme.primary).toBe('#ff0000');
-            expect(modifiedTheme.colorScheme.secondary).toBe(baseTheme.colorScheme.secondary);
+            expect(modifiedTheme.colorScheme.primary).toStrictEqual(PdfColor.fromHex('#ff0000'));
+            expect(modifiedTheme.colorScheme.secondary).toStrictEqual(baseTheme.colorScheme.secondary);
             expect(modifiedTheme.spacing.lg).toBe(20);
             expect(modifiedTheme.spacing.md).toBe(baseTheme.spacing.md);
         });
@@ -541,7 +542,7 @@ describe('DefaultTextStyle Widget', () => {
     it('should replace text styles when merge is false', () => {
         const overrideStyle = TextStyleUtils.createDefault({
             fontSize: 16,
-            color: '#ff0000',
+            color: PdfColor.fromHex('#ff0000'),
         });
 
         const childWidget = new Text('Hello', {});
@@ -631,7 +632,7 @@ describe('ThemeConsumer', () => {
     it('should rebuild only when selected data changes', () => {
         let buildCount = 0;
         const selector = (theme: ThemeData) => theme.colorScheme.primary;
-        const builder = (color: string) => {
+        const builder = (color: PdfColor) => {
             buildCount++;
             return new Text(`Color: ${color}`, {});
         };
@@ -656,7 +657,7 @@ describe('ThemeConsumer', () => {
 
         // Different primary color - should rebuild
         const differentColorTheme = ThemeUtils.copyWith(defaultTheme, {
-            colorScheme: { primary: '#ff0000' },
+            colorScheme: { primary: PdfColor.red },
         });
         const colorContext = { ...mockContext, theme: differentColorTheme };
         consumer.layout(colorContext);
@@ -666,7 +667,7 @@ describe('ThemeConsumer', () => {
 
 describe('ThemeHelpers', () => {
     it('should create color scheme consumer', () => {
-        const builder = (colors: ColorScheme) => new Text(colors.primary, {});
+        const builder = (colors: ColorScheme) => new Text(colors.primary.toString(), {});
         const consumer = ThemeHelpers.withColorScheme(builder);
 
         expect(consumer).toBeInstanceOf(ThemeConsumer);

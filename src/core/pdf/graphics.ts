@@ -10,7 +10,8 @@
 import { PdfStream } from './stream.js';
 import { PdfContentStream } from './document.js';
 import { PdfNum, PdfNumList, PdfName, type PdfOutputContext } from './types.js';
-import { PdfFont, PdfStandardFont } from './font.js';
+import { PdfFont } from './font.js';
+import { PdfColor } from './color.js';
 
 /**
  * PDF Line join styles
@@ -62,7 +63,7 @@ export enum PdfTextRenderingMode {
  * Simple transformation matrix implementation
  */
 export class Matrix4 {
-    private readonly values: number[];
+    values: number[];
 
     constructor(values?: number[]) {
         if (values && values.length === 16) {
@@ -131,39 +132,8 @@ interface GraphicsContext {
     ctm: Matrix4;
 }
 
-/**
- * PDF Color representation
- */
-export interface PdfColor {
-    red: number;
-    green: number;
-    blue: number;
-    toHex(): string;
-}
-
-/**
- * Simple RGB color implementation
- */
-export class PdfColorRgb implements PdfColor {
-    constructor(
-        public readonly red: number,
-        public readonly green: number,
-        public readonly blue: number
-    ) { }
-
-    toHex(): string {
-        const r = Math.round(this.red * 255).toString(16).padStart(2, '0');
-        const g = Math.round(this.green * 255).toString(16).padStart(2, '0');
-        const b = Math.round(this.blue * 255).toString(16).padStart(2, '0');
-        return `#${r}${g}${b}`;
-    }
-
-    static black = new PdfColorRgb(0, 0, 0);
-    static white = new PdfColorRgb(1, 1, 1);
-    static red = new PdfColorRgb(1, 0, 0);
-    static green = new PdfColorRgb(0, 1, 0);
-    static blue = new PdfColorRgb(0, 0, 1);
-}
+// Color system now imported from './color.js'
+// PdfColor class provides comprehensive color support with multiple color spaces
 
 /**
  * PDF Graphics drawing context

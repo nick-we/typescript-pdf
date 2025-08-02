@@ -16,6 +16,7 @@ import type {
 } from '../types/layout.js';
 import { Alignment, AlignmentUtils } from '../types/layout.js';
 import type { Size } from '../types/geometry.js';
+import { Matrix4 } from '../core/pdf/graphics.js';
 
 /**
  * Stack fit options determine how non-positioned children are sized
@@ -212,9 +213,15 @@ export class Stack extends BaseWidget {
 
             if (childInfo.isPositioned && childInfo.position) {
                 // For positioned children, translate to their position
-                graphics.setTransform({
-                    storage: [1, 0, 0, 1, childInfo.position.x, childInfo.position.y],
-                } as any);
+                const x = typeof childInfo.position.x === 'number' && !isNaN(childInfo.position.x) ? childInfo.position.x : 0;
+                const y = typeof childInfo.position.y === 'number' && !isNaN(childInfo.position.y) ? childInfo.position.y : 0;
+
+                if (x !== 0 || y !== 0) {
+                    const translationMatrix = Matrix4.identity();
+                    translationMatrix.values[12] = x; // X translation
+                    translationMatrix.values[13] = y; // Y translation
+                    graphics.setTransform(translationMatrix);
+                }
 
                 // Layout child with its calculated constraints
                 const positioned = childInfo.widget as Positioned;
@@ -246,9 +253,15 @@ export class Stack extends BaseWidget {
                     childLayout.size
                 );
 
-                graphics.setTransform({
-                    storage: [1, 0, 0, 1, childPosition.x, childPosition.y],
-                } as any);
+                const x = typeof childPosition.x === 'number' && !isNaN(childPosition.x) ? childPosition.x : 0;
+                const y = typeof childPosition.y === 'number' && !isNaN(childPosition.y) ? childPosition.y : 0;
+
+                if (x !== 0 || y !== 0) {
+                    const translationMatrix = Matrix4.identity();
+                    translationMatrix.values[12] = x; // X translation
+                    translationMatrix.values[13] = y; // Y translation
+                    graphics.setTransform(translationMatrix);
+                }
 
                 const childPaintContext: PaintContext = {
                     ...context,

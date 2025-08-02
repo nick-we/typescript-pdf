@@ -9,6 +9,7 @@
 import { FontWeight } from '@/core/fonts.js';
 import type { Point, Size, Rect, Matrix } from '../types/geometry.js';
 import { BoxConstraints, EdgeInsets, Alignment, AlignmentUtils, defaultTheme } from '../types/layout.js';
+import { PdfColor } from '@/core/pdf/color.js';
 
 describe('Type System Tests', () => {
     describe('Geometry Types', () => {
@@ -119,8 +120,8 @@ describe('Type System Tests', () => {
         test('should have sensible defaults', () => {
             expect(defaultTheme.defaultTextStyle.fontSize).toBe(12);
             expect(defaultTheme.defaultTextStyle.fontWeight).toBe(FontWeight.Normal);
-            expect(defaultTheme.colorScheme.primary).toBe('#1976d2');
-            expect(defaultTheme.colorScheme.background).toBe('#ffffff');
+            expect(defaultTheme.colorScheme.primary).toStrictEqual(PdfColor.fromHex('#1976d2'));
+            expect(defaultTheme.colorScheme.background).toStrictEqual(PdfColor.white);
         });
     });
 

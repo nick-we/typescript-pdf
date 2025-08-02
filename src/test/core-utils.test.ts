@@ -6,43 +6,52 @@
  * @packageDocumentation
  */
 
-import { PdfColorRgb, Matrix4, type PdfGraphics } from '../core/pdf/graphics.js';
+import { Matrix4, type PdfGraphics } from '../core/pdf/graphics.js';
 import { PdfStandardFont } from '../core/pdf/font.js';
 import { PdfStream } from '../core/pdf/stream.js';
 import { PdfDocument } from '../core/pdf/document.js';
+import { PdfColor } from '@/core/pdf/color.js';
 
 describe('Core Utils and Graphics Tests', () => {
-    describe('PdfColorRgb', () => {
+    describe('PdfColor', () => {
         test('should create RGB color correctly', () => {
-            const color = new PdfColorRgb(0.5, 0.7, 0.9);
+            const color = new PdfColor(0.5, 0.7, 0.9);
             expect(color.red).toBe(0.5);
             expect(color.green).toBe(0.7);
             expect(color.blue).toBe(0.9);
         });
 
         test('should provide standard colors', () => {
-            expect(PdfColorRgb.black.red).toBe(0);
-            expect(PdfColorRgb.black.green).toBe(0);
-            expect(PdfColorRgb.black.blue).toBe(0);
+            expect(PdfColor.black.red).toBe(0);
+            expect(PdfColor.black.green).toBe(0);
+            expect(PdfColor.black.blue).toBe(0);
 
-            expect(PdfColorRgb.white.red).toBe(1);
-            expect(PdfColorRgb.white.green).toBe(1);
-            expect(PdfColorRgb.white.blue).toBe(1);
+            expect(PdfColor.white.red).toBe(1);
+            expect(PdfColor.white.green).toBe(1);
+            expect(PdfColor.white.blue).toBe(1);
 
-            expect(PdfColorRgb.red.red).toBe(1);
-            expect(PdfColorRgb.red.green).toBe(0);
-            expect(PdfColorRgb.red.blue).toBe(0);
+            expect(PdfColor.red.red).toBe(1);
+            expect(PdfColor.red.green).toBe(0);
+            expect(PdfColor.red.blue).toBe(0);
         });
 
-        test('should store values as provided', () => {
-            const color = new PdfColorRgb(-0.5, 1.5, 0.5);
-            expect(color.red).toBe(-0.5);
-            expect(color.green).toBe(1.5);
-            expect(color.blue).toBe(0.5);
+        test('should validate color component ranges', () => {
+            // Test validation for out-of-range values
+            expect(() => new PdfColor(-0.5, 0.5, 0.5)).toThrow('Red component must be between 0 and 1');
+            expect(() => new PdfColor(0.5, 1.5, 0.5)).toThrow('Green component must be between 0 and 1');
+            expect(() => new PdfColor(0.5, 0.5, -0.1)).toThrow('Blue component must be between 0 and 1');
+            expect(() => new PdfColor(0.5, 0.5, 0.5, 1.5)).toThrow('Alpha component must be between 0 and 1');
+
+            // Valid values should work fine
+            const color = new PdfColor(0.5, 0.7, 0.9, 0.8);
+            expect(color.red).toBe(0.5);
+            expect(color.green).toBe(0.7);
+            expect(color.blue).toBe(0.9);
+            expect(color.alpha).toBe(0.8);
         });
 
         test('should convert to hex string', () => {
-            const color = new PdfColorRgb(0.5, 0.7, 0.9);
+            const color = new PdfColor(0.5, 0.7, 0.9);
             const hexString = color.toHex();
             expect(hexString).toMatch(/^#[0-9a-f]{6}$/i);
         });
@@ -183,9 +192,9 @@ describe('Core Utils and Graphics Tests', () => {
         });
 
         test('should handle color operations', () => {
-            const red = PdfColorRgb.red;
-            const green = PdfColorRgb.green;
-            const blue = PdfColorRgb.blue;
+            const red = PdfColor.red;
+            const green = PdfColor.green;
+            const blue = PdfColor.blue;
 
             expect(red.red).toBe(1);
             expect(green.green).toBe(1);
@@ -202,12 +211,17 @@ describe('Core Utils and Graphics Tests', () => {
     });
 
     describe('Error Handling', () => {
-        test('should handle invalid color values gracefully', () => {
-            // Colors store values as-is, don't clamp
-            const color = new PdfColorRgb(NaN, Infinity, -Infinity);
-            expect(color.red).toBeNaN();
-            expect(color.green).toBe(Infinity);
-            expect(color.blue).toBe(-Infinity);
+        test('should handle invalid color values with validation', () => {
+            // PdfColor now validates input ranges, so invalid values should throw
+            expect(() => new PdfColor(NaN, 0.5, 0.5)).toThrow('Red component must be between 0 and 1');
+            expect(() => new PdfColor(0.5, Infinity, 0.5)).toThrow('Green component must be between 0 and 1');
+            expect(() => new PdfColor(0.5, 0.5, -Infinity)).toThrow('Blue component must be between 0 and 1');
+
+            // Edge cases that are valid
+            const minColor = new PdfColor(0, 0, 0);
+            const maxColor = new PdfColor(1, 1, 1);
+            expect(minColor.red).toBe(0);
+            expect(maxColor.red).toBe(1);
         });
 
         test('should handle empty stream operations', () => {

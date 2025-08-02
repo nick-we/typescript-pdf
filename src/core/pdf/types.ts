@@ -31,13 +31,21 @@ export interface PdfOutputContext {
  * PDF Number primitive
  */
 export class PdfNum implements PdfDataType {
-    constructor(public readonly value: number) { }
+    constructor(public readonly value: number) {
+        // Ensure value is a valid number, default to 0 if not
+        if (typeof value !== 'number' || isNaN(value)) {
+            (this as any).value = 0;
+        }
+    }
 
     output(context: PdfOutputContext, stream: PdfStream): void {
+        // Ensure value is still valid before formatting
+        const safeValue = typeof this.value === 'number' && !isNaN(this.value) ? this.value : 0;
+
         // Format number appropriately (remove unnecessary decimal places)
-        const formatted = this.value % 1 === 0
-            ? this.value.toString()
-            : this.value.toFixed(6).replace(/\.?0+$/, '');
+        const formatted = safeValue % 1 === 0
+            ? safeValue.toString()
+            : safeValue.toFixed(6).replace(/\.?0+$/, '');
         stream.putString(formatted);
     }
 

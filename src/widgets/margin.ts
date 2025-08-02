@@ -16,6 +16,7 @@ import type {
 } from '../types/layout.js';
 import { EdgeInsets as EdgeInsetsUtils } from '../types/layout.js';
 import type { Size } from '../types/geometry.js';
+import { Matrix4 } from '../core/pdf/graphics.js';
 
 /**
  * Margin widget properties
@@ -86,9 +87,21 @@ export class Margin extends BaseWidget {
 
         // Save graphics state and translate by margin offset
         graphics.saveContext();
-        graphics.setTransform({
-            storage: [1, 0, 0, 1, this.margin.left, this.margin.top],
-        } as any);
+
+        // Ensure margin values are valid numbers, default to 0 if undefined/invalid
+        const leftMargin = typeof this.margin.left === 'number' && !isNaN(this.margin.left) ? this.margin.left : 0;
+        const topMargin = typeof this.margin.top === 'number' && !isNaN(this.margin.top) ? this.margin.top : 0;
+
+        // Only apply transformation if there's actual margin
+        if (leftMargin !== 0 || topMargin !== 0) {
+            const translationMatrix = Matrix4.identity();
+            // Safely modify the translation values
+            if (translationMatrix.values && Array.isArray(translationMatrix.values) && translationMatrix.values.length === 16) {
+                translationMatrix.values[12] = leftMargin; // X translation
+                translationMatrix.values[13] = topMargin;  // Y translation
+                graphics.setTransform(translationMatrix);
+            }
+        }
 
         // Paint child in translated context
         const childContext: PaintContext = {

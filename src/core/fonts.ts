@@ -262,9 +262,9 @@ export class FontManager {
         family: string,
         weight = FontWeight.Normal,
         style = FontStyle.Normal
-    ): TtfParser | null {
+    ): TtfParser | undefined {
         const key = this.getFontKey(family, weight, style);
-        return this.parsedFonts.get(key) || null;
+        return this.parsedFonts.get(key);
     }
 
     /**
@@ -275,7 +275,7 @@ export class FontManager {
         weight = FontWeight.Normal,
         style = FontStyle.Normal,
         charCode?: number
-    ): TtfParser | null {
+    ): TtfParser | undefined {
         const families = Array.isArray(family) ? family : [family];
 
         // Try each specified family
@@ -313,7 +313,7 @@ export class FontManager {
             }
         }
 
-        return null;
+        return undefined;
     }
 
     /**
@@ -325,7 +325,7 @@ export class FontManager {
         maxWidth: number,
         maxHeight?: number,
         layoutOptions?: TextLayoutOptions
-    ): TextLayoutResult | null {
+    ): TextLayoutResult | undefined {
         const font = this.getFontWithFallback(
             style.fontFamily || 'sans-serif',
             style.fontWeight || FontWeight.Normal,
@@ -333,7 +333,7 @@ export class FontManager {
         );
 
         if (!font) {
-            return null;
+            return undefined;
         }
 
         const engine = new TextLayoutEngine(createFontAdapter(font), {
@@ -375,9 +375,9 @@ export class FontManager {
         family: string,
         weight = FontWeight.Normal,
         style = FontStyle.Normal
-    ): FontMetrics | null {
+    ): FontMetrics | undefined {
         const font = this.getFont(family, weight, style);
-        if (!font) return null;
+        if (!font) return undefined;
 
         return {
             family,
@@ -399,10 +399,10 @@ export class FontManager {
         usedTexts: string[],
         weight = FontWeight.Normal,
         style = FontStyle.Normal
-    ): ArrayBuffer | null {
+    ): ArrayBuffer | undefined {
         const descriptor = this.registeredFonts.get(this.getFontKey(family, weight, style));
         if (!descriptor || !(descriptor.source instanceof ArrayBuffer)) {
-            return null;
+            return undefined;
         }
 
         return createFontSubsetFromText(descriptor.source, usedTexts);

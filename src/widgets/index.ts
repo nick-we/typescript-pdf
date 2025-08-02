@@ -161,6 +161,35 @@ export {
     type OnCellTextStyle,
 } from './table-helper.js';
 
+// Chart widgets and related types
+export {
+    Chart,
+    ChartColors,
+    ChartHelpers,
+    type ChartProps,
+    type ChartDataPoint,
+    type ChartDataSeries,
+    type ChartAxis,
+    type ChartLegend,
+    type ChartStyle,
+    type ChartRenderContext,
+} from './chart.js';
+export {
+    BarChart,
+    createBarChart,
+    BarChartHelpers,
+    BarOrientation,
+    BarMode,
+    type BarChartProps,
+} from './bar-chart.js';
+export {
+    LineChart,
+    createLineChart,
+    LineChartHelpers,
+    LineMarker,
+    type LineChartProps,
+} from './line-chart.js';
+
 // Layout system exports
 export {
     BoxConstraints,

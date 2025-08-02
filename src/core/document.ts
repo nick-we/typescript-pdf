@@ -9,11 +9,11 @@
 
 import { PdfDocument, PdfPage } from './pdf/document.js';
 import { PdfStandardFont } from './pdf/font.js';
-import { PdfColorRgb } from './pdf/graphics.js';
 import type { PageOptions, DocumentInfo } from '../types/index.js';
 import type { Widget } from '../widgets/widget.js';
 import { BoxConstraints, TextDirection, defaultTheme, type LayoutContext, type PaintContext } from '../types/layout.js';
 import type { Size } from '../types/geometry.js';
+import { PdfColor } from './pdf/color.js';
 
 /**
  * Main Document class for PDF generation
@@ -158,7 +158,7 @@ export class Page {
     } = {}): void {
         const graphics = this.getGraphics();
         const font = this.pdfDocument.fontRegistry.getFont(options.font || PdfStandardFont.Helvetica);
-        const color = options.color ? new PdfColorRgb(options.color.red, options.color.green, options.color.blue) : PdfColorRgb.black;
+        const color = options.color ? new PdfColor(options.color.red, options.color.green, options.color.blue) : PdfColor.black;
 
         this.pdfPage.addFont(font);
         graphics.setColor(color);
@@ -175,7 +175,7 @@ export class Page {
         lineWidth?: number;
     } = {}): void {
         const graphics = this.getGraphics();
-        const color = options.color ? new PdfColorRgb(options.color.red, options.color.green, options.color.blue) : PdfColorRgb.black;
+        const color = options.color ? new PdfColor(options.color.red, options.color.green, options.color.blue) : PdfColor.black;
 
         graphics.setColor(color);
 

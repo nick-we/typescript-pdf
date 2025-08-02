@@ -33,6 +33,7 @@ import {
     FontStyle,
 } from '../src/core/index.js';
 import { TextDecoration } from '../src/types/theming.js';
+import { PdfColor } from '../src/core/pdf/color.js';
 
 /**
  * Example 1: Basic RichText with Mixed Formatting
@@ -44,7 +45,7 @@ function createBasicRichTextExample(): RichText {
         TextSpans.text(', this is '),
         TextSpans.italic('italic text'),
         TextSpans.text(', and this is '),
-        TextSpans.colored('colored text', '#ff0000'),
+        TextSpans.colored('colored text', PdfColor.fromHex('#ff0000')),
         TextSpans.text('.')
     );
 
@@ -71,7 +72,7 @@ function createComplexRichTextExample(): RichText {
             TextSpans.text(' text')
         ),
         TextSpans.text(' and '),
-        TextSpans.colored('multiple colors', '#0066cc'),
+        TextSpans.colored('multiple colors', PdfColor.fromHex('#0066cc')),
         TextSpans.text(' in the same sentence.\n\n'),
         TextSpans.text('Different font families: '),
         TextSpans.text('Helvetica (default), ', { fontFamily: PdfStandardFont.Helvetica }),
@@ -117,7 +118,7 @@ function demonstrateFontFallback(): Container {
         child: new Column({
             children: [
                 new Text('Font Fallback Examples:', {
-                    style: { fontSize: 16, fontWeight: 'bold' },
+                    style: { fontSize: 16, fontWeight: FontWeight.Bold },
                 }),
                 new Container({ height: 10 }), // Spacer
                 ...examples,
@@ -145,7 +146,7 @@ function demonstrateTextMetrics(): Container {
         return createRichText(
             TextSpans.combine(
                 TextSpans.text(`Max width: ${width}pt → `),
-                TextSpans.colored(`${bounds.lineCount} lines`, '#0066cc'),
+                TextSpans.colored(`${bounds.lineCount} lines`, PdfColor.fromHex('#0066cc')),
                 TextSpans.text(`, height: ${bounds.height.toFixed(1)}pt`)
             ),
             { style: { fontSize: 11 } }
@@ -157,11 +158,11 @@ function demonstrateTextMetrics(): Container {
         child: new Column({
             children: [
                 new Text('Text Measurement Examples:', {
-                    style: { fontSize: 16, fontWeight: 'bold' },
+                    style: { fontSize: 16, fontWeight: FontWeight.Bold },
                 }),
                 new Container({ height: 10 }), // Spacer
                 new Text(`Sample text: "${sampleText}"`, {
-                    style: { fontSize: 10, fontStyle: 'italic', color: '#666666' },
+                    style: { fontSize: 10, fontStyle: FontStyle.Italic, color: '#666666' },
                 }),
                 new Container({ height: 8 }), // Spacer
                 ...examples,
@@ -187,13 +188,13 @@ function demonstrateLineBreaking(): Container {
         return new Container({
             width,
             decoration: {
-                border: { width: 1, color: '#cccccc' },
+                border: { width: 1, color: PdfColor.fromHex('#cccccc') },
             },
             padding: EdgeInsets.all(8),
             child: new Column({
                 children: [
                     new Text(name, {
-                        style: { fontSize: 10, fontWeight: 'bold', color: '#0066cc' },
+                        style: { fontSize: 10, fontWeight: FontWeight.Bold, color: '#0066cc' },
                     }),
                     new Container({ height: 4 }), // Spacer
                     createRichText(
@@ -213,7 +214,7 @@ function demonstrateLineBreaking(): Container {
         child: new Column({
             children: [
                 new Text('Line Breaking Examples:', {
-                    style: { fontSize: 16, fontWeight: 'bold' },
+                    style: { fontSize: 16, fontWeight: FontWeight.Bold },
                 }),
                 new Container({ height: 12 }), // Spacer
                 ...examples,
@@ -227,8 +228,8 @@ function demonstrateLineBreaking(): Container {
  */
 function createTypographyShowcase(): Container {
     const headingSpan = TextSpans.combine(
-        TextSpans.sized('Typography ', 28, { fontWeight: 'bold' }),
-        TextSpans.sized('Showcase', 28, { fontWeight: 'bold', color: '#0066cc' })
+        TextSpans.sized('Typography ', 28, { fontWeight: FontWeight.Bold }),
+        TextSpans.sized('Showcase', 28, { fontWeight: FontWeight.Bold, color: '#0066cc' })
     );
 
     const bodySpan = TextSpans.combine(
@@ -249,13 +250,13 @@ function createTypographyShowcase(): Container {
         TextSpans.text(', and '),
         TextSpans.sized('extra large', 20),
         TextSpans.text('.\n\nColor variations: '),
-        TextSpans.colored('red', '#ff0000'),
+        TextSpans.colored('red', PdfColor.fromHex('#ff0000')),
         TextSpans.text(', '),
-        TextSpans.colored('green', '#00aa00'),
+        TextSpans.colored('green', PdfColor.fromHex('#00aa00')),
         TextSpans.text(', '),
-        TextSpans.colored('blue', '#0066cc'),
+        TextSpans.colored('blue', PdfColor.fromHex('#0066cc')),
         TextSpans.text(', and '),
-        TextSpans.colored('purple', '#8800cc'),
+        TextSpans.colored('purple', PdfColor.fromHex('#8800cc')),
         TextSpans.text('.')
     );
 
@@ -290,7 +291,7 @@ export async function createAdvancedTextDocument(): Promise<Uint8Array> {
             child: new Column({
                 children: [
                     new Text('Advanced Text Rendering Examples', {
-                        style: { fontSize: 24, fontWeight: 'bold' },
+                        style: { fontSize: 24, fontWeight: FontWeight.Bold },
                         textAlign: TextAlign.Center,
                     }),
                     new Container({ height: 30 }), // Spacer

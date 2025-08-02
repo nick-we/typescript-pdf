@@ -8,6 +8,7 @@
  * @packageDocumentation
  */
 
+import type { U } from 'vitest/dist/reporters-w_64AS5f.js';
 import { TtfParser, type TtfGlyphInfo } from './ttf-parser.js';
 
 /**
@@ -333,7 +334,7 @@ export class TtfSubsetter {
         const sortedChars = Array.from(this.usedChars).sort((a, b) => a - b);
         const groups: Array<{ start: number; end: number; startGlyph: number }> = [];
 
-        let currentGroup: { start: number; end: number; startGlyph: number } | null = null;
+        let currentGroup: { start: number; end: number; startGlyph: number } | undefined = undefined;
 
         for (const charCode of sortedChars) {
             const glyphIndex = this.parser.getGlyphIndex(charCode);

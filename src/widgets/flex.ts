@@ -26,6 +26,7 @@ import {
     type FlexChildData,
     type FlexLayoutData,
 } from '../types/flex.js';
+import { Matrix4 } from '../core/pdf/graphics.js';
 
 /**
  * Properties for the Flex widget
@@ -299,10 +300,22 @@ export class Flex extends BaseWidget {
         for (const childData of layoutData.children) {
             graphics.saveContext();
 
-            // Transform to child position
-            graphics.setTransform({
-                storage: [1, 0, 0, 1, childData.position.x, childData.position.y],
-            } as any);
+            // Ensure position values are valid numbers, default to 0 if undefined/invalid
+            const x = typeof childData.position.x === 'number' && !isNaN(childData.position.x) ? childData.position.x : 0;
+            const y = typeof childData.position.y === 'number' && !isNaN(childData.position.y) ? childData.position.y : 0;
+
+            // Only apply transformation if there's actually a translation needed
+            if (x !== 0 || y !== 0) {
+                // Create a simple translation matrix using the identity as base
+                const translationMatrix = Matrix4.identity();
+                // Safely modify the translation values
+                const matrixValues = (translationMatrix as any).values;
+                if (matrixValues && Array.isArray(matrixValues) && matrixValues.length === 16) {
+                    matrixValues[12] = x; // X translation
+                    matrixValues[13] = y; // Y translation
+                    graphics.setTransform(translationMatrix);
+                }
+            }
 
             // Paint child
             const childContext: PaintContext = {

@@ -41,6 +41,7 @@ import {
 } from '../src/types/theming.js';
 import { PdfStandardFont } from '../src/core/pdf/font.js';
 import { EdgeInsets, BoxConstraints } from '../src/types/layout.js';
+import { PdfColor } from '../src/core/pdf/color.js';
 
 /**
  * Create a themed document showcase
@@ -183,7 +184,7 @@ function createProfessionalDocument() {
     return ThemeHelpers.professional(
         new Container({
             decoration: {
-                color: '#ffffff',
+                color: PdfColor.fromHex('#ffffff'),
             },
             child: new Stack({
                 children: [
@@ -191,7 +192,7 @@ function createProfessionalDocument() {
                     PositionedHelpers.fill(
                         new Container({
                             decoration: {
-                                color: '#f8f9fa',
+                                color: PdfColor.fromHex('#f8f9fa'),
                             },
                         })
                     ),
@@ -205,7 +206,7 @@ function createProfessionalDocument() {
                         child: new Container({
                             padding: EdgeInsets.all(20),
                             decoration: {
-                                color: '#2c3e50',
+                                color: PdfColor.fromHex('#2c3e50'),
                             },
                             child: new Row({
                                 children: [
@@ -234,10 +235,10 @@ function createProfessionalDocument() {
                                     padding: EdgeInsets.all(20),
                                     margin: EdgeInsets.only({ bottom: 20 }),
                                     decoration: {
-                                        color: '#ffffff',
+                                        color: PdfColor.fromHex('#ffffff'),
                                         border: {
                                             width: 1,
-                                            color: '#e0e0e0',
+                                            color: PdfColor.fromHex('#e0e0e0'),
                                         },
                                     },
                                     child: new Column({
@@ -269,10 +270,10 @@ function createProfessionalDocument() {
                                 new Container({
                                     padding: EdgeInsets.all(20),
                                     decoration: {
-                                        color: '#ffffff',
+                                        color: PdfColor.fromHex('#ffffff'),
                                         border: {
                                             width: 1,
-                                            color: '#e0e0e0',
+                                            color: PdfColor.fromHex('#e0e0e0'),
                                         },
                                     },
                                     child: new Column({
@@ -449,8 +450,8 @@ function createThemeSwitchingDemo() {
                     height: 200,
                     padding: EdgeInsets.all(20),
                     decoration: {
-                        color: '#ffffff',
-                        border: { width: 2, color: '#e0e0e0' },
+                        color: PdfColor.fromHex('#ffffff'),
+                        border: { width: 2, color: PdfColor.fromHex('#e0e0e0') },
                     },
                     child: new Center({
                         child: new Column({
@@ -477,8 +478,8 @@ function createThemeSwitchingDemo() {
                     height: 200,
                     padding: EdgeInsets.all(20),
                     decoration: {
-                        color: '#121212',
-                        border: { width: 2, color: '#333333' },
+                        color: PdfColor.fromHex('#121212'),
+                        border: { width: 2, color: PdfColor.fromHex('#333333') },
                     },
                     child: new Center({
                         child: new Column({
@@ -505,8 +506,8 @@ function createThemeSwitchingDemo() {
                     height: 200,
                     padding: EdgeInsets.all(20),
                     decoration: {
-                        color: '#f8f9fa',
-                        border: { width: 2, color: '#2c3e50' },
+                        color: PdfColor.fromHex('#f8f9fa'),
+                        border: { width: 2, color: PdfColor.fromHex('#2c3e50') },
                     },
                     child: new Center({
                         child: new Column({
@@ -531,12 +532,12 @@ function createThemeSwitchingDemo() {
 /**
  * Create a color swatch component
  */
-function createColorSwatch(label: string, color: string, textColor: string) {
+function createColorSwatch(label: string, color: PdfColor, textColor: PdfColor) {
     return new Container({
         width: 120,
         height: 80,
         decoration: {
-            color: color,
+            color,
             borderRadius: { topLeft: 8, topRight: 8, bottomLeft: 8, bottomRight: 8 },
         },
         child: new Center({
@@ -550,7 +551,7 @@ function createColorSwatch(label: string, color: string, textColor: string) {
                         }),
                     }),
                     new Container({ height: 4 }),
-                    new Text(color, {
+                    new Text(color.toString(), {
                         style: TextStyleUtils.createInheriting({
                             color: textColor,
                             fontSize: 10,
@@ -574,7 +575,7 @@ function createFeatureList(features: string[]) {
                     height: 6,
                     margin: EdgeInsets.only({ top: 6, right: 8 }),
                     decoration: {
-                        color: '#3498db',
+                        color: PdfColor.fromHex('#3498db'),
                         borderRadius: { topLeft: 3, topRight: 3, bottomLeft: 3, bottomRight: 3 },
                     },
                 }),
@@ -582,7 +583,7 @@ function createFeatureList(features: string[]) {
                     style: TextStyleUtils.createInheriting({
                         fontSize: 11,
                         lineSpacing: 1.4,
-                        color: '#34495e',
+                        color: PdfColor.fromHex('#34495e'),
                     }),
                 }),
             ],

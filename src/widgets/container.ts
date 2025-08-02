@@ -8,7 +8,8 @@
  */
 
 import { BaseWidget, type Widget, type WidgetProps } from './widget.js';
-import { PdfColorRgb, Matrix4 } from '../core/pdf/graphics.js';
+import { Matrix4 } from '../core/pdf/graphics.js';
+import { PdfColor } from '../core/pdf/color.js';
 import type {
     LayoutContext,
     LayoutResult,
@@ -50,8 +51,8 @@ export interface BorderRadius {
 export interface Border {
     /** Border width */
     width?: number;
-    /** Border color (hex string) */
-    color?: string;
+    /** Border color */
+    color?: PdfColor;
     /** Border style */
     style?: BorderStyle;
 }
@@ -68,16 +69,16 @@ export interface BoxShadow {
     blurRadius?: number;
     /** Spread radius */
     spreadRadius?: number;
-    /** Shadow color (hex string) */
-    color?: string;
+    /** Shadow color */
+    color?: PdfColor;
 }
 
 /**
  * Box decoration configuration
  */
 export interface BoxDecoration {
-    /** Background color (hex string) */
-    color?: string;
+    /** Background color */
+    color?: PdfColor;
     /** Border configuration */
     border?: Border;
     /** Border radius */
@@ -175,49 +176,17 @@ export class Container extends BaseWidget {
     constructor(props: ContainerProps = {}) {
         super(props);
 
-        props.child && (this.child = props.child);
+        if (props.child) this.child = props.child;
         this.padding = props.padding ?? EdgeInsetsUtils.zero;
         this.margin = props.margin ?? EdgeInsetsUtils.zero;
-        props.width && (this.width = props.width);
-        props.height && (this.height = props.height);
-        props.minWidth && (this.minWidth = props.minWidth);
-        props.minHeight && (this.minHeight = props.minHeight);
-        props.maxWidth && (this.maxWidth = props.maxWidth);
-        props.maxHeight && (this.maxHeight = props.maxHeight);
+        if (props.width) this.width = props.width;
+        if (props.height) this.height = props.height;
+        if (props.minWidth) this.minWidth = props.minWidth;
+        if (props.minHeight) this.minHeight = props.minHeight;
+        if (props.maxWidth) this.maxWidth = props.maxWidth;
+        if (props.maxHeight) this.maxHeight = props.maxHeight;
         this.alignment = props.alignment ?? Alignment.Center;
-        props.decoration && (this.decoration = this.normalizeBoxDecoration(props.decoration));
-    }
-
-    /**
-     * Parse color string to RGB values
-     */
-    private parseColor(color: string): PdfColorRgb {
-        // Simple hex color parsing
-        if (color.startsWith('#')) {
-            const hex = color.slice(1);
-            if (hex.length === 6) {
-                // 6-character hex: #RRGGBB
-                const r = parseInt(hex.slice(0, 2), 16) / 255;
-                const g = parseInt(hex.slice(2, 4), 16) / 255;
-                const b = parseInt(hex.slice(4, 6), 16) / 255;
-                return new PdfColorRgb(r, g, b);
-            } else if (hex.length === 8) {
-                // 8-character hex: #RRGGBBAA (ignore alpha for now)
-                const r = parseInt(hex.slice(0, 2), 16) / 255;
-                const g = parseInt(hex.slice(2, 4), 16) / 255;
-                const b = parseInt(hex.slice(4, 6), 16) / 255;
-                return new PdfColorRgb(r, g, b);
-            } else if (hex.length === 3) {
-                // 3-character hex: #RGB (shorthand)
-                const r = parseInt(hex[0]! + hex[0]!, 16) / 255;
-                const g = parseInt(hex[1]! + hex[1]!, 16) / 255;
-                const b = parseInt(hex[2]! + hex[2]!, 16) / 255;
-                return new PdfColorRgb(r, g, b);
-            }
-        }
-
-        // Default to transparent (white)
-        return PdfColorRgb.white;
+        if (props.decoration) this.decoration = this.normalizeBoxDecoration(props.decoration);
     }
 
     /**
@@ -235,7 +204,7 @@ export class Container extends BaseWidget {
             const border = result.border;
             result.border = {
                 width: border.width ?? 1,
-                color: border.color ?? '#000000',
+                color: border.color ?? PdfColor.black,
                 style: border.style ?? BorderStyle.Solid,
             };
         }
@@ -258,7 +227,7 @@ export class Container extends BaseWidget {
                 offsetY: shadow.offsetY,
                 blurRadius: shadow.blurRadius ?? 0,
                 spreadRadius: shadow.spreadRadius ?? 0,
-                color: shadow.color ?? '#000000',
+                color: shadow.color ?? PdfColor.black,
             }));
         }
 
@@ -488,14 +457,14 @@ export function createContainer(props: ContainerProps = {}): Container {
 export const ContainerDecorations = {
     /** Card-like decoration with subtle shadow */
     card: {
-        color: '#ffffff',
+        color: PdfColor.white,
         borderRadius: BorderRadiusUtils.all(8),
         boxShadow: [
             {
                 offsetX: 0,
                 offsetY: 2,
                 blurRadius: 4,
-                color: '#00000020',
+                color: PdfColor.fromHex('#00000020'),
             },
         ],
     },
@@ -504,7 +473,7 @@ export const ContainerDecorations = {
     outlined: {
         border: {
             width: 1,
-            color: '#e0e0e0',
+            color: PdfColor.fromHex('#e0e0e0'),
             style: BorderStyle.Solid,
         },
         borderRadius: BorderRadiusUtils.all(4),
@@ -512,14 +481,14 @@ export const ContainerDecorations = {
 
     /** Elevated container with shadow */
     elevated: {
-        color: '#ffffff',
+        color: PdfColor.white,
         borderRadius: BorderRadiusUtils.all(4),
         boxShadow: [
             {
                 offsetX: 0,
                 offsetY: 4,
                 blurRadius: 8,
-                color: '#00000030',
+                color: PdfColor.fromHex('#00000030'),
             },
         ],
     },

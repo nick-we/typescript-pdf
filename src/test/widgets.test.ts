@@ -33,23 +33,24 @@ import {
     type PaintContext,
 } from '../types/layout.js';
 import { PdfStandardFont } from '../core/pdf/font.js';
-import { PdfGraphics, PdfColorRgb } from '../core/pdf/graphics.js';
+import { PdfGraphics } from '../core/pdf/graphics.js';
 import { FontStyle, FontWeight } from '@/core/fonts.js';
 import { TextDecoration } from '@/types/theming.js';
+import { PdfColor } from '@/core/pdf/color.js';
 
 // Mock PdfGraphics for testing
 class MockPdfGraphics {
     private operations: string[] = [];
 
-    setColor(color: PdfColorRgb): void {
+    setColor(color: PdfColor): void {
         this.operations.push(`setColor(${color.red}, ${color.green}, ${color.blue})`);
     }
 
-    setFillColor(color: PdfColorRgb): void {
+    setFillColor(color: PdfColor): void {
         this.operations.push(`setFillColor(${color.red}, ${color.green}, ${color.blue})`);
     }
 
-    setStrokeColor(color: PdfColorRgb): void {
+    setStrokeColor(color: PdfColor): void {
         this.operations.push(`setStrokeColor(${color.red}, ${color.green}, ${color.blue})`);
     }
 
@@ -350,7 +351,7 @@ describe('Widget System Tests', () => {
                 style: {
                     fontSize: 16,
                     fontFamily: PdfStandardFont.TimesRoman,
-                    color: '#ff0000',
+                    color: PdfColor.red,
                     fontWeight: FontWeight.Bold,
                 },
                 textAlign: TextAlign.Center,
@@ -389,7 +390,7 @@ describe('Widget System Tests', () => {
                 style: {
                     decoration: TextDecoration.create({
                         underline: true,
-                        color: '#000000',
+                        color: PdfColor.black,
                     }),
                 },
             });
@@ -472,10 +473,10 @@ describe('Widget System Tests', () => {
                 width: 100,
                 height: 50,
                 decoration: {
-                    color: '#ff0000',
+                    color: PdfColor.red,
                     border: {
                         width: 2,
-                        color: '#000000',
+                        color: PdfColor.black,
                         style: BorderStyle.Solid,
                     },
                 },
@@ -614,7 +615,7 @@ describe('Widget System Tests', () => {
         });
 
         test('should provide predefined container decorations', () => {
-            expect(ContainerDecorations.card.color).toBe('#ffffff');
+            expect(ContainerDecorations.card.color).toBe(PdfColor.white);
             expect(ContainerDecorations.outlined.border?.style).toBe(BorderStyle.Solid);
             expect(ContainerDecorations.elevated.boxShadow).toBeDefined();
         });

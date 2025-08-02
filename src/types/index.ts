@@ -15,6 +15,9 @@ export * from './geometry.js';
 export * from './layout.js';
 export * from './flex.js';
 
+// Internal types for type safety
+export * from './internal.js';
+
 // Theming system - export only non-conflicting items
 export type {
     ColorScheme,

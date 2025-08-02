@@ -23,6 +23,7 @@ import {
 } from '../src/widgets/table.js';
 import { EdgeInsets } from '../src/types/layout.js';
 import { FontWeight } from '../src/types/theming.js';
+import { PdfColor } from '../src/core/pdf/color.js';
 
 async function createTableShowcase() {
     const doc = new Document();
@@ -66,28 +67,28 @@ async function createTableShowcase() {
                         children: [
                             new Container({
                                 padding: EdgeInsets.all(8),
-                                decoration: { color: '#f0f0f0' },
+                                decoration: { color: PdfColor.fromHex('#f0f0f0') },
                                 child: new Text('Name', {
                                     style: { fontWeight: FontWeight.Bold }
                                 }),
                             }),
                             new Container({
                                 padding: EdgeInsets.all(8),
-                                decoration: { color: '#f0f0f0' },
+                                decoration: { color: PdfColor.fromHex('#f0f0f0') },
                                 child: new Text('Description', {
                                     style: { fontWeight: FontWeight.Bold }
                                 }),
                             }),
                             new Container({
                                 padding: EdgeInsets.all(8),
-                                decoration: { color: '#f0f0f0' },
+                                decoration: { color: PdfColor.fromHex('#f0f0f0') },
                                 child: new Text('Score', {
                                     style: { fontWeight: FontWeight.Bold }
                                 }),
                             }),
                             new Container({
                                 padding: EdgeInsets.all(8),
-                                decoration: { color: '#f0f0f0' },
+                                decoration: { color: PdfColor.fromHex('#f0f0f0') },
                                 child: new Text('Status', {
                                     style: { fontWeight: FontWeight.Bold }
                                 }),
@@ -134,7 +135,7 @@ async function createTableShowcase() {
                                 child: new Text('Away'),
                             }),
                         ],
-                        decoration: { color: '#f8f8f8' },
+                        decoration: { color: PdfColor.fromHex('#f8f8f8') },
                     }),
                 ],
             }),
@@ -161,7 +162,7 @@ async function createTableShowcase() {
                     fontWeight: FontWeight.Bold,
                     color: '#ffffff'
                 },
-                headerDecoration: { color: '#4a90e2' },
+                headerDecoration: { color: PdfColor.fromHex('#4a90e2') },
                 cellPadding: EdgeInsets.all(10),
 
                 // Custom cell formatting
@@ -181,7 +182,7 @@ async function createTableShowcase() {
                     if (columnIndex === 3) {
                         // Color-code trend column
                         return {
-                            color: data === 'Growth' ? '#e8f5e8' : '#ffe8e8'
+                            color: data === 'Growth' ? PdfColor.fromHex('#e8f5e8') : PdfColor.fromHex('#ffe8e8')
                         };
                     }
                     return undefined;
@@ -221,9 +222,9 @@ async function createTableShowcase() {
             ], {
                 headers: ['Task', 'Assignee', 'Priority', 'Due Date'],
                 border: TableBorders.all({ width: 1, color: '#e0e0e0' }),
-                evenRowColor: '#ffffff',
-                oddRowColor: '#f8f9fa',
-                headerColor: '#343a40',
+                evenRowColor: PdfColor.fromHex('#ffffff'),
+                oddRowColor: PdfColor.fromHex('#f8f9fa'),
+                headerColor: PdfColor.fromHex('#343a40'),
                 cellPadding: EdgeInsets.all(12),
             }),
         }),
@@ -282,7 +283,7 @@ async function createTableShowcase() {
                     color: '#ffffff',
                     fontSize: 12,
                 },
-                headerDecoration: { color: '#495057' },
+                headerDecoration: { color: PdfColor.fromHex('#495057') },
                 cellPadding: EdgeInsets.all(10),
 
                 // Format financial numbers
@@ -298,8 +299,8 @@ async function createTableShowcase() {
                 },
 
                 // Highlight profitable quarters
-                rowDecoration: { color: '#f8f9fa' },
-                oddRowDecoration: { color: '#ffffff' },
+                rowDecoration: { color: PdfColor.fromHex('#f8f9fa') },
+                oddRowDecoration: { color: PdfColor.fromHex('#ffffff') },
 
                 // Color-code profit margins
                 textStyleBuilder: (columnIndex: number, data: any, rowIndex: number) => {

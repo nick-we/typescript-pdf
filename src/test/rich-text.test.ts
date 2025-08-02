@@ -11,6 +11,7 @@ import { PdfStandardFont } from '../core/pdf/font.js';
 import { BoxConstraints, type LayoutContext, type PaintContext } from '../types/layout.js';
 import { TextAlign, TextOverflow } from '../widgets/text.js';
 import { FontWeight, FontStyle, TextDecoration } from '../types/theming.js';
+import { PdfColor } from '@/core/pdf/color.js';
 
 // Mock graphics context for testing
 class MockGraphicsContext {
@@ -83,7 +84,7 @@ describe('RichText Widget', () => {
                 text: 'Hello World',
                 style: {
                     fontSize: 16,
-                    color: '#ff0000',
+                    color: PdfColor.fromHex('#ff0000'),
                     fontWeight: FontWeight.Bold,
                 },
             };
@@ -213,8 +214,8 @@ describe('RichText Widget', () => {
             const span: TextSpan = {
                 text: '',
                 children: [
-                    { text: 'Red', style: { color: '#ff0000' } },
-                    { text: 'Blue', style: { color: '#0000ff' } },
+                    { text: 'Red', style: { color: PdfColor.fromHex('#ff0000') } },
+                    { text: 'Blue', style: { color: PdfColor.fromHex('#0000ff') } },
                 ],
             };
             const richText = new RichText({ text: span });
@@ -337,7 +338,7 @@ describe('RichText Widget', () => {
                                 children: [
                                     {
                                         text: 'Grandchild',
-                                        style: { color: '#ff0000' },
+                                        style: { color: PdfColor.fromHex('#ff0000') },
                                     },
                                 ],
                             },
@@ -361,7 +362,7 @@ describe('RichText Widget', () => {
                     { text: ' and this is ' },
                     { text: 'italic', style: { fontStyle: FontStyle.Italic } },
                     { text: ' and this is ' },
-                    { text: 'colored', style: { color: '#ff0000' } },
+                    { text: 'colored', style: { color: PdfColor.fromHex('#ff0000') } },
                     { text: ' text that should wrap nicely across multiple lines.' },
                 ],
             };
@@ -405,9 +406,9 @@ describe('TextSpans Helper Functions', () => {
     });
 
     test('should create colored text span', () => {
-        const span = TextSpans.colored('Colored Text', '#ff0000');
+        const span = TextSpans.colored('Colored Text', PdfColor.fromHex('#ff0000'));
         expect(span.text).toBe('Colored Text');
-        expect(span.style?.color).toBe('#ff0000');
+        expect(span.style?.color).toStrictEqual(PdfColor.fromHex('#ff0000'));
     });
 
     test('should create sized text span', () => {

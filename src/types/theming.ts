@@ -9,8 +9,8 @@
 
 import { FontStyle, FontWeight } from '../core/fonts.js';
 import { PdfStandardFont } from '../core/pdf/font.js';
-import type { EdgeInsets } from './layout.js';
-import { PdfColorRgb } from '../core/pdf/graphics.js';
+import type { EdgeInsets, PaintContext } from './layout.js';
+import { PdfColor } from '@/core/pdf/color.js';
 
 // Re-export FontWeight and FontStyle for convenience
 export { FontWeight, FontStyle };
@@ -54,7 +54,7 @@ export enum BorderStyle {
  */
 export interface Border {
     width?: number;
-    color?: string;
+    color?: PdfColor;
     style?: BorderStyle;
 }
 
@@ -76,14 +76,14 @@ export interface BoxShadow {
     offsetY: number;
     blurRadius?: number;
     spreadRadius?: number;
-    color?: string;
+    color?: PdfColor;
 }
 
 /**
  * BoxDecoration interface (local definition to avoid circular dependency)
  */
 export interface BoxDecoration {
-    color?: string;
+    color?: PdfColor;
     border?: Border;
     borderRadius?: BorderRadius;
     boxShadow?: BoxShadow[];
@@ -107,7 +107,7 @@ export class TextDecoration {
     public readonly underline?: boolean;
     public readonly overline?: boolean;
     public readonly strikethrough?: boolean;
-    public readonly color?: string;
+    public readonly color?: PdfColor;
     public readonly thickness?: number;
     public readonly style?: TextDecorationStyle;
 
@@ -115,17 +115,17 @@ export class TextDecoration {
         underline?: boolean;
         overline?: boolean;
         strikethrough?: boolean;
-        color?: string;
+        color?: PdfColor;
         thickness?: number;
         style?: TextDecorationStyle;
     }) {
         this._mask = mask;
-        options?.underline && (this.underline = options?.underline);
-        options?.overline && (this.overline = options?.overline);
-        options?.strikethrough && (this.strikethrough = options?.strikethrough);
-        options?.color && (this.color = options?.color);
-        options?.thickness && (this.thickness = options?.thickness);
-        options?.style && (this.style = options?.style);
+        if (options?.underline) this.underline = options?.underline;
+        if (options?.overline) this.overline = options?.overline;
+        if (options?.strikethrough) this.strikethrough = options?.strikethrough;
+        if (options?.color) this.color = options?.color;
+        if (options?.thickness) this.thickness = options?.thickness;
+        if (options?.style) this.style = options?.style;
     }
 
     /** No decoration */
@@ -147,7 +147,7 @@ export class TextDecoration {
         underline?: boolean;
         overline?: boolean;
         strikethrough?: boolean;
-        color?: string;
+        color?: PdfColor;
         thickness?: number;
         style?: TextDecorationStyle;
     }): TextDecoration {
@@ -215,8 +215,8 @@ export interface TextStyle {
     /** Whether this style inherits from parent styles */
     inherit?: boolean;
 
-    /** Text color (hex string) */
-    color?: string;
+    /** Text color  */
+    color?: PdfColor;
 
     /** Font family */
     fontFamily?: PdfStandardFont;
@@ -245,8 +245,8 @@ export interface TextStyle {
     /** Text decoration */
     decoration?: TextDecoration;
 
-    /** Decoration color */
-    decorationColor?: string;
+    /** Decoration color (PdfColor object) */
+    decorationColor?: PdfColor;
 
     /** Decoration style */
     decorationStyle?: TextDecorationStyle;
@@ -266,7 +266,7 @@ export const TextStyleUtils = {
     createDefault(overrides: Partial<Omit<TextStyle, 'inherit'>> = {}): TextStyle {
         const baseStyle: TextStyle = {
             inherit: false,
-            color: '#000000',
+            color: PdfColor.black,
             fontFamily: PdfStandardFont.Helvetica,
             fontSize: 12,
             fontWeight: FontWeight.Normal,
@@ -414,7 +414,7 @@ export const TextStyleUtils = {
             } else if (shouldEnsureComplete) {
                 // Fill in missing essential properties from defaults for macOS compatibility
                 const defaults: Partial<TextStyle> = {
-                    color: '#000000',
+                    color: PdfColor.black,
                     fontFamily: PdfStandardFont.Helvetica,
                     fontSize: 12,
                     fontWeight: FontWeight.Normal,
@@ -564,7 +564,7 @@ export const TextStyleUtils = {
         // For non-inheriting styles, ensure all essential properties exist
         const complete: TextStyle = {
             inherit: false,
-            color: style.color ?? '#000000',
+            color: style.color ?? PdfColor.black,
             fontFamily: style.fontFamily ?? PdfStandardFont.Helvetica,
             fontSize: style.fontSize ?? 12,
             fontWeight: style.fontWeight ?? FontWeight.Normal,
@@ -601,7 +601,7 @@ export const BoxDecorationUtils = {
      */
     paint(
         decoration: BoxDecoration, // BoxDecoration type to avoid circular dependency
-        context: any, // PaintContext
+        context: PaintContext, // PaintContext
         rect: { x: number; y: number; width: number; height: number },
         phase: PaintPhase = PaintPhase.All
     ): void {
@@ -610,7 +610,7 @@ export const BoxDecorationUtils = {
         if (phase === PaintPhase.All || phase === PaintPhase.Background) {
             // Background phase: colors, gradients, shadows
             if (decoration.color) {
-                const color = BoxDecorationUtils.parseColor(decoration.color);
+                const color = decoration.color;
 
                 // Draw background rectangle
                 graphics.drawRect(rect.x, rect.y, rect.width, rect.height);
@@ -631,7 +631,7 @@ export const BoxDecorationUtils = {
         if (phase === PaintPhase.All || phase === PaintPhase.Foreground) {
             // Foreground phase: borders, decorations
             if (decoration.border && decoration.border.style !== 'none') {
-                const borderColor = BoxDecorationUtils.parseColor(decoration.border.color ?? '#000000');
+                const borderColor = decoration.border.color ?? PdfColor.black;
 
                 // CRITICAL: Explicit stroke color setting for borders (dart-pdf approach)
                 graphics.setStrokeColor(borderColor);
@@ -640,38 +640,6 @@ export const BoxDecorationUtils = {
                 graphics.strokePath();
             }
         }
-    },
-
-    /**
-     * Parse color string to RGB values
-     */
-    parseColor(color: string): any {
-        // Simple hex color parsing
-        if (color.startsWith('#')) {
-            const hex = color.slice(1);
-            if (hex.length === 6) {
-                // 6-character hex: #RRGGBB
-                const r = parseInt(hex.slice(0, 2), 16) / 255;
-                const g = parseInt(hex.slice(2, 4), 16) / 255;
-                const b = parseInt(hex.slice(4, 6), 16) / 255;
-                return new PdfColorRgb(r, g, b);
-            } else if (hex.length === 8) {
-                // 8-character hex: #RRGGBBAA (ignore alpha for now)
-                const r = parseInt(hex.slice(0, 2), 16) / 255;
-                const g = parseInt(hex.slice(2, 4), 16) / 255;
-                const b = parseInt(hex.slice(4, 6), 16) / 255;
-                return new PdfColorRgb(r, g, b);
-            } else if (hex.length === 3) {
-                // 3-character hex: #RGB (shorthand)
-                const r = parseInt(hex[0]! + hex[0]!, 16) / 255;
-                const g = parseInt(hex[1]! + hex[1]!, 16) / 255;
-                const b = parseInt(hex[2]! + hex[2]!, 16) / 255;
-                return new PdfColorRgb(r, g, b);
-            }
-        }
-
-        // Default to black
-        return new PdfColorRgb(0, 0, 0);
     },
 
     /**
@@ -689,7 +657,7 @@ export const BoxDecorationUtils = {
             const border = result.border;
             result.border = {
                 width: border.width ?? 1,
-                color: border.color ?? '#000000',
+                color: border.color ?? PdfColor.black,
                 style: border.style ?? BorderStyle.Solid,
             };
         }
@@ -712,7 +680,7 @@ export const BoxDecorationUtils = {
                 offsetY: shadow.offsetY,
                 blurRadius: shadow.blurRadius ?? 0,
                 spreadRadius: shadow.spreadRadius ?? 0,
-                color: shadow.color ?? '#000000',
+                color: shadow.color ?? PdfColor.black,
             }));
         }
 
@@ -725,31 +693,31 @@ export const BoxDecorationUtils = {
  */
 export interface ColorScheme {
     /** Primary brand color */
-    readonly primary: string;
+    readonly primary: PdfColor;
     /** Secondary brand color */
-    readonly secondary: string;
+    readonly secondary: PdfColor;
     /** Background color */
-    readonly background: string;
+    readonly background: PdfColor;
     /** Surface color */
-    readonly surface: string;
+    readonly surface: PdfColor;
     /** Text color on background */
-    readonly onBackground: string;
+    readonly onBackground: PdfColor;
     /** Text color on surface */
-    readonly onSurface: string;
+    readonly onSurface: PdfColor;
     /** Text color on primary */
-    readonly onPrimary: string;
+    readonly onPrimary: PdfColor;
     /** Text color on secondary */
-    readonly onSecondary: string;
+    readonly onSecondary: PdfColor;
     /** Error color */
-    readonly error: string;
+    readonly error: PdfColor;
     /** Text color on error */
-    readonly onError: string;
+    readonly onError: PdfColor;
     /** Success color */
-    readonly success: string;
+    readonly success: PdfColor;
     /** Warning color */
-    readonly warning: string;
+    readonly warning: PdfColor;
     /** Info color */
-    readonly info: string;
+    readonly info: PdfColor;
 }
 
 /**
@@ -832,57 +800,57 @@ export const ColorSchemes = {
      * Light color scheme
      */
     light: {
-        primary: '#1976d2',
-        secondary: '#dc004e',
-        background: '#ffffff',
-        surface: '#f5f5f5',
-        onBackground: '#000000',
-        onSurface: '#000000',
-        onPrimary: '#ffffff',
-        onSecondary: '#ffffff',
-        error: '#d32f2f',
-        onError: '#ffffff',
-        success: '#388e3c',
-        warning: '#f57c00',
-        info: '#1976d2',
+        primary: PdfColor.fromHex('#1976d2'),
+        secondary: PdfColor.fromHex('#dc004e'),
+        background: PdfColor.fromHex('#ffffff'),
+        surface: PdfColor.fromHex('#f5f5f5'),
+        onBackground: PdfColor.fromHex('#000000'),
+        onSurface: PdfColor.fromHex('#000000'),
+        onPrimary: PdfColor.fromHex('#ffffff'),
+        onSecondary: PdfColor.fromHex('#ffffff'),
+        error: PdfColor.fromHex('#d32f2f'),
+        onError: PdfColor.fromHex('#ffffff'),
+        success: PdfColor.fromHex('#388e3c'),
+        warning: PdfColor.fromHex('#f57c00'),
+        info: PdfColor.fromHex('#1976d2'),
     } as ColorScheme,
 
     /**
      * Dark color scheme
      */
     dark: {
-        primary: '#90caf9',
-        secondary: '#f48fb1',
-        background: '#121212',
-        surface: '#1e1e1e',
-        onBackground: '#ffffff',
-        onSurface: '#ffffff',
-        onPrimary: '#000000',
-        onSecondary: '#000000',
-        error: '#f44336',
-        onError: '#000000',
-        success: '#4caf50',
-        warning: '#ff9800',
-        info: '#2196f3',
+        primary: PdfColor.fromHex('#90caf9'),
+        secondary: PdfColor.fromHex('#f48fb1'),
+        background: PdfColor.fromHex('#121212'),
+        surface: PdfColor.fromHex('#1e1e1e'),
+        onBackground: PdfColor.fromHex('#ffffff'),
+        onSurface: PdfColor.fromHex('#ffffff'),
+        onPrimary: PdfColor.fromHex('#000000'),
+        onSecondary: PdfColor.fromHex('#000000'),
+        error: PdfColor.fromHex('#f44336'),
+        onError: PdfColor.fromHex('#000000'),
+        success: PdfColor.fromHex('#4caf50'),
+        warning: PdfColor.fromHex('#ff9800'),
+        info: PdfColor.fromHex('#2196f3'),
     } as ColorScheme,
 
     /**
      * Professional color scheme
      */
     professional: {
-        primary: '#2c3e50',
-        secondary: '#34495e',
-        background: '#ffffff',
-        surface: '#f8f9fa',
-        onBackground: '#2c3e50',
-        onSurface: '#2c3e50',
-        onPrimary: '#ffffff',
-        onSecondary: '#ffffff',
-        error: '#e74c3c',
-        onError: '#ffffff',
-        success: '#27ae60',
-        warning: '#f39c12',
-        info: '#3498db',
+        primary: PdfColor.fromHex('#2c3e50'),
+        secondary: PdfColor.fromHex('#34495e'),
+        background: PdfColor.fromHex('#ffffff'),
+        surface: PdfColor.fromHex('#f8f9fa'),
+        onBackground: PdfColor.fromHex('#2c3e50'),
+        onSurface: PdfColor.fromHex('#2c3e50'),
+        onPrimary: PdfColor.fromHex('#ffffff'),
+        onSecondary: PdfColor.fromHex('#ffffff'),
+        error: PdfColor.fromHex('#e74c3c'),
+        onError: PdfColor.fromHex('#ffffff'),
+        success: PdfColor.fromHex('#27ae60'),
+        warning: PdfColor.fromHex('#f39c12'),
+        info: PdfColor.fromHex('#3498db'),
     } as ColorScheme,
 };
 

@@ -15,6 +15,7 @@ import type {
 } from '../types/layout.js';
 import type { Size } from '../types/geometry.js';
 import { ThemeUtils } from '../types/theming.js';
+import { Matrix4 } from '../core/pdf/graphics.js';
 
 /**
  * Positioned widget properties
@@ -222,9 +223,22 @@ export class Positioned extends BaseWidget {
 
         // Save graphics state and translate to child position
         graphics.saveContext();
-        graphics.setTransform({
-            storage: [1, 0, 0, 1, childInfo.position.x, childInfo.position.y],
-        } as any);
+
+        // Ensure position values are valid numbers, default to 0 if undefined/invalid
+        const x = typeof childInfo.position.x === 'number' && !isNaN(childInfo.position.x) ? childInfo.position.x : 0;
+        const y = typeof childInfo.position.y === 'number' && !isNaN(childInfo.position.y) ? childInfo.position.y : 0;
+
+        // Only apply transformation if there's actual positioning
+        if (x !== 0 || y !== 0) {
+            const translationMatrix = Matrix4.identity();
+            // Safely modify the translation values using internal access
+            const matrixValues = (translationMatrix as any).values;
+            if (matrixValues && Array.isArray(matrixValues) && matrixValues.length === 16) {
+                matrixValues[12] = x; // X translation
+                matrixValues[13] = y; // Y translation
+                graphics.setTransform(translationMatrix);
+            }
+        }
 
         // Paint child
         const childPaintContext: PaintContext = {

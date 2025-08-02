@@ -194,9 +194,14 @@ export const FlexUtils = {
     ): number[] {
         if (childSizes.length === 0) return [];
 
-        const totalChildSize = childSizes.reduce((sum, size) => sum + size, 0);
-        const totalSpacing = spacing ? spacing * (childSizes.length - 1) : 0;
-        const remainingSpace = Math.max(0, containerSize - totalChildSize - totalSpacing);
+        // Ensure all inputs are valid numbers
+        const safeContainerSize = typeof containerSize === 'number' && !isNaN(containerSize) ? containerSize : 0;
+        const safeSpacing = typeof spacing === 'number' && !isNaN(spacing) ? spacing : 0;
+        const safeChildSizes = childSizes.map(size => typeof size === 'number' && !isNaN(size) ? size : 0);
+
+        const totalChildSize = safeChildSizes.reduce((sum, size) => sum + size, 0);
+        const totalSpacing = safeSpacing * Math.max(0, safeChildSizes.length - 1);
+        const remainingSpace = Math.max(0, safeContainerSize - totalChildSize - totalSpacing);
 
         const positions: number[] = [];
         let currentPosition = 0;
@@ -212,42 +217,42 @@ export const FlexUtils = {
                 currentPosition = remainingSpace / 2;
                 break;
             case MainAxisAlignment.SpaceBetween:
-                if (childSizes.length === 1) {
+                if (safeChildSizes.length === 1) {
                     currentPosition = remainingSpace / 2;
                 } else {
-                    const spaceBetween = remainingSpace / (childSizes.length - 1);
-                    for (let i = 0; i < childSizes.length; i++) {
+                    const spaceBetween = safeChildSizes.length > 1 ? remainingSpace / (safeChildSizes.length - 1) : 0;
+                    for (let i = 0; i < safeChildSizes.length; i++) {
                         positions.push(currentPosition);
-                        currentPosition += (childSizes[i] || 0) + spaceBetween;
+                        currentPosition += safeChildSizes[i]! + spaceBetween;
                     }
-                    return positions;
+                    return positions.map(pos => typeof pos === 'number' && !isNaN(pos) ? pos : 0);
                 }
                 break;
             case MainAxisAlignment.SpaceAround:
-                const spaceAround = remainingSpace / childSizes.length;
+                const spaceAround = safeChildSizes.length > 0 ? remainingSpace / safeChildSizes.length : 0;
                 currentPosition = spaceAround / 2;
-                for (let i = 0; i < childSizes.length; i++) {
+                for (let i = 0; i < safeChildSizes.length; i++) {
                     positions.push(currentPosition);
-                    currentPosition += (childSizes[i] || 0) + spaceAround;
+                    currentPosition += safeChildSizes[i]! + spaceAround;
                 }
-                return positions;
+                return positions.map(pos => typeof pos === 'number' && !isNaN(pos) ? pos : 0);
             case MainAxisAlignment.SpaceEvenly:
-                const spaceEvenly = remainingSpace / (childSizes.length + 1);
+                const spaceEvenly = remainingSpace / (safeChildSizes.length + 1);
                 currentPosition = spaceEvenly;
-                for (let i = 0; i < childSizes.length; i++) {
+                for (let i = 0; i < safeChildSizes.length; i++) {
                     positions.push(currentPosition);
-                    currentPosition += (childSizes[i] || 0) + spaceEvenly;
+                    currentPosition += safeChildSizes[i]! + spaceEvenly;
                 }
-                return positions;
+                return positions.map(pos => typeof pos === 'number' && !isNaN(pos) ? pos : 0);
         }
 
         // For Start, End, Center alignments
-        for (let i = 0; i < childSizes.length; i++) {
+        for (let i = 0; i < safeChildSizes.length; i++) {
             positions.push(currentPosition);
-            currentPosition += (childSizes[i] || 0) + (spacing || 0);
+            currentPosition += safeChildSizes[i]! + safeSpacing;
         }
 
-        return positions;
+        return positions.map(pos => typeof pos === 'number' && !isNaN(pos) ? pos : 0);
     },
 
     /**
@@ -258,20 +263,35 @@ export const FlexUtils = {
         containerSize: number,
         alignment: CrossAxisAlignment
     ): number {
+        // Ensure all inputs are valid numbers
+        const safeChildSize = typeof childSize === 'number' && !isNaN(childSize) ? childSize : 0;
+        const safeContainerSize = typeof containerSize === 'number' && !isNaN(containerSize) ? containerSize : 0;
+
+        let position = 0;
+
         switch (alignment) {
             case CrossAxisAlignment.Start:
-                return 0;
+                position = 0;
+                break;
             case CrossAxisAlignment.End:
-                return containerSize - childSize;
+                position = safeContainerSize - safeChildSize;
+                break;
             case CrossAxisAlignment.Center:
-                return (containerSize - childSize) / 2;
+                position = (safeContainerSize - safeChildSize) / 2;
+                break;
             case CrossAxisAlignment.Stretch:
-                return 0; // Child should be stretched to fill container
+                position = 0; // Child should be stretched to fill container
+                break;
             case CrossAxisAlignment.Baseline:
                 // TODO: Implement baseline alignment using widget baseline info
-                return 0;
+                position = 0;
+                break;
             default:
-                return 0;
+                position = 0;
+                break;
         }
+
+        // Ensure the result is a valid number
+        return typeof position === 'number' && !isNaN(position) ? position : 0;
     },
 };

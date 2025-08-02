@@ -28,6 +28,7 @@ import { type Widget } from './widget.js';
 import { FontStyle, FontWeight, TextDecoration, type TextStyle, TextStyleUtils } from '../types/theming.js';
 import { TextDirection } from '@/core/text-layout.js';
 import { PdfStandardFont } from '@/core/index.js';
+import { PdfColor } from '../core/pdf/color.js';
 
 /**
  * Callback for custom cell formatting
@@ -196,7 +197,7 @@ export class TableHelper {
                     : new Text(
                         headerFormat ? headerFormat(columnIndex, cellData, rowIndex) : String(cellData),
                         {
-                            style: headerStyle ?? { fontWeight: FontWeight.Bold, color: '#000000' },
+                            style: headerStyle ?? { fontWeight: FontWeight.Bold, color: PdfColor.black },
                             textAlign: textAlign,
                         }
                     );
@@ -240,7 +241,7 @@ export class TableHelper {
                         : new Text(
                             headerFormat ? headerFormat(columnIndex, cellData, rowIndex) : String(cellData),
                             {
-                                style: headerStyle ?? { fontWeight: FontWeight.Bold, color: '#000000' },
+                                style: headerStyle ?? { fontWeight: FontWeight.Bold, color: PdfColor.black },
                                 textAlign: textAlign,
                             }
                         );
@@ -274,7 +275,7 @@ export class TableHelper {
                                 fontSize: 12,
                                 fontFamily: PdfStandardFont.Helvetica,
                                 fontWeight: FontWeight.Normal,
-                                color: '#000000',
+                                color: PdfColor.black,
                                 letterSpacing: 0,
                                 wordSpacing: 1,
                                 lineSpacing: 1.2,
@@ -368,9 +369,9 @@ export class TableHelper {
         headers?: string[];
         border?: TableBorder;
         cellPadding?: EdgeInsets;
-        evenRowColor?: string;
-        oddRowColor?: string;
-        headerColor?: string;
+        evenRowColor?: PdfColor;
+        oddRowColor?: PdfColor;
+        headerColor?: PdfColor;
     } = {}): Table {
         const evenDecoration = options.evenRowColor ? { color: options.evenRowColor } : undefined;
         const oddDecoration = options.oddRowColor ? { color: options.oddRowColor } : undefined;
@@ -395,13 +396,13 @@ export class TableHelper {
     static bordered(data: any[][], options: {
         headers?: string[];
         borderWidth?: number;
-        borderColor?: string;
+        borderColor?: PdfColor;
         cellPadding?: EdgeInsets;
-        headerBackgroundColor?: string;
+        headerBackgroundColor?: PdfColor;
     } = {}): Table {
         const border = TableBorders.all({
             width: options.borderWidth ?? 1,
-            color: options.borderColor ?? '#000000',
+            color: options.borderColor ?? PdfColor.black,
             style: 'solid',
         });
 

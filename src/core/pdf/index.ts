@@ -18,3 +18,6 @@ export * from './graphics.js';
 
 // Font system
 export * from './font.js';
+
+// Color management
+export * from './color.js';

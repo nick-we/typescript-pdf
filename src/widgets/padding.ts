@@ -16,6 +16,7 @@ import type {
 } from '../types/layout.js';
 import { EdgeInsets as EdgeInsetsUtils } from '../types/layout.js';
 import type { Size } from '../types/geometry.js';
+import { Matrix4 } from '../core/pdf/graphics.js';
 
 /**
  * Padding widget properties
@@ -86,9 +87,22 @@ export class Padding extends BaseWidget {
 
         // Save graphics state and translate by padding offset
         graphics.saveContext();
-        graphics.setTransform({
-            storage: [1, 0, 0, 1, this.padding.left, this.padding.top],
-        } as any);
+
+        // Only apply transformation if there's actual padding
+        const leftPadding = typeof this.padding.left === 'number' && !isNaN(this.padding.left) ? this.padding.left : 0;
+        const topPadding = typeof this.padding.top === 'number' && !isNaN(this.padding.top) ? this.padding.top : 0;
+
+        if (leftPadding !== 0 || topPadding !== 0) {
+            // Import Matrix4 and create proper translation matrix
+            const translationMatrix = Matrix4.identity();
+            // Safely modify the translation values
+            const matrixValues = (translationMatrix as any).values;
+            if (matrixValues && Array.isArray(matrixValues) && matrixValues.length === 16) {
+                matrixValues[12] = leftPadding; // X translation
+                matrixValues[13] = topPadding;  // Y translation
+                graphics.setTransform(translationMatrix);
+            }
+        }
 
         // Paint child in translated context
         const childContext: PaintContext = {

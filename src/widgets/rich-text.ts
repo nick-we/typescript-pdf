@@ -9,8 +9,8 @@
 
 import { BaseWidget, type WidgetProps } from './widget.js';
 import { PdfStandardFont } from '../core/pdf/font.js';
-import { PdfColorRgb } from '../core/pdf/graphics.js';
-import type { TextAlign, TextOverflow } from './text.js';
+import { PdfColor } from '../core/pdf/color.js';
+import { TextAlign, TextOverflow } from './text.js';
 import type { TextStyle } from '../types/theming.js';
 import { FontWeight, FontStyle, TextDecoration, TextDecorationStyle } from '../types/theming.js';
 import type {
@@ -107,9 +107,9 @@ export class RichText extends BaseWidget {
         super(props);
 
         this.textSpan = props.text;
-        this.textAlign = props.textAlign ?? 'left' as TextAlign;
-        this.overflow = props.overflow ?? 'clip' as TextOverflow;
-        props.maxLines && (this.maxLines = props.maxLines);
+        this.textAlign = props.textAlign ?? TextAlign.Left;
+        this.overflow = props.overflow ?? TextOverflow.Clip;
+        if (props.maxLines) this.maxLines = props.maxLines;
         this.softWrap = props.softWrap ?? true;
 
         // Default text style
@@ -119,13 +119,13 @@ export class RichText extends BaseWidget {
             fontFamily: props.style?.fontFamily ?? PdfStandardFont.Helvetica,
             fontWeight: props.style?.fontWeight ?? FontWeight.Normal,
             fontStyle: props.style?.fontStyle ?? FontStyle.Normal,
-            color: props.style?.color ?? '#000000',
+            color: props.style?.color ?? PdfColor.black,
             letterSpacing: props.style?.letterSpacing ?? 0,
             wordSpacing: props.style?.wordSpacing ?? 0,
             lineSpacing: props.style?.lineSpacing ?? 1.2,
             height: props.style?.height ?? 1,
             decoration: props.style?.decoration ?? TextDecoration.none,
-            decorationColor: props.style?.decorationColor ?? '#000000',
+            decorationColor: props.style?.decorationColor ?? PdfColor.black,
             decorationStyle: props.style?.decorationStyle ?? TextDecorationStyle.Solid,
             decorationThickness: props.style?.decorationThickness ?? 1,
         };
@@ -221,25 +221,6 @@ export class RichText extends BaseWidget {
         }
 
         return fontFamily;
-    }
-
-    /**
-     * Parse color string to RGB values
-     */
-    private parseColor(color: string): PdfColorRgb {
-        // Simple hex color parsing
-        if (color.startsWith('#')) {
-            const hex = color.slice(1);
-            if (hex.length === 6) {
-                const r = parseInt(hex.slice(0, 2), 16) / 255;
-                const g = parseInt(hex.slice(2, 4), 16) / 255;
-                const b = parseInt(hex.slice(4, 6), 16) / 255;
-                return new PdfColorRgb(r, g, b);
-            }
-        }
-
-        // Default to black
-        return PdfColorRgb.black;
     }
 
     /**
@@ -420,8 +401,7 @@ export class RichText extends BaseWidget {
                 }
 
                 // Set color for this segment
-                const color = this.parseColor(segment.style.color);
-                graphics.setColor(color);
+                graphics.setColor(segment.style.color);
 
                 // Position text
                 graphics.moveTextPosition(currentX, lineY);
@@ -493,7 +473,7 @@ export const TextSpans = {
     }),
 
     /** Create a colored text span */
-    colored: (text: string, color: string, style?: TextStyle): TextSpan => ({
+    colored: (text: string, color: PdfColor, style?: TextStyle): TextSpan => ({
         text,
         style: { color, ...style },
     }),

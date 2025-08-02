@@ -14,6 +14,7 @@ import type {
 } from '../types/layout.js';
 import { BoxConstraints } from '../types/layout.js';
 import type { Size } from '../types/geometry.js';
+import type { WidgetConstructorData } from '../types/internal.js';
 
 /**
  * Base Widget interface
@@ -60,7 +61,7 @@ export interface WidgetProps {
 
 /**
  * Abstract base class for widgets that provides common functionality
- * 
+ *
  * This is optional - widgets can implement the Widget interface directly
  * for maximum flexibility with composition.
  */
@@ -69,12 +70,20 @@ export abstract class BaseWidget implements Widget {
     readonly debugLabel?: string;
 
     constructor(props: WidgetProps = {}) {
-        if (props.key !== undefined) {
-            (this as any).key = props.key;
-        }
-        if (props.debugLabel !== undefined) {
-            (this as any).debugLabel = props.debugLabel;
-        }
+        // Use proper property initialization instead of casting to any
+        Object.defineProperty(this, 'key', {
+            value: props.key,
+            writable: false,
+            enumerable: true,
+            configurable: false
+        });
+
+        Object.defineProperty(this, 'debugLabel', {
+            value: props.debugLabel,
+            writable: false,
+            enumerable: true,
+            configurable: false
+        });
     }
 
     /**

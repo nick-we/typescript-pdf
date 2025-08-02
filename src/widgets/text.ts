@@ -9,7 +9,7 @@
 
 import { BaseWidget, type WidgetProps } from './widget.js';
 import { PdfFont, PdfStandardFont } from '../core/pdf/font.js';
-import { PdfColorRgb } from '../core/pdf/graphics.js';
+import { PdfColor } from '../core/pdf/color.js';
 import type {
     LayoutContext,
     LayoutResult,
@@ -160,7 +160,7 @@ export class Text extends BaseWidget {
         this.content = content;
         this.textAlign = props.textAlign ?? TextAlign.Left;
         this.overflow = props.overflow ?? TextOverflow.Clip;
-        props.maxLines && (this.maxLines = props.maxLines);
+        if (props.maxLines) this.maxLines = props.maxLines;
         this.softWrap = props.softWrap ?? true;
 
         // Convert legacy style to comprehensive style if needed
@@ -178,7 +178,7 @@ export class Text extends BaseWidget {
                 fontFamily: PdfStandardFont.Helvetica,
                 fontWeight: FontWeight.Normal,
                 fontStyle: FontStyle.Normal,
-                color: '#000000',
+                color: PdfColor.black,
                 letterSpacing: 0,
                 wordSpacing: 1,
                 lineSpacing: 1.2,
@@ -207,25 +207,6 @@ export class Text extends BaseWidget {
      */
     private getPdfFont(): PdfStandardFont {
         return TextStyleUtils.resolveFontFamily(this.style);
-    }
-
-    /**
-     * Parse color string to RGB values
-     */
-    private parseColor(color: string): PdfColorRgb {
-        // Simple hex color parsing
-        if (color.startsWith('#')) {
-            const hex = color.slice(1);
-            if (hex.length === 6) {
-                const r = parseInt(hex.slice(0, 2), 16) / 255;
-                const g = parseInt(hex.slice(2, 4), 16) / 255;
-                const b = parseInt(hex.slice(4, 6), 16) / 255;
-                return new PdfColorRgb(r, g, b);
-            }
-        }
-
-        // Default to black
-        return PdfColorRgb.black;
     }
 
     /**
@@ -354,7 +335,7 @@ export class Text extends BaseWidget {
         // Use dart-pdf-style validation to guarantee all properties are defined
         effectiveStyle = TextStyleUtils.ensureComplete(effectiveStyle);
 
-        const color = this.parseColor(effectiveStyle.color || '#000000');
+        const color = effectiveStyle.color || PdfColor.black;
         const fontSize = effectiveStyle.fontSize || 12;
 
         console.log(`Font size being used: ${fontSize}`);
@@ -502,7 +483,7 @@ export const TextStyles = {
         fontSize: 10,
         fontWeight: FontWeight.Normal,
         fontFamily: PdfStandardFont.Helvetica,
-        color: '#666666',
+        color: PdfColor.fromHex('#666666'),
     },
 
     /** Code text style */
@@ -510,6 +491,6 @@ export const TextStyles = {
         fontSize: 11,
         fontWeight: FontWeight.Normal,
         fontFamily: PdfStandardFont.Courier,
-        color: '#333333',
+        color: PdfColor.fromHex('#333333'),
     },
 } as const;
