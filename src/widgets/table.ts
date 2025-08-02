@@ -23,7 +23,8 @@ import type {
 import { BoxConstraints, EdgeInsets as EdgeInsetsUtils } from '../types/layout.js';
 import type { Size, Point } from '../types/geometry.js';
 import type { BoxDecoration } from './container.js';
-import { Matrix4 } from '../core/pdf/graphics.js';
+import { Matrix4, PdfGraphics } from '../core/pdf/graphics.js';
+import { FlutterGraphics } from '../core/pdf/flutter-graphics.js';
 import { FontWeight, TextStyleUtils, PaintPhase, BoxDecorationUtils } from '@/types/theming.js';
 import { PdfStandardFont } from '@/core/pdf/font.js';
 import { PdfColor } from '@/core/pdf/color.js';
@@ -417,15 +418,14 @@ export class Table extends BaseWidget {
         // Calculate total table height
         const totalTableHeight = this.calculatedRowHeights.reduce((sum, height) => sum + height, 0);
 
-        // Second pass: position cells from top to bottom (PDF coordinates from bottom)
-        let currentY = totalTableHeight; // Start from top in PDF coordinates
+        // Second pass: position cells from top to bottom (Flutter coordinates - top-left origin)
+        let currentY = 0; // Start from top in Flutter coordinates
 
         for (let rowIndex = 0; rowIndex < rowCount; rowIndex++) {
             const row = this.children[rowIndex]!;
             const rowHeight = this.calculatedRowHeights[rowIndex] ?? 0;
 
-            // Move to the top of current row
-            currentY -= rowHeight;
+            // Current row starts at currentY (top edge in Flutter coordinates)
             const rowTop = currentY;
 
             let currentX = 0;
@@ -451,22 +451,22 @@ export class Table extends BaseWidget {
                 // Layout the cell
                 const cellLayout = child.layout(cellContext);
 
-                // Calculate cell Y position based on vertical alignment
+                // Calculate cell Y position based on vertical alignment (Flutter coordinates)
                 const verticalAlignment = row.verticalAlignment ?? this.defaultVerticalAlignment;
                 let cellY = rowTop;
 
                 switch (verticalAlignment) {
                     case TableCellVerticalAlignment.Top:
-                        cellY = rowTop + (rowHeight - cellLayout.size.height);
+                        cellY = rowTop; // Place at top of row in Flutter coordinates
                         break;
                     case TableCellVerticalAlignment.Middle:
-                        cellY = rowTop + (rowHeight - cellLayout.size.height) / 2;
+                        cellY = rowTop + (rowHeight - cellLayout.size.height) / 2; // Center vertically
                         break;
                     case TableCellVerticalAlignment.Bottom:
-                        cellY = rowTop;
+                        cellY = rowTop + rowHeight - cellLayout.size.height; // Place at bottom of row
                         break;
                     case TableCellVerticalAlignment.Full:
-                        cellY = rowTop;
+                        cellY = rowTop; // Fill entire row height
                         // Re-layout with full height
                         const fullHeightConstraints: BoxConstraints = {
                             minWidth: columnWidth,
@@ -507,6 +507,9 @@ export class Table extends BaseWidget {
                 currentX += columnWidth;
             }
 
+            // Move to next row (Flutter coordinates: Y increases downward)
+            currentY += rowHeight;
+
             // Check if we exceed available height (for page spanning)
             if (totalTableHeight > context.constraints.maxHeight) {
                 this.tableContext.lastRow = rowIndex;
@@ -542,7 +545,7 @@ export class Table extends BaseWidget {
     }
 
     /**
-     * Paint table borders
+     * Paint table borders (Flutter coordinates: top-left origin)
      */
     private paintBorders(context: PaintContext): void {
         if (!this.border) return;
@@ -550,7 +553,7 @@ export class Table extends BaseWidget {
         const { graphics, size } = context;
         const { left, top, right, bottom, horizontalInside, verticalInside } = this.border;
 
-        // Paint outer borders (PDF coordinates: bottom-left origin)
+        // Paint outer borders (Flutter coordinates: top-left origin)
         if (left?.style !== 'none' && left) {
             graphics.setColor(left.color);
             graphics.setLineWidth(left.width);
@@ -561,7 +564,7 @@ export class Table extends BaseWidget {
         if (top?.style !== 'none' && top) {
             graphics.setColor(top.color);
             graphics.setLineWidth(top.width);
-            graphics.drawLine(0, size.height, size.width, size.height);
+            graphics.drawLine(0, 0, size.width, 0);
             graphics.strokePath();
         }
 
@@ -575,7 +578,7 @@ export class Table extends BaseWidget {
         if (bottom?.style !== 'none' && bottom) {
             graphics.setColor(bottom.color);
             graphics.setLineWidth(bottom.width);
-            graphics.drawLine(0, 0, size.width, 0);
+            graphics.drawLine(0, size.height, size.width, size.height);
             graphics.strokePath();
         }
 
@@ -592,14 +595,14 @@ export class Table extends BaseWidget {
             graphics.strokePath();
         }
 
-        // Paint horizontal inside borders (corrected for PDF coordinates)
+        // Paint horizontal inside borders (Flutter coordinates: top to bottom)
         if (horizontalInside?.style !== 'none' && horizontalInside) {
             graphics.setColor(horizontalInside.color);
             graphics.setLineWidth(horizontalInside.width);
 
-            // Start from bottom and work upward (PDF coordinates)
+            // Start from top and work downward (Flutter coordinates)
             let y = 0;
-            for (let i = this.calculatedRowHeights.length - 1; i > 0; i--) {
+            for (let i = 0; i < this.calculatedRowHeights.length - 1; i++) {
                 y += this.calculatedRowHeights[i]!;
                 graphics.drawLine(0, y, size.width, y);
             }
@@ -614,20 +617,37 @@ export class Table extends BaseWidget {
 
         const { graphics } = context;
 
-        graphics.saveContext();
+        // Handle graphics context - if it's already FlutterGraphics, use it directly
+        // Otherwise, wrap PdfGraphics with FlutterGraphics for coordinate conversion
+        let flutterGraphics: FlutterGraphics;
+        if (graphics instanceof FlutterGraphics) {
+            flutterGraphics = graphics;
+        } else {
+            // Assume it's PdfGraphics and wrap it
+            const pageHeight = context.size.height;
+            flutterGraphics = new FlutterGraphics(graphics as PdfGraphics, pageHeight);
+        }
+
+        // Create modified context with FlutterGraphics
+        const flutterContext: PaintContext = {
+            ...context,
+            graphics: flutterGraphics,
+        };
+
+        flutterGraphics.saveContext();
 
         // CRITICAL: Use dart-pdf-style paint phase separation for macOS compatibility
 
         // Phase 1: Background (row decorations, cell backgrounds)
-        this.paintBackground(context);
+        this.paintBackground(flutterContext);
 
         // Phase 2: Content (cell content)
-        this.paintCellContent(context);
+        this.paintCellContent(flutterContext);
 
         // Phase 3: Foreground (borders, decorations)
-        this.paintForeground(context);
+        this.paintForeground(flutterContext);
 
-        graphics.restoreContext();
+        flutterGraphics.restoreContext();
     }
 
     /**

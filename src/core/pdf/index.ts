@@ -15,6 +15,8 @@ export * from './document.js';
 
 // Graphics and drawing
 export * from './graphics.js';
+export * from './graphics-interface.js';
+export * from './flutter-graphics.js';
 
 // Font system
 export * from './font.js';

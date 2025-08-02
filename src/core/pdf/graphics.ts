@@ -12,6 +12,7 @@ import { PdfContentStream } from './document.js';
 import { PdfNum, PdfNumList, PdfName, type PdfOutputContext } from './types.js';
 import { PdfFont } from './font.js';
 import { PdfColor } from './color.js';
+import type { GraphicsContext } from './graphics-interface.js';
 
 /**
  * PDF Line join styles
@@ -125,9 +126,9 @@ export class Matrix4 {
 }
 
 /**
- * Graphics context state
+ * Graphics context state (internal)
  */
-interface GraphicsContext {
+interface InternalGraphicsState {
     /** Current transformation matrix */
     ctm: Matrix4;
 }
@@ -138,13 +139,13 @@ interface GraphicsContext {
 /**
  * PDF Graphics drawing context
  */
-export class PdfGraphics {
+export class PdfGraphics implements GraphicsContext {
     private static readonly COMMENT_INDENT = 35;
     private static readonly INDENT_AMOUNT = 1;
     private indent = PdfGraphics.INDENT_AMOUNT;
 
-    private context: GraphicsContext;
-    private readonly contextStack: GraphicsContext[] = [];
+    private context: InternalGraphicsState;
+    private readonly contextStack: InternalGraphicsState[] = [];
     private readonly contentStream: PdfContentStream;
     private readonly buffer: PdfStream;
     private readonly outputContext: PdfOutputContext;

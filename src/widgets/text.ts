@@ -30,16 +30,6 @@ import type { FontRegistry } from '../core/pdf/font-loader.js';
 import type { TtfParser } from '../core/pdf/ttf-parser.js';
 
 /**
- * Interface for objects that can be used for text rendering
- */
-interface RenderableFont {
-    name: string;
-    measureTextWidth(text: string, fontSize: number): number;
-    getAscender?(fontSize: number): number;
-    getDescender?(fontSize: number): number;
-}
-
-/**
  * Mock font interface for layout calculations
  */
 interface MockFont {
@@ -306,13 +296,6 @@ export class Text extends BaseWidget {
 
         const constrainedSize = this.constrainSize(context.constraints, size);
 
-        console.log(`Text layout debug:
-    content: "${this.content}"
-    fontSize: ${fontSize}
-    constraints: ${JSON.stringify(context.constraints)}
-    measurement: ${JSON.stringify(measurement)}
-    finalSize: ${JSON.stringify(constrainedSize)}`);
-
         return this.createLayoutResult(constrainedSize, {
             baseline: measurement.baseline,
             needsRepaint: true,
@@ -338,9 +321,6 @@ export class Text extends BaseWidget {
         const color = effectiveStyle.color || PdfColor.black;
         const fontSize = effectiveStyle.fontSize || 12;
 
-        console.log(`Font size being used: ${fontSize}`);
-        console.log(`Effective style: ${JSON.stringify(effectiveStyle)}`);
-
         let renderingFont: PdfFont | undefined = undefined;
         let actualWidth: number;
         let ascender: number;
@@ -349,14 +329,11 @@ export class Text extends BaseWidget {
         if (fontRegistry) {
             // Use font registry for both measurement and rendering
             renderingFont = fontRegistry.getFont(this.getPdfFont());
-            console.log(`Using fontRegistry, font name: ${renderingFont.name}`);
             actualWidth = renderingFont.measureTextWidth(this.content, fontSize);
-            console.log(`Font measureTextWidth result: ${actualWidth} for "${this.content}" at size ${fontSize}`);
             ascender = renderingFont.getAscender(fontSize);
             descender = Math.abs(renderingFont.getDescender(fontSize)); // Make positive for calculation
         } else {
             // Fallback to estimations if no font registry available
-            console.log(`Using fallback font measurements`);
             const avgCharWidth = fontSize * 0.55;
             actualWidth = this.content.length * avgCharWidth;
             ascender = fontSize * 0.8;
@@ -370,24 +347,16 @@ export class Text extends BaseWidget {
         let x = 0;
 
         // Center the text vertically within the allocated space
-        // In PDF coordinates (bottom-left origin), position the baseline
+        // In Flutter coordinates (top-left origin), position the text baseline
         // so that the visual center of the text aligns with the center of the container
-        // Text extends from (baseline - descender) to (baseline + ascender)
-        // Visual center is at: baseline + (ascender - descender) / 2
-        // So: container_center = baseline + (ascender - descender) / 2
-        // Therefore: baseline = container_center - (ascender - descender) / 2
+        // Text visual bounds: from top (baseline - ascender) to bottom (baseline + descender)
+        // Visual height: ascender + descender
+        // To center: container_center = baseline - ascender + (ascender + descender) / 2
+        // Therefore: baseline = container_center + ascender - (ascender + descender) / 2
         const containerCenter = size.height / 2;
-        let y = Math.max(0, containerCenter - (ascender - descender) / 2);
-
-        console.log(`Text positioning debug:
-    size: ${JSON.stringify(size)}
-    actualWidth: ${actualWidth}
-    totalTextHeight: ${totalTextHeight}
-    ascender: ${ascender}
-    descender: ${descender}
-    calculated x: ${x}
-    calculated y: ${y}
-    content: "${this.content}"`);
+        let y = containerCenter + ascender - (ascender + descender) / 2;
+        // Ensure y is within valid bounds
+        y = Math.max(ascender, Math.min(y, size.height - descender));
 
         // Apply text alignment based on textAlign property
         if (this.textAlign === TextAlign.Left) {

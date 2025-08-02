@@ -16,7 +16,7 @@ import type { PaintContext } from '../types/layout.js';
 import { PdfColor } from '../core/pdf/color.js';
 import type { Point } from '../types/geometry.js';
 import type { TextStyle } from '../types/theming.js';
-import type { PdfGraphics } from '@/core/index.js';
+import type { GraphicsContext } from '@/core/index.js';
 
 /**
  * Line marker styles
@@ -179,7 +179,7 @@ export class LineChart extends Chart {
     /**
      * Paint area fill under the line
      */
-    private paintAreaFill(graphics: PdfGraphics, points: Point[], color: PdfColor): void {
+    private paintAreaFill(graphics: GraphicsContext, points: Point[], color: PdfColor): void {
         if (!this.renderContext || points.length < 2) return;
 
         const { plotArea } = this.renderContext;
@@ -231,7 +231,7 @@ export class LineChart extends Chart {
     /**
      * Paint line connecting data points
      */
-    private paintLine(graphics: PdfGraphics, points: Point[], color: PdfColor, lineWidth: number): void {
+    private paintLine(graphics: GraphicsContext, points: Point[], color: PdfColor, lineWidth: number): void {
         if (points.length < 2) return;
 
         graphics.saveContext();
@@ -265,7 +265,7 @@ export class LineChart extends Chart {
     /**
      * Paint markers at data points
      */
-    private paintMarkers(graphics: PdfGraphics, points: Point[], color: PdfColor): void {
+    private paintMarkers(graphics: GraphicsContext, points: Point[], color: PdfColor): void {
         graphics.saveContext();
         graphics.setFillColor(color);
         graphics.setStrokeColor(color);

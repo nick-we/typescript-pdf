@@ -7,6 +7,8 @@
  * @packageDocumentation
  */
 
+import { TextDirection } from '../core/text-layout.js';
+
 /**
  * Direction of the main axis in a flex layout
  */
@@ -49,6 +51,16 @@ export enum CrossAxisAlignment {
     Stretch = 'stretch',
     /** Align children to their baseline (text widgets) */
     Baseline = 'baseline',
+}
+
+/**
+ * Direction of vertical axis layout (for Column widgets)
+ */
+export enum VerticalDirection {
+    /** Children are positioned from top to bottom (Flutter default) */
+    Down = 'down',
+    /** Children are positioned from bottom to top */
+    Up = 'up',
 }
 
 /**
@@ -208,6 +220,7 @@ export const FlexUtils = {
 
         switch (alignment) {
             case MainAxisAlignment.Start:
+                // For Flutter coordinates: Start means top (Y=0) for vertical, left (X=0) for horizontal
                 currentPosition = 0;
                 break;
             case MainAxisAlignment.End:
@@ -246,7 +259,8 @@ export const FlexUtils = {
                 return positions.map(pos => typeof pos === 'number' && !isNaN(pos) ? pos : 0);
         }
 
-        // For Start, End, Center alignments
+        // For Start, End, Center alignments - position children sequentially
+        // In Flutter coordinates: Y increases downward, so this is correct for vertical layout
         for (let i = 0; i < safeChildSizes.length; i++) {
             positions.push(currentPosition);
             currentPosition += safeChildSizes[i]! + safeSpacing;
@@ -293,5 +307,174 @@ export const FlexUtils = {
 
         // Ensure the result is a valid number
         return typeof position === 'number' && !isNaN(position) ? position : 0;
+    },
+
+    /**
+     * Determine if "start" means top-left for the given axis and directions
+     * This is crucial for proper PDF coordinate system handling
+     *
+     * NOTE: PDF coordinates have Y=0 at bottom, Y increases upward
+     * This is different from Flutter coordinates where Y=0 is at top
+     */
+    startIsTopLeft(
+        axis: Axis,
+        textDirection: TextDirection,
+        verticalDirection: VerticalDirection = VerticalDirection.Down
+    ): boolean {
+        switch (axis) {
+            case Axis.Horizontal:
+                return textDirection === TextDirection.LeftToRight;
+            case Axis.Vertical:
+                // In PDF coordinates, Y=0 is at bottom and Y increases upward
+                // VerticalDirection.Down means top-to-bottom layout, which in PDF coords
+                // means going from higher Y to lower Y values (NOT start at top-left)
+                return verticalDirection === VerticalDirection.Up;
+        }
+    },
+
+    /**
+     * Get the opposite axis
+     */
+    flipAxis(axis: Axis): Axis {
+        return axis === Axis.Horizontal ? Axis.Vertical : Axis.Horizontal;
+    },
+
+    /**
+     * Calculate main axis positions with PDF coordinate system
+     * In PDF coordinates: Y=0 is at bottom, Y increases upward
+     */
+    calculateMainAxisPositionsFlutter(
+        childSizes: number[],
+        containerSize: number,
+        alignment: MainAxisAlignment,
+        spacing: number = 0,
+        axis: Axis,
+        textDirection: TextDirection,
+        verticalDirection: VerticalDirection = VerticalDirection.Down
+    ): number[] {
+        if (childSizes.length === 0) return [];
+
+        // Ensure all inputs are valid numbers
+        const safeContainerSize = typeof containerSize === 'number' && !isNaN(containerSize) ? containerSize : 0;
+        const safeSpacing = typeof spacing === 'number' && !isNaN(spacing) ? spacing : 0;
+        const safeChildSizes = childSizes.map(size => typeof size === 'number' && !isNaN(size) ? size : 0);
+
+        const totalChildSize = safeChildSizes.reduce((sum, size) => sum + size, 0);
+        const totalSpacing = safeSpacing * Math.max(0, safeChildSizes.length - 1);
+        const remainingSpace = Math.max(0, safeContainerSize - totalChildSize - totalSpacing);
+
+        const positions: number[] = [];
+        let currentPosition = 0;
+
+        // For PDF coordinates, we need to match dart-pdf behavior:
+        // - Y=0 is at bottom, Y increases upward
+        // - VerticalDirection.Down means layout top-to-bottom, which in PDF coords means higher Y to lower Y
+        // - VerticalDirection.Up means layout bottom-to-top, which in PDF coords means lower Y to higher Y
+        // - Horizontal axis with TextDirection.LeftToRight: normal left-to-right
+        // - Horizontal axis with TextDirection.RightToLeft: right-to-left
+
+        const shouldReverseOrder =
+            (axis === Axis.Vertical && verticalDirection === VerticalDirection.Down) ||
+            (axis === Axis.Horizontal && textDirection === TextDirection.RightToLeft);
+
+        // Calculate base position based on alignment
+        // In PDF coordinates, for VerticalDirection.Down (top-to-bottom layout),
+        // we start from the top of the container (higher Y value) and go down (lower Y values)
+        switch (alignment) {
+            case MainAxisAlignment.Start:
+                currentPosition = shouldReverseOrder ? safeContainerSize : 0;
+                break;
+            case MainAxisAlignment.End:
+                currentPosition = shouldReverseOrder ? totalChildSize + totalSpacing : remainingSpace;
+                break;
+            case MainAxisAlignment.Center:
+                currentPosition = shouldReverseOrder
+                    ? safeContainerSize - remainingSpace / 2
+                    : remainingSpace / 2;
+                break;
+            case MainAxisAlignment.SpaceBetween:
+                if (safeChildSizes.length === 1) {
+                    currentPosition = shouldReverseOrder
+                        ? safeContainerSize - remainingSpace / 2
+                        : remainingSpace / 2;
+                } else {
+                    const spaceBetween = safeChildSizes.length > 1 ? remainingSpace / (safeChildSizes.length - 1) : 0;
+
+                    if (shouldReverseOrder) {
+                        // Start from container size and work downward
+                        currentPosition = safeContainerSize;
+                        for (let i = 0; i < safeChildSizes.length; i++) {
+                            currentPosition -= safeChildSizes[i]!;
+                            positions.push(currentPosition);
+                            if (i < safeChildSizes.length - 1) {
+                                currentPosition -= spaceBetween;
+                            }
+                        }
+                    } else {
+                        // Start from 0 and work upward
+                        currentPosition = 0;
+                        for (let i = 0; i < safeChildSizes.length; i++) {
+                            positions.push(currentPosition);
+                            currentPosition += safeChildSizes[i]! + spaceBetween;
+                        }
+                    }
+                    return positions.map(pos => typeof pos === 'number' && !isNaN(pos) ? pos : 0);
+                }
+                break;
+            case MainAxisAlignment.SpaceAround:
+                const spaceAround = safeChildSizes.length > 0 ? remainingSpace / safeChildSizes.length : 0;
+
+                if (shouldReverseOrder) {
+                    currentPosition = safeContainerSize - spaceAround / 2;
+                    for (let i = 0; i < safeChildSizes.length; i++) {
+                        currentPosition -= safeChildSizes[i]!;
+                        positions.push(currentPosition);
+                        currentPosition -= spaceAround;
+                    }
+                } else {
+                    currentPosition = spaceAround / 2;
+                    for (let i = 0; i < safeChildSizes.length; i++) {
+                        positions.push(currentPosition);
+                        currentPosition += safeChildSizes[i]! + spaceAround;
+                    }
+                }
+                return positions.map(pos => typeof pos === 'number' && !isNaN(pos) ? pos : 0);
+            case MainAxisAlignment.SpaceEvenly:
+                const spaceEvenly = remainingSpace / (safeChildSizes.length + 1);
+
+                if (shouldReverseOrder) {
+                    currentPosition = safeContainerSize - spaceEvenly;
+                    for (let i = 0; i < safeChildSizes.length; i++) {
+                        currentPosition -= safeChildSizes[i]!;
+                        positions.push(currentPosition);
+                        currentPosition -= spaceEvenly;
+                    }
+                } else {
+                    currentPosition = spaceEvenly;
+                    for (let i = 0; i < safeChildSizes.length; i++) {
+                        positions.push(currentPosition);
+                        currentPosition += safeChildSizes[i]! + spaceEvenly;
+                    }
+                }
+                return positions.map(pos => typeof pos === 'number' && !isNaN(pos) ? pos : 0);
+        }
+
+        // For Start, End, Center alignments - position children sequentially
+        if (shouldReverseOrder) {
+            // Position from top to bottom in PDF coordinates (higher Y to lower Y)
+            for (let i = 0; i < safeChildSizes.length; i++) {
+                currentPosition -= safeChildSizes[i]!;
+                positions.push(currentPosition);
+                currentPosition -= safeSpacing;
+            }
+        } else {
+            // Position from bottom to top in PDF coordinates (lower Y to higher Y)
+            for (let i = 0; i < safeChildSizes.length; i++) {
+                positions.push(currentPosition);
+                currentPosition += safeChildSizes[i]! + safeSpacing;
+            }
+        }
+
+        return positions.map(pos => typeof pos === 'number' && !isNaN(pos) ? pos : 0);
     },
 };

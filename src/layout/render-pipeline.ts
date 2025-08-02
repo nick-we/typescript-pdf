@@ -13,6 +13,7 @@ import { defaultTheme } from '../types/layout.js';
 import type { Widget } from '../widgets/widget.js';
 import { ConstraintSolver, globalConstraintSolver, globalPerformanceMonitor } from './constraint-solver.js';
 import { Matrix4, type PdfGraphics } from '../core/pdf/graphics.js';
+import { FlutterGraphics } from '../core/pdf/flutter-graphics.js';
 
 /**
  * Represents a positioned widget in the render tree
@@ -127,51 +128,57 @@ export class RenderPipeline {
     }
 
     /**
-     * Perform paint pass on the render tree
+     * Perform paint pass on the render tree (Flutter coordinates)
      */
     paint(
         graphics: PdfGraphics,
         renderObject: RenderObject = this.getRenderTree(),
-        clipRect?: { x: number; y: number; width: number; height: number }
+        clipRect?: { x: number; y: number; width: number; height: number },
+        pageHeight?: number
     ): void {
+        // Create FlutterGraphics wrapper for automatic coordinate conversion
+        const flutterGraphics = pageHeight
+            ? new FlutterGraphics(graphics, pageHeight)
+            : graphics;
+
         // Save graphics state
-        graphics.saveContext();
+        flutterGraphics.saveContext();
 
         // Apply transformation
         if (!this.isIdentityTransform(renderObject.transform)) {
-            graphics.setTransform(renderObject.transform);
+            flutterGraphics.setTransform(renderObject.transform);
         }
 
-        // Translate to widget position
+        // Translate to widget position (Flutter coordinates: top-left origin)
         const translationMatrix = Matrix4.identity();
         // Set translation in the matrix (simplified - in real Matrix4, this would be more complex)
         const storage = translationMatrix.storage as number[];
         storage[12] = renderObject.position.x;
         storage[13] = renderObject.position.y;
-        graphics.setTransform(translationMatrix);
+        flutterGraphics.setTransform(translationMatrix);
 
-        // Check if widget is within clipping bounds
+        // Check if widget is within clipping bounds (Flutter coordinates)
         if (clipRect && !this.intersectsClipRect(renderObject, clipRect)) {
-            graphics.restoreContext();
+            flutterGraphics.restoreContext();
             return;
         }
 
-        // Paint the widget
+        // Paint the widget with Flutter coordinates
         const paintContext: PaintContext = {
-            graphics,
+            graphics: flutterGraphics,
             size: renderObject.size,
             theme: defaultTheme, // Use comprehensive default theme
         };
 
         renderObject.widget.paint(paintContext);
 
-        // Paint children in order
+        // Paint children in order (Flutter coordinates)
         for (const child of renderObject.children) {
-            this.paint(graphics, child, clipRect);
+            this.paint(graphics, child, clipRect, pageHeight);
         }
 
         // Restore graphics state
-        graphics.restoreContext();
+        flutterGraphics.restoreContext();
 
         // Mark as painted
         renderObject.needsRepaint = false;
@@ -313,11 +320,12 @@ export class RenderPipeline {
     }
 
     /**
-     * Position children within their parent
+     * Position children within their parent (Flutter coordinates: top-left origin)
      */
     private positionChildren(renderObject: RenderObject, parentSize?: Size): void {
         if (renderObject.children.length === 0) return;
 
+        // Flutter coordinate system: Y increases downward from top-left origin
         // This is a simplified positioning algorithm
         // In a real implementation, this would depend on the layout type (Row, Column, Stack, etc.)
 
@@ -327,13 +335,13 @@ export class RenderPipeline {
         for (const child of renderObject.children) {
             child.position = { x: currentX, y: currentY };
 
-            // Simple horizontal layout for demonstration
+            // Simple horizontal layout for demonstration (Flutter coordinates)
             currentX += child.size.width;
 
-            // If we exceed parent width, wrap to next row
+            // If we exceed parent width, wrap to next row (move down in Flutter coordinates)
             if (parentSize && currentX > parentSize.width) {
                 currentX = 0;
-                currentY += child.size.height;
+                currentY += child.size.height; // Move down (Y increases)
             }
         }
     }

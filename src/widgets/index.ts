@@ -102,16 +102,7 @@ export {
 } from './stack.js';
 
 // Flex layout widgets and related types
-export {
-    Flex,
-    Flexible,
-    Expanded,
-    Row,
-    Column,
-    FlexWidgets,
-    type FlexProps,
-    type FlexChild,
-} from './flex.js';
+export * from './flex.js';
 
 // Theme widgets and related types
 export {

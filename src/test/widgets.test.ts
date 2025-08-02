@@ -378,7 +378,6 @@ describe('Widget System Tests', () => {
             text.paint(testPaintContext);
 
             const operations = mockGraphics.getOperations();
-            console.log('Mock graphics operations:', operations);
             expect(operations).toContain('setFillColor(0, 0, 0)');
             // In fallback mode, drawString may not be called, but setFillColor should be
             expect(operations.some(op => op.includes('setFillColor'))).toBe(true);

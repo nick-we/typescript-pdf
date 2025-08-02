@@ -211,7 +211,7 @@ export class FontManager {
             this.ttfRegistry.registerTtfFont(descriptor.source, key);
         } else if (typeof descriptor.source === 'string') {
             // Load from file/URL and create TTF font
-            const fontData = await this.loadFontData(descriptor.source);
+            const fontData = await this.loadFontDataFromFile(descriptor.source);
             this.ttfRegistry.registerTtfFont(fontData, key);
         }
 
@@ -481,19 +481,20 @@ export class FontManager {
     }
 
     /**
-     * Load font data from source
+     * Load font data from URL
      */
-    private async loadFontData(source: string): Promise<ArrayBuffer> {
-        if (typeof window !== 'undefined') {
-            // Browser environment
-            const response = await fetch(source);
-            return response.arrayBuffer();
-        } else {
-            // Node.js environment
-            const fs = await import('fs');
-            const data = await fs.promises.readFile(source);
-            return data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength);
-        }
+    async loadFontDataFromUrl(url: string): Promise<ArrayBuffer> {
+        const response = await fetch(url);
+        return response.arrayBuffer();
+    }
+
+    /**
+     * Load font data from file path
+     */
+    async loadFontDataFromFile(path: string): Promise<ArrayBuffer> {
+        const fs = await import('fs/promises');
+        const data = await fs.readFile(path);
+        return data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength);
     }
 
     /**

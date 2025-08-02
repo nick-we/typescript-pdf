@@ -11,6 +11,7 @@
 
 import type { Point, Size, Rect } from './geometry.js';
 import type { PdfGraphics } from '../core/pdf/graphics.js';
+import type { GraphicsContext } from '../core/pdf/graphics-interface.js';
 
 /**
  * Box constraints define the minimum and maximum width and height
@@ -159,7 +160,7 @@ export interface LayoutResult {
  */
 export interface PaintContext {
     /** Graphics context for drawing operations */
-    readonly graphics: PdfGraphics;
+    readonly graphics: GraphicsContext;
     /** Size of the widget being painted */
     readonly size: Size;
     /** Theme data for styling */

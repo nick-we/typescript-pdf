@@ -11,6 +11,43 @@ import type { Point, Size } from '../types/geometry.js';
 import { Matrix4 } from '../core/pdf/graphics.js';
 
 /**
+ * Coordinate system types for clarity and type safety
+ */
+export enum CoordinateSystem {
+    /** Flutter/Widget coordinates: top-left origin, Y increases downward */
+    Flutter = 'flutter',
+    /** PDF coordinates: bottom-left origin, Y increases upward */
+    PDF = 'pdf',
+}
+
+/**
+ * Point with coordinate system context
+ */
+export interface CoordinatedPoint extends Point {
+    /** The coordinate system this point is in */
+    coordinateSystem: CoordinateSystem;
+}
+
+/**
+ * Size with coordinate system context (sizes are the same in both systems)
+ */
+export interface CoordinatedSize extends Size {
+    /** The coordinate system this size is associated with */
+    coordinateSystem: CoordinateSystem;
+}
+
+/**
+ * Rectangle with coordinate system context
+ */
+export interface CoordinatedRect {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    coordinateSystem: CoordinateSystem;
+}
+
+/**
  * 2D transformation matrix for coordinate transformations
  */
 export class Transform2D {
@@ -64,6 +101,24 @@ export class Transform2D {
         const tx = center.x - cos * center.x + sin * center.y;
         const ty = center.y - sin * center.x - cos * center.y;
         return new Transform2D([cos, sin, -sin, cos, tx, ty]);
+    }
+
+    /**
+     * Create Flutter-to-PDF coordinate transformation
+     * This flips the Y-axis and translates appropriately
+     */
+    static flutterToPdfTransform(pageHeight: number): Transform2D {
+        // Scale Y by -1 and translate by pageHeight to flip coordinate system
+        return new Transform2D([1, 0, 0, -1, 0, pageHeight]);
+    }
+
+    /**
+     * Create PDF-to-Flutter coordinate transformation
+     * This is the inverse of flutterToPdfTransform
+     */
+    static pdfToFlutterTransform(pageHeight: number): Transform2D {
+        // Scale Y by -1 and translate by pageHeight to flip coordinate system back
+        return new Transform2D([1, 0, 0, -1, 0, pageHeight]);
     }
 
     /**
@@ -198,12 +253,17 @@ export class Transform2D {
 
 /**
  * Coordinate space converter for different coordinate systems
+ *
+ * This system follows Flutter/dart-pdf conventions:
+ * - Flutter coordinates: top-left origin, Y increases downward (used internally)
+ * - PDF coordinates: bottom-left origin, Y increases upward (used for final output)
  */
 export class CoordinateSpace {
     /**
-     * Convert from PDF coordinates (bottom-left origin) to screen coordinates (top-left origin)
+     * Convert from Flutter coordinates (top-left origin) to PDF coordinates (bottom-left origin)
+     * This is used when outputting to the PDF graphics context
      */
-    static pdfToScreen(point: Point, pageHeight: number): Point {
+    static flutterToPdf(point: Point, pageHeight: number): Point {
         return {
             x: point.x,
             y: pageHeight - point.y,
@@ -211,12 +271,37 @@ export class CoordinateSpace {
     }
 
     /**
-     * Convert from screen coordinates (top-left origin) to PDF coordinates (bottom-left origin)
+     * Convert from PDF coordinates (bottom-left origin) to Flutter coordinates (top-left origin)
+     * This is used when reading from PDF or converting existing coordinates
      */
-    static screenToPdf(point: Point, pageHeight: number): Point {
+    static pdfToFlutter(point: Point, pageHeight: number): Point {
         return {
             x: point.x,
             y: pageHeight - point.y,
+        };
+    }
+
+    /**
+     * Convert flutter rectangle to PDF rectangle
+     */
+    static flutterRectToPdf(rect: { x: number; y: number; width: number; height: number }, pageHeight: number): { x: number; y: number; width: number; height: number } {
+        return {
+            x: rect.x,
+            y: pageHeight - rect.y - rect.height, // Bottom edge of rectangle in PDF coordinates
+            width: rect.width,
+            height: rect.height,
+        };
+    }
+
+    /**
+     * Convert PDF rectangle to Flutter rectangle
+     */
+    static pdfRectToFlutter(rect: { x: number; y: number; width: number; height: number }, pageHeight: number): { x: number; y: number; width: number; height: number } {
+        return {
+            x: rect.x,
+            y: pageHeight - rect.y - rect.height, // Top edge of rectangle in Flutter coordinates
+            width: rect.width,
+            height: rect.height,
         };
     }
 
@@ -271,6 +356,142 @@ export class CoordinateSpace {
      */
     static pointsToMm(points: number): number {
         return (points * 25.4) / 72;
+    }
+
+    /**
+     * Convert from PDF coordinates to screen coordinates
+     * This is an alias for pdfToFlutter for backward compatibility
+     */
+    static pdfToScreen(point: Point, pageHeight: number): Point {
+        return this.pdfToFlutter(point, pageHeight);
+    }
+
+    /**
+     * Convert from screen coordinates to PDF coordinates
+     * This is an alias for flutterToPdf for backward compatibility
+     */
+    static screenToPdf(point: Point, pageHeight: number): Point {
+        return this.flutterToPdf(point, pageHeight);
+    }
+
+    /**
+     * Create a coordinated point in Flutter coordinate system
+     */
+    static createFlutterPoint(x: number, y: number): CoordinatedPoint {
+        return {
+            x,
+            y,
+            coordinateSystem: CoordinateSystem.Flutter,
+        };
+    }
+
+    /**
+     * Create a coordinated point in PDF coordinate system
+     */
+    static createPdfPoint(x: number, y: number): CoordinatedPoint {
+        return {
+            x,
+            y,
+            coordinateSystem: CoordinateSystem.PDF,
+        };
+    }
+
+    /**
+     * Convert any coordinated point to Flutter coordinates
+     */
+    static toFlutter(point: CoordinatedPoint, pageHeight: number): CoordinatedPoint {
+        if (point.coordinateSystem === CoordinateSystem.Flutter) {
+            return point;
+        }
+        const converted = this.pdfToFlutter(point, pageHeight);
+        return {
+            ...converted,
+            coordinateSystem: CoordinateSystem.Flutter,
+        };
+    }
+
+    /**
+     * Convert any coordinated point to PDF coordinates
+     */
+    static toPdf(point: CoordinatedPoint, pageHeight: number): CoordinatedPoint {
+        if (point.coordinateSystem === CoordinateSystem.PDF) {
+            return point;
+        }
+        const converted = this.flutterToPdf(point, pageHeight);
+        return {
+            ...converted,
+            coordinateSystem: CoordinateSystem.PDF,
+        };
+    }
+}
+
+/**
+ * Flutter coordinate system manager - provides utilities for working with Flutter coordinates
+ * This follows the same conventions as dart-pdf for consistency
+ */
+export class FlutterCoordinates {
+    /**
+     * Create a point in Flutter coordinate system (top-left origin)
+     */
+    static point(x: number, y: number): CoordinatedPoint {
+        return CoordinateSpace.createFlutterPoint(x, y);
+    }
+
+    /**
+     * Create a size (same in both coordinate systems)
+     */
+    static size(width: number, height: number): CoordinatedSize {
+        return {
+            width,
+            height,
+            coordinateSystem: CoordinateSystem.Flutter,
+        };
+    }
+
+    /**
+     * Create a rectangle in Flutter coordinate system
+     */
+    static rect(x: number, y: number, width: number, height: number): CoordinatedRect {
+        return {
+            x,
+            y,
+            width,
+            height,
+            coordinateSystem: CoordinateSystem.Flutter,
+        };
+    }
+
+    /**
+     * Translate a point by an offset (both in Flutter coordinates)
+     */
+    static translate(point: CoordinatedPoint, offset: Point): CoordinatedPoint {
+        if (point.coordinateSystem !== CoordinateSystem.Flutter) {
+            throw new Error('Point must be in Flutter coordinate system');
+        }
+        return this.point(point.x + offset.x, point.y + offset.y);
+    }
+
+    /**
+     * Get the bottom-right corner of a rectangle in Flutter coordinates
+     */
+    static bottomRight(rect: CoordinatedRect): CoordinatedPoint {
+        if (rect.coordinateSystem !== CoordinateSystem.Flutter) {
+            throw new Error('Rectangle must be in Flutter coordinate system');
+        }
+        return this.point(rect.x + rect.width, rect.y + rect.height);
+    }
+
+    /**
+     * Get the center point of a rectangle in Flutter coordinates
+     */
+    static center(rect: CoordinatedRect): CoordinatedPoint {
+        if (rect.coordinateSystem !== CoordinateSystem.Flutter) {
+            throw new Error('Rectangle must be in Flutter coordinate system');
+        }
+        return this.point(
+            rect.x + rect.width / 2,
+            rect.y + rect.height / 2
+        );
     }
 }
 
@@ -376,6 +597,20 @@ export class BoundsCalculator {
             y: minY,
             width: maxX - minX,
             height: maxY - minY,
+        };
+    }
+
+    /**
+     * Calculate the bounding box of a coordinated rectangle after transformation
+     */
+    static transformCoordinatedBounds(
+        bounds: CoordinatedRect,
+        transform: Transform2D
+    ): CoordinatedRect {
+        const transformedBounds = this.transformBounds(bounds, transform);
+        return {
+            ...transformedBounds,
+            coordinateSystem: bounds.coordinateSystem,
         };
     }
 

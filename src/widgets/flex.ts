@@ -21,6 +21,7 @@ import {
     CrossAxisAlignment,
     MainAxisSize,
     FlexFit,
+    VerticalDirection,
     FlexUtils,
     type FlexChildData,
     type FlexLayoutData,
@@ -46,6 +47,8 @@ export interface FlexProps extends WidgetProps {
     mainAxisSpacing?: number;
     /** Spacing between children on the cross axis */
     crossAxisSpacing?: number;
+    /** Direction for vertical axis layout (Column widgets) */
+    verticalDirection?: VerticalDirection;
 }
 
 /**
@@ -67,6 +70,7 @@ export class Flex extends BaseWidget {
     private readonly mainAxisSize: MainAxisSize;
     private readonly mainAxisSpacing: number;
     private readonly crossAxisSpacing: number;
+    private readonly verticalDirection: VerticalDirection;
 
     constructor(props: FlexProps) {
         super(props);
@@ -78,6 +82,7 @@ export class Flex extends BaseWidget {
         this.mainAxisSize = props.mainAxisSize ?? MainAxisSize.Max;
         this.mainAxisSpacing = props.mainAxisSpacing ?? 0;
         this.crossAxisSpacing = props.crossAxisSpacing ?? 0;
+        this.verticalDirection = props.verticalDirection ?? VerticalDirection.Down;
     }
 
     /**
@@ -226,12 +231,15 @@ export class Flex extends BaseWidget {
             ? crossAxisConstraints.max
             : Math.max(crossAxisConstraints.min, Math.min(crossAxisConstraints.max, maxCrossAxisSize));
 
-        // Calculate child positions
-        const mainAxisPositions = FlexUtils.calculateMainAxisPositions(
+        // Calculate child positions using Flutter-aware positioning
+        const mainAxisPositions = FlexUtils.calculateMainAxisPositionsFlutter(
             childMainAxisSizes,
             finalMainAxisSize,
             this.mainAxisAlignment,
-            this.mainAxisSpacing
+            this.mainAxisSpacing,
+            this.direction,
+            context.textDirection || TextDirection.LeftToRight,
+            this.verticalDirection
         );
 
         childResults.forEach((result, i) => {
@@ -398,6 +406,7 @@ export class Column extends Flex {
         super({
             ...props,
             direction: Axis.Vertical,
+            verticalDirection: props.verticalDirection ?? VerticalDirection.Down,
         });
     }
 }
