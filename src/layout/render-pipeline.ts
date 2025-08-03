@@ -152,9 +152,8 @@ export class RenderPipeline {
         // Translate to widget position (Flutter coordinates: top-left origin)
         const translationMatrix = Matrix4.identity();
         // Set translation in the matrix (simplified - in real Matrix4, this would be more complex)
-        const storage = translationMatrix.storage as number[];
-        storage[12] = renderObject.position.x;
-        storage[13] = renderObject.position.y;
+        translationMatrix.values[12] = renderObject.position.x;
+        translationMatrix.values[13] = renderObject.position.y;
         flutterGraphics.setTransform(translationMatrix);
 
         // Check if widget is within clipping bounds (Flutter coordinates)
@@ -350,12 +349,12 @@ export class RenderPipeline {
      * Check if a transformation matrix is identity
      */
     private isIdentityTransform(matrix: Matrix4): boolean {
-        const storage = matrix.storage;
+        const values = matrix.values;
         return (
-            storage[0] === 1 && storage[1] === 0 && storage[2] === 0 && storage[3] === 0 &&
-            storage[4] === 0 && storage[5] === 1 && storage[6] === 0 && storage[7] === 0 &&
-            storage[8] === 0 && storage[9] === 0 && storage[10] === 1 && storage[11] === 0 &&
-            storage[12] === 0 && storage[13] === 0 && storage[14] === 0 && storage[15] === 1
+            values[0] === 1 && values[1] === 0 && values[2] === 0 && values[3] === 0 &&
+            values[4] === 0 && values[5] === 1 && values[6] === 0 && values[7] === 0 &&
+            values[8] === 0 && values[9] === 0 && values[10] === 1 && values[11] === 0 &&
+            values[12] === 0 && values[13] === 0 && values[14] === 0 && values[15] === 1
         );
     }
 

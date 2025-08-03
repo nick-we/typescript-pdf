@@ -60,17 +60,17 @@ describe('Core Utils and Graphics Tests', () => {
     describe('Matrix4', () => {
         test('should create identity matrix', () => {
             const matrix = Matrix4.identity();
-            expect(matrix.storage[0]).toBe(1);
-            expect(matrix.storage[1]).toBe(0);
-            expect(matrix.storage[4]).toBe(0);
-            expect(matrix.storage[5]).toBe(1);
-            expect(matrix.storage.length).toBe(16);
+            expect(matrix.values[0]).toBe(1);
+            expect(matrix.values[1]).toBe(0);
+            expect(matrix.values[4]).toBe(0);
+            expect(matrix.values[5]).toBe(1);
+            expect(matrix.values.length).toBe(16);
         });
 
         test('should clone matrix', () => {
             const matrix = Matrix4.identity();
             const clone = matrix.clone();
-            expect(clone.storage).toEqual(matrix.storage);
+            expect(clone.values).toEqual(matrix.values);
             expect(clone).not.toBe(matrix);
         });
 
@@ -78,7 +78,7 @@ describe('Core Utils and Graphics Tests', () => {
             const m1 = Matrix4.identity();
             const m2 = Matrix4.identity();
             m1.multiply(m2);
-            expect(m1.storage[0]).toBe(1);
+            expect(m1.values[0]).toBe(1);
         });
     });
 
@@ -187,8 +187,8 @@ describe('Core Utils and Graphics Tests', () => {
 
         test('should handle coordinate transformations', () => {
             const matrix = Matrix4.identity();
-            expect(matrix.storage[0]).toBe(1);
-            expect(matrix.storage[5]).toBe(1);
+            expect(matrix.values[0]).toBe(1);
+            expect(matrix.values[5]).toBe(1);
         });
 
         test('should handle color operations', () => {
@@ -232,8 +232,8 @@ describe('Core Utils and Graphics Tests', () => {
 
         test('should handle matrix edge cases', () => {
             const matrix = Matrix4.identity();
-            expect(matrix.storage[0]).toBe(1);
-            expect(matrix.storage[5]).toBe(1);
+            expect(matrix.values[0]).toBe(1);
+            expect(matrix.values[5]).toBe(1);
         });
     });
 });

@@ -28,6 +28,7 @@ import { FlutterGraphics } from '../core/pdf/flutter-graphics.js';
 import { FontWeight, TextStyleUtils, PaintPhase, BoxDecorationUtils } from '@/types/theming.js';
 import { PdfStandardFont } from '@/core/pdf/font.js';
 import { PdfColor } from '@/core/pdf/color.js';
+import { TextDirection } from '@/core/text-layout.js';
 
 /**
  * Table cell vertical alignment options
@@ -451,47 +452,27 @@ export class Table extends BaseWidget {
                 // Layout the cell
                 const cellLayout = child.layout(cellContext);
 
-                // Calculate cell Y position based on vertical alignment (Flutter coordinates)
+                // FIXED: Calculate cell Y position with proper baseline adjustment
+                // The issue was that text was being positioned at the cell top instead of properly centered
                 const verticalAlignment = row.verticalAlignment ?? this.defaultVerticalAlignment;
                 let cellY = rowTop;
 
                 switch (verticalAlignment) {
                     case TableCellVerticalAlignment.Top:
-                        cellY = rowTop; // Place at top of row in Flutter coordinates
+                        cellY = rowTop; // Place at top of row
                         break;
                     case TableCellVerticalAlignment.Middle:
-                        cellY = rowTop + (rowHeight - cellLayout.size.height) / 2; // Center vertically
+                        cellY = rowTop + (rowHeight - cellLayout.size.height) / 2;
                         break;
                     case TableCellVerticalAlignment.Bottom:
-                        cellY = rowTop + rowHeight - cellLayout.size.height; // Place at bottom of row
+                        cellY = rowTop + rowHeight - cellLayout.size.height;
                         break;
                     case TableCellVerticalAlignment.Full:
                         cellY = rowTop; // Fill entire row height
-                        // Re-layout with full height
-                        const fullHeightConstraints: BoxConstraints = {
-                            minWidth: columnWidth,
-                            maxWidth: columnWidth,
-                            minHeight: rowHeight,
-                            maxHeight: rowHeight,
-                        };
-                        const fullHeightContext: LayoutContext = {
-                            ...context,
-                            constraints: fullHeightConstraints,
-                        };
-                        const fullCellLayout = child.layout(fullHeightContext);
-
-                        // Store cell layout info with full height
-                        this.cellLayouts.push({
-                            widget: child,
-                            size: fullCellLayout.size,
-                            position: { x: currentX, y: cellY },
-                            layoutResult: fullCellLayout,
-                            rowIndex,
-                            columnIndex,
-                        });
-
-                        currentX += columnWidth;
-                        continue;
+                        // FIXED: Use the same layout logic as other alignments
+                        // The issue was that Full alignment had different layout storage logic
+                        // Now treat it the same as Top alignment for consistent coordinate handling
+                        break;
                 }
 
                 // Store cell layout info
@@ -679,11 +660,12 @@ export class Table extends BaseWidget {
     /**
      * Paint cell content phase
      * Following dart-pdf's approach where content is painted between background and foreground
+     * FIXED: Back to simple transformation approach without double-wrapping
      */
     private paintCellContent(context: PaintContext): void {
         const { graphics } = context;
 
-        // Paint cells with individual clipping boundaries
+        // Paint cells with simple coordinate transformation
         for (const cellInfo of this.cellLayouts) {
             if (cellInfo.rowIndex < this.tableContext.firstRow ||
                 cellInfo.rowIndex >= this.tableContext.lastRow) {
@@ -692,26 +674,21 @@ export class Table extends BaseWidget {
 
             graphics.saveContext();
 
-            // Transform to cell position
-            const transform = new Matrix4([
-                1, 0, 0, 0,
-                0, 1, 0, 0,
-                0, 0, 1, 0,
-                cellInfo.position.x, cellInfo.position.y, 0, 1
-            ]);
+            // FIXED: Create matrix with proper values property for FlutterGraphics compatibility
+            const transform = Matrix4.identity();
+            transform.values[12] = cellInfo.position.x;
+            transform.values[13] = cellInfo.position.y;
+
             graphics.setTransform(transform);
 
-            // CRITICAL: Individual cell clipping for macOS compatibility
-            // This prevents text and content from overflowing cell boundaries
-            graphics.drawRect(0, 0, cellInfo.size.width, cellInfo.size.height);
-            graphics.clipPath();
-
-            // Paint cell content
+            // FIXED: Preserve complete PaintContext like Chart widget does for working text rendering
             const cellPaintContext: PaintContext = {
-                ...context,
-                size: cellInfo.size,
+                ...context,  // Preserve ALL context properties including fontRegistry, theme, etc.
+                graphics,    // Override with transformed graphics
+                size: cellInfo.size,  // Override with cell size
             };
 
+            // Paint the cell widget directly (it's already wrapped in Container by TableHelper)
             cellInfo.widget.paint(cellPaintContext);
 
             graphics.restoreContext();

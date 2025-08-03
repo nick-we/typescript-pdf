@@ -116,13 +116,6 @@ export class Matrix4 {
             this.values[i] = result[i]!;
         }
     }
-
-    /**
-     * Get storage array (for PDF output)
-     */
-    get storage(): readonly number[] {
-        return this.values;
-    }
 }
 
 /**
@@ -489,8 +482,8 @@ export class PdfGraphics implements GraphicsContext {
             this.buffer.putString(' '.repeat(this.indent));
         }
 
-        const s = matrix.storage;
-        new PdfNumList([s[0]!, s[1]!, s[4]!, s[5]!, s[12]!, s[13]!]).output(this.outputContext, this.buffer);
+        const v = matrix.values;
+        new PdfNumList([v[0]!, v[1]!, v[4]!, v[5]!, v[12]!, v[13]!]).output(this.outputContext, this.buffer);
         this.buffer.putString(' cm ');
         this.context.ctm.multiply(matrix);
 

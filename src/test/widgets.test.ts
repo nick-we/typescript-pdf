@@ -32,7 +32,7 @@ import {
     type PaintContext,
 } from '../types/layout.js';
 import { PdfStandardFont } from '../core/pdf/font.js';
-import { PdfGraphics } from '../core/pdf/graphics.js';
+import { Matrix4, PdfGraphics } from '../core/pdf/graphics.js';
 import { FontStyle, FontWeight } from '@/core/fonts.js';
 import { TextDecoration } from '@/types/theming.js';
 import { PdfColor } from '@/core/pdf/color.js';
@@ -110,8 +110,8 @@ class MockPdfGraphics {
         this.operations.push('restoreContext()');
     }
 
-    setTransform(matrix: any): void {
-        this.operations.push(`setTransform(${matrix.storage.join(', ')})`);
+    setTransform(matrix: Matrix4): void {
+        this.operations.push(`setTransform(${matrix.values.join(', ')})`);
     }
 
     getOperations(): string[] {
