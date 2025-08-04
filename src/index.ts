@@ -50,8 +50,8 @@ export {
     // MultiPage widgets
     MultiPage, PageBreakBehavior, MultiPageUtils,
 
-    // Theme system (note: Theme from widgets takes precedence)
-    Theme, DefaultTextStyle, ThemeUtils, ThemeTextStyles,
+    // Theme system - renamed to avoid conflict with namespace
+    Theme as ThemeWidget, DefaultTextStyle, ThemeUtils, ThemeTextStyles,
     ColorSchemes, PrebuiltThemes,
     createTheme, createDefaultTextStyle
 } from './widgets/index.js';
@@ -73,14 +73,20 @@ export type {
 export type {
     // Core namespace types
     Core, Geometry, Internal,
-    Layout,
-    Theme as ThemeNamespace,
     Flex as FlexNamespace
 } from './types.js';
 
 // Convenience exports for common usage patterns
 import { Layout as LayoutTypes, Theme as ThemeTypes } from './types.js';
+
+// Export Layout namespace for Layout.EdgeInsets usage
+export const Layout = LayoutTypes;
+
+// Export EdgeInsets directly for convenience
 export const EdgeInsets = LayoutTypes.EdgeInsets;
+
+// Export Theme namespace for Theme.FontWeight usage
+export const Theme = ThemeTypes;
 
 // Version information
 export const VERSION = '__VERSION__';

@@ -72,19 +72,30 @@ Flexible table styling with dashed borders and custom layouts:
 ### Simple Document
 
 ```typescript
+import { writeFile } from 'fs/promises';
 import { Document, TextWidget, Container, Layout } from 'typescript-pdf';
 
 const doc = new Document();
 doc.addPage({
-  build: () => new Container({
-    padding: Layout.EdgeInsets.all(20),
-    child: new TextWidget('Hello World!', {
-      style: { fontSize: 24, color: '#1976d2' }
+    build: () => new Container({
+        decoration: {
+            color: '#f0f0f0ff',
+            border: { width: 1, color: '#000000' },
+            borderRadius: BorderRadiusUtils.circular(4),
+        },
+        padding: Layout.EdgeInsets.all(20),
+        child: new TextWidget('Hello World!', {
+            style: { fontSize: 24, color: '#1976d2' }
+        })
     })
-  })
 });
 
 const pdfBytes = await doc.save();
+console.log('PDF data has been generated.');
+
+// Save the generated PDF data to a file named 'hello-world.pdf'.
+await writeFile('hello-world.pdf', pdfBytes);
+console.log('✅ Successfully saved PDF to hello-world.pdf');
 ```
 
 ### Business Report with Table
