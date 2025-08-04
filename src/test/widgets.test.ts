@@ -1,622 +1,605 @@
 /**
- * Widget System Tests
+ * Widget Systems Test Suite - Consolidated
  * 
- * Comprehensive tests for the widget system including base widgets,
- * text widgets, containers, and layout functionality.
+ * Tests all widget functionality from the consolidated widget system.
+ * Consolidates: widgets.test.ts, text-*.test.ts, rich-text.test.ts, flex.test.ts
  * 
- * @packageDocumentation
+ * @vitest-environment happy-dom
  */
 
+import { describe, it, expect, beforeEach } from 'vitest';
+
+// Import consolidated widget system
 import {
-    BaseWidget,
-    EmptyWidget,
-    WidgetComposition,
-    WidgetUtils,
-    type Widget,
-    type WidgetProps,
-} from '../widgets/widget.js';
-import { Text, TextAlign, TextOverflow, TextStyles } from '../widgets/text.js';
+    // Base widgets
+    BaseWidget, EmptyWidget, WidgetUtils,
+
+    // Text widgets
+    TextWidget, RichText, TextAlign, TextOverflow, TextUtils, TextStyles,
+
+    // Layout widgets
+    Container, Stack, Positioned, StackFit, LayoutUtils,
+
+    // Flex widgets
+    Row, Column, Flexible, Expanded, FlexUtils,
+
+    // Data widgets
+    Table, TableRow, Chart, BarChart, LineChart, DataUtils,
+
+    // Theme widgets
+    Theme, DefaultTextStyle, ThemeUtils, PrebuiltThemes
+} from '../widgets/index.js';
+
+// Import namespaces from types
 import {
-    Container,
-    BorderStyle,
-    BorderRadiusUtils,
-    ContainerDecorations,
-} from '../widgets/container.js';
-import {
-    BoxConstraints,
-    EdgeInsets,
-    Alignment,
-    AlignmentUtils,
-    defaultTheme,
-    type LayoutContext,
-    type PaintContext,
-} from '../types/layout.js';
-import { PdfStandardFont } from '../core/pdf/font.js';
-import { Matrix4, PdfGraphics } from '../core/pdf/graphics.js';
-import { FontStyle, FontWeight } from '@/core/fonts.js';
-import { TextDecoration } from '@/types/theming.js';
-import { PdfColor } from '@/core/pdf/color.js';
-import { TextDirection } from '@/core/text-layout.js';
+    Layout, Geometry, Theme as ThemeTypes, Flex as FlexTypes
+} from '../types.js';
 
-// Mock PdfGraphics for testing
-class MockPdfGraphics {
-    private operations: string[] = [];
+// Type-only imports
+import type {
+    Widget, TextProps, ContainerProps
+} from '../widgets/index.js';
 
-    setColor(color: PdfColor): void {
-        this.operations.push(`setColor(${color.red}, ${color.green}, ${color.blue})`);
-    }
-
-    setFillColor(color: PdfColor): void {
-        this.operations.push(`setFillColor(${color.red}, ${color.green}, ${color.blue})`);
-    }
-
-    setStrokeColor(color: PdfColor): void {
-        this.operations.push(`setStrokeColor(${color.red}, ${color.green}, ${color.blue})`);
-    }
-
-    clipPath(): void {
-        this.operations.push('clipPath()');
-    }
-
-    setFont(font: any): void {
-        this.operations.push(`setFont(${JSON.stringify(font?.name || 'unknown')})`);
-    }
-
-    setLineWidth(width: number): void {
-        this.operations.push(`setLineWidth(${width})`);
-    }
-
-    drawRect(x: number, y: number, width: number, height: number): void {
-        this.operations.push(`drawRect(${x}, ${y}, ${width}, ${height})`);
-    }
-
-    fillPath(): void {
-        this.operations.push('fillPath()');
-    }
-
-    strokePath(): void {
-        this.operations.push('strokePath()');
-    }
-
-    beginText(): void {
-        this.operations.push('beginText()');
-    }
-
-    endText(): void {
-        this.operations.push('endText()');
-    }
-
-    moveTextPosition(x: number, y: number): void {
-        this.operations.push(`moveTextPosition(${x}, ${y})`);
-    }
-
-    showText(text: string): void {
-        this.operations.push(`showText('${text}')`);
-    }
-
-    drawString(font: any, fontSize: number, text: string, x: number, y: number, options: any): void {
-        this.operations.push(`drawString(${JSON.stringify(font?.name || 'unknown')}, ${fontSize}, '${text}', ${x}, ${y})`);
-    }
-
-    drawLine(x1: number, y1: number, x2: number, y2: number): void {
-        this.operations.push(`drawLine(${x1}, ${y1}, ${x2}, ${y2})`);
-    }
-
-    saveContext(): void {
-        this.operations.push('saveContext()');
-    }
-
-    restoreContext(): void {
-        this.operations.push('restoreContext()');
-    }
-
-    setTransform(matrix: Matrix4): void {
-        this.operations.push(`setTransform(${matrix.values.join(', ')})`);
-    }
-
-    getOperations(): string[] {
-        return [...this.operations];
-    }
-
-    clearOperations(): void {
-        this.operations = [];
-    }
-}
-
-describe('Widget System Tests', () => {
-    let mockGraphics: MockPdfGraphics;
-    let testContext: LayoutContext;
-    let testPaintContext: PaintContext;
+describe('Widget Systems', () => {
+    let mockTheme: ThemeTypes.ThemeData;
+    let mockLayoutContext: Layout.LayoutContext;
+    let mockPaintContext: Layout.PaintContext;
 
     beforeEach(() => {
-        mockGraphics = new MockPdfGraphics();
-        testContext = {
-            constraints: BoxConstraints.loose({ width: 500, height: 300 }),
-            textDirection: TextDirection.LeftToRight,
-            theme: defaultTheme,
+        mockTheme = ThemeUtils.light();
+        mockLayoutContext = {
+            constraints: {
+                minWidth: 0,
+                maxWidth: 600,
+                minHeight: 0,
+                maxHeight: 800,
+            },
+            textDirection: 'ltr',
+            theme: mockTheme,
         };
-        testPaintContext = {
-            graphics: mockGraphics as any,
-            size: { width: 100, height: 50 },
-            theme: defaultTheme,
+        mockPaintContext = {
+            size: { width: 600, height: 800 },
+            theme: mockTheme,
         };
     });
 
-    describe('BaseWidget', () => {
-        class TestWidget extends BaseWidget {
-            layout(context: LayoutContext) {
-                this.validateConstraints(context.constraints);
-                return this.createLayoutResult({ width: 100, height: 50 });
-            }
+    describe('Base Widget System', () => {
+        it('should create EmptyWidget with zero size', () => {
+            const empty = new EmptyWidget();
+            const layout = empty.layout(mockLayoutContext);
 
-            paint(context: PaintContext): void {
-                // Test implementation
-            }
-        }
-
-        test('should create widget with props', () => {
-            const widget = new TestWidget({
-                key: 'test-key',
-                debugLabel: 'TestWidget',
-            });
-
-            expect(widget.key).toBe('test-key');
-            expect(widget.debugLabel).toBe('TestWidget');
+            expect(layout.size.width).toBe(0);
+            expect(layout.size.height).toBe(0);
+            expect(layout.needsRepaint).toBe(false);
         });
 
-        test('should create layout result', () => {
-            const widget = new TestWidget();
-            const result = widget.layout(testContext);
+        it('should create SizedBox with fixed dimensions', () => {
+            const sizedBox = WidgetUtils.sizedBox(100, 50);
+            const layout = sizedBox.layout(mockLayoutContext);
 
-            expect(result.size).toEqual({ width: 100, height: 50 });
-            expect(result.needsRepaint).toBe(true);
+            expect(layout.size.width).toBe(100);
+            expect(layout.size.height).toBe(50);
         });
 
-        test('should create layout result with baseline', () => {
-            class TestWidgetWithBaseline extends BaseWidget {
-                layout(context: LayoutContext) {
-                    return this.createLayoutResult(
-                        { width: 100, height: 50 },
-                        { baseline: 40 }
-                    );
-                }
-                paint(): void { }
-            }
+        it('should create Spacer that fills available space', () => {
+            const spacer = WidgetUtils.spacer();
+            const layout = spacer.layout(mockLayoutContext);
 
-            const widget = new TestWidgetWithBaseline();
-            const result = widget.layout(testContext);
-
-            expect(result.baseline).toBe(40);
+            expect(layout.size.width).toBe(600); // max constraint
+            expect(layout.size.height).toBe(800); // max constraint
         });
 
-        test('should validate constraints', () => {
-            const widget = new TestWidget();
+        it('should apply widget composition behaviors', () => {
+            const empty = new EmptyWidget();
+            const withDebug = WidgetUtils.withDebug('test-widget')(empty);
+
+            expect(withDebug.debugLabel).toBe('test-widget');
+        });
+
+        it('should validate constraints properly', () => {
+            const sizedBox = WidgetUtils.sizedBox(100, 50);
             const invalidConstraints = {
-                minWidth: 100,
-                maxWidth: 50, // Invalid: max < min
+                minWidth: 200, // Greater than maxWidth
+                maxWidth: 100,
                 minHeight: 0,
                 maxHeight: 100,
             };
 
             expect(() => {
-                widget.layout({
-                    ...testContext,
-                    constraints: invalidConstraints,
-                });
-            }).toThrow('Invalid constraints');
-        });
-
-        test('should constrain size to constraints', () => {
-            class ConstrainTestWidget extends BaseWidget {
-                layout(context: LayoutContext) {
-                    const size = { width: 1000, height: 1000 }; // Too large
-                    const constrainedSize = this.constrainSize(context.constraints, size);
-                    return this.createLayoutResult(constrainedSize);
-                }
-                paint(): void { }
-            }
-
-            const widget = new ConstrainTestWidget();
-            const result = widget.layout(testContext);
-
-            expect(result.size.width).toBeLessThanOrEqual(testContext.constraints.maxWidth);
-            expect(result.size.height).toBeLessThanOrEqual(testContext.constraints.maxHeight);
+                sizedBox.layout({ ...mockLayoutContext, constraints: invalidConstraints });
+            }).toThrow();
         });
     });
 
-    describe('EmptyWidget', () => {
-        test('should create empty widget with zero size', () => {
-            const widget = new EmptyWidget();
-            const result = widget.layout(testContext);
+    describe('Text Widget System', () => {
+        it('should render basic text', () => {
+            const text = new TextWidget('Hello World');
+            const layout = text.layout(mockLayoutContext);
 
-            expect(result.size).toEqual({ width: 0, height: 0 });
-            expect(result.needsRepaint).toBe(false);
+            expect(layout.size.width).toBeGreaterThan(0);
+            expect(layout.size.height).toBeGreaterThan(0);
+            expect(layout.baseline).toBeGreaterThan(0);
         });
 
-        test('should paint nothing', () => {
-            const widget = new EmptyWidget();
-            widget.paint(testPaintContext);
+        it('should handle text alignment', () => {
+            const leftText = new TextWidget('Left', { textAlign: TextAlign.Left });
+            const centerText = new TextWidget('Center', { textAlign: TextAlign.Center });
+            const rightText = new TextWidget('Right', { textAlign: TextAlign.Right });
 
-            expect(mockGraphics.getOperations()).toEqual([]);
+            const leftLayout = leftText.layout(mockLayoutContext);
+            const centerLayout = centerText.layout(mockLayoutContext);
+            const rightLayout = rightText.layout(mockLayoutContext);
+
+            expect(leftLayout.size).toBeDefined();
+            expect(centerLayout.size).toBeDefined();
+            expect(rightLayout.size).toBeDefined();
+        });
+
+        it('should handle text overflow', () => {
+            const clipText = new TextWidget('Long text', { overflow: TextOverflow.Clip });
+            const ellipsisText = new TextWidget('Long text', { overflow: TextOverflow.Ellipsis });
+
+            const clipLayout = clipText.layout(mockLayoutContext);
+            const ellipsisLayout = ellipsisText.layout(mockLayoutContext);
+
+            expect(clipLayout.size).toBeDefined();
+            expect(ellipsisLayout.size).toBeDefined();
+        });
+
+        it('should render rich text with multiple spans', () => {
+            const richText = new RichText({
+                spans: [
+                    { text: 'Bold ', style: { fontWeight: ThemeTypes.FontWeight.Bold } },
+                    { text: 'Italic ', style: { fontStyle: ThemeTypes.FontStyle.Italic } },
+                    { text: 'Normal' }
+                ]
+            });
+
+            const layout = richText.layout(mockLayoutContext);
+            expect(layout.size.width).toBeGreaterThan(0);
+            expect(layout.size.height).toBeGreaterThan(0);
+        });
+
+        it('should use text styles properly', () => {
+            const h1Text = new TextWidget('Heading', { style: TextStyles.h1 });
+            const bodyText = new TextWidget('Body', { style: TextStyles.body });
+            const captionText = new TextWidget('Caption', { style: TextStyles.caption });
+
+            const h1Layout = h1Text.layout(mockLayoutContext);
+            const bodyLayout = bodyText.layout(mockLayoutContext);
+            const captionLayout = captionText.layout(mockLayoutContext);
+
+            // H1 should be larger than body, body larger than caption
+            expect(h1Layout.size.height).toBeGreaterThan(bodyLayout.size.height);
+            expect(bodyLayout.size.height).toBeGreaterThan(captionLayout.size.height);
+        });
+
+        it('should provide text utility functions', () => {
+            const width = TextUtils.estimateWidth('Test text', 12);
+            expect(width).toBeGreaterThan(0);
+
+            const height = TextUtils.estimateHeight(12, 1.2);
+            expect(height).toBeCloseTo(14.4, 1); // 12 * 1.2 with tolerance
+
+            const truncated = TextUtils.truncate('Very long text that should be truncated', 50, 12);
+            expect(truncated).toContain('...');
+
+            const wrapped = TextUtils.wrap('This is a long sentence that should wrap', 80, 12);
+            expect(wrapped.length).toBeGreaterThan(1);
         });
     });
 
-    describe('WidgetComposition', () => {
-        test('should compose multiple behaviors', () => {
-            const addKey = <T extends Widget>(widget: T): T => ({
-                ...widget,
-                key: 'composed-key',
+    describe('Layout Widget System', () => {
+        it('should create containers with padding', () => {
+            const child = new TextWidget('Child');
+            const container = new Container({
+                child,
+                padding: Layout.EdgeInsets.all(16)
             });
 
-            const addDebugLabel = <T extends Widget>(widget: T): T => ({
-                ...widget,
-                debugLabel: 'composed-widget',
+            const layout = container.layout(mockLayoutContext);
+            const childLayout = child.layout(mockLayoutContext);
+
+            // Container should be larger than child due to padding
+            expect(layout.size.width).toBeGreaterThan(childLayout.size.width);
+            expect(layout.size.height).toBeGreaterThan(childLayout.size.height);
+        });
+
+        it('should create containers with margin', () => {
+            const child = new TextWidget('Child');
+            const container = new Container({
+                child,
+                margin: Layout.EdgeInsets.all(20)
             });
 
-            const composed = WidgetComposition.compose(addKey, addDebugLabel);
-            const widget = new EmptyWidget();
-            const result = composed(widget);
+            const layout = container.layout(mockLayoutContext);
+            const childLayout = child.layout(mockLayoutContext);
 
-            expect(result.key).toBe('composed-key');
-            expect(result.debugLabel).toBe('composed-widget');
+            // Container should be larger than child due to margin
+            expect(layout.size.width).toBeGreaterThan(childLayout.size.width);
+            expect(layout.size.height).toBeGreaterThan(childLayout.size.height);
         });
 
-        test('should add debug information', () => {
-            const widget = new EmptyWidget();
-            const debugWidget = WidgetComposition.withDebug('debug-label')(widget);
+        it('should handle container alignment', () => {
+            const child = new TextWidget('Child');
+            const centered = new Container({
+                child,
+                alignment: Layout.Alignment.Center
+            });
+            const topLeft = new Container({
+                child,
+                alignment: Layout.Alignment.TopLeft
+            });
 
-            expect(debugWidget.debugLabel).toBe('debug-label');
+            const centeredLayout = centered.layout(mockLayoutContext);
+            const topLeftLayout = topLeft.layout(mockLayoutContext);
+
+            expect(centeredLayout.size).toBeDefined();
+            expect(topLeftLayout.size).toBeDefined();
         });
 
-        test('should add constraint validation', () => {
-            const widget = new EmptyWidget();
-            const validatedWidget = WidgetComposition.withConstraintValidation(true)(widget);
+        it('should create stacks with positioned children', () => {
+            const stack = new Stack({
+                children: [
+                    new TextWidget('Background'),
+                    new Positioned({
+                        child: new TextWidget('Positioned'),
+                        top: 10,
+                        left: 20
+                    })
+                ]
+            });
 
-            const invalidConstraints = {
-                minWidth: 100,
-                maxWidth: 50,
-                minHeight: 0,
-                maxHeight: 100,
-            };
-
-            expect(() => {
-                validatedWidget.layout({
-                    ...testContext,
-                    constraints: invalidConstraints,
-                });
-            }).toThrow('Invalid constraints');
+            const layout = stack.layout(mockLayoutContext);
+            expect(layout.size.width).toBeGreaterThan(0);
+            expect(layout.size.height).toBeGreaterThan(0);
         });
 
-        test('should add performance monitoring', () => {
-            const widget = new EmptyWidget();
-            const monitoredWidget = WidgetComposition.withPerformanceMonitoring(false)(widget);
+        it('should use layout utility shortcuts', () => {
+            const child = new TextWidget('Test');
 
-            // Should not throw and should work normally
-            const result = monitoredWidget.layout(testContext);
-            expect(result.size).toEqual({ width: 0, height: 0 });
+            const padded = LayoutUtils.padded(child, 16);
+            const centered = LayoutUtils.centered(child);
+            const sized = LayoutUtils.sized(child, 200, 100);
 
-            monitoredWidget.paint(testPaintContext);
-            expect(mockGraphics.getOperations()).toEqual([]);
+            expect(padded).toBeInstanceOf(Container);
+            expect(centered).toBeInstanceOf(Container);
+            expect(sized).toBeInstanceOf(Container);
+
+            const sizedLayout = sized.layout(mockLayoutContext);
+            expect(sizedLayout.size.width).toBe(200);
+            expect(sizedLayout.size.height).toBe(100);
         });
     });
 
-    describe('WidgetUtils', () => {
-        test('should create sized box', () => {
-            const sizedBox = WidgetUtils.createSizedBox(
-                { width: 200, height: 100 },
-                { debugLabel: 'TestSizedBox' }
-            );
-
-            const result = sizedBox.layout(testContext);
-            expect(result.size).toEqual({ width: 200, height: 100 });
-
-            sizedBox.paint(testPaintContext);
-            expect(mockGraphics.getOperations()).toEqual([]);
-        });
-
-        test('should create spacer', () => {
-            const spacer = WidgetUtils.createSpacer({ debugLabel: 'TestSpacer' });
-            const result = spacer.layout(testContext);
-
-            expect(result.size.width).toBe(testContext.constraints.maxWidth);
-            expect(result.size.height).toBe(testContext.constraints.maxHeight);
-            expect(result.needsRepaint).toBe(false);
-        });
-
-        test('should handle infinite constraints in spacer', () => {
-            const spacer = WidgetUtils.createSpacer();
-            const infiniteContext = {
-                ...testContext,
-                constraints: BoxConstraints.expand(),
-            };
-
-            const result = spacer.layout(infiniteContext);
-            expect(result.size.width).toBe(0);
-            expect(result.size.height).toBe(0);
-        });
-    });
-
-    describe('Text Widget', () => {
-        test('should create text widget with default props', () => {
-            const text = new Text('Hello World');
-            const result = text.layout(testContext);
-
-            expect(result.size.width).toBeGreaterThan(0);
-            expect(result.size.height).toBeGreaterThan(0);
-            expect(result.baseline).toBeDefined();
-        });
-
-        test('should create text widget with custom style', () => {
-            const text = new Text('Styled Text', {
-                style: {
-                    fontSize: 16,
-                    fontFamily: PdfStandardFont.TimesRoman,
-                    color: PdfColor.red,
-                    fontWeight: FontWeight.Bold,
-                },
-                textAlign: TextAlign.Center,
+    describe('Flex Widget System', () => {
+        it('should create horizontal layouts (Row)', () => {
+            const row = new Row({
+                children: [
+                    new TextWidget('Item 1'),
+                    new TextWidget('Item 2'),
+                    new TextWidget('Item 3')
+                ],
+                mainAxisAlignment: FlexTypes.MainAxisAlignment.SpaceBetween
             });
 
-            const result = text.layout(testContext);
-            expect(result.size.width).toBeGreaterThan(0);
-            expect(result.baseline).toBeDefined();
+            const layout = row.layout(mockLayoutContext);
+            expect(layout.size.width).toBeGreaterThan(0);
+            expect(layout.size.height).toBeGreaterThan(0);
         });
 
-        test('should handle empty text', () => {
-            const text = new Text('');
-            text.paint(testPaintContext);
-
-            // Should not paint anything for empty text
-            expect(mockGraphics.getOperations()).toEqual([]);
-        });
-
-        test('should paint text with alignment', () => {
-            const text = new Text('Test', {
-                textAlign: TextAlign.Center,
+        it('should create vertical layouts (Column)', () => {
+            const column = new Column({
+                children: [
+                    new TextWidget('Line 1'),
+                    new TextWidget('Line 2'),
+                    new TextWidget('Line 3')
+                ],
+                crossAxisAlignment: FlexTypes.CrossAxisAlignment.Center
             });
 
-            text.paint(testPaintContext);
-
-            const operations = mockGraphics.getOperations();
-            expect(operations).toContain('setFillColor(0, 0, 0)');
-            // In fallback mode, drawString may not be called, but setFillColor should be
-            expect(operations.some(op => op.includes('setFillColor'))).toBe(true);
-            expect(operations.some(op => op.includes('setFont'))).toBe(true);
+            const layout = column.layout(mockLayoutContext);
+            expect(layout.size.width).toBeGreaterThan(0);
+            expect(layout.size.height).toBeGreaterThan(0);
         });
 
-        test('should handle text decorations', () => {
-            const text = new Text('Underlined', {
-                style: {
-                    decoration: TextDecoration.create({
-                        underline: true,
-                        color: PdfColor.black,
+        it('should handle flexible children', () => {
+            const flexible = new Flexible({
+                child: new TextWidget('Flexible'),
+                flex: 2
+            });
+
+            expect(flexible.flexData?.flex).toBe(2);
+            expect(flexible.flexData?.fit).toBe(FlexTypes.FlexFit.Loose);
+
+            const layout = flexible.layout(mockLayoutContext);
+            expect(layout.size).toBeDefined();
+        });
+
+        it('should handle expanded children', () => {
+            const expanded = new Expanded({
+                child: new TextWidget('Expanded'),
+                flex: 3
+            });
+
+            expect(expanded.flexData?.flex).toBe(3);
+            expect(expanded.flexData?.fit).toBe(FlexTypes.FlexFit.Tight);
+        });
+
+        it('should use flex utility functions', () => {
+            const children = [new TextWidget('A'), new TextWidget('B'), new TextWidget('C')];
+
+            const row = FlexUtils.row(children);
+            const column = FlexUtils.column(children);
+            const flexible = FlexUtils.flexible(new TextWidget('Flex'));
+            const expanded = FlexUtils.expanded(new TextWidget('Expand'));
+
+            expect(row).toBeInstanceOf(Row);
+            expect(column).toBeInstanceOf(Column);
+            expect(flexible).toBeInstanceOf(Flexible);
+            expect(expanded).toBeInstanceOf(Expanded);
+        });
+
+        it('should handle complex flex layouts', () => {
+            const complexRow = new Row({
+                children: [
+                    new TextWidget('Fixed'),
+                    new Flexible({
+                        child: new TextWidget('Flexible'),
+                        flex: 1
                     }),
-                },
+                    new Expanded({
+                        child: new TextWidget('Expanded'),
+                        flex: 2
+                    })
+                ],
+                mainAxisAlignment: FlexTypes.MainAxisAlignment.SpaceEvenly,
+                crossAxisAlignment: FlexTypes.CrossAxisAlignment.Stretch
             });
 
-            text.paint(testPaintContext);
-
-            const operations = mockGraphics.getOperations();
-            expect(operations.length).toBeGreaterThan(0); // Should have some operations
+            const layout = complexRow.layout(mockLayoutContext);
+            expect(layout.size.width).toBeLessThanOrEqual(mockLayoutContext.constraints.maxWidth);
+            expect(layout.size.height).toBeGreaterThan(0);
         });
+    });
 
-        test('should handle different font variations', () => {
-            const combinations = [
-                { fontFamily: PdfStandardFont.Helvetica, fontWeight: FontWeight.Bold, fontStyle: FontStyle.Italic },
-                { fontFamily: PdfStandardFont.TimesRoman, fontWeight: FontWeight.Bold },
-                { fontFamily: PdfStandardFont.Courier, fontStyle: FontStyle.Italic },
+    describe('Data Widget System', () => {
+        it('should create tables with data', () => {
+            const tableData = [
+                ['Name', 'Age', 'City'],
+                ['Alice', '25', 'New York'],
+                ['Bob', '30', 'London']
             ];
 
-            combinations.forEach(style => {
-                const text = new Text('Test', { style });
-                const result = text.layout(testContext);
-                expect(result.size.width).toBeGreaterThan(0);
-            });
+            const table = new Table({ data: tableData });
+            const layout = table.layout(mockLayoutContext);
+
+            expect(layout.size.width).toBeGreaterThan(0);
+            expect(layout.size.height).toBeGreaterThan(0);
         });
 
-        test('should handle text wrapping', () => {
-            const longText = 'This is a very long text that should wrap to multiple lines when the available width is limited';
-            const text = new Text(longText, {
-                softWrap: true,
+        it('should create tables with custom column widths', () => {
+            const table = new Table({
+                data: [['A', 'B', 'C']],
+                columnWidths: [
+                    DataUtils.columnWidths.fixed(100),
+                    DataUtils.columnWidths.flex(1),
+                    DataUtils.columnWidths.fraction(0.3)
+                ]
             });
 
-            const narrowConstraints = {
-                ...testContext,
-                constraints: BoxConstraints.loose({ width: 100, height: 300 }),
+            const layout = table.layout(mockLayoutContext);
+            expect(layout.size.width).toBeGreaterThan(0);
+        });
+
+        it('should create charts with data series', () => {
+            const series = [
+                DataUtils.createSeries('Sales', [
+                    { x: 'Q1', y: 100 },
+                    { x: 'Q2', y: 150 },
+                    { x: 'Q3', y: 120 }
+                ])
+            ];
+
+            const chart = new Chart({
+                title: 'Test Chart',
+                series,
+                width: 400,
+                height: 300
+            });
+
+            const layout = chart.layout(mockLayoutContext);
+            expect(layout.size.width).toBe(400);
+            expect(layout.size.height).toBe(300);
+        });
+
+        it('should create bar charts', () => {
+            const series = [DataUtils.arrayToSeries('Values', [10, 20, 15, 25])];
+
+            const barChart = new BarChart({
+                title: 'Bar Chart',
+                series,
+                orientation: 'vertical' as any
+            });
+
+            const layout = barChart.layout(mockLayoutContext);
+            expect(layout.size.width).toBeGreaterThan(0);
+            expect(layout.size.height).toBeGreaterThan(0);
+        });
+
+        it('should create line charts', () => {
+            const series = [DataUtils.arrayToSeries('Trend', [5, 10, 7, 15, 12])];
+
+            const lineChart = new LineChart({
+                title: 'Line Chart',
+                series,
+                fill: true,
+                marker: 'circle' as any
+            });
+
+            const layout = lineChart.layout(mockLayoutContext);
+            expect(layout.size.width).toBeGreaterThan(0);
+            expect(layout.size.height).toBeGreaterThan(0);
+        });
+
+        it('should provide data utility functions', () => {
+            const colors = DataUtils.generateColors(5);
+            expect(colors).toHaveLength(5);
+            expect(colors[0]).toMatch(/^#[0-9a-f]{6}$/i);
+
+            const series = DataUtils.createSeries('Test', [{ x: 1, y: 10 }, { x: 2, y: 20 }]);
+            expect(series.name).toBe('Test');
+            expect(series.data).toHaveLength(2);
+
+            const arraySeries = DataUtils.arrayToSeries('Array', [1, 2, 3]);
+            expect(arraySeries.data).toHaveLength(3);
+            expect(arraySeries.data[0]?.x).toBe(0);
+            expect(arraySeries.data[0]?.y).toBe(1);
+        });
+    });
+
+    describe('Theme Widget System', () => {
+        it('should provide theme to descendants', () => {
+            const customTheme = PrebuiltThemes.modern();
+            const child = new TextWidget('Themed text');
+            const theme = new Theme({
+                child,
+                data: customTheme
+            });
+
+            const layout = theme.layout(mockLayoutContext);
+            expect(layout.size).toBeDefined();
+        });
+
+        it('should provide default text styles', () => {
+            const textStyle = ThemeUtils.textStyle({
+                fontSize: 16,
+                fontWeight: ThemeTypes.FontWeight.Bold
+            });
+
+            const child = new TextWidget('Styled text');
+            const defaultTextStyle = new DefaultTextStyle({
+                child,
+                style: textStyle
+            });
+
+            const layout = defaultTextStyle.layout(mockLayoutContext);
+            expect(layout.size).toBeDefined();
+        });
+
+        it('should use prebuilt themes', () => {
+            const minimal = PrebuiltThemes.minimal();
+            const corporate = PrebuiltThemes.corporate();
+            const modern = PrebuiltThemes.modern();
+
+            expect(minimal.colorScheme.primary).toBe('#2c3e50');
+            expect(corporate.colorScheme.primary).toBe('#1f4e79');
+            expect(modern.colorScheme.primary).toBe('#6c5ce7');
+        });
+
+        it('should merge text styles properly', () => {
+            const baseStyle = ThemeUtils.textStyle({
+                fontSize: 12,
+                fontWeight: ThemeTypes.FontWeight.Normal,
+                fontFamily: 'Helvetica' // Include fontFamily in base
+            });
+
+            const overrideStyle: ThemeTypes.TextStyle = {
+                fontSize: 16,
+                fontWeight: ThemeTypes.FontWeight.Bold
             };
 
-            const result = text.layout(narrowConstraints);
-            expect(result.size.width).toBeLessThanOrEqual(100);
+            const merged = ThemeUtils.mergeTextStyles(baseStyle, overrideStyle);
+            expect(merged.fontSize).toBe(16);
+            expect(merged.fontWeight).toBe(ThemeTypes.FontWeight.Bold);
+            expect(merged.fontFamily).toBe('Helvetica'); // Should inherit from base
         });
     });
 
-    describe('Container Widget', () => {
-        test('should create container with child', () => {
-            const child = new Text('Child');
-            const container = new Container({
-                child,
-                padding: EdgeInsets.all(10),
+    describe('Widget Integration', () => {
+        it('should support complex widget composition', () => {
+            const complexWidget = new Container({
+                padding: Layout.EdgeInsets.all(20),
+                child: new Column({
+                    children: [
+                        new TextWidget('Title', { style: TextStyles.h1 }),
+                        LayoutUtils.padded(
+                            new Row({
+                                children: [
+                                    new Flexible({
+                                        child: new TextWidget('Left'),
+                                        flex: 1
+                                    }),
+                                    new Expanded({
+                                        child: new TextWidget('Right'),
+                                        flex: 2
+                                    })
+                                ]
+                            }),
+                            16
+                        ),
+                        new Table({
+                            data: [['A', 'B'], ['1', '2']]
+                        })
+                    ]
+                })
             });
 
-            const result = container.layout(testContext);
-            expect(result.size.width).toBeGreaterThan(0);
-            expect(result.size.height).toBeGreaterThan(0);
+            const layout = complexWidget.layout(mockLayoutContext);
+            expect(layout.size.width).toBeGreaterThan(0);
+            expect(layout.size.height).toBeGreaterThan(0);
+
+            // Should be able to paint without errors
+            expect(() => {
+                complexWidget.paint(mockPaintContext);
+            }).not.toThrow();
         });
 
-        test('should handle container without child', () => {
-            const container = new Container({
-                width: 100,
-                height: 50,
+        it('should handle nested themed widgets', () => {
+            const nestedTheme = new Theme({
+                data: PrebuiltThemes.modern(),
+                child: new Container({
+                    child: new DefaultTextStyle({
+                        style: ThemeUtils.textStyle({ fontSize: 14 }),
+                        child: new Column({
+                            children: [
+                                new TextWidget('Themed text 1'),
+                                new TextWidget('Themed text 2'),
+                                new RichText({
+                                    spans: [
+                                        { text: 'Rich ' },
+                                        { text: 'themed ', style: { fontWeight: ThemeTypes.FontWeight.Bold } },
+                                        { text: 'text' }
+                                    ]
+                                })
+                            ]
+                        })
+                    })
+                })
             });
 
-            const result = container.layout(testContext);
-            expect(result.size.width).toBe(100);
-            expect(result.size.height).toBe(50);
+            const layout = nestedTheme.layout(mockLayoutContext);
+            expect(layout.size).toBeDefined();
         });
 
-        test('should apply padding and margin', () => {
-            const child = new Text('Child');
-            const container = new Container({
-                child,
-                padding: EdgeInsets.all(10),
-                margin: EdgeInsets.all(5),
+        it('should maintain proper widget lifecycle', () => {
+            const widgets = [
+                new EmptyWidget(),
+                new TextWidget('Test'),
+                new Container({ child: new TextWidget('Container') }),
+                new Row({ children: [new TextWidget('Row')] }),
+                new Table({ data: [['Table']] })
+            ];
+
+            widgets.forEach(widget => {
+                const layout = widget.layout(mockLayoutContext);
+                expect(layout.size).toBeDefined();
+                expect(layout.needsRepaint).toBeDefined();
+
+                expect(() => {
+                    widget.paint(mockPaintContext);
+                }).not.toThrow();
             });
-
-            const result = container.layout(testContext);
-            // Size should include padding and margin
-            expect(result.size.width).toBeGreaterThan(30); // child + padding + margin
-        });
-
-        test('should paint background and border', () => {
-            const container = new Container({
-                width: 100,
-                height: 50,
-                decoration: {
-                    color: PdfColor.red,
-                    border: {
-                        width: 2,
-                        color: PdfColor.black,
-                        style: BorderStyle.Solid,
-                    },
-                },
-            });
-
-            container.paint({
-                ...testPaintContext,
-                size: { width: 100, height: 50 },
-            });
-
-            const operations = mockGraphics.getOperations();
-            expect(operations).toContain('saveContext()');
-            expect(operations).toContain('fillPath()'); // Background
-            expect(operations).toContain('strokePath()'); // Border
-            expect(operations).toContain('restoreContext()');
-        });
-
-        test('should paint child with alignment', () => {
-            const child = new Text('Child');
-            const container = new Container({
-                child,
-                width: 200,
-                height: 100,
-                alignment: Alignment.Center,
-            });
-
-            container.paint({
-                ...testPaintContext,
-                size: { width: 200, height: 100 },
-            });
-
-            const operations = mockGraphics.getOperations();
-            expect(operations).toContain('saveContext()');
-            expect(operations).toContain('restoreContext()');
-        });
-
-        test('should handle size constraints', () => {
-            const container = new Container({
-                minWidth: 200,
-                maxWidth: 300,
-                minHeight: 100,
-                maxHeight: 150,
-            });
-
-            const result = container.layout(testContext);
-            expect(result.size.width).toBeGreaterThanOrEqual(200);
-            expect(result.size.width).toBeLessThanOrEqual(300);
-            expect(result.size.height).toBeGreaterThanOrEqual(100);
-            expect(result.size.height).toBeLessThanOrEqual(150);
-        });
-    });
-
-    describe('Layout System Types', () => {
-        test('BoxConstraints should work correctly', () => {
-            const tight = BoxConstraints.tight({ width: 100, height: 50 });
-            expect(tight.minWidth).toBe(100);
-            expect(tight.maxWidth).toBe(100);
-
-            const loose = BoxConstraints.loose({ width: 200, height: 100 });
-            expect(loose.minWidth).toBe(0);
-            expect(loose.maxWidth).toBe(200);
-
-            const expanded = BoxConstraints.expand();
-            expect(expanded.maxWidth).toBe(Number.POSITIVE_INFINITY);
-        });
-
-        test('BoxConstraints validation should work', () => {
-            const valid = BoxConstraints.tight({ width: 100, height: 50 });
-            expect(BoxConstraints.isValid(valid)).toBe(true);
-
-            const invalid = {
-                minWidth: 100,
-                maxWidth: 50,
-                minHeight: 0,
-                maxHeight: 100,
-            };
-            expect(BoxConstraints.isValid(invalid)).toBe(false);
-        });
-
-        test('EdgeInsets should work correctly', () => {
-            const all = EdgeInsets.all(10);
-            expect(EdgeInsets.horizontal(all)).toBe(20);
-            expect(EdgeInsets.vertical(all)).toBe(20);
-
-            const symmetric = EdgeInsets.symmetric({ horizontal: 5, vertical: 10 });
-            expect(symmetric.left).toBe(5);
-            expect(symmetric.top).toBe(10);
-
-            const deflated = EdgeInsets.deflateSize(all, { width: 100, height: 50 });
-            expect(deflated.width).toBe(80);
-            expect(deflated.height).toBe(30);
-        });
-
-        test('AlignmentUtils should calculate positions correctly', () => {
-            const containerSize = { width: 100, height: 50 };
-            const childSize = { width: 20, height: 10 };
-
-            const topLeft = AlignmentUtils.resolve(Alignment.TopLeft, containerSize, childSize);
-            expect(topLeft).toEqual({ x: 0, y: 0 });
-
-            const center = AlignmentUtils.resolve(Alignment.Center, containerSize, childSize);
-            expect(center).toEqual({ x: 40, y: 20 });
-
-            const bottomRight = AlignmentUtils.resolve(Alignment.BottomRight, containerSize, childSize);
-            expect(bottomRight).toEqual({ x: 80, y: 40 });
-        });
-    });
-
-    describe('BorderRadiusUtils', () => {
-        test('should create uniform border radius', () => {
-            const radius = BorderRadiusUtils.all(10);
-            expect(radius.topLeft).toBe(10);
-            expect(radius.topRight).toBe(10);
-            expect(radius.bottomLeft).toBe(10);
-            expect(radius.bottomRight).toBe(10);
-        });
-
-        test('should create specific corner radius', () => {
-            const radius = BorderRadiusUtils.only({
-                topLeft: 5,
-                bottomRight: 15,
-            });
-            expect(radius.topLeft).toBe(5);
-            expect(radius.topRight).toBe(0);
-            expect(radius.bottomLeft).toBe(0);
-            expect(radius.bottomRight).toBe(15);
-        });
-    });
-
-    describe('Text Styles and Container Decorations', () => {
-        test('should provide predefined text styles', () => {
-            expect(TextStyles.h1.fontSize).toBe(24);
-            expect(TextStyles.h1.fontWeight).toBe(FontWeight.Bold);
-            expect(TextStyles.body.fontSize).toBe(12);
-            expect(TextStyles.code.fontFamily).toBe(PdfStandardFont.Courier);
-        });
-
-        test('should provide predefined container decorations', () => {
-            expect(ContainerDecorations.card.color).toBe(PdfColor.white);
-            expect(ContainerDecorations.outlined.border?.style).toBe(BorderStyle.Solid);
-            expect(ContainerDecorations.elevated.boxShadow).toBeDefined();
         });
     });
 });

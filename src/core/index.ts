@@ -1,40 +1,66 @@
 /**
- * Core PDF generation functionality
+ * Consolidated Core System - Main Exports
  * 
- * This module contains the core classes and functions for PDF document creation,
- * including Document, Page, and low-level PDF primitives.
+ * Unified exports for the streamlined core system:
+ * - Document and Page management (document.ts)
+ * - Font system with fallbacks (fonts.ts)
+ * - Text processing utilities (text-utils.ts)
+ * - PDF font engine (pdf/font-engine.ts)
+ * 
+ * Replaces 15+ fragmented core files with 4 focused modules
  * 
  * @packageDocumentation
  */
 
-// Document and page management
-export { Document } from './document.js';
-export { Page } from './page.js';
-
-// PDF primitives
-export * from './pdf/index.js';
-
-// Font system and fallback
+// Document and Page Management
 export {
-    FontFallbackSystem,
-    FontUtils,
+    Document,
+    Page,
+    DocumentFactory,
+    PageFactory,
+    PAGE_FORMATS,
+    type DocumentOptions,
+    type PageOptions,
+    TextDirection,
+} from './document.js';
+
+// Font System
+export {
+    FontSystem,
     FontWeight,
     FontStyle,
     FontCategory,
-    defaultFontFallback,
+    FontUtils,
+    FontCollections,
+    type FontSource,
+    type FontLoadOptions,
     type FontDescriptor,
-} from './font-fallback.js';
+    type TextStyleConfig,
+    type FontMetrics,
+    type UniversalFont,
+    type FontLoadStats,
+} from './fonts.js';
 
-// Text measurement and metrics
+// Text Processing
 export {
-    TextMetricsEngine,
-    TextMeasurementUtils,
-    defaultTextMetrics,
-    type CharacterMetrics,
-    type WordMetrics,
-    type LineMetrics,
-    type ParagraphMetrics,
-    type EnhancedFontMetrics,
+    TextProcessor,
+    TextAlign,
+    TextOverflow,
+    TextUtils,
+    type TextStyle,
     type TextMeasurementOptions,
-    type LineBreakingOptions,
-} from './text-metrics.js';
+    type TextLine,
+    type TextLayoutResult,
+    type TextMeasurement,
+} from './text-utils.js';
+
+// PDF Font Engine
+export {
+    PdfStandardFont,
+    PdfFont,
+    FontRegistry,
+    type PdfDocument,
+} from './pdf/font-engine.js';
+
+// Re-export types for convenience
+export type { Core, Geometry, Layout } from '../types.js';

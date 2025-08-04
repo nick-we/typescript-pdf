@@ -1,25 +1,17 @@
 /**
- * PDF Core Module Exports
+ * PDF Core - Main exports for PDF functionality
  * 
- * Export all PDF engine components
+ * Consolidated exports for the PDF engine including document, graphics,
+ * color, and font systems.
  * 
  * @packageDocumentation
  */
 
-// Core PDF data types and streams
-export * from './types.js';
-export * from './stream.js';
+// Core PDF classes
+export { PdfDocument, PdfPage } from './document.js';
+export { PdfGraphics, PdfContentStream, Matrix4 } from './graphics.js';
+export { PdfColor } from './color.js';
+export { PdfFont, PdfStandardFont, FontRegistry } from './font-engine.js';
 
-// PDF document structure
-export * from './document.js';
-
-// Graphics and drawing
-export * from './graphics.js';
-export * from './graphics-interface.js';
-export * from './flutter-graphics.js';
-
-// Font system
-export * from './font.js';
-
-// Color management
-export * from './color.js';
+// Type exports
+export type { PageSize, PdfPageOptions, PdfDocumentOptions } from './document.js';

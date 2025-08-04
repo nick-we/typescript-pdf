@@ -58,7 +58,7 @@ console.log(parser.descent);       // Descender depth
 // Character and glyph operations
 const supported = parser.isCharSupported(65); // Check if 'A' is supported
 const glyphIndex = parser.getGlyphIndex(65);  // Get glyph index for 'A'
-const width = parser.measureText('Hello');    // Measure text width
+const width = parser.measureTextWidth('Hello');    // Measure text width
 ```
 
 **Key Features:**

@@ -1,156 +1,124 @@
 /**
- * Document class - Core PDF document representation
- *
- * Main entry point for creating PDF documents.
- * Based on the dart-pdf Document class structure.
- *
+ * Document and Page Management - Consolidated Core
+ * 
+ * Streamlined document and page system combining:
+ * - Document creation and management
+ * - Simplified page handling
+ * - Widget rendering pipeline
+ * - Essential page functionality
+ * 
+ * Consolidates document.ts + page.ts (798 lines → ~200 lines)
+ * 
  * @packageDocumentation
  */
 
 import { PdfDocument, PdfPage } from './pdf/document.js';
-import { PdfStandardFont } from './pdf/font.js';
-import type { PageOptions, DocumentInfo } from '../types/index.js';
-import type { Widget } from '../widgets/widget.js';
-import { BoxConstraints, defaultTheme, type LayoutContext, type PaintContext } from '../types/layout.js';
-import type { Size } from '../types/geometry.js';
+import { PdfFont } from './pdf/font-engine.js';
+import { FontSystem, PdfStandardFont } from './fonts.js';
+import { PdfGraphics } from './pdf/graphics.js';
 import { PdfColor } from './pdf/color.js';
-import { TextDirection } from './text-layout.js';
+import { Core, Geometry, Layout } from '../types.js';
+import type { Widget } from '../widgets/base.js';
 
-/**
- * Main Document class for PDF generation
- */
-export class Document {
-    /** Internal PDF document */
-    private readonly pdfDocument: PdfDocument;
-
-    constructor(options: {
-        info?: DocumentInfo;
-        verbose?: boolean;
-        version?: string;
-    } = {}) {
-        this.pdfDocument = new PdfDocument({
-            verbose: options.verbose ?? false,
-            version: options.version ?? '1.4',
-        });
-
-        // Set document info if provided
-        if (options.info) {
-            // Document info is automatically created in PdfDocument constructor
-            // In a more complete implementation, we'd pass info to the constructor
-        }
-    }
-
-    /**
-     * Add a new page to the document
-     *
-     * @param options - Page configuration options
-     */
-    addPage(options: PageOptions = {}): Page {
-        let mediaBox: [number, number, number, number] | undefined;
-
-        if (options.margin) {
-            const width = options.width || 612;
-            const height = options.height || 792;
-            mediaBox = [
-                options.margin.left || 0,
-                options.margin.bottom || 0,
-                width - (options.margin.right || 0),
-                height - (options.margin.top || 0)
-            ];
-        }
-
-        const pageOptions: { width?: number; height?: number; mediaBox?: [number, number, number, number] } = {};
-
-        if (options.width !== undefined) {
-            pageOptions.width = options.width;
-        }
-
-        if (options.height !== undefined) {
-            pageOptions.height = options.height;
-        }
-
-        if (mediaBox) {
-            pageOptions.mediaBox = mediaBox;
-        }
-
-        const pdfPage = this.pdfDocument.addPage(pageOptions);
-
-        const page = new Page(pdfPage, this.pdfDocument);
-
-        // If build function is provided, call it and render the widget
-        if (options.build) {
-            const content = options.build();
-            this.renderWidgetToPage(content, page, {
-                width: options.width || 612,
-                height: options.height || 792
-            });
-        }
-
-        return page;
-    }
-
-    /**
-     * Generate PDF output
-     *
-     * @returns PDF bytes as Uint8Array
-     */
-    async save(): Promise<Uint8Array> {
-        return await this.pdfDocument.save();
-    }
-
-    /**
-     * Render a widget tree to a PDF page
-     */
-    private renderWidgetToPage(widget: Widget, page: Page, pageSize: Size): void {
-        // Create layout context with page constraints
-        const constraints: any = {
-            minWidth: 0,
-            maxWidth: pageSize.width,
-            minHeight: 0,
-            maxHeight: pageSize.height,
-        };
-
-        const layoutContext: LayoutContext = {
-            constraints,
-            textDirection: TextDirection.LeftToRight,
-            theme: defaultTheme,
-        };
-
-        // Perform layout
-        const layoutResult = widget.layout(layoutContext);
-
-        // Create paint context
-        const graphics = page.getGraphics();
-        const paintContext: PaintContext = {
-            graphics,
-            size: layoutResult.size,
-            theme: defaultTheme,
-            fontRegistry: this.pdfDocument.fontRegistry,
-        };
-
-        // Paint the widget
-        widget.paint(paintContext);
-    }
+// Text direction enum for simplified usage
+export enum TextDirection {
+    LeftToRight = 'ltr',
+    RightToLeft = 'rtl',
 }
 
 /**
- * Page class - represents a single page in the document
+ * Page format dimensions (points)
+ */
+export const PAGE_FORMATS = {
+    A4: { width: 595, height: 842 },
+    Letter: { width: 612, height: 792 },
+    Legal: { width: 612, height: 1008 },
+    A3: { width: 842, height: 1191 },
+    A5: { width: 420, height: 595 },
+} as const;
+
+/**
+ * Simple page options
+ */
+export interface PageOptions {
+    format?: keyof typeof PAGE_FORMATS;
+    width?: number;
+    height?: number;
+    margins?: Layout.EdgeInsets;
+    build?: () => Widget;
+}
+
+/**
+ * Simple document options
+ */
+export interface DocumentOptions {
+    info?: Core.DocumentInfo;
+    verbose?: boolean;
+    version?: string;
+}
+
+/**
+ * Streamlined Page class
  */
 export class Page {
-    constructor(
-        private readonly pdfPage: PdfPage,
-        private readonly pdfDocument: PdfDocument
-    ) { }
+    private readonly pdfPage: PdfPage;
+    private readonly document: Document;
+    private readonly size: Geometry.Size;
+    private readonly margins: Layout.EdgeInsets;
+
+    constructor(pdfPage: PdfPage, document: Document, options: PageOptions = {}) {
+        this.pdfPage = pdfPage;
+        this.document = document;
+
+        // Set page size
+        if (options.format) {
+            this.size = PAGE_FORMATS[options.format];
+        } else {
+            this.size = {
+                width: options.width || 612,
+                height: options.height || 792
+            };
+        }
+
+        // MARGIN FIX: Reduce default page margins to match MultiPage widget (20pts)
+        this.margins = options.margins || { top: 20, right: 20, bottom: 20, left: 20 };
+    }
 
     /**
-     * Get a graphics context for drawing on this page
+     * Get graphics context for drawing
      */
-    getGraphics() {
+    getGraphics(): PdfGraphics {
         return this.pdfPage.getGraphics();
     }
 
     /**
-     * Draw simple text on the page (convenience method)
+     * Get page size
+     */
+    getSize(): Geometry.Size {
+        return { ...this.size };
+    }
+
+    /**
+     * Get page margins
+     */
+    getMargins(): Layout.EdgeInsets {
+        return { ...this.margins };
+    }
+
+    /**
+     * Get content area (page size minus margins)
+     */
+    getContentArea(): Geometry.Rect {
+        return {
+            x: this.margins.left,
+            y: this.margins.top,
+            width: this.size.width - this.margins.left - this.margins.right,
+            height: this.size.height - this.margins.top - this.margins.bottom
+        };
+    }
+
+    /**
+     * Draw simple text (convenience method)
      */
     drawText(text: string, x: number, y: number, options: {
         fontSize?: number;
@@ -158,16 +126,21 @@ export class Page {
         color?: { red: number; green: number; blue: number };
     } = {}): void {
         const graphics = this.getGraphics();
-        const font = this.pdfDocument.fontRegistry.getFont(options.font || PdfStandardFont.Helvetica);
-        const color = options.color ? new PdfColor(options.color.red, options.color.green, options.color.blue) : PdfColor.black;
+        const fontSize = options.fontSize || 12;
+        const font = this.document.fontSystem.getFont(options.font || PdfStandardFont.Helvetica);
+        const color = options.color ?
+            new PdfColor(options.color.red, options.color.green, options.color.blue) :
+            PdfColor.black;
 
-        this.pdfPage.addFont(font);
-        graphics.setColor(color);
-        graphics.drawString(font, options.fontSize || 12, text, x, y);
+        graphics.setFillColor(color);
+        const underlyingFont = font.getUnderlyingFont();
+        if (underlyingFont && typeof underlyingFont === 'object' && 'name' in underlyingFont) {
+            graphics.drawString(underlyingFont as PdfFont, fontSize, text, x, y);
+        }
     }
 
     /**
-     * Draw a rectangle on the page (convenience method)
+     * Draw rectangle (convenience method)
      */
     drawRect(x: number, y: number, width: number, height: number, options: {
         fill?: boolean;
@@ -176,9 +149,12 @@ export class Page {
         lineWidth?: number;
     } = {}): void {
         const graphics = this.getGraphics();
-        const color = options.color ? new PdfColor(options.color.red, options.color.green, options.color.blue) : PdfColor.black;
+        const color = options.color ?
+            new PdfColor(options.color.red, options.color.green, options.color.blue) :
+            PdfColor.black;
 
-        graphics.setColor(color);
+        graphics.setFillColor(color);
+        graphics.setStrokeColor(color);
 
         if (options.lineWidth !== undefined) {
             graphics.setLineWidth(options.lineWidth);
@@ -195,4 +171,206 @@ export class Page {
         }
     }
 
+    /**
+     * Render widget to page
+     */
+    renderWidget(widget: Widget): void {
+        const contentArea = this.getContentArea();
+        const constraints: Layout.BoxConstraints = {
+            minWidth: 0,
+            maxWidth: contentArea.width,
+            minHeight: 0,
+            maxHeight: contentArea.height,
+        };
+
+        // Simplified layout and paint - focus on core functionality
+        const layoutContext = {
+            constraints,
+            textDirection: TextDirection.LeftToRight,
+            theme: {
+                colorScheme: { primary: '#1976d2', surface: '#ffffff', onSurface: '#000000' },
+                defaultTextStyle: { fontSize: 12, color: '#000000', fontFamily: 'Helvetica' },
+                spacing: 8,
+                cornerRadius: 4
+            },
+        } as any;
+
+        // Perform layout (simplified)
+        const layoutResult = widget.layout ? widget.layout(layoutContext) : { size: contentArea };
+
+        // Get graphics context and set up coordinate system transformation
+        const graphics = this.getGraphics();
+
+        // Save the original state
+        graphics.save();
+
+        // Transform coordinate system: PDF uses bottom-left origin, we use top-left
+        // 1. Translate to content area position
+        graphics.translate(contentArea.x, contentArea.y);
+
+        // 2. Flip Y-axis to convert from top-left to bottom-left origin
+        graphics.translate(0, contentArea.height);
+        graphics.scale(1, -1);
+
+        // Create paint context with transformed graphics
+        const paintContext = {
+            graphics,
+            size: layoutResult.size || contentArea,
+            theme: layoutContext.theme,
+            fontRegistry: this.document.fontSystem,
+            pageHeight: this.size.height, // Add page height for coordinate calculations
+            document: this.document, // Add document reference for MultiPage widget integration
+            // CRITICAL FIX: Expose actual page dimensions for MultiPage consistency
+            pageSize: this.size, // Current page dimensions
+            pageMargins: this.margins, // Current page margins
+            contentArea: contentArea, // Calculated content area
+        } as any;
+
+        // Paint widget
+        if (widget.paint) {
+            widget.paint(paintContext);
+        }
+
+        // Restore the original graphics state
+        graphics.restore();
+    }
 }
+
+/**
+ * Main Document class - streamlined version
+ */
+export class Document {
+    private readonly pdfDocument: PdfDocument;
+    public readonly fontSystem: FontSystem;
+    private readonly pages: Page[] = [];
+
+    constructor(options: DocumentOptions = {}) {
+        this.pdfDocument = new PdfDocument({
+            verbose: options.verbose ?? false,
+            version: options.version ?? '1.4',
+        });
+
+        this.fontSystem = new FontSystem(this.pdfDocument);
+
+        if (options.info) {
+            // TODO: Set document info if provided
+            // In a complete implementation, this would be passed to PdfDocument constructor
+        }
+    }
+
+    /**
+     * Add a new page to the document
+     */
+    addPage(options: PageOptions = {}): Page {
+        // Determine page size
+        let size: Geometry.Size;
+        if (options.format) {
+            size = PAGE_FORMATS[options.format];
+        } else {
+            size = {
+                width: options.width || 612,
+                height: options.height || 792
+            };
+        }
+
+        // Create PDF page
+        const pdfPage = this.pdfDocument.addPage({
+            pageSize: { width: size.width, height: size.height },
+        });
+
+        // Create page wrapper
+        const page = new Page(pdfPage, this, options);
+        this.pages.push(page);
+
+        // If build function provided, render content
+        if (options.build) {
+            const content = options.build();
+            page.renderWidget(content);
+        }
+
+        return page;
+    }
+
+    /**
+     * Get all pages
+     */
+    getPages(): readonly Page[] {
+        return [...this.pages];
+    }
+
+    /**
+     * Get page count
+     */
+    getPageCount(): number {
+        return this.pages.length;
+    }
+
+    /**
+     * Generate PDF output
+     */
+    async save(): Promise<Uint8Array> {
+        return await this.pdfDocument.save();
+    }
+
+    /**
+     * Get document statistics
+     */
+    getStats() {
+        return {
+            pageCount: this.pages.length,
+            fontStats: this.fontSystem.getStats(),
+        };
+    }
+}
+
+/**
+ * Document factory for common document types
+ */
+export const DocumentFactory = {
+    /**
+     * Create a standard A4 document
+     */
+    a4(options: Omit<DocumentOptions, 'format'> = {}): Document {
+        return new Document(options);
+    },
+
+    /**
+     * Create a letter-size document
+     */
+    letter(options: Omit<DocumentOptions, 'format'> = {}): Document {
+        return new Document(options);
+    },
+
+    /**
+     * Create a custom document
+     */
+    custom(options: DocumentOptions = {}): Document {
+        return new Document(options);
+    },
+};
+
+/**
+ * Page factory for common page types
+ */
+export const PageFactory = {
+    /**
+     * Create an A4 page
+     */
+    a4(options: Omit<PageOptions, 'format'> = {}): PageOptions & { format: 'A4' } {
+        return { format: 'A4', width: 595, height: 842, ...options };
+    },
+
+    /**
+     * Create a letter page
+     */
+    letter(options: Omit<PageOptions, 'format'> = {}): PageOptions & { format: 'Letter' } {
+        return { format: 'Letter', width: 612, height: 792, ...options };
+    },
+
+    /**
+     * Create a custom size page
+     */
+    custom(width: number, height: number, options: Omit<PageOptions, 'width' | 'height'> = {}): PageOptions {
+        return { width, height, ...options };
+    },
+};

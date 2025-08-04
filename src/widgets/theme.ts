@@ -1,139 +1,104 @@
 /**
- * Theme widget and context system for cascading styles
+ * Theme System - Consolidated
  * 
- * Implements theme inheritance and context propagation throughout
- * the widget tree, following composition-over-inheritance principles.
+ * Consolidates theme functionality into a single focused module.
+ * Replaces the theme parts from the original theme.ts.
  * 
  * @packageDocumentation
  */
 
-import { BaseWidget, type Widget, type WidgetProps } from './widget.js';
-import type {
-    LayoutContext,
-    LayoutResult,
-    PaintContext,
-} from '../types/layout.js';
-import type {
-    ThemeData,
-    TextStyle,
-    ColorScheme,
-    SpacingSystem,
-    TypographyScale,
-} from '../types/theming.js';
+import { BaseWidget, type Widget, type WidgetProps } from './base.js';
 import {
-    TextStyleUtils,
-    ThemeUtils,
-    defaultTheme,
-} from '../types/theming.js';
+    Layout,
+    Theme as ThemeTypes,
+} from '../types.js';
 
 /**
- * Theme context for providing theme data to child widgets
- */
-export interface ThemeContext {
-    /** Current theme data */
-    readonly theme: ThemeData;
-    /** Current text style (inherited from ancestors) */
-    readonly textStyle: TextStyle;
-    /** Depth of theme nesting (for debugging) */
-    readonly depth: number;
-}
-
-/**
- * Theme widget properties
+ * Theme provider widget properties
  */
 export interface ThemeProps extends WidgetProps {
-    /** Theme data to provide to children */
-    data: ThemeData;
-    /** Child widget to apply theme to */
+    /** Child widget */
     child: Widget;
-}
-
-/**
- * Theme widget that provides theme data to its descendants
- */
-export class Theme extends BaseWidget {
-    private readonly themeData: ThemeData;
-    private readonly child: Widget;
-
-    constructor(props: ThemeProps) {
-        super(props);
-        this.themeData = props.data;
-        this.child = props.child;
-    }
-
-    layout(context: LayoutContext): LayoutResult {
-        this.validateConstraints(context.constraints);
-
-        // Create new layout context with our theme
-        const themedContext: LayoutContext = {
-            ...context,
-            theme: this.themeData,
-        };
-
-        // Layout child with the new theme context
-        return this.child.layout(themedContext);
-    }
-
-    paint(context: PaintContext): void {
-        // Create new paint context with our theme
-        const themedContext: PaintContext = {
-            ...context,
-            theme: this.themeData,
-        };
-
-        // Paint child with the new theme context
-        this.child.paint(themedContext);
-    }
-
-    /**
-     * Get theme data from the current context
-     * Static helper for widgets to access theme
-     */
-    static of(context: LayoutContext | PaintContext): ThemeData {
-        return context.theme;
-    }
+    /** Theme data to provide */
+    data: ThemeTypes.ThemeData;
 }
 
 /**
  * Default text style widget properties
  */
 export interface DefaultTextStyleProps extends WidgetProps {
-    /** Text style to apply as default */
-    style: TextStyle;
     /** Child widget */
     child: Widget;
-    /** Whether to merge with existing style or replace */
-    merge?: boolean;
+    /** Text style to provide as default */
+    style: ThemeTypes.TextStyle;
 }
 
 /**
- * Default text style widget that sets the default text style for descendants
+ * Theme provider widget that provides theme data to its descendants
+ */
+export class Theme extends BaseWidget {
+    private readonly child: Widget;
+    private readonly data: ThemeTypes.ThemeData;
+
+    constructor(props: ThemeProps) {
+        super(props);
+
+        this.child = props.child;
+        this.data = props.data;
+    }
+
+    layout(context: Layout.LayoutContext): Layout.LayoutResult {
+        this.validateConstraints(context.constraints);
+
+        // Create new context with our theme data
+        const themedContext: Layout.LayoutContext = {
+            ...context,
+            theme: this.data,
+        };
+
+        return this.child.layout(themedContext);
+    }
+
+    paint(context: Layout.PaintContext): void {
+        console.log(`Applying theme: ${this.data.colorScheme.primary}`);
+
+        // Create new context with our theme data
+        const themedContext: Layout.PaintContext = {
+            ...context,
+            theme: this.data,
+        };
+
+        this.child.paint(themedContext);
+    }
+}
+
+/**
+ * Default text style provider widget
  */
 export class DefaultTextStyle extends BaseWidget {
-    private readonly style: TextStyle;
     private readonly child: Widget;
-    private readonly merge: boolean;
+    private readonly style: ThemeTypes.TextStyle;
 
     constructor(props: DefaultTextStyleProps) {
         super(props);
-        this.style = props.style;
+
         this.child = props.child;
-        this.merge = props.merge ?? true;
+        this.style = props.style;
     }
 
-    layout(context: LayoutContext): LayoutResult {
+    layout(context: Layout.LayoutContext): Layout.LayoutResult {
         this.validateConstraints(context.constraints);
 
-        // Create new theme with updated default text style
-        const newDefaultStyle = this.merge
-            ? TextStyleUtils.merge(context.theme.defaultTextStyle, this.style)
-            : this.style;
+        // Merge our text style with the current theme's default
+        const mergedTextStyle = ThemeTypes.Utils.mergeTextStyles(context.theme.defaultTextStyle, this.style);
 
-        const newTheme = ThemeUtils.copyWith(context.theme, {
-            defaultTextStyle: newDefaultStyle,
-        });
+        // Create new theme with merged text style
+        const newTheme: ThemeTypes.ThemeData = {
+            ...context.theme,
+            defaultTextStyle: mergedTextStyle,
+        };
 
-        const themedContext: LayoutContext = {
+        const themedContext: Layout.LayoutContext = {
             ...context,
             theme: newTheme,
         };
@@ -141,238 +106,246 @@ export class DefaultTextStyle extends BaseWidget {
         return this.child.layout(themedContext);
     }
 
-    paint(context: PaintContext): void {
-        // Create new theme with updated default text style
-        const newDefaultStyle = this.merge
-            ? TextStyleUtils.merge(context.theme.defaultTextStyle, this.style)
-            : this.style;
+    paint(context: Layout.PaintContext): void {
+        console.log(`Applying default text style: ${this.style.fontSize}px ${this.style.fontFamily}`);
 
-        const newTheme = ThemeUtils.copyWith(context.theme, {
-            defaultTextStyle: newDefaultStyle,
-        });
+        // Merge our text style with the current theme's default
+        const mergedTextStyle = ThemeTypes.Utils.mergeTextStyles(context.theme.defaultTextStyle, this.style);
 
-        const themedContext: PaintContext = {
+        // Create new theme with merged text style
+        const newTheme: ThemeTypes.ThemeData = {
+            ...context.theme,
+            defaultTextStyle: mergedTextStyle,
+        };
+
+        const themedContext: Layout.PaintContext = {
             ...context,
             theme: newTheme,
         };
 
         this.child.paint(themedContext);
     }
-
-    /**
-     * Create a DefaultTextStyle that merges with existing styles
-     */
-    static merge(props: Omit<DefaultTextStyleProps, 'merge'>): DefaultTextStyle {
-        return new DefaultTextStyle({ ...props, merge: true });
-    }
-
-    /**
-     * Create a DefaultTextStyle that replaces existing styles
-     */
-    static replace(props: Omit<DefaultTextStyleProps, 'merge'>): DefaultTextStyle {
-        return new DefaultTextStyle({ ...props, merge: false });
-    }
 }
 
 /**
- * Themed widget properties for widgets that respond to theme changes
+ * Theme utilities - consolidated from various theme helpers
  */
-export interface ThemedWidgetProps extends WidgetProps {
-    /** Builder function that receives theme and returns widget */
-    builder: (theme: ThemeData) => Widget;
-}
-
-/**
- * Themed widget that rebuilds based on current theme
- */
-export class ThemedWidget extends BaseWidget {
-    private readonly builder: (theme: ThemeData) => Widget;
-    private cachedWidget?: Widget;
-    private cachedTheme?: ThemeData;
-
-    constructor(props: ThemedWidgetProps) {
-        super(props);
-        this.builder = props.builder;
-    }
-
-    private getWidget(theme: ThemeData): Widget {
-        // Simple caching - rebuild only if theme changes
-        if (!this.cachedWidget || this.cachedTheme !== theme) {
-            this.cachedWidget = this.builder(theme);
-            this.cachedTheme = theme;
-        }
-        return this.cachedWidget;
-    }
-
-    layout(context: LayoutContext): LayoutResult {
-        this.validateConstraints(context.constraints);
-        const widget = this.getWidget(context.theme);
-        return widget.layout(context);
-    }
-
-    paint(context: PaintContext): void {
-        const widget = this.getWidget(context.theme);
-        widget.paint(context);
-    }
-}
-
-/**
- * Consumer widget that provides access to specific theme properties
- */
-export interface ThemeConsumerProps<T> extends WidgetProps {
-    /** Selector function to extract data from theme */
-    selector: (theme: ThemeData) => T;
-    /** Builder function that receives selected data */
-    builder: (data: T) => Widget;
-}
-
-/**
- * Theme consumer widget for efficient theme-dependent rendering
- */
-export class ThemeConsumer<T> extends BaseWidget {
-    private readonly selector: (theme: ThemeData) => T;
-    private readonly builder: (data: T) => Widget;
-    private cachedWidget?: Widget;
-    private cachedData?: T;
-
-    constructor(props: ThemeConsumerProps<T>) {
-        super(props);
-        this.selector = props.selector;
-        this.builder = props.builder;
-    }
-
-    private getWidget(theme: ThemeData): Widget {
-        const data = this.selector(theme);
-
-        // Rebuild only if selected data changes
-        if (!this.cachedWidget || this.cachedData !== data) {
-            this.cachedWidget = this.builder(data);
-            this.cachedData = data;
-        }
-
-        return this.cachedWidget;
-    }
-
-    layout(context: LayoutContext): LayoutResult {
-        this.validateConstraints(context.constraints);
-        const widget = this.getWidget(context.theme);
-        return widget.layout(context);
-    }
-
-    paint(context: PaintContext): void {
-        const widget = this.getWidget(context.theme);
-        widget.paint(context);
-    }
-}
-
-/**
- * Theme helper functions for creating themed widgets
- */
-export const ThemeHelpers = {
+export const ThemeUtils = {
     /**
-     * Create a widget that responds to color scheme changes
+     * Create a light theme
      */
-    withColorScheme(builder: (colors: ColorScheme) => Widget): ThemeConsumer<ColorScheme> {
-        return new ThemeConsumer({
-            selector: (theme) => theme.colorScheme,
-            builder,
-        });
+    light(): ThemeTypes.ThemeData {
+        return ThemeTypes.Utils.light();
     },
 
     /**
-     * Create a widget that responds to spacing changes
+     * Create a professional theme
      */
-    withSpacing(builder: (spacing: SpacingSystem) => Widget): ThemeConsumer<SpacingSystem> {
-        return new ThemeConsumer({
-            selector: (theme) => theme.spacing,
-            builder,
-        });
+    professional(): ThemeTypes.ThemeData {
+        return ThemeTypes.Utils.professional();
     },
 
     /**
-     * Create a widget that responds to typography changes
+     * Create a custom theme
      */
-    withTypography(builder: (typography: TypographyScale) => Widget): ThemeConsumer<TypographyScale> {
-        return new ThemeConsumer({
-            selector: (theme) => theme.typography,
-            builder,
-        });
+    custom(colorScheme: ThemeTypes.ColorScheme): ThemeTypes.ThemeData {
+        return ThemeTypes.Utils.createTheme(colorScheme);
     },
 
     /**
-     * Create a widget that uses a specific typography style
+     * Merge text styles
      */
-    withTextStyle(
-        styleKey: keyof TypographyScale,
-        builder: (style: TextStyle) => Widget
-    ): ThemeConsumer<TextStyle> {
-        return new ThemeConsumer({
-            selector: (theme) => theme.typography[styleKey],
-            builder,
-        });
+    mergeTextStyles(base: ThemeTypes.TextStyle, override?: ThemeTypes.TextStyle): ThemeTypes.TextStyle {
+        return ThemeTypes.Utils.mergeTextStyles(base, override);
     },
 
     /**
-     * Create a widget that responds to theme changes with custom selector
+     * Create a text style
      */
-    withThemeData<T>(
-        selector: (theme: ThemeData) => T,
-        builder: (data: T) => Widget
-    ): ThemeConsumer<T> {
-        return new ThemeConsumer({ selector, builder });
+    textStyle(options: Partial<ThemeTypes.TextStyle>): ThemeTypes.TextStyle {
+        return {
+            fontSize: 12,
+            fontFamily: 'Helvetica',
+            fontWeight: ThemeTypes.FontWeight.Normal,
+            fontStyle: ThemeTypes.FontStyle.Normal,
+            color: '#000000',
+            ...options,
+        };
     },
 
     /**
-     * Wrap a widget with a specific theme
+     * Create a color scheme
      */
-    wrap(theme: ThemeData, child: Widget): Theme {
-        return new Theme({ data: theme, child });
-    },
-
-    /**
-     * Create a light-themed wrapper
-     */
-    light(child: Widget): Theme {
-        return ThemeHelpers.wrap(ThemeUtils.light(), child);
-    },
-
-    /**
-     * Create a dark-themed wrapper
-     */
-    dark(child: Widget): Theme {
-        return ThemeHelpers.wrap(ThemeUtils.dark(), child);
-    },
-
-    /**
-     * Create a professional-themed wrapper
-     */
-    professional(child: Widget): Theme {
-        return ThemeHelpers.wrap(ThemeUtils.professional(), child);
-    },
-
-    /**
-     * Apply a text style override
-     */
-    withTextStyleOverride(style: TextStyle, child: Widget): DefaultTextStyle {
-        return new DefaultTextStyle({ style, child, merge: true });
-    },
-
-    /**
-     * Replace the default text style
-     */
-    withTextStyleReplacement(style: TextStyle, child: Widget): DefaultTextStyle {
-        return new DefaultTextStyle({ style, child, merge: false });
+    colorScheme(options: Partial<ThemeTypes.ColorScheme>): ThemeTypes.ColorScheme {
+        return {
+            primary: '#1976d2',
+            secondary: '#dc004e',
+            background: '#ffffff',
+            surface: '#f5f5f5',
+            onBackground: '#000000',
+            onSurface: '#000000',
+            onPrimary: '#ffffff',
+            onSecondary: '#ffffff',
+            error: '#d32f2f',
+            success: '#388e3c',
+            warning: '#f57c00',
+            info: '#1976d2',
+            ...options,
+        };
     },
 };
 
 /**
- * Convenience functions for creating themed widgets
+ * Common text styles - simplified from complex TextStyles
  */
-export const createTheme = (data: ThemeData, child: Widget): Theme =>
-    new Theme({ data, child });
+export const TextStyles = {
+    /** Display text (largest) */
+    display: ThemeUtils.textStyle({
+        fontSize: 32,
+        fontWeight: ThemeTypes.FontWeight.Bold,
+    }),
 
-export const createThemedWidget = (builder: (theme: ThemeData) => Widget): ThemedWidget =>
-    new ThemedWidget({ builder });
+    /** Heading 1 */
+    h1: ThemeUtils.textStyle({
+        fontSize: 24,
+        fontWeight: ThemeTypes.FontWeight.Bold,
+    }),
 
-export const createDefaultTextStyle = (style: TextStyle, child: Widget): DefaultTextStyle =>
-    new DefaultTextStyle({ style, child });
+    /** Heading 2 */
+    h2: ThemeUtils.textStyle({
+        fontSize: 20,
+        fontWeight: ThemeTypes.FontWeight.Bold,
+    }),
+
+    /** Heading 3 */
+    h3: ThemeUtils.textStyle({
+        fontSize: 16,
+        fontWeight: ThemeTypes.FontWeight.Bold,
+    }),
+
+    /** Body text (default) */
+    body: ThemeUtils.textStyle({
+        fontSize: 12,
+        fontWeight: ThemeTypes.FontWeight.Normal,
+    }),
+
+    /** Caption text (smaller) */
+    caption: ThemeUtils.textStyle({
+        fontSize: 10,
+        fontWeight: ThemeTypes.FontWeight.Normal,
+        color: '#666666',
+    }),
+
+    /** Label text */
+    label: ThemeUtils.textStyle({
+        fontSize: 11,
+        fontWeight: ThemeTypes.FontWeight.Normal,
+    }),
+};
+
+/**
+ * Common color schemes
+ */
+export const ColorSchemes = {
+    /** Light theme colors */
+    light: ThemeTypes.ColorSchemes.light,
+
+    /** Professional theme colors */
+    professional: ThemeTypes.ColorSchemes.professional,
+
+    /** Create a monochrome color scheme */
+    monochrome: (baseColor: string = '#333333'): ThemeTypes.ColorScheme => ({
+        primary: baseColor,
+        secondary: baseColor,
+        background: '#ffffff',
+        surface: '#f8f9fa',
+        onBackground: baseColor,
+        onSurface: baseColor,
+        onPrimary: '#ffffff',
+        onSecondary: '#ffffff',
+        error: '#dc3545',
+        success: '#28a745',
+        warning: '#ffc107',
+        info: '#17a2b8',
+    }),
+
+    /** Create a blue color scheme */
+    blue: (): ThemeTypes.ColorScheme => ({
+        primary: '#007bff',
+        secondary: '#6c757d',
+        background: '#ffffff',
+        surface: '#f8f9fa',
+        onBackground: '#212529',
+        onSurface: '#212529',
+        onPrimary: '#ffffff',
+        onSecondary: '#ffffff',
+        error: '#dc3545',
+        success: '#28a745',
+        warning: '#ffc107',
+        info: '#17a2b8',
+    }),
+};
+
+/**
+ * Convenience functions for creating theme widgets
+ */
+export function createTheme(props: ThemeProps): Theme {
+    return new Theme(props);
+}
+
+export function createDefaultTextStyle(props: DefaultTextStyleProps): DefaultTextStyle {
+    return new DefaultTextStyle(props);
+}
+
+/**
+ * Pre-built themes for common use cases
+ */
+export const PrebuiltThemes = {
+    /** Clean, minimal light theme */
+    minimal: (): ThemeTypes.ThemeData => ThemeUtils.custom({
+        primary: '#2c3e50',
+        secondary: '#95a5a6',
+        background: '#ffffff',
+        surface: '#ffffff',
+        onBackground: '#2c3e50',
+        onSurface: '#2c3e50',
+        onPrimary: '#ffffff',
+        onSecondary: '#ffffff',
+        error: '#e74c3c',
+        success: '#27ae60',
+        warning: '#f39c12',
+        info: '#3498db',
+    }),
+
+    /** Corporate/business theme */
+    corporate: (): ThemeTypes.ThemeData => ThemeUtils.custom({
+        primary: '#1f4e79',
+        secondary: '#5b9bd5',
+        background: '#ffffff',
+        surface: '#f2f2f2',
+        onBackground: '#1f4e79',
+        onSurface: '#1f4e79',
+        onPrimary: '#ffffff',
+        onSecondary: '#ffffff',
+        error: '#c5504b',
+        success: '#70ad47',
+        warning: '#ffc000',
+        info: '#5b9bd5',
+    }),
+
+    /** Modern, vibrant theme */
+    modern: (): ThemeTypes.ThemeData => ThemeUtils.custom({
+        primary: '#6c5ce7',
+        secondary: '#fd79a8',
+        background: '#ffffff',
+        surface: '#f8f9fa',
+        onBackground: '#2d3436',
+        onSurface: '#2d3436',
+        onPrimary: '#ffffff',
+        onSecondary: '#ffffff',
+        error: '#e17055',
+        success: '#00b894',
+        warning: '#fdcb6e',
+        info: '#74b9ff',
+    }),
+};

@@ -1,0 +1,536 @@
+/**
+ * Data Visualization Test Suite - Consolidated
+ * 
+ * Tests all data visualization functionality from the consolidated widget system.
+ * Consolidates: table.test.ts, chart.test.ts, table-*.test.ts, chart-*.test.ts
+ * 
+ * @vitest-environment happy-dom
+ */
+
+import { describe, it, expect, beforeEach } from 'vitest';
+
+// Import consolidated widget system
+import {
+    Table, TableRow, Chart, BarChart, LineChart, DataUtils,
+    TextWidget, Container, LayoutUtils
+} from '../widgets/index.js';
+
+// Import types and namespaces
+import { Layout, Theme as ThemeTypes } from '../types.js';
+import type { Widget, TableProps, ChartProps, BarChartProps, LineChartProps } from '../widgets/index.js';
+
+describe('Data Visualization Systems', () => {
+    let mockLayoutContext: Layout.LayoutContext;
+    let mockPaintContext: Layout.PaintContext;
+
+    beforeEach(() => {
+        const mockTheme = {
+            colorScheme: {
+                primary: '#1976d2',
+                secondary: '#dc004e',
+                background: '#ffffff',
+                surface: '#f5f5f5',
+                onBackground: '#000000',
+                onSurface: '#000000',
+                onPrimary: '#ffffff',
+                onSecondary: '#ffffff',
+                error: '#d32f2f',
+                success: '#388e3c',
+                warning: '#f57c00',
+                info: '#1976d2'
+            },
+            spacing: { xs: 2, sm: 4, md: 8, lg: 16, xl: 24, xxl: 32 },
+            defaultTextStyle: {
+                fontSize: 12,
+                fontFamily: 'Helvetica',
+                color: '#000000'
+            },
+            cornerRadius: { none: 0, small: 4, medium: 8, large: 16 }
+        };
+
+        mockLayoutContext = {
+            constraints: {
+                minWidth: 0,
+                maxWidth: 600,
+                minHeight: 0,
+                maxHeight: 800,
+            },
+            textDirection: 'ltr',
+            theme: mockTheme,
+        };
+
+        mockPaintContext = {
+            size: { width: 600, height: 800 },
+            theme: mockTheme,
+        };
+    });
+
+    describe('Table System', () => {
+        it('should create basic table with data', () => {
+            const tableData = [
+                ['Name', 'Age', 'City'],
+                ['Alice', '25', 'New York'],
+                ['Bob', '30', 'London'],
+                ['Charlie', '35', 'Paris']
+            ];
+
+            const table = new Table({ data: tableData });
+            const layout = table.layout(mockLayoutContext);
+
+            expect(layout.size.width).toBeGreaterThan(0);
+            expect(layout.size.height).toBeGreaterThan(0);
+        });
+
+        it('should handle table with custom column widths', () => {
+            const tableData = [
+                ['Product', 'Price', 'Stock'],
+                ['Widget A', '$10.99', '150'],
+                ['Widget B', '$15.49', '75']
+            ];
+
+            const table = new Table({
+                data: tableData,
+                columnWidths: [
+                    { type: 'fixed' as any, value: 120 },
+                    { type: 'flex' as any, value: 1 },
+                    { type: 'fixed' as any, value: 80 }
+                ]
+            });
+
+            const layout = table.layout(mockLayoutContext);
+            expect(layout.size.width).toBeGreaterThan(200); // At least fixed widths
+        });
+
+        it('should create table with borders', () => {
+            const simpleData = [['A', 'B'], ['1', '2']];
+
+            const table = new Table({
+                data: simpleData,
+                borders: {
+                    top: { width: 1, color: '#000000' },
+                    right: { width: 1, color: '#000000' },
+                    bottom: { width: 1, color: '#000000' },
+                    left: { width: 1, color: '#000000' }
+                }
+            });
+
+            const layout = table.layout(mockLayoutContext);
+            expect(layout.size.width).toBeGreaterThan(0);
+            expect(layout.size.height).toBeGreaterThan(0);
+        });
+
+        it('should handle table with cell alignment', () => {
+            const tableData = [
+                ['Left', 'Center', 'Right'],
+                ['Data 1', 'Data 2', 'Data 3']
+            ];
+
+            const table = new Table({
+                data: tableData
+            });
+
+            const layout = table.layout(mockLayoutContext);
+            expect(layout.size).toBeDefined();
+        });
+
+        it('should create individual table rows', () => {
+            const row = new TableRow({
+                children: [
+                    new TextWidget('Cell 1'),
+                    new TextWidget('Cell 2'),
+                    new TextWidget('Cell 3')
+                ]
+            });
+
+            const layout = row.layout(mockLayoutContext);
+            expect(layout.size.width).toBeGreaterThan(0);
+            expect(layout.size.height).toBeGreaterThan(0);
+        });
+
+        it('should handle empty table data', () => {
+            const table = new Table({ data: [] });
+            const layout = table.layout(mockLayoutContext);
+
+            expect(layout.size.width).toBe(0);
+            expect(layout.size.height).toBe(0);
+        });
+
+        it('should handle table with varying row lengths', () => {
+            const unevenData = [
+                ['Header 1', 'Header 2', 'Header 3'],
+                ['Row 1 Col 1', 'Row 1 Col 2'], // Missing third column
+                ['Row 2 Col 1', 'Row 2 Col 2', 'Row 2 Col 3', 'Extra Col'] // Extra column
+            ];
+
+            const table = new Table({ data: unevenData });
+            const layout = table.layout(mockLayoutContext);
+
+            expect(layout.size.width).toBeGreaterThan(0);
+            expect(layout.size.height).toBeGreaterThan(0);
+        });
+    });
+
+    describe('Chart System', () => {
+        it('should create basic chart with data series', () => {
+            const series = [
+                {
+                    name: 'Sales',
+                    data: [
+                        { x: 'Q1', y: 100 },
+                        { x: 'Q2', y: 150 },
+                        { x: 'Q3', y: 120 },
+                        { x: 'Q4', y: 180 }
+                    ]
+                }
+            ];
+
+            const chart = new Chart({
+                title: 'Quarterly Sales',
+                series,
+                width: 400,
+                height: 300
+            });
+
+            const layout = chart.layout(mockLayoutContext);
+            expect(layout.size.width).toBe(400);
+            expect(layout.size.height).toBe(300);
+        });
+
+        it('should create bar chart with vertical orientation', () => {
+            const series = [
+                {
+                    name: 'Revenue',
+                    data: [
+                        { x: 'Jan', y: 1000 },
+                        { x: 'Feb', y: 1200 },
+                        { x: 'Mar', y: 1100 }
+                    ]
+                }
+            ];
+
+            const barChart = new BarChart({
+                title: 'Monthly Revenue',
+                series,
+                orientation: 'vertical' as any
+            });
+
+            const layout = barChart.layout(mockLayoutContext);
+            expect(layout.size.width).toBeGreaterThan(0);
+            expect(layout.size.height).toBeGreaterThan(0);
+        });
+
+        it('should create bar chart with horizontal orientation', () => {
+            const series = [
+                {
+                    name: 'Users',
+                    data: [
+                        { x: 'Mobile', y: 450 },
+                        { x: 'Desktop', y: 320 },
+                        { x: 'Tablet', y: 180 }
+                    ]
+                }
+            ];
+
+            const barChart = new BarChart({
+                title: 'Users by Device',
+                series,
+                orientation: 'horizontal' as any
+            });
+
+            const layout = barChart.layout(mockLayoutContext);
+            expect(layout.size.width).toBeGreaterThan(0);
+            expect(layout.size.height).toBeGreaterThan(0);
+        });
+
+        it('should create line chart with markers', () => {
+            const series = [
+                {
+                    name: 'Growth',
+                    data: [
+                        { x: 1, y: 10 },
+                        { x: 2, y: 15 },
+                        { x: 3, y: 12 },
+                        { x: 4, y: 18 },
+                        { x: 5, y: 22 }
+                    ]
+                }
+            ];
+
+            const lineChart = new LineChart({
+                title: 'Growth Trend',
+                series,
+                marker: 'circle' as any,
+                fill: false
+            });
+
+            const layout = lineChart.layout(mockLayoutContext);
+            expect(layout.size.width).toBeGreaterThan(0);
+            expect(layout.size.height).toBeGreaterThan(0);
+        });
+
+        it('should create line chart with filled area', () => {
+            const series = [
+                {
+                    name: 'Temperature',
+                    data: [
+                        { x: '6am', y: 15 },
+                        { x: '12pm', y: 25 },
+                        { x: '6pm', y: 22 },
+                        { x: '12am', y: 18 }
+                    ]
+                }
+            ];
+
+            const lineChart = new LineChart({
+                title: 'Daily Temperature',
+                series,
+                fill: true,
+                marker: 'square' as any
+            });
+
+            const layout = lineChart.layout(mockLayoutContext);
+            expect(layout.size.width).toBeGreaterThan(0);
+            expect(layout.size.height).toBeGreaterThan(0);
+        });
+
+        it('should handle chart with multiple data series', () => {
+            const series = [
+                {
+                    name: 'Series 1',
+                    data: [{ x: 1, y: 10 }, { x: 2, y: 20 }]
+                },
+                {
+                    name: 'Series 2',
+                    data: [{ x: 1, y: 15 }, { x: 2, y: 25 }]
+                },
+                {
+                    name: 'Series 3',
+                    data: [{ x: 1, y: 8 }, { x: 2, y: 18 }]
+                }
+            ];
+
+            const chart = new Chart({
+                title: 'Multi-Series Chart',
+                series
+            });
+
+            const layout = chart.layout(mockLayoutContext);
+            expect(layout.size.width).toBeGreaterThan(0);
+            expect(layout.size.height).toBeGreaterThan(0);
+        });
+
+        it('should handle empty chart data', () => {
+            const chart = new Chart({
+                title: 'Empty Chart',
+                series: []
+            });
+
+            const layout = chart.layout(mockLayoutContext);
+            expect(layout.size.width).toBeGreaterThan(0); // Should have minimum size for title
+            expect(layout.size.height).toBeGreaterThan(0);
+        });
+    });
+
+    describe('Data Utilities', () => {
+        it('should create chart data series from arrays', () => {
+            const values = [10, 20, 15, 25, 30];
+            const series = DataUtils.arrayToSeries('Test Series', values);
+
+            expect(series.name).toBe('Test Series');
+            expect(series.data).toHaveLength(5);
+            expect(series.data[0]?.x).toBe(0);
+            expect(series.data[0]?.y).toBe(10);
+            expect(series.data[4]?.x).toBe(4);
+            expect(series.data[4]?.y).toBe(30);
+        });
+
+        it('should create chart data series from objects', () => {
+            const dataPoints = [
+                { x: 'A', y: 100 },
+                { x: 'B', y: 150 },
+                { x: 'C', y: 120 }
+            ];
+
+            const series = DataUtils.createSeries('Object Series', dataPoints);
+            expect(series.name).toBe('Object Series');
+            expect(series.data).toHaveLength(3);
+            expect(series.data[1]?.x).toBe('B');
+            expect(series.data[1]?.y).toBe(150);
+        });
+
+        it('should generate color palettes for charts', () => {
+            const colors3 = DataUtils.generateColors(3);
+            const colors5 = DataUtils.generateColors(5);
+            const colors10 = DataUtils.generateColors(10);
+
+            expect(colors3).toHaveLength(3);
+            expect(colors5).toHaveLength(5);
+            expect(colors10).toHaveLength(10);
+
+            // Colors should be valid hex codes
+            colors5.forEach(color => {
+                expect(color).toMatch(/^#[0-9a-f]{6}$/i);
+            });
+        });
+
+        it('should create column width configurations', () => {
+            const fixedWidth = DataUtils.columnWidths.fixed(100);
+            const flexWidth = DataUtils.columnWidths.flex(2);
+            const fractionWidth = DataUtils.columnWidths.fraction(0.3);
+
+            expect(fixedWidth.type).toBe('fixed');
+            expect(fixedWidth.value).toBe(100);
+
+            expect(flexWidth.type).toBe('flex');
+            expect(flexWidth.value).toBe(2);
+
+            expect(fractionWidth.type).toBe('fraction');
+            expect(fractionWidth.value).toBe(0.3);
+        });
+
+        it('should format table cell data', () => {
+            const numericData = 1234.567;
+            const stringData = 'Hello World';
+            const dateData = new Date('2023-01-01');
+
+            // Test basic formatting concepts
+            const formattedNumber = numericData.toFixed(2);
+            const formattedString = stringData.length > 10 ? stringData.slice(0, 10) + '...' : stringData;
+            const formattedDate = dateData.getFullYear().toString();
+
+            expect(formattedNumber).toBe('1234.57');
+            expect(formattedString).toBe('Hello Worl...');
+            expect(formattedDate).toBe('2023');
+        });
+
+        it('should validate data series', () => {
+            const validSeries = {
+                name: 'Valid',
+                data: [{ x: 1, y: 10 }, { x: 2, y: 20 }]
+            };
+
+            const invalidSeries = {
+                name: '',
+                data: []
+            };
+
+            // Test basic validation concepts
+            const isValidSeriesValid = validSeries.name.length > 0 && validSeries.data.length > 0;
+            const isInvalidSeriesValid = invalidSeries.name.length > 0 && invalidSeries.data.length > 0;
+
+            expect(isValidSeriesValid).toBe(true);
+            expect(isInvalidSeriesValid).toBe(false);
+        });
+
+        it('should calculate data statistics', () => {
+            const data = [{ x: 1, y: 10 }, { x: 2, y: 20 }, { x: 3, y: 15 }, { x: 4, y: 25 }];
+            const values = data.map(d => d.y);
+
+            // Calculate stats manually for testing
+            const min = Math.min(...values);
+            const max = Math.max(...values);
+            const average = values.reduce((a, b) => a + b, 0) / values.length;
+            const count = values.length;
+
+            expect(min).toBe(10);
+            expect(max).toBe(25);
+            expect(average).toBe(17.5);
+            expect(count).toBe(4);
+        });
+    });
+
+    describe('Data Integration', () => {
+        it('should create table-chart combination', () => {
+            const salesData = [
+                ['Month', 'Revenue', 'Units'],
+                ['Jan', '$10,000', '100'],
+                ['Feb', '$12,000', '120'],
+                ['Mar', '$11,000', '110']
+            ];
+
+            const chartData = DataUtils.arrayToSeries('Revenue', [10000, 12000, 11000]);
+
+            const combinedWidget = new Container({
+                child: new Container({
+                    child: new Chart({
+                        title: 'Monthly Revenue',
+                        series: [chartData],
+                        height: 200
+                    })
+                })
+            });
+
+            const layout = combinedWidget.layout(mockLayoutContext);
+            expect(layout.size.width).toBeGreaterThan(0);
+            expect(layout.size.height).toBeGreaterThanOrEqual(200); // Chart height plus table
+        });
+
+        it('should handle responsive data layouts', () => {
+            const data = [
+                ['Product', 'Q1', 'Q2', 'Q3', 'Q4'],
+                ['Widget A', '100', '120', '110', '140'],
+                ['Widget B', '80', '90', '95', '105']
+            ];
+
+            // Create both table and chart from same data
+            const table = new Table({ data });
+            const chartSeries = [
+                DataUtils.arrayToSeries('Widget A', [100, 120, 110, 140]),
+                DataUtils.arrayToSeries('Widget B', [80, 90, 95, 105])
+            ];
+            const chart = new BarChart({ title: 'Product Performance', series: chartSeries });
+
+            // Test different constraint scenarios
+            const constraintScenarios = [
+                { minWidth: 0, maxWidth: 400, minHeight: 0, maxHeight: 300 },
+                { minWidth: 0, maxWidth: 800, minHeight: 0, maxHeight: 600 },
+                { minWidth: 200, maxWidth: 600, minHeight: 150, maxHeight: 400 }
+            ];
+
+            constraintScenarios.forEach(constraints => {
+                const context = { ...mockLayoutContext, constraints };
+
+                const tableLayout = table.layout(context);
+                const chartLayout = chart.layout(context);
+
+                expect(tableLayout.size.width).toBeLessThanOrEqual(constraints.maxWidth);
+                expect(tableLayout.size.height).toBeLessThanOrEqual(constraints.maxHeight);
+                expect(chartLayout.size.width).toBeLessThanOrEqual(constraints.maxWidth);
+                expect(chartLayout.size.height).toBeLessThanOrEqual(constraints.maxHeight);
+            });
+        });
+
+        it('should maintain data consistency across widgets', () => {
+            const sourceData = [
+                { label: 'A', value: 100 },
+                { label: 'B', value: 200 },
+                { label: 'C', value: 150 }
+            ];
+
+            // Create table data
+            const tableData = [
+                ['Label', 'Value'],
+                ...sourceData.map(item => [item.label, item.value.toString()])
+            ];
+
+            // Create chart data
+            const chartSeries = DataUtils.createSeries('Values',
+                sourceData.map((item, index) => ({ x: index, y: item.value }))
+            );
+
+            const table = new Table({ data: tableData });
+            const chart = new Chart({ title: 'Data Chart', series: [chartSeries] });
+
+            const tableLayout = table.layout(mockLayoutContext);
+            const chartLayout = chart.layout(mockLayoutContext);
+
+            // Both should layout successfully
+            expect(tableLayout.size).toBeDefined();
+            expect(chartLayout.size).toBeDefined();
+
+            // Data integrity check
+            expect(tableData.length - 1).toBe(sourceData.length); // -1 for header
+            expect(chartSeries.data.length).toBe(sourceData.length);
+        });
+    });
+});

@@ -1,681 +1,466 @@
 /**
- * PDF Graphics Context
+ * PDF Graphics Context - Simplified Graphics Operations
  * 
- * Based on dart-pdf PdfGraphics implementation
- * Provides drawing operations and graphics state management
+ * Provides essential PDF drawing operations for the consolidated
+ * typescript-pdf system.
  * 
  * @packageDocumentation
  */
 
-import { PdfStream } from './stream.js';
-import { PdfContentStream } from './document.js';
-import { PdfNum, PdfNumList, PdfName, type PdfOutputContext } from './types.js';
-import { PdfFont } from './font.js';
+import { PdfFont } from './font-engine.js';
 import { PdfColor } from './color.js';
-import type { GraphicsContext } from './graphics-interface.js';
 
 /**
- * PDF Line join styles
+ * PDF content stream for graphics operations
  */
-export enum PdfLineJoin {
-    /** Miter join */
-    Miter = 0,
-    /** Round join */
-    Round = 1,
-    /** Bevel join */
-    Bevel = 2,
-}
+export class PdfContentStream {
+    private content: string[] = [];
 
-/**
- * PDF Line cap styles
- */
-export enum PdfLineCap {
-    /** Butt cap */
-    Butt = 0,
-    /** Round cap */
-    Round = 1,
-    /** Square cap */
-    Square = 2,
-}
-
-/**
- * PDF Text rendering modes
- */
-export enum PdfTextRenderingMode {
-    /** Fill text */
-    Fill = 0,
-    /** Stroke text */
-    Stroke = 1,
-    /** Fill and stroke text */
-    FillAndStroke = 2,
-    /** Invisible text */
-    Invisible = 3,
-    /** Fill text and add to path for clipping */
-    FillAndClip = 4,
-    /** Stroke text and add to path for clipping */
-    StrokeAndClip = 5,
-    /** Fill, stroke text and add to path for clipping */
-    FillStrokeAndClip = 6,
-    /** Add text to path for clipping */
-    Clip = 7,
-}
-
-/**
- * Simple transformation matrix implementation
- */
-export class Matrix4 {
-    values: number[];
-
-    constructor(values?: number[]) {
-        if (values && values.length === 16) {
-            this.values = [...values];
-        } else {
-            // Identity matrix
-            this.values = [
-                1, 0, 0, 0,
-                0, 1, 0, 0,
-                0, 0, 1, 0,
-                0, 0, 0, 1
-            ];
-        }
+    /**
+     * Write content to stream
+     */
+    write(content: string): void {
+        this.content.push(content);
     }
 
     /**
-     * Create identity matrix
+     * Get stream content
      */
+    getContent(): string {
+        return this.content.join('');
+    }
+
+    /**
+     * Clear stream
+     */
+    clear(): void {
+        this.content = [];
+    }
+}
+
+/**
+ * Graphics context state
+ */
+interface GraphicsState {
+    fillColor: PdfColor;
+    strokeColor: PdfColor;
+    lineWidth: number;
+    font: PdfFont | undefined;
+    fontSize: number;
+}
+
+/**
+ * 4x4 transformation matrix for graphics operations
+ */
+export class Matrix4 {
+    public elements: number[];
+
+    constructor(elements?: number[]) {
+        this.elements = elements || [
+            1, 0, 0, 0,
+            0, 1, 0, 0,
+            0, 0, 1, 0,
+            0, 0, 0, 1
+        ];
+    }
+
     static identity(): Matrix4 {
         return new Matrix4();
     }
 
-    /**
-     * Clone this matrix
-     */
-    clone(): Matrix4 {
-        return new Matrix4([...this.values]);
+    static translation(x: number, y: number, z: number = 0): Matrix4 {
+        return new Matrix4([
+            1, 0, 0, x,
+            0, 1, 0, y,
+            0, 0, 1, z,
+            0, 0, 0, 1
+        ]);
     }
 
-    /**
-     * Multiply with another matrix
-     */
-    multiply(other: Matrix4): void {
-        const a = this.values;
-        const b = other.values;
+    multiply(other: Matrix4): Matrix4 {
+        const a = this.elements;
+        const b = other.elements;
         const result = new Array(16);
 
         for (let i = 0; i < 4; i++) {
             for (let j = 0; j < 4; j++) {
                 result[i * 4 + j] =
-                    a[i * 4 + 0]! * b[0 * 4 + j]! +
-                    a[i * 4 + 1]! * b[1 * 4 + j]! +
-                    a[i * 4 + 2]! * b[2 * 4 + j]! +
-                    a[i * 4 + 3]! * b[3 * 4 + j]!;
+                    (a[i * 4 + 0] || 0) * (b[0 * 4 + j] || 0) +
+                    (a[i * 4 + 1] || 0) * (b[1 * 4 + j] || 0) +
+                    (a[i * 4 + 2] || 0) * (b[2 * 4 + j] || 0) +
+                    (a[i * 4 + 3] || 0) * (b[3 * 4 + j] || 0);
             }
         }
 
-        for (let i = 0; i < 16; i++) {
-            this.values[i] = result[i]!;
-        }
+        return new Matrix4(result);
+    }
+
+    /**
+     * Get values array (compatibility property)
+     */
+    get values(): number[] {
+        return [...this.elements];
     }
 }
 
 /**
- * Graphics context state (internal)
+ * PDF Graphics Context - Main drawing interface
  */
-interface InternalGraphicsState {
-    /** Current transformation matrix */
-    ctm: Matrix4;
-}
+export class PdfGraphics {
+    public readonly contentStream: PdfContentStream;
+    public readonly context: GraphicsState;
+    public readonly contextStack: GraphicsState[] = [];
+    public indent = 0;
 
-// Color system now imported from './color.js'
-// PdfColor class provides comprehensive color support with multiple color spaces
+    // Additional properties to match expected interface
+    public currentPoint = { x: 0, y: 0 };
+    public path: Array<{ type: string; points: number[] }> = [];
+    public matrix = [1, 0, 0, 1, 0, 0]; // Identity matrix
+    public clipPath: unknown = null;
+    public textMatrix = [1, 0, 0, 1, 0, 0];
+    public charSpacing = 0;
+    public wordSpacing = 0;
+    public horizontalScaling = 100;
+    public leading = 0;
+    public textRenderingMode = 0;
+    public textRise = 0;
+    public currentFont?: PdfFont;
+    public currentFontSize = 12;
+    public dashArray: number[] = [];
+    public dashPhase = 0;
+    public miterLimit = 10;
+    public lineCapStyle = 0;
+    public lineJoinStyle = 0;
+    public flatness = 1;
+    public graphicsStateName?: string;
+    public softMask?: unknown;
+    public blendMode = 'Normal';
+    public strokeAlpha = 1;
+    public fillAlpha = 1;
 
-/**
- * PDF Graphics drawing context
- */
-export class PdfGraphics implements GraphicsContext {
-    private static readonly COMMENT_INDENT = 35;
-    private static readonly INDENT_AMOUNT = 1;
-    private indent = PdfGraphics.INDENT_AMOUNT;
-
-    private context: InternalGraphicsState;
-    private readonly contextStack: InternalGraphicsState[] = [];
-    private readonly contentStream: PdfContentStream;
-    private readonly buffer: PdfStream;
-    private readonly outputContext: PdfOutputContext;
-
-    constructor(contentStream: PdfContentStream, outputContext: PdfOutputContext = {}) {
-        this.contentStream = contentStream;
-        this.buffer = contentStream.getContentStream();
-        this.outputContext = outputContext;
+    constructor() {
+        this.contentStream = new PdfContentStream();
         this.context = {
-            ctm: Matrix4.identity(),
+            fillColor: PdfColor.black,
+            strokeColor: PdfColor.black,
+            lineWidth: 1,
+            font: undefined,
+            fontSize: 12,
         };
     }
 
     /**
-     * Whether graphics content has been altered
+     * Save graphics state
      */
-    get altered(): boolean {
-        return this.buffer.length > 0;
+    save(): void {
+        this.contextStack.push({ ...this.context });
+        this.contentStream.write('q\n');
     }
 
     /**
-     * Save the current graphics state
+     * Restore graphics state
+     */
+    restore(): void {
+        if (this.contextStack.length > 0) {
+            const state = this.contextStack.pop()!;
+            this.context.fillColor = state.fillColor;
+            this.context.strokeColor = state.strokeColor;
+            this.context.lineWidth = state.lineWidth;
+            this.context.font = state.font;
+            this.context.fontSize = state.fontSize;
+        }
+        this.contentStream.write('Q\n');
+    }
+
+    /**
+     * Save context (alias for save)
      */
     saveContext(): void {
-        if (this.outputContext.verbose) {
-            this.buffer.putString(' '.repeat(this.indent));
-        }
-
-        this.buffer.putString('q ');
-        this.contextStack.push({
-            ctm: this.context.ctm.clone(),
-        });
-
-        if (this.outputContext.verbose) {
-            this.buffer.putString(' '.repeat(PdfGraphics.COMMENT_INDENT - 2 - this.indent));
-            this.buffer.putComment('saveContext()');
-            this.indent += PdfGraphics.INDENT_AMOUNT;
-        }
+        this.save();
     }
 
     /**
-     * Restore the graphics state
+     * Restore context (alias for restore)
      */
     restoreContext(): void {
-        if (this.contextStack.length > 0) {
-            if (this.outputContext.verbose) {
-                this.indent -= PdfGraphics.INDENT_AMOUNT;
-                this.buffer.putString(' '.repeat(this.indent));
-            }
-
-            this.buffer.putString('Q ');
-            this.context = this.contextStack.pop()!;
-
-            if (this.outputContext.verbose) {
-                this.buffer.putString(' '.repeat(PdfGraphics.COMMENT_INDENT - 2 - this.indent));
-                this.buffer.putComment('restoreContext()');
-            }
-        }
+        this.restore();
     }
 
     /**
-     * Move to a point
+     * Set transform matrix
      */
-    moveTo(x: number, y: number): void {
-        let commentOffset = 0;
-
-        if (this.outputContext.verbose) {
-            commentOffset = this.buffer.offset;
-            this.buffer.putString(' '.repeat(this.indent));
-        }
-
-        new PdfNumList([x, y]).output(this.outputContext, this.buffer);
-        this.buffer.putString(' m ');
-
-        if (this.outputContext.verbose) {
-            this.buffer.putString(' '.repeat(Math.max(0, PdfGraphics.COMMENT_INDENT - this.buffer.offset + commentOffset)));
-            this.buffer.putComment(`moveTo(${x}, ${y})`);
-        }
+    setTransform(matrix: Matrix4): void {
+        const m = matrix.elements;
+        this.transform(
+            m[0] || 1, m[1] || 0, m[4] || 0,
+            m[5] || 1, m[12] || 0, m[13] || 0
+        );
     }
 
     /**
-     * Draw a line to a point
+     * Curve to point (cubic Bezier curve)
      */
-    lineTo(x: number, y: number): void {
-        let commentOffset = 0;
-
-        if (this.outputContext.verbose) {
-            commentOffset = this.buffer.offset;
-            this.buffer.putString(' '.repeat(this.indent));
-        }
-
-        new PdfNumList([x, y]).output(this.outputContext, this.buffer);
-        this.buffer.putString(' l ');
-
-        if (this.outputContext.verbose) {
-            this.buffer.putString(' '.repeat(Math.max(0, PdfGraphics.COMMENT_INDENT - this.buffer.offset + commentOffset)));
-            this.buffer.putComment(`lineTo(${x}, ${y})`);
-        }
+    curveTo(cp1x: number, cp1y: number, cp2x: number, cp2y: number, x: number, y: number): void {
+        this.contentStream.write(`${cp1x} ${cp1y} ${cp2x} ${cp2y} ${x} ${y} c\n`);
+        this.currentPoint = { x, y };
     }
 
     /**
-     * Draw a rectangle
+     * Font registry (placeholder for compatibility)
      */
-    drawRect(x: number, y: number, width: number, height: number): void {
-        let commentOffset = 0;
-
-        if (this.outputContext.verbose) {
-            commentOffset = this.buffer.offset;
-            this.buffer.putString(' '.repeat(this.indent));
-        }
-
-        new PdfNumList([x, y, width, height]).output(this.outputContext, this.buffer);
-        this.buffer.putString(' re ');
-
-        if (this.outputContext.verbose) {
-            this.buffer.putString(' '.repeat(Math.max(0, PdfGraphics.COMMENT_INDENT - this.buffer.offset + commentOffset)));
-            this.buffer.putComment(`drawRect(x: ${x}, y: ${y}, w: ${width}, h: ${height})`);
-        }
+    get fontRegistry(): unknown {
+        return null; // Will be implemented when needed
     }
 
     /**
-     * Draw a cubic Bézier curve
+     * Set fill color
      */
-    curveTo(x1: number, y1: number, x2: number, y2: number, x3: number, y3: number): void {
-        let commentOffset = 0;
-
-        if (this.outputContext.verbose) {
-            commentOffset = this.buffer.offset;
-            this.buffer.putString(' '.repeat(this.indent));
-        }
-
-        new PdfNumList([x1, y1, x2, y2, x3, y3]).output(this.outputContext, this.buffer);
-        this.buffer.putString(' c ');
-
-        if (this.outputContext.verbose) {
-            this.buffer.putString(' '.repeat(Math.max(0, PdfGraphics.COMMENT_INDENT - this.buffer.offset + commentOffset)));
-            this.buffer.putComment(`curveTo(${x1}, ${y1}, ${x2}, ${y2}, ${x3}, ${y3})`);
-        }
+    setFillColor(color: PdfColor): void {
+        this.context.fillColor = color;
+        this.contentStream.write(`${color.red} ${color.green} ${color.blue} rg\n`);
     }
 
     /**
-     * Close the current path
+     * Set stroke color
      */
-    closePath(): void {
-        if (this.outputContext.verbose) {
-            this.buffer.putString(' '.repeat(this.indent));
-        }
-
-        this.buffer.putString('h ');
-
-        if (this.outputContext.verbose) {
-            this.buffer.putString(' '.repeat(PdfGraphics.COMMENT_INDENT - 2 - this.indent));
-            this.buffer.putComment('closePath()');
-        }
-    }
-
-    /**
-     * Fill the current path
-     */
-    fillPath(evenOdd: boolean = false): void {
-        let commentOffset = 0;
-
-        if (this.outputContext.verbose) {
-            commentOffset = this.buffer.offset;
-            this.buffer.putString(' '.repeat(this.indent));
-        }
-
-        this.buffer.putString(`f${evenOdd ? '*' : ''} `);
-
-        if (this.outputContext.verbose) {
-            this.buffer.putString(' '.repeat(Math.max(0, PdfGraphics.COMMENT_INDENT - this.buffer.offset + commentOffset)));
-            this.buffer.putComment(`fillPath(evenOdd: ${evenOdd})`);
-        }
-    }
-
-    /**
-     * Stroke the current path
-     */
-    strokePath(close: boolean = false): void {
-        let commentOffset = 0;
-
-        if (this.outputContext.verbose) {
-            commentOffset = this.buffer.offset;
-            this.buffer.putString(' '.repeat(this.indent));
-        }
-
-        this.buffer.putString(`${close ? 's' : 'S'} `);
-
-        if (this.outputContext.verbose) {
-            this.buffer.putString(' '.repeat(Math.max(0, PdfGraphics.COMMENT_INDENT - this.buffer.offset + commentOffset)));
-            this.buffer.putComment(`strokePath(close: ${close})`);
-        }
-    }
-
-    /**
-     * Fill and stroke the current path
-     */
-    fillAndStrokePath(evenOdd: boolean = false, close: boolean = false): void {
-        let commentOffset = 0;
-
-        if (this.outputContext.verbose) {
-            commentOffset = this.buffer.offset;
-            this.buffer.putString(' '.repeat(this.indent));
-        }
-
-        this.buffer.putString(`${close ? 'b' : 'B'}${evenOdd ? '*' : ''} `);
-
-        if (this.outputContext.verbose) {
-            this.buffer.putString(' '.repeat(Math.max(0, PdfGraphics.COMMENT_INDENT - this.buffer.offset + commentOffset)));
-            this.buffer.putComment(`fillAndStrokePath(evenOdd: ${evenOdd}, close: ${close})`);
-        }
-    }
-
-    /**
-     * Clip the current path for subsequent drawing operations
-     */
-    clipPath(evenOdd: boolean = false): void {
-        let commentOffset = 0;
-
-        if (this.outputContext.verbose) {
-            commentOffset = this.buffer.offset;
-            this.buffer.putString(' '.repeat(this.indent));
-        }
-
-        this.buffer.putString(`W${evenOdd ? '*' : ''} n `);
-
-        if (this.outputContext.verbose) {
-            this.buffer.putString(' '.repeat(Math.max(0, PdfGraphics.COMMENT_INDENT - this.buffer.offset + commentOffset)));
-            this.buffer.putComment(`clipPath(evenOdd: ${evenOdd})`);
-        }
+    setStrokeColor(color: PdfColor): void {
+        this.context.strokeColor = color;
+        this.contentStream.write(`${color.red} ${color.green} ${color.blue} RG\n`);
     }
 
     /**
      * Set line width
      */
     setLineWidth(width: number): void {
-        let commentOffset = 0;
-
-        if (this.outputContext.verbose) {
-            commentOffset = this.buffer.offset;
-            this.buffer.putString(' '.repeat(this.indent));
-        }
-
-        new PdfNum(width).output(this.outputContext, this.buffer);
-        this.buffer.putString(' w ');
-
-        if (this.outputContext.verbose) {
-            this.buffer.putString(' '.repeat(Math.max(0, PdfGraphics.COMMENT_INDENT - this.buffer.offset + commentOffset)));
-            this.buffer.putComment(`setLineWidth(${width})`);
-        }
+        this.context.lineWidth = width;
+        this.contentStream.write(`${width} w\n`);
     }
 
     /**
-     * Set line cap style
+     * Set line dash pattern
      */
-    setLineCap(cap: PdfLineCap): void {
-        if (this.outputContext.verbose) {
-            this.buffer.putString(' '.repeat(this.indent));
-        }
+    setLineDash(dashArray: number[], dashPhase: number = 0): void {
+        this.dashArray = dashArray;
+        this.dashPhase = dashPhase;
 
-        this.buffer.putString(`${cap} J `);
-
-        if (this.outputContext.verbose) {
-            this.buffer.putString(' '.repeat(PdfGraphics.COMMENT_INDENT - 4 - this.indent));
-            this.buffer.putComment(`setLineCap(${PdfLineCap[cap]})`);
-        }
-    }
-
-    /**
-     * Set line join style
-     */
-    setLineJoin(join: PdfLineJoin): void {
-        if (this.outputContext.verbose) {
-            this.buffer.putString(' '.repeat(this.indent));
-        }
-
-        this.buffer.putString(`${join} j `);
-
-        if (this.outputContext.verbose) {
-            this.buffer.putString(' '.repeat(PdfGraphics.COMMENT_INDENT - 4 - this.indent));
-            this.buffer.putComment(`setLineJoin(${PdfLineJoin[join]})`);
-        }
-    }
-
-    /**
-     * Set fill color (RGB)
-     */
-    setFillColor(color: PdfColor): void {
-        let commentOffset = 0;
-
-        if (this.outputContext.verbose) {
-            commentOffset = this.buffer.offset;
-            this.buffer.putString(' '.repeat(this.indent));
-        }
-
-        new PdfNumList([color.red, color.green, color.blue]).output(this.outputContext, this.buffer);
-        this.buffer.putString(' rg ');
-
-        if (this.outputContext.verbose) {
-            this.buffer.putString(' '.repeat(Math.max(0, PdfGraphics.COMMENT_INDENT - this.buffer.offset + commentOffset)));
-            this.buffer.putComment(`setFillColor(${color.toHex()})`);
-        }
-    }
-
-    /**
-     * Set stroke color (RGB)
-     */
-    setStrokeColor(color: PdfColor): void {
-        let commentOffset = 0;
-
-        if (this.outputContext.verbose) {
-            commentOffset = this.buffer.offset;
-            this.buffer.putString(' '.repeat(this.indent));
-        }
-
-        new PdfNumList([color.red, color.green, color.blue]).output(this.outputContext, this.buffer);
-        this.buffer.putString(' RG ');
-
-        if (this.outputContext.verbose) {
-            this.buffer.putString(' '.repeat(Math.max(0, PdfGraphics.COMMENT_INDENT - this.buffer.offset + commentOffset)));
-            this.buffer.putComment(`setStrokeColor(${color.toHex()})`);
-        }
-    }
-
-    /**
-     * Set both fill and stroke color
-     */
-    setColor(color: PdfColor): void {
-        this.setFillColor(color);
-        this.setStrokeColor(color);
-    }
-
-    /**
-     * Set transformation matrix
-     */
-    setTransform(matrix: Matrix4): void {
-        let commentOffset = 0;
-
-        if (this.outputContext.verbose) {
-            commentOffset = this.buffer.offset;
-            this.buffer.putString(' '.repeat(this.indent));
-        }
-
-        const v = matrix.values;
-        new PdfNumList([v[0]!, v[1]!, v[4]!, v[5]!, v[12]!, v[13]!]).output(this.outputContext, this.buffer);
-        this.buffer.putString(' cm ');
-        this.context.ctm.multiply(matrix);
-
-        if (this.outputContext.verbose) {
-            this.buffer.putString(' '.repeat(Math.max(0, PdfGraphics.COMMENT_INDENT - this.buffer.offset + commentOffset)));
-            this.buffer.putComment('setTransform()');
-        }
-    }
-
-    /**
-     * Get current transformation matrix
-     */
-    getTransform(): Matrix4 {
-        return this.context.ctm.clone();
-    }
-
-    /**
-     * Begin text object
-     */
-    beginText(): void {
-        if (this.outputContext.verbose) {
-            this.buffer.putString(' '.repeat(this.indent));
-        }
-
-        this.buffer.putString('BT ');
-
-        if (this.outputContext.verbose) {
-            this.buffer.putString(' '.repeat(PdfGraphics.COMMENT_INDENT - 3 - this.indent));
-            this.buffer.putComment('beginText()');
-            this.indent += PdfGraphics.INDENT_AMOUNT;
-        }
-    }
-
-    /**
-     * End text object
-     */
-    endText(): void {
-        if (this.outputContext.verbose) {
-            this.indent -= PdfGraphics.INDENT_AMOUNT;
-            this.buffer.putString(' '.repeat(this.indent));
-        }
-
-        this.buffer.putString('ET ');
-
-        if (this.outputContext.verbose) {
-            this.buffer.putString(' '.repeat(PdfGraphics.COMMENT_INDENT - 3 - this.indent));
-            this.buffer.putComment('endText()');
-        }
-    }
-
-    /**
-     * Move text position
-     */
-    moveTextPosition(x: number, y: number): void {
-        let commentOffset = 0;
-
-        if (this.outputContext.verbose) {
-            commentOffset = this.buffer.offset;
-            this.buffer.putString(' '.repeat(this.indent));
-        }
-
-        new PdfNumList([x, y]).output(this.outputContext, this.buffer);
-        this.buffer.putString(' Td ');
-
-        if (this.outputContext.verbose) {
-            this.buffer.putString(' '.repeat(Math.max(0, PdfGraphics.COMMENT_INDENT - this.buffer.offset + commentOffset)));
-            this.buffer.putComment(`moveTextPosition(${x}, ${y})`);
-        }
-    }
-
-    /**
-     * Set font and size for text rendering
-     */
-    setFont(font: PdfFont, size: number, options: {
-        charSpace?: number;
-        wordSpace?: number;
-        scale?: number;
-        mode?: PdfTextRenderingMode;
-        rise?: number;
-    } = {}): void {
-        let commentOffset = 0;
-
-        if (this.outputContext.verbose) {
-            commentOffset = this.buffer.offset;
-            this.buffer.putString(' '.repeat(this.indent));
-        }
-
-        // Font and size - ensure font name is properly formatted
-        this.buffer.putString(`${font.name} `);
-        new PdfNum(size).output(this.outputContext, this.buffer);
-        this.buffer.putString(' Tf ');
-
-        // Set default text state for better compatibility
-        if (options.charSpace === undefined) {
-            new PdfNum(0).output(this.outputContext, this.buffer);
-            this.buffer.putString(' Tc ');
+        if (dashArray.length === 0) {
+            // Solid line
+            this.contentStream.write('[] 0 d\n');
         } else {
-            new PdfNum(options.charSpace).output(this.outputContext, this.buffer);
-            this.buffer.putString(' Tc ');
-        }
-
-        if (options.wordSpace === undefined) {
-            new PdfNum(0).output(this.outputContext, this.buffer);
-            this.buffer.putString(' Tw ');
-        } else {
-            new PdfNum(options.wordSpace).output(this.outputContext, this.buffer);
-            this.buffer.putString(' Tw ');
-        }
-
-        if (options.scale === undefined) {
-            new PdfNum(100).output(this.outputContext, this.buffer);
-            this.buffer.putString(' Tz ');
-        } else {
-            new PdfNum(options.scale * 100).output(this.outputContext, this.buffer);
-            this.buffer.putString(' Tz ');
-        }
-
-        if (options.rise !== undefined) {
-            new PdfNum(options.rise).output(this.outputContext, this.buffer);
-            this.buffer.putString(' Ts ');
-        }
-
-        // Always set text rendering mode for consistency
-        const mode = options.mode ?? PdfTextRenderingMode.Fill;
-        this.buffer.putString(`${mode} Tr `);
-
-        if (this.outputContext.verbose) {
-            this.buffer.putString(' '.repeat(Math.max(0, PdfGraphics.COMMENT_INDENT - this.buffer.offset + commentOffset)));
-            this.buffer.putComment(`setFont(${font.name}, size: ${size})`);
+            // Dashed line
+            const dashPattern = '[' + dashArray.join(' ') + ']';
+            this.contentStream.write(`${dashPattern} ${dashPhase} d\n`);
         }
     }
 
     /**
-     * Draw text at current position
+     * Set clipping rectangle for content overflow control
      */
-    showText(text: string): void {
-        let commentOffset = 0;
-
-        if (this.outputContext.verbose) {
-            commentOffset = this.buffer.offset;
-            this.buffer.putString(' '.repeat(this.indent));
-        }
-
-        // Use simple PDF string format with minimal escaping
-        // Over-escaping can cause character encoding issues on macOS
-        this.buffer.putString('(');
-
-        // Only escape essential characters that break PDF syntax
-        const escaped = text
-            .replace(/\\/g, '\\\\')    // Escape backslashes
-            .replace(/\(/g, '\\(')     // Escape opening parentheses
-            .replace(/\)/g, '\\)');    // Escape closing parentheses
-
-        this.buffer.putString(escaped);
-        this.buffer.putString(') Tj ');
-
-        if (this.outputContext.verbose) {
-            this.buffer.putString(' '.repeat(Math.max(0, PdfGraphics.COMMENT_INDENT - this.buffer.offset + commentOffset)));
-            this.buffer.putComment(`showText("${text}")`);
-        }
+    setClippingRect(x: number, y: number, width: number, height: number): void {
+        this.save();
+        this.drawRect(x, y, width, height);
+        this.contentStream.write('W n\n'); // Set clipping path and end path without stroking
     }
 
+    /**
+     * Clear clipping (restore graphics state)
+     */
+    clearClipping(): void {
+        this.restore();
+    }
 
     /**
-     * Draw text string with font, size, and position
+     * Move to point
      */
-    drawString(
-        font: PdfFont,
-        size: number,
-        text: string,
+    moveTo(x: number, y: number): void {
+        this.currentPoint = { x, y };
+        this.contentStream.write(`${x} ${y} m\n`);
+    }
+
+    /**
+     * Line to point
+     */
+    lineTo(x: number, y: number): void {
+        this.currentPoint = { x, y };
+        this.contentStream.write(`${x} ${y} l\n`);
+    }
+
+    /**
+     * Draw rectangle
+     */
+    drawRect(x: number, y: number, width: number, height: number): void {
+        this.contentStream.write(`${x} ${y} ${width} ${height} re\n`);
+    }
+
+    /**
+     * Draw rounded rectangle with individual corner radii
+     */
+    drawRoundedRect(
         x: number,
         y: number,
-        options: {
-            charSpace?: number;
-            wordSpace?: number;
-            scale?: number;
-            mode?: PdfTextRenderingMode;
-            rise?: number;
-        } = {}
+        width: number,
+        height: number,
+        topLeft: number = 0,
+        topRight: number = 0,
+        bottomRight: number = 0,
+        bottomLeft: number = 0
     ): void {
-        this.beginText();
-        this.setFont(font, size, options);
-        this.moveTextPosition(x, y);
-        this.showText(text);
-        this.endText();
+        // Clamp radii to not exceed rectangle dimensions
+        const maxRadius = Math.min(width / 2, height / 2);
+        topLeft = Math.min(topLeft, maxRadius);
+        topRight = Math.min(topRight, maxRadius);
+        bottomRight = Math.min(bottomRight, maxRadius);
+        bottomLeft = Math.min(bottomLeft, maxRadius);
+
+        // Start path at top-left corner (accounting for radius)
+        this.moveTo(x + topLeft, y);
+
+        // Top edge and top-right corner
+        this.lineTo(x + width - topRight, y);
+        if (topRight > 0) {
+            this.curveTo(
+                x + width - topRight * 0.552, y,
+                x + width, y + topRight * 0.552,
+                x + width, y + topRight
+            );
+        }
+
+        // Right edge and bottom-right corner
+        this.lineTo(x + width, y + height - bottomRight);
+        if (bottomRight > 0) {
+            this.curveTo(
+                x + width, y + height - bottomRight * 0.552,
+                x + width - bottomRight * 0.552, y + height,
+                x + width - bottomRight, y + height
+            );
+        }
+
+        // Bottom edge and bottom-left corner
+        this.lineTo(x + bottomLeft, y + height);
+        if (bottomLeft > 0) {
+            this.curveTo(
+                x + bottomLeft * 0.552, y + height,
+                x, y + height - bottomLeft * 0.552,
+                x, y + height - bottomLeft
+            );
+        }
+
+        // Left edge and top-left corner
+        this.lineTo(x, y + topLeft);
+        if (topLeft > 0) {
+            this.curveTo(
+                x, y + topLeft * 0.552,
+                x + topLeft * 0.552, y,
+                x + topLeft, y
+            );
+        }
+
+        // Close the path
+        this.closePath();
     }
 
     /**
-     * Draw a line from point to point
+     * Fill path
      */
-    drawLine(x1: number, y1: number, x2: number, y2: number): void {
-        this.moveTo(x1, y1);
-        this.lineTo(x2, y2);
+    fillPath(): void {
+        this.contentStream.write('f\n');
+    }
+
+    /**
+     * Stroke path
+     */
+    strokePath(): void {
+        this.contentStream.write('S\n');
+    }
+
+    /**
+     * Fill and stroke path
+     */
+    fillAndStrokePath(): void {
+        this.contentStream.write('B\n');
+    }
+
+    /**
+     * Close path
+     */
+    closePath(): void {
+        this.contentStream.write('h\n');
+    }
+
+    /**
+     * Draw string with font
+     */
+    drawString(font: PdfFont, fontSize: number, text: string, x: number, y: number): void {
+        this.context.font = font;
+        this.context.fontSize = fontSize;
+        this.currentFont = font;
+        this.currentFontSize = fontSize;
+
+        this.contentStream.write('BT\n'); // Begin text
+        this.contentStream.write(`/${font.name} ${fontSize} Tf\n`); // Set font
+        this.contentStream.write(`${x} ${y} Td\n`); // Move to position
+        this.contentStream.write(`(${this.escapeString(text)}) Tj\n`); // Show text
+        this.contentStream.write('ET\n'); // End text
+    }
+
+    /**
+     * Set font
+     */
+    setFont(font: PdfFont, fontSize: number): void {
+        this.context.font = font;
+        this.context.fontSize = fontSize;
+        this.currentFont = font;
+        this.currentFontSize = fontSize;
+    }
+
+    /**
+     * Transform matrix
+     */
+    transform(a: number, b: number, c: number, d: number, e: number, f: number): void {
+        this.contentStream.write(`${a} ${b} ${c} ${d} ${e} ${f} cm\n`);
+    }
+
+    /**
+     * Translate
+     */
+    translate(x: number, y: number): void {
+        this.transform(1, 0, 0, 1, x, y);
+    }
+
+    /**
+     * Scale
+     */
+    scale(sx: number, sy: number): void {
+        this.transform(sx, 0, 0, sy, 0, 0);
+    }
+
+    /**
+     * Rotate
+     */
+    rotate(angle: number): void {
+        const cos = Math.cos(angle);
+        const sin = Math.sin(angle);
+        this.transform(cos, sin, -sin, cos, 0, 0);
+    }
+
+    /**
+     * Escape string for PDF
+     */
+    private escapeString(text: string): string {
+        return text.replace(/[()\\]/g, '\\$&');
+    }
+
+    /**
+     * Get content as string
+     */
+    getContent(): string {
+        return this.contentStream.getContent();
+    }
+
+    /**
+     * Clear content
+     */
+    clear(): void {
+        this.contentStream.clear();
     }
 }

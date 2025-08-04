@@ -1,429 +1,293 @@
 /**
- * PDF Document Structure
+ * PDF Document Core - Basic PDF Document and Page Implementation
  * 
- * Core PDF document implementation based on dart-pdf patterns
- * Handles PDF file structure, object management, and serialization
+ * Provides essential PDF document structure and page management
+ * for the consolidated typescript-pdf system.
  * 
  * @packageDocumentation
  */
 
-import { PdfStream } from './stream.js';
-import { PdfObject, PdfDict, PdfName, PdfArray, PdfNum, PdfIndirect, type PdfOutputContext } from './types.js';
+import { PdfFont, FontRegistry } from './font-engine.js';
 import { PdfGraphics } from './graphics.js';
-import { FontRegistry, PdfFont } from './font.js';
 
 /**
- * PDF Document settings
+ * PDF object interface for type safety
  */
-export interface PdfDocumentSettings {
-    /** Enable verbose output with comments */
+export interface PdfObject {
+    readonly id?: number;
+    readonly type?: string;
+    readonly content?: string | Record<string, unknown>;
+    readonly data?: Uint8Array;
+}
+
+/**
+ * Basic PDF page size interface
+ */
+export interface PageSize {
+    width: number;
+    height: number;
+}
+
+/**
+ * PDF page options
+ */
+export interface PdfPageOptions {
+    pageSize: PageSize;
+}
+
+/**
+ * PDF document options
+ */
+export interface PdfDocumentOptions {
     verbose?: boolean;
-    /** PDF version */
     version?: string;
-    /** Compression level (0-9) */
-    compress?: number;
 }
 
-/**
- * Cross-reference table entry
- */
-interface XRefEntry {
-    /** Object serial number */
-    serial: number;
-    /** Object generation number */
-    generation: number;
-    /** Byte offset in file */
-    offset: number;
-    /** Whether object is in use */
-    inUse: boolean;
-}
+// Remove the interface since we'll use PdfGraphics directly
 
 /**
- * PDF Document Info object
+ * Basic PDF Page implementation
  */
-export class PdfInfo extends PdfObject<PdfDict> {
-    constructor(document: PdfDocument, info: {
-        title?: string;
-        author?: string;
-        subject?: string;
-        keywords?: string[];
-        creator?: string;
-        producer?: string;
-    } = {}) {
-        const dict = new PdfDict();
+export class PdfPage {
+    private readonly size: PageSize;
+    private readonly graphics: PdfGraphics;
+    private readonly id: number;
 
-        if (info.title) dict.set('/Title', new PdfName(info.title));
-        if (info.author) dict.set('/Author', new PdfName(info.author));
-        if (info.subject) dict.set('/Subject', new PdfName(info.subject));
-        if (info.keywords) dict.set('/Keywords', new PdfName(info.keywords.join(' ')));
-        if (info.creator) dict.set('/Creator', new PdfName(info.creator));
-        if (info.producer) dict.set('/Producer', new PdfName(info.producer));
-
-        // Add creation date
-        const now = new Date();
-        const dateStr = `D:${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}${String(now.getSeconds()).padStart(2, '0')}`;
-        dict.set('/CreationDate', new PdfName(dateStr));
-        dict.set('/ModDate', new PdfName(dateStr));
-
-        super(document.genSerial(), 0, dict);
-        document.objects.add(this);
-    }
-
-    writeContent(stream: PdfStream, context: PdfOutputContext): void {
-        this.params.output(context, stream, context.verbose ? 0 : undefined);
-    }
-}
-
-/**
- * PDF Catalog (root) object
- */
-export class PdfCatalog extends PdfObject<PdfDict> {
-    constructor(document: PdfDocument) {
-        const dict = PdfDict.values({
-            '/Type': new PdfName('/Catalog'),
-            '/Version': new PdfName(`/${document.settings.version || '1.4'}`),
-        });
-
-        super(document.genSerial(), 0, dict);
-        document.objects.add(this);
+    constructor(options: PdfPageOptions, id: number) {
+        this.size = options.pageSize;
+        this.id = id;
+        this.graphics = new PdfGraphics();
     }
 
     /**
-     * Set the pages object reference
-     */
-    setPages(pages: PdfIndirect): void {
-        this.params.set('/Pages', pages);
-    }
-
-    writeContent(stream: PdfStream, context: PdfOutputContext): void {
-        this.params.output(context, stream, context.verbose ? 0 : undefined);
-    }
-}
-
-/**
- * PDF Pages object (page tree root)
- */
-export class PdfPageList extends PdfObject<PdfDict> {
-    public readonly pages: PdfPage[] = [];
-
-    constructor(document: PdfDocument) {
-        const dict = PdfDict.values({
-            '/Type': new PdfName('/Pages'),
-            '/Count': new PdfNum(0),
-            '/Kids': new PdfArray(),
-        });
-
-        super(document.genSerial(), 0, dict);
-        document.objects.add(this);
-    }
-
-    /**
-     * Add a page to the page list
-     */
-    addPage(page: PdfPage): void {
-        this.pages.push(page);
-    }
-
-    override prepare(): void {
-        super.prepare();
-
-        // Update count and kids array
-        this.params.set('/Count', new PdfNum(this.pages.length));
-        const kids = PdfArray.fromObjects(this.pages.filter(p => p.inUse));
-        this.params.set('/Kids', kids);
-    }
-
-    writeContent(stream: PdfStream, context: PdfOutputContext): void {
-        this.params.output(context, stream, context.verbose ? 0 : undefined);
-    }
-}
-
-/**
- * PDF Page object
- */
-export class PdfPage extends PdfObject<PdfDict> {
-    public readonly contents: PdfContentStream[] = [];
-    private readonly document: PdfDocument;
-    private readonly fontRegistry: FontRegistry;
-    private readonly usedFonts = new Set<PdfFont>();
-
-    constructor(
-        document: PdfDocument,
-        options: {
-            width?: number;
-            height?: number;
-            mediaBox?: [number, number, number, number];
-        } = {}
-    ) {
-        const dict = PdfDict.values({
-            '/Type': new PdfName('/Page'),
-        });
-
-        // Set media box (page size)
-        const mediaBox = options.mediaBox || [0, 0, options.width || 612, options.height || 792]; // Default to US Letter
-        dict.set('/MediaBox', PdfArray.fromNum(mediaBox));
-
-        super(document.genSerial(), 0, dict);
-        document.objects.add(this);
-
-        this.document = document;
-        this.fontRegistry = document.fontRegistry;
-    }
-
-    /**
-     * Set the parent pages object
-     */
-    setParent(parent: PdfIndirect): void {
-        this.params.set('/Parent', parent);
-    }
-
-    /**
-     * Add content stream to page
-     */
-    addContent(content: PdfContentStream): void {
-        this.contents.push(content);
-    }
-
-    /**
-     * Add a font to be used on this page
-     */
-    addFont(font: PdfFont): void {
-        this.usedFonts.add(font);
-    }
-
-    /**
-     * Get a graphics context for drawing on this page
+     * Get graphics context
      */
     getGraphics(): PdfGraphics {
-        const contentStream = new PdfContentStream(this.document);
-        const graphics = new PdfGraphics(contentStream, {
-            verbose: this.document.settings.verbose ?? false,
-        });
-        this.addContent(contentStream);
-        return graphics;
-    }
-
-    override prepare(): void {
-        super.prepare();
-
-        // Set up contents array
-        const activeContents = this.contents.filter(c => c.inUse);
-        if (activeContents.length === 1) {
-            this.params.set('/Contents', activeContents[0]!.ref());
-        } else if (activeContents.length > 1) {
-            this.params.set('/Contents', PdfArray.fromObjects(activeContents));
-        }
-
-        // Always create a resources dictionary for better compatibility
-        const resources = this.params.get('/Resources') as PdfDict || new PdfDict();
-
-        // Set up font resources - ensure all fonts from registry are included
-        const allFonts = this.fontRegistry.getAllFonts();
-        if (allFonts.length > 0 || this.usedFonts.size > 0) {
-            const fontDict = new PdfDict();
-
-            // Add explicitly used fonts
-            for (const font of this.usedFonts) {
-                fontDict.set(font.name, font.ref());
-            }
-
-            // Add any additional fonts from registry that might be used
-            for (const font of allFonts) {
-                if (!fontDict.get(font.name)) {
-                    fontDict.set(font.name, font.ref());
-                }
-            }
-
-            resources.set('/Font', fontDict);
-        }
-
-        // Add ProcSet for better compatibility
-        const procSet = new PdfArray([
-            new PdfName('/PDF'),
-            new PdfName('/Text'),
-            new PdfName('/ImageB'),
-            new PdfName('/ImageC'),
-            new PdfName('/ImageI')
-        ]);
-        resources.set('/ProcSet', procSet);
-
-        // Always set resources dictionary
-        this.params.set('/Resources', resources);
-    }
-
-    writeContent(stream: PdfStream, context: PdfOutputContext): void {
-        this.params.output(context, stream, context.verbose ? 0 : undefined);
-    }
-}
-
-/**
- * PDF Content Stream object
- */
-export class PdfContentStream extends PdfObject<PdfDict> {
-    private readonly stream = new PdfStream();
-
-    constructor(document: PdfDocument) {
-        const dict = new PdfDict();
-        super(document.genSerial(), 0, dict);
-        document.objects.add(this);
+        return this.graphics;
     }
 
     /**
-     * Get the content stream buffer
+     * Get page size
      */
-    getContentStream(): PdfStream {
-        return this.stream;
+    getSize(): PageSize {
+        return { ...this.size };
     }
 
-    override prepare(): void {
-        super.prepare();
-
-        // Set length of stream
-        this.params.set('/Length', new PdfNum(this.stream.length));
-    }
-
-    writeContent(stream: PdfStream, context: PdfOutputContext): void {
-        // Write dictionary
-        this.params.output(context, stream, context.verbose ? 0 : undefined);
-
-        // Write stream content
-        stream.putString('\nstream\n');
-        stream.putBytes(this.stream.getBytes());
-        stream.putString('\nendstream');
+    /**
+     * Get page ID
+     */
+    getId(): number {
+        return this.id;
     }
 }
 
 /**
- * Main PDF Document class
+ * Basic PDF Document implementation
  */
 export class PdfDocument {
-    /** Document settings */
-    public readonly settings: PdfDocumentSettings;
-
-    /** All PDF objects in document */
-    public readonly objects = new Set<PdfObject>();
-
-    /** Object serial number counter */
+    private readonly options: PdfDocumentOptions;
+    private readonly pages: PdfPage[] = [];
+    private readonly _objects: PdfObject[] = [];
     private serialCounter = 1;
-
-    /** Document info object */
-    public readonly info: PdfInfo;
-
-    /** Document catalog (root) */
-    public readonly catalog: PdfCatalog;
-
-    /** Page list object */
-    public readonly pageList: PdfPageList;
-
-    /** Font registry */
     public readonly fontRegistry: FontRegistry;
 
-    constructor(settings: PdfDocumentSettings = {}) {
-        this.settings = {
-            verbose: false,
-            version: '1.4',
-            compress: 0,
-            ...settings,
+    constructor(options: PdfDocumentOptions = {}) {
+        this.options = {
+            verbose: options.verbose ?? false,
+            version: options.version ?? '1.4',
         };
 
-        // Create font registry
-        this.fontRegistry = new FontRegistry(this);
-
-        // Create core document objects
-        this.info = new PdfInfo(this);
-        this.catalog = new PdfCatalog(this);
-        this.pageList = new PdfPageList(this);
-
-        // Link catalog to pages
-        this.catalog.setPages(this.pageList.ref());
+        this.fontRegistry = new FontRegistry(this as PdfDocument);
     }
 
     /**
-     * Generate next serial number for objects
+     * Generate unique serial number
      */
     genSerial(): number {
         return this.serialCounter++;
     }
 
     /**
-     * Add a page to the document
+     * Objects collection (for font registration)
      */
-    addPage(options?: {
-        width?: number;
-        height?: number;
-        mediaBox?: [number, number, number, number];
-    }): PdfPage {
-        const page = new PdfPage(this, options);
-        page.setParent(this.pageList.ref());
-        this.pageList.addPage(page);
+    get objects() {
+        return {
+            add: (obj: PdfObject) => {
+                this._objects.push(obj);
+            }
+        };
+    }
+
+    /**
+     * Add a new page
+     */
+    addPage(options: PdfPageOptions): PdfPage {
+        const page = new PdfPage(options, this.genSerial());
+        this.pages.push(page);
         return page;
     }
 
     /**
-     * Generate PDF output
+     * Get all pages
+     */
+    getPages(): readonly PdfPage[] {
+        return [...this.pages];
+    }
+
+    /**
+     * Get page count
+     */
+    getPageCount(): number {
+        return this.pages.length;
+    }
+
+    /**
+     * Save document to bytes (improved implementation with content streams)
      */
     async save(): Promise<Uint8Array> {
-        const output = new PdfStream();
-        const context: PdfOutputContext = {
-            verbose: this.settings.verbose ?? false,
-        };
-
-        // Prepare all objects
-        for (const obj of this.objects) {
-            obj.prepare();
+        if (this.pages.length === 0) {
+            throw new Error('Cannot save document with no pages');
         }
 
-        // PDF Header
-        output.putString(`%PDF-${this.settings.version || '1.4'}\n`);
-        output.putString('%\u00e2\u00e3\u00cf\u00d3\n'); // Binary comment as per PDF spec
+        const objects: string[] = [];
+        let objNum = 1;
 
-        // Track object positions for xref table
-        const xrefEntries: XRefEntry[] = [];
+        // Object 1: Catalog
+        objects.push([
+            `${objNum} 0 obj`,
+            '<<',
+            '/Type /Catalog',
+            '/Pages 2 0 R',
+            '>>',
+            'endobj'
+        ].join('\n'));
+        objNum++;
 
-        // Write objects
-        for (const obj of this.objects) {
-            if (!obj.inUse) continue;
+        // Object 2: Pages
+        const pageRefs = this.pages.map((_, i) => `${i + 3} 0 R`).join(' ');
+        objects.push([
+            `${objNum} 0 obj`,
+            '<<',
+            '/Type /Pages',
+            `/Count ${this.pages.length}`,
+            `/Kids [${pageRefs}]`,
+            '>>',
+            'endobj'
+        ].join('\n'));
+        objNum++;
 
-            const startPos = output.offset;
-            xrefEntries.push({
-                serial: obj.objser,
-                generation: obj.objgen,
-                offset: startPos,
-                inUse: true,
-            });
+        // Create page objects and content streams
+        for (let i = 0; i < this.pages.length; i++) {
+            const page = this.pages[i];
+            if (!page) continue;
+            const contentObjNum = objNum + this.pages.length;
+            const size = page.getSize();
 
-            obj.writeObject(output, context);
+            // Build font resources from font registry
+            const fontResources = this.fontRegistry.getFontResources();
+            const fontResourceEntries = Object.entries(fontResources).map(
+                ([name, definition]) => `/${name} ${definition}`
+            );
+
+            // Ensure we have at least the basic fonts for compatibility
+            if (fontResourceEntries.length === 0) {
+                fontResourceEntries.push(
+                    '/Helvetica << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>',
+                    '/Times-Roman << /Type /Font /Subtype /Type1 /BaseFont /Times-Roman >>',
+                    '/Courier << /Type /Font /Subtype /Type1 /BaseFont /Courier >>'
+                );
+            }
+
+            // Page object
+            objects.push([
+                `${objNum} 0 obj`,
+                '<<',
+                '/Type /Page',
+                '/Parent 2 0 R',
+                `/MediaBox [0 0 ${size.width} ${size.height}]`,
+                `/Contents ${contentObjNum} 0 R`,
+                '/Resources <<',
+                '/Font <<',
+                ...fontResourceEntries,
+                '>>',
+                '>>',
+                '>>',
+                'endobj'
+            ].join('\n'));
+            objNum++;
         }
 
-        // Cross-reference table
-        const xrefPos = output.offset;
-        output.putString('xref\n');
-        output.putString(`0 ${xrefEntries.length + 1}\n`);
+        // Content stream objects
+        for (let i = 0; i < this.pages.length; i++) {
+            const page = this.pages[i];
+            if (!page) continue;
+            const content = page.getGraphics().getContent();
 
-        // Entry 0 (free list head)
-        output.putString('0000000000 65535 f \n');
-
-        // Object entries (sorted by serial number)
-        xrefEntries.sort((a, b) => a.serial - b.serial);
-        for (const entry of xrefEntries) {
-            const offsetStr = entry.offset.toString().padStart(10, '0');
-            const genStr = entry.generation.toString().padStart(5, '0');
-            output.putString(`${offsetStr} ${genStr} n \n`);
+            objects.push([
+                `${objNum} 0 obj`,
+                '<<',
+                `/Length ${content.length}`,
+                '>>',
+                'stream',
+                content,
+                'endstream',
+                'endobj'
+            ].join('\n'));
+            objNum++;
         }
 
-        // Trailer
-        output.putString('trailer\n');
-        const trailer = new PdfDict({
-            '/Size': new PdfNum(xrefEntries.length + 1),
-            '/Root': this.catalog.ref(),
-            '/Info': this.info.ref(),
-        });
-        trailer.output(context, output);
-        output.putString('\n');
+        // Calculate positions for xref table
+        const header = '%PDF-1.4\n';
+        let position = header.length;
+        const positions: number[] = [0]; // Object 0 is always at position 0
 
-        // Final xref position and EOF
-        output.putString(`startxref\n${xrefPos}\n%%EOF\n`);
+        for (const obj of objects) {
+            positions.push(position);
+            position += obj.length + 1; // +1 for newline
+        }
 
-        return output.getBytes();
+        // Build xref table
+        const xrefStart = position;
+        const xref = [
+            'xref',
+            `0 ${objNum}`,
+            '0000000000 65535 f '
+        ];
+
+        for (let i = 1; i < objNum; i++) {
+            const pos = positions[i];
+            if (pos !== undefined) {
+                xref.push(`${pos.toString().padStart(10, '0')} 00000 n `);
+            }
+        }
+
+        // Build trailer
+        const trailer = [
+            'trailer',
+            '<<',
+            `/Size ${objNum}`,
+            '/Root 1 0 R',
+            '>>',
+            'startxref',
+            xrefStart.toString(),
+            '%%EOF'
+        ];
+
+        // Combine all parts
+        const pdfContent = [
+            header.slice(0, -1), // Remove trailing newline
+            ...objects,
+            ...xref,
+            ...trailer
+        ].join('\n');
+
+        return new TextEncoder().encode(pdfContent);
+    }
+
+    /**
+     * Get document options
+     */
+    getOptions(): PdfDocumentOptions {
+        return { ...this.options };
     }
 }
