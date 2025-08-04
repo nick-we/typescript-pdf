@@ -431,9 +431,9 @@ describe('Text Overflow PDF Generation Integration', () => {
                     ['Visible', 'This text will extend beyond cell boundaries', 'Full text shown']
                 ],
                 columnWidths: [
-                    DataUtils.columnWidths.fixed(80),
-                    DataUtils.columnWidths.fixed(120),
-                    DataUtils.columnWidths.fixed(100)
+                    DataUtils.columnWidths.flex(1),
+                    DataUtils.columnWidths.flex(1),
+                    DataUtils.columnWidths.flex(1),
                 ],
                 borders: DataUtils.borders.all({ width: 1, color: '#000000' }),
                 textOverflow: TextOverflow.Ellipsis,

@@ -120,8 +120,13 @@ doc.addPage({
           ['Product B', '$980K', '+8%'],
           ['Product C', '$750K', '+22%']
         ],
-        borders: DataUtils.borders.all({ width: 1, color: '#333' }),
-        headerStyle: { fontSize: 14, fontWeight: Theme.FontWeight.Bold, color: '#fff' }
+        columnWidths: [
+            DataUtils.columnWidths.flex(1),
+            DataUtils.columnWidths.flex(1),
+            DataUtils.columnWidths.flex(1)
+        ],
+        borders: DataUtils.borders.all({ width: 1, color: '#333333' }),
+        headerStyle: { fontSize: 14, fontWeight: Theme.FontWeight.Bold, color: '#ffffff' }
       })
     ]
   })
