@@ -62,11 +62,6 @@ Automatic page breaks with headers, footers, and consistent formatting:
 
 ![Multi-Page Documents](screenshots/multipage-with-header-and-footer.png)
 
-### Styled Table Variations
-Flexible table styling with dashed borders and custom layouts:
-
-![Table Styling](screenshots/dashed-tables.png)
-
 ## 🎯 Quick Start
 
 ### Simple Document
