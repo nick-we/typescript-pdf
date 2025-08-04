@@ -72,12 +72,12 @@ Flexible table styling with dashed borders and custom layouts:
 ### Simple Document
 
 ```typescript
-import { Document, TextWidget, Container, EdgeInsets } from 'typescript-pdf';
+import { Document, TextWidget, Container, Layout } from 'typescript-pdf';
 
 const doc = new Document();
 doc.addPage({
   build: () => new Container({
-    padding: EdgeInsets.all(20),
+    padding: Layout.EdgeInsets.all(20),
     child: new TextWidget('Hello World!', {
       style: { fontSize: 24, color: '#1976d2' }
     })
@@ -90,7 +90,7 @@ const pdfBytes = await doc.save();
 ### Business Report with Table
 
 ```typescript
-import { Document, MultiPage, Table, TextWidget, Container } from 'typescript-pdf';
+import { Document, MultiPage, Table, TextWidget, Container, DataUtils, Theme } from 'typescript-pdf';
 
 const doc = new Document();
 doc.addPage({
@@ -98,8 +98,8 @@ doc.addPage({
     header: (pageNum, total) => new TextWidget(`Page ${pageNum} of ${total}`),
     children: [
       new Container({
-        child: new TextWidget('Q4 Financial Report', { 
-          style: { fontSize: 28, fontWeight: 'bold' } 
+        child: new TextWidget('Q4 Financial Report', {
+          style: { fontSize: 28, fontWeight: Theme.FontWeight.Bold }
         })
       }),
       new Table({
@@ -110,7 +110,7 @@ doc.addPage({
           ['Product C', '$750K', '+22%']
         ],
         borders: DataUtils.borders.all({ width: 1, color: '#333' }),
-        headerStyle: { fontSize: 14, fontWeight: 'bold', color: '#fff' }
+        headerStyle: { fontSize: 14, fontWeight: Theme.FontWeight.Bold, color: '#fff' }
       })
     ]
   })
@@ -122,7 +122,7 @@ const pdfBytes = await doc.save();
 ### Data Visualization Dashboard
 
 ```typescript
-import { Document, Column, BarChart, LineChart } from 'typescript-pdf';
+import { Document, Column, BarChart, LineChart, DataUtils, LineMarker } from 'typescript-pdf';
 
 const salesData = DataUtils.createSeries('Sales', [
   { x: 'Q1', y: 1200 },

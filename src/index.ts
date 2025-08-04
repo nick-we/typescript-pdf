@@ -78,6 +78,10 @@ export type {
     Flex as FlexNamespace
 } from './types.js';
 
+// Convenience exports for common usage patterns
+import { Layout as LayoutTypes, Theme as ThemeTypes } from './types.js';
+export const EdgeInsets = LayoutTypes.EdgeInsets;
+
 // Version information
 export const VERSION = '__VERSION__';
 export const DEV = '__DEV__';
