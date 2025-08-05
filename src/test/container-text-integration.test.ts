@@ -7,10 +7,12 @@
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import { TextWidget, TextAlign, TextOverflow } from '../widgets/text.js';
-import { Container } from '../widgets/layout.js';
-import { Layout, Geometry, Theme } from '../types.js';
-import { createTestLayoutContext, type TestTextOptions } from './test-utils.js';
+
+import { createTestLayoutContext } from '@/test/test-utils.js';
+import { Layout } from '@/types.js';
+import { Container } from '@/widgets/layout.js';
+import { TextWidget, TextOverflow } from '@/widgets/text.js';
+
 
 describe('Container-Text Layout Integration', () => {
     let mockContext: Layout.LayoutContext;
@@ -101,7 +103,7 @@ describe('Container-Text Layout Integration', () => {
                 width: 150
             });
 
-            const result = container.layout(mockContext);
+            container.layout(mockContext);
 
             // With accurate measurement, we should get precise text layout
             const textResult = text.layout({

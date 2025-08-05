@@ -7,19 +7,20 @@
  * @vitest-environment happy-dom
  */
 
-import { describe, it, expect } from 'vitest';
 import { writeFileSync, mkdirSync } from 'fs';
 import { join } from 'path';
 
+import { describe, it, expect } from 'vitest';
+
 // Import our restructured system
 import { Document } from '../core/index.js';
+import { Flex, Layout, Theme as ThemeTypes } from '../types.js';
 import {
     Container, TextWidget, Row, Column, Stack, Positioned,
-    Table, Chart, BarChart, Theme, PrebuiltThemes,
-    LayoutUtils, FlexUtils, DataUtils, ThemeUtils,
+    Table, BarChart, Theme, PrebuiltThemes,
+    LayoutUtils, FlexUtils, DataUtils,
     TextAlign, BarOrientation
 } from '../widgets/index.js';
-import { Flex, Layout, Theme as ThemeTypes } from '../types.js';
 
 // Test output directory
 const TEST_OUTPUT_DIR = join(process.cwd(), 'test-output');
@@ -27,7 +28,7 @@ const TEST_OUTPUT_DIR = join(process.cwd(), 'test-output');
 // Ensure output directory exists
 try {
     mkdirSync(TEST_OUTPUT_DIR, { recursive: true });
-} catch (e) {
+} catch (_e) {
     // Directory already exists
 }
 

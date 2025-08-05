@@ -4,7 +4,10 @@
  * Simple typed utilities for testing without complex mock interfaces
  */
 
-import { Layout, Geometry, Theme } from '../types.js';
+import { TextDirection } from '@/core/text-utils.js';
+import type { Layout } from '@/types.js';
+import { Theme } from '@/types.js';
+
 
 /**
  * Simple text measurement options for testing
@@ -51,11 +54,11 @@ export function createTestLayoutContext(overrides: Partial<Layout.LayoutContext>
                 if (testLine.length <= charsPerLine) {
                     currentLine = testLine;
                 } else {
-                    if (currentLine) lines.push(currentLine);
+                    if (currentLine) { lines.push(currentLine); }
                     currentLine = word;
                 }
             }
-            if (currentLine) lines.push(currentLine);
+            if (currentLine) { lines.push(currentLine); }
             return lines;
         },
         truncateTextAccurate: (text: string, maxWidth: number, options: TestTextOptions, suffix = '...') => {
@@ -71,14 +74,14 @@ export function createTestLayoutContext(overrides: Partial<Layout.LayoutContext>
         })
     };
 
-    return {
+    const baseContext: Layout.LayoutContext = {
         constraints: {
             minWidth: 0,
             maxWidth: 600,
             minHeight: 0,
             maxHeight: 800,
         },
-        textDirection: 'ltr' as const,
+        textDirection: TextDirection.LeftToRight,
         theme: {
             colorScheme: Theme.ColorSchemes.light,
             spacing: Theme.defaultSpacing,
@@ -89,9 +92,17 @@ export function createTestLayoutContext(overrides: Partial<Layout.LayoutContext>
             },
             cornerRadius: { none: 0, small: 4, medium: 8, large: 16 }
         } as Theme.ThemeData,
-        textMeasurement: mockTextMeasurement as any, // Type assertion for test compatibility
-        ...overrides
+        textMeasurement: mockTextMeasurement as unknown as NonNullable<Layout.LayoutContext['textMeasurement']>
     };
+
+    // Handle optional properties properly for exactOptionalPropertyTypes
+    const result = { ...baseContext };
+    if (overrides.constraints !== undefined) { result.constraints = overrides.constraints; }
+    if (overrides.textDirection !== undefined) { result.textDirection = overrides.textDirection; }
+    if (overrides.theme !== undefined) { result.theme = overrides.theme; }
+    if (overrides.textMeasurement !== undefined) { result.textMeasurement = overrides.textMeasurement; }
+
+    return result;
 }
 
 /**
@@ -106,9 +117,42 @@ export function createTestPaintContext(overrides: Partial<Layout.PaintContext> =
         translate: () => { }
     };
 
-    return {
+    const mockTextMeasurement: TestTextMeasurement = {
+        measureTextWidth: (text: string, fontSize: number) => text.length * fontSize * 0.6,
+        wrapTextAccurate: (text: string, maxWidth: number, options: TestTextOptions) => {
+            const charWidth = options.fontSize * 0.6;
+            const charsPerLine = Math.floor(maxWidth / charWidth);
+            const words = text.split(' ');
+            const lines: string[] = [];
+            let currentLine = '';
+            for (const word of words) {
+                const testLine = currentLine ? `${currentLine} ${word}` : word;
+                if (testLine.length <= charsPerLine) {
+                    currentLine = testLine;
+                } else {
+                    if (currentLine) { lines.push(currentLine); }
+                    currentLine = word;
+                }
+            }
+            if (currentLine) { lines.push(currentLine); }
+            return lines;
+        },
+        truncateTextAccurate: (text: string, maxWidth: number, options: TestTextOptions, suffix = '...') => {
+            const charWidth = options.fontSize * 0.6;
+            const maxChars = Math.floor(maxWidth / charWidth) - suffix.length;
+            return text.length > maxChars ? text.substring(0, maxChars) + suffix : text;
+        },
+        getFontMetrics: (fontSize: number) => ({
+            height: fontSize * 1.2,
+            baseline: fontSize * 0.8,
+            ascender: fontSize * 0.8,
+            descender: fontSize * 0.2
+        })
+    };
+
+    const baseContext: Layout.PaintContext = {
         size: { width: 600, height: 800 },
-        graphics: mockGraphics as any, // Type assertion for test compatibility
+        graphics: mockGraphics as unknown as NonNullable<Layout.PaintContext['graphics']>,
         theme: {
             colorScheme: Theme.ColorSchemes.light,
             spacing: Theme.defaultSpacing,
@@ -119,9 +163,19 @@ export function createTestPaintContext(overrides: Partial<Layout.PaintContext> =
             },
             cornerRadius: { none: 0, small: 4, medium: 8, large: 16 }
         } as Theme.ThemeData,
-        textMeasurement: createTestLayoutContext().textMeasurement!,
-        ...overrides
+        textMeasurement: mockTextMeasurement as unknown as NonNullable<Layout.LayoutContext['textMeasurement']>
     };
+
+    // Handle optional properties properly for exactOptionalPropertyTypes
+    const result = { ...baseContext };
+    if (overrides.size !== undefined) { result.size = overrides.size; }
+    if (overrides.theme !== undefined) { result.theme = overrides.theme; }
+    if (overrides.document !== undefined) { result.document = overrides.document; }
+    if (overrides.graphics !== undefined) { result.graphics = overrides.graphics; }
+    if (overrides.fontRegistry !== undefined) { result.fontRegistry = overrides.fontRegistry; }
+    if (overrides.textMeasurement !== undefined) { result.textMeasurement = overrides.textMeasurement; }
+
+    return result;
 }
 
 /**
@@ -169,8 +223,8 @@ export type TestColumnWidthType = 'fixed' | 'flex' | 'intrinsic' | 'fraction';
  */
 export function setupTestDOM(): void {
     if (typeof global !== 'undefined' && typeof window === 'undefined') {
-        (global as any).window = {};
-        (global as any).document = {
+        (global as Record<string, unknown>)['window'] = {};
+        (global as Record<string, unknown>)['document'] = {
             createElement: () => ({
                 getContext: () => ({
                     fillText: () => { },

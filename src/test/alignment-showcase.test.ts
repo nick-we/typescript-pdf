@@ -6,13 +6,14 @@
  */
 
 import { describe, test, expect } from 'vitest';
+
+import { Document } from '../core/document.js';
+import { Layout, defaultTheme } from '../types.js';
 import { Container } from '../widgets/layout.js';
 import { TextWidget } from '../widgets/text.js';
-import { Layout, defaultTheme } from '../types.js';
-import { Document } from '../core/document.js';
 
 describe('Container Alignment Showcase - Final Validation', () => {
-    test('Generate comprehensive alignment demonstration PDF', async () => {
+    test('Generate comprehensive alignment demonstration PDF', () => {
         const doc = new Document();
 
         // Create a showcase of all 9 alignment positions
@@ -39,21 +40,6 @@ describe('Container Alignment Showcase - Final Validation', () => {
                         height: 270,
                         alignment: Layout.Alignment.Center,
                         child: (() => {
-                            // Create 3x3 grid of alignment examples
-                            const gridSize = 130;
-                            const cellSize = 80;
-                            const alignments = [
-                                { name: 'TopLeft', alignment: Layout.Alignment.TopLeft },
-                                { name: 'TopCenter', alignment: Layout.Alignment.TopCenter },
-                                { name: 'TopRight', alignment: Layout.Alignment.TopRight },
-                                { name: 'CenterLeft', alignment: Layout.Alignment.CenterLeft },
-                                { name: 'Center', alignment: Layout.Alignment.Center },
-                                { name: 'CenterRight', alignment: Layout.Alignment.CenterRight },
-                                { name: 'BottomLeft', alignment: Layout.Alignment.BottomLeft },
-                                { name: 'BottomCenter', alignment: Layout.Alignment.BottomCenter },
-                                { name: 'BottomRight', alignment: Layout.Alignment.BottomRight },
-                            ];
-
                             // For this test, just create the center example to validate the fix
                             return new Container({
                                 width: 150,
@@ -81,7 +67,7 @@ describe('Container Alignment Showcase - Final Validation', () => {
             build: () => alignmentShowcase
         });
 
-        const pdfBytes = await doc.save();
+        const pdfBytes = doc.save();
         expect(pdfBytes).toBeInstanceOf(Uint8Array);
         expect(pdfBytes.length).toBeGreaterThan(0);
 
@@ -114,7 +100,7 @@ describe('Container Alignment Showcase - Final Validation', () => {
                 width: containerSize.width,
                 height: containerSize.height,
                 alignment,
-                child: new TextWidget((name.split(' ')[0] || 'TEST').toUpperCase(), {
+                child: new TextWidget((name.split(' ')[0] ?? 'TEST').toUpperCase(), {
                     style: {
                         fontSize: name.includes('Small') ? 12 : 16,
                         color: '#000000'
@@ -164,7 +150,7 @@ describe('Container Alignment Showcase - Final Validation', () => {
 
         // Text should size to content, not fill available space
         expect(result.size.width).toBeLessThan(100); // "INTRINSIC" shouldn't be 300px wide
-        expect(result.size.height).toBeLessThan(50);  // Text shouldn't be 200px tall
+        expect(result.size.height).toBeLessThan(50); // Text shouldn't be 200px tall
         expect(result.size.width).toBeGreaterThan(0);
         expect(result.size.height).toBeGreaterThan(0);
 

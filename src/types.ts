@@ -94,9 +94,9 @@ export namespace Core {
         },
 
         getContentArea(options: PageOptions): Geometry.Rect {
-            const width = options.width || PageDimensions.A4.width;
-            const height = options.height || PageDimensions.A4.height;
-            const margin = options.margin || Layout.EdgeInsets.zero;
+            const width = options.width ?? PageDimensions.A4.width;
+            const height = options.height ?? PageDimensions.A4.height;
+            const margin = options.margin ?? Layout.EdgeInsets.zero;
 
             return {
                 x: margin.left,
@@ -186,7 +186,7 @@ export namespace Geometry {
             return Math.sqrt(dx * dx + dy * dy);
         },
 
-        rectIntersection: (rect1: Rect, rect2: Rect): Rect | null => {
+        rectIntersection: (rect1: Rect, rect2: Rect): Rect | undefined => {
             const left = Math.max(rect1.x, rect2.x);
             const top = Math.max(rect1.y, rect2.y);
             const right = Math.min(rect1.x + rect1.width, rect2.x + rect2.width);
@@ -195,7 +195,7 @@ export namespace Geometry {
             if (left < right && top < bottom) {
                 return { x: left, y: top, width: right - left, height: bottom - top };
             }
-            return null;
+            return undefined;
         }
     };
 }
@@ -518,12 +518,12 @@ export namespace Theme {
      * Spacing system for consistent layouts
      */
     export interface SpacingSystem {
-        readonly xs: number;   // 2pt
-        readonly sm: number;   // 4pt
-        readonly md: number;   // 8pt
-        readonly lg: number;   // 16pt
-        readonly xl: number;   // 24pt
-        readonly xxl: number;  // 32pt
+        readonly xs: number; // 2pt
+        readonly sm: number; // 4pt
+        readonly md: number; // 8pt
+        readonly lg: number; // 16pt
+        readonly xl: number; // 24pt
+        readonly xxl: number; // 32pt
     }
 
     /**
@@ -589,10 +589,10 @@ export namespace Theme {
         professional: (): ThemeData => Utils.createTheme(ColorSchemes.professional),
 
         mergeTextStyles: (base: TextStyle, override?: TextStyle): TextStyle => {
-            if (!override) return base;
+            if (!override) { return base; }
 
             // Only skip merging if explicitly set to not inherit
-            if (override.inherit === false) return override;
+            if (override.inherit === false) { return override; }
 
             const result: TextStyle = {
                 ...base,
@@ -691,7 +691,7 @@ export namespace Internal {
         mergeObjects: <T>(target: T, source: Partial<T>): T => {
             const result = { ...target };
             for (const key in source) {
-                if (source.hasOwnProperty(key) && source[key] !== undefined) {
+                if (Object.prototype.hasOwnProperty.call(source, key) && source[key] !== undefined) {
                     (result as Record<string, unknown>)[key] = source[key];
                 }
             }
@@ -717,7 +717,7 @@ export namespace Internal {
         },
 
         getTableCellDisplayValue: (cellData: TableCellData): string => {
-            if (cellData === null || cellData === undefined) return '';
+            if (cellData === null || cellData === undefined) { return ''; }
             if (typeof cellData === 'string' || typeof cellData === 'number' || typeof cellData === 'boolean') {
                 return String(cellData);
             }

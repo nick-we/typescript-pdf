@@ -10,12 +10,14 @@
  */
 
 import { BaseWidget, type Widget, type WidgetProps } from './base.js';
+
+import { widgetLogger } from '@/core/logger.js';
+import type { IPdfColor } from '@/types/core-interfaces.js';
 import {
-    Layout,
-    Geometry,
-    Theme,
-} from '../types.js';
-import type { IPdfColor } from '../types/core-interfaces.js';
+    type Geometry, Layout,
+} from '@/types.js';
+
+
 
 /**
  * Border style options
@@ -163,17 +165,17 @@ export class Container extends BaseWidget {
     constructor(props: ContainerProps = {}) {
         super(props);
 
-        if (props.child) this.child = props.child;
+        if (props.child) { this.child = props.child; }
         this.padding = props.padding ?? Layout.EdgeInsets.zero;
         this.margin = props.margin ?? Layout.EdgeInsets.zero;
-        if (props.width !== undefined) this.width = props.width;
-        if (props.height !== undefined) this.height = props.height;
-        if (props.minWidth !== undefined) this.minWidth = props.minWidth;
-        if (props.minHeight !== undefined) this.minHeight = props.minHeight;
-        if (props.maxWidth !== undefined) this.maxWidth = props.maxWidth;
-        if (props.maxHeight !== undefined) this.maxHeight = props.maxHeight;
+        if (props.width !== undefined) { this.width = props.width; }
+        if (props.height !== undefined) { this.height = props.height; }
+        if (props.minWidth !== undefined) { this.minWidth = props.minWidth; }
+        if (props.minHeight !== undefined) { this.minHeight = props.minHeight; }
+        if (props.maxWidth !== undefined) { this.maxWidth = props.maxWidth; }
+        if (props.maxHeight !== undefined) { this.maxHeight = props.maxHeight; }
         this.alignment = props.alignment ?? Layout.Alignment.Center;
-        if (props.decoration) this.decoration = props.decoration;
+        if (props.decoration) { this.decoration = props.decoration; }
     }
 
     /**
@@ -318,8 +320,6 @@ export class Container extends BaseWidget {
             height: size.height - Layout.EdgeInsets.vertical(this.margin),
         };
 
-        console.log(`Painting container at size ${contentArea.width}x${contentArea.height}`);
-
         // Only do actual graphics operations if graphics context is available
         if (graphics) {
             // Save graphics state
@@ -330,12 +330,10 @@ export class Container extends BaseWidget {
 
             // Paint decoration background if present
             if (this.decoration) {
-                console.log(`  - Drawing decoration: color=${this.decoration.color}, border=${!!this.decoration.border}, borderRadius=${!!this.decoration.borderRadius}`);
-
                 const hasRadius = this.decoration.borderRadius && (
-                    this.decoration.borderRadius.topLeft ||
-                    this.decoration.borderRadius.topRight ||
-                    this.decoration.borderRadius.bottomLeft ||
+                    this.decoration.borderRadius.topLeft ??
+                    this.decoration.borderRadius.topRight ??
+                    this.decoration.borderRadius.bottomLeft ??
                     this.decoration.borderRadius.bottomRight
                 );
 
@@ -347,10 +345,10 @@ export class Container extends BaseWidget {
                     if (hasRadius && this.decoration.borderRadius) {
                         graphics.drawRoundedRect(
                             0, 0, contentArea.width, contentArea.height,
-                            this.decoration.borderRadius.topLeft || 0,
-                            this.decoration.borderRadius.topRight || 0,
-                            this.decoration.borderRadius.bottomRight || 0,
-                            this.decoration.borderRadius.bottomLeft || 0
+                            this.decoration.borderRadius.topLeft ?? 0,
+                            this.decoration.borderRadius.topRight ?? 0,
+                            this.decoration.borderRadius.bottomRight ?? 0,
+                            this.decoration.borderRadius.bottomLeft ?? 0
                         );
                     } else {
                         graphics.drawRect(0, 0, contentArea.width, contentArea.height);
@@ -360,17 +358,17 @@ export class Container extends BaseWidget {
 
                 // Draw border
                 if (this.decoration.border) {
-                    const color = this.parseColor(this.decoration.border.color || '#000000');
+                    const color = this.parseColor(this.decoration.border.color ?? '#000000');
                     graphics.setStrokeColor(color);
-                    graphics.setLineWidth(this.decoration.border.width || 1);
+                    graphics.setLineWidth(this.decoration.border.width ?? 1);
 
                     if (hasRadius && this.decoration.borderRadius) {
                         graphics.drawRoundedRect(
                             0, 0, contentArea.width, contentArea.height,
-                            this.decoration.borderRadius.topLeft || 0,
-                            this.decoration.borderRadius.topRight || 0,
-                            this.decoration.borderRadius.bottomRight || 0,
-                            this.decoration.borderRadius.bottomLeft || 0
+                            this.decoration.borderRadius.topLeft ?? 0,
+                            this.decoration.borderRadius.topRight ?? 0,
+                            this.decoration.borderRadius.bottomRight ?? 0,
+                            this.decoration.borderRadius.bottomLeft ?? 0
                         );
                     } else {
                         graphics.drawRect(0, 0, contentArea.width, contentArea.height);
@@ -381,7 +379,7 @@ export class Container extends BaseWidget {
         } else {
             // Fallback for testing - just log decoration info
             if (this.decoration) {
-                console.log(`  - Drawing decoration: color=${this.decoration.color}, border=${!!this.decoration.border}`);
+                widgetLogger.debug(`  - Drawing decoration: color=${this.decoration.color}, border=${!!this.decoration.border}`);
             }
         }
 
@@ -400,8 +398,6 @@ export class Container extends BaseWidget {
                 childArea,
                 childSize
             );
-
-            console.log(`  - Child at position (${childPosition.x + this.padding.left}, ${childPosition.y + this.padding.top})`);
 
             if (graphics) {
                 // Translate to child position (including padding)
@@ -519,12 +515,10 @@ export class Stack extends BaseWidget {
             return;
         }
 
-        console.log(`Painting stack with ${this.children.length} children`);
-
         // Paint each child at their calculated position
         this.children.forEach((child, index) => {
             const childResult = this.childrenLayoutResults[index];
-            if (!childResult) return;
+            if (!childResult) { return; }
 
             let childPosition: Geometry.Point;
 
@@ -539,8 +533,6 @@ export class Stack extends BaseWidget {
                     childResult.size
                 );
             }
-
-            console.log(`  - Child ${index} at position (${childPosition.x}, ${childPosition.y})`);
 
             // Apply graphics translation using Container pattern
             if (context.graphics) {
@@ -578,12 +570,12 @@ export class Positioned extends BaseWidget {
         super(props);
 
         this.child = props.child;
-        if (props.top !== undefined) this.top = props.top;
-        if (props.right !== undefined) this.right = props.right;
-        if (props.bottom !== undefined) this.bottom = props.bottom;
-        if (props.left !== undefined) this.left = props.left;
-        if (props.width !== undefined) this.width = props.width;
-        if (props.height !== undefined) this.height = props.height;
+        if (props.top !== undefined) { this.top = props.top; }
+        if (props.right !== undefined) { this.right = props.right; }
+        if (props.bottom !== undefined) { this.bottom = props.bottom; }
+        if (props.left !== undefined) { this.left = props.left; }
+        if (props.width !== undefined) { this.width = props.width; }
+        if (props.height !== undefined) { this.height = props.height; }
     }
 
     /**
@@ -597,7 +589,7 @@ export class Positioned extends BaseWidget {
         if (this.left !== undefined) {
             x = this.left;
         } else if (this.right !== undefined) {
-            const childWidth = this.width || 0; // We'd need child size from layout
+            const childWidth = this.width ?? 0; // We'd need child size from layout
             x = stackSize.width - this.right - childWidth;
         }
 
@@ -605,7 +597,7 @@ export class Positioned extends BaseWidget {
         if (this.top !== undefined) {
             y = this.top;
         } else if (this.bottom !== undefined) {
-            const childHeight = this.height || 0; // We'd need child size from layout
+            const childHeight = this.height ?? 0; // We'd need child size from layout
             y = stackSize.height - this.bottom - childHeight;
         }
 
@@ -695,8 +687,8 @@ export const LayoutUtils = {
      */
     sized(child: Widget, width?: number, height?: number): Container {
         const props: ContainerProps = { child };
-        if (width !== undefined) props.width = width;
-        if (height !== undefined) props.height = height;
+        if (width !== undefined) { props.width = width; }
+        if (height !== undefined) { props.height = height; }
         return new Container(props);
     },
 

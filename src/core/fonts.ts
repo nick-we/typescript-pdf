@@ -13,9 +13,9 @@
  * @packageDocumentation
  */
 
+
 import type { PdfDocument } from './pdf/font-engine.js';
 import { PdfStandardFont, PdfFont } from './pdf/font-engine.js';
-import { Core } from '../types.js';
 
 /**
  * Font weight enumeration
@@ -122,7 +122,7 @@ export interface UniversalFont {
     getFontHeight(fontSize: number): number;
     getAscender(fontSize: number): number;
     getDescender(fontSize: number): number;
-    getUnderlyingFont(): PdfFont | unknown;
+    getUnderlyingFont(): PdfFont | FontParser;
 }
 
 /**
@@ -209,8 +209,8 @@ class StandardFontAdapter implements UniversalFont {
  * Provides intelligent font fallback when requested fonts are unavailable
  */
 class FontFallbackSystem {
-    private fallbackRules: FontFallbackRule[] = [];
-    private genericFallbacks: Record<FontCategory, PdfStandardFont[]> = {
+    private readonly fallbackRules: FontFallbackRule[] = [];
+    private readonly genericFallbacks: Record<FontCategory, PdfStandardFont[]> = {
         [FontCategory.Serif]: [
             PdfStandardFont.TimesRoman,
             PdfStandardFont.TimesBold,
@@ -420,7 +420,7 @@ class FontLoader {
 
         // For now, create a mock parser since TTF parsing is complex
         const parser = {
-            fontName: options.family || 'CustomFont',
+            fontName: options.family ?? 'CustomFont',
             unitsPerEm: 1000,
             ascent: 800,
             descent: -200,
@@ -432,9 +432,9 @@ class FontLoader {
         if (options.cache !== false) {
             this.cache.set(cacheKey, {
                 parser,
-                family: options.family || 'CustomFont',
-                weight: options.weight?.toString() || 'normal',
-                style: options.style || 'normal',
+                family: options.family ?? 'CustomFont',
+                weight: options.weight?.toString() ?? 'normal',
+                style: options.style ?? 'normal',
                 data: fontData,
                 loadTime: Date.now(),
             });
@@ -462,10 +462,10 @@ class FontLoader {
     }
 
     private static async loadFontData(source: FontSource): Promise<ArrayBuffer> {
-        if (source instanceof ArrayBuffer) return source;
+        if (source instanceof ArrayBuffer) { return source; }
 
         if (source instanceof Uint8Array) {
-            return source.buffer.slice(source.byteOffset, source.byteOffset + source.byteLength);
+            return (source.buffer as ArrayBuffer).slice(source.byteOffset, source.byteOffset + source.byteLength);
         }
 
         if (typeof source === 'string') {
@@ -475,15 +475,15 @@ class FontLoader {
                     throw new Error(`Failed to load font: ${response.statusText}`);
                 }
                 return response.arrayBuffer();
-            } else {
-                // File path for Node.js
-                if (typeof window !== 'undefined') {
-                    throw new Error('File loading not supported in browser');
-                }
-                const fs = await import('fs');
-                const data = await fs.promises.readFile(source);
-                return data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength);
             }
+            // File path for Node.js
+            if (typeof window !== 'undefined') {
+                throw new Error('File loading not supported in browser');
+            }
+            const fs = await import('fs');
+            const data = await fs.promises.readFile(source);
+            return (data.buffer as ArrayBuffer).slice(data.byteOffset, data.byteOffset + data.byteLength);
+
         }
 
         throw new Error('Unsupported font source type');
@@ -533,10 +533,10 @@ export class FontSystem {
      * Register a standard PDF font
      */
     registerStandardFont(fontName: PdfStandardFont, name?: string): UniversalFont {
-        const registrationName = name || fontName;
+        const registrationName = name ?? fontName;
 
-        let font = this.unifiedFonts.get(registrationName);
-        if (font) return font;
+        const font = this.unifiedFonts.get(registrationName);
+        if (font) { return font; }
 
         // Create PDF font through engine
         const pdfFont = new PdfFont(this.document, fontName, name);
@@ -553,8 +553,8 @@ export class FontSystem {
      * Register a custom TTF font
      */
     async registerCustomFont(name: string, source: FontSource, options: FontLoadOptions = {}): Promise<UniversalFont> {
-        let font = this.unifiedFonts.get(name);
-        if (font) return font;
+        const font = this.unifiedFonts.get(name);
+        if (font) { return font; }
 
         // Load TTF font
         const parser = await FontLoader.loadFont(source, options);
@@ -564,7 +564,7 @@ export class FontSystem {
         const typedParser = parser as FontParser;
         const adapter: UniversalFont = {
             name,
-            fontFamily: typedParser.fontName || name,
+            fontFamily: typedParser.fontName ?? name,
             type: 'ttf',
             measureTextWidth: (text: string, fontSize: number) => {
                 const fontUnits = typedParser.measureText(text);
@@ -579,7 +579,7 @@ export class FontSystem {
             getDescender: (fontSize: number) => {
                 return (typedParser.descent * fontSize) / typedParser.unitsPerEm;
             },
-            getUnderlyingFont: () => parser,
+            getUnderlyingFont: () => parser as FontParser,
         };
 
         this.unifiedFonts.set(name, adapter);
@@ -596,13 +596,13 @@ export class FontSystem {
         }
 
         // Check unified fonts
-        const fontName = name || fontNameOrFamily as string;
-        let font = this.unifiedFonts.get(fontName);
-        if (font) return font;
+        const fontName = name ?? fontNameOrFamily;
+        const font = this.unifiedFonts.get(fontName);
+        if (font) { return font; }
 
         // Use fallback system
         const fallbackFont = this.fallbackSystem.resolveFontDescriptor({
-            family: fontNameOrFamily as string,
+            family: fontNameOrFamily,
             weight: FontWeight.Normal,
             style: FontStyle.Normal,
         });
@@ -624,7 +624,7 @@ export class FontSystem {
         for (const fam of families) {
             const fontKey = `${fam}-${weight}-${style}`;
             let font = this.unifiedFonts.get(fontKey);
-            if (font) return font;
+            if (font) { return font; }
 
             // Try to resolve with fallback
             const fallbackFont = this.fallbackSystem.resolveFontDescriptor({
@@ -646,12 +646,12 @@ export class FontSystem {
      */
     measureText(text: string, style: TextStyleConfig): { width: number; height: number } {
         const font = this.getFontWithStyle(
-            style.fontFamily || 'sans-serif',
-            style.fontWeight || FontWeight.Normal,
-            style.fontStyle || FontStyle.Normal
+            style.fontFamily ?? 'sans-serif',
+            style.fontWeight ?? FontWeight.Normal,
+            style.fontStyle ?? FontStyle.Normal
         );
 
-        const fontSize = style.fontSize || 12;
+        const fontSize = style.fontSize ?? 12;
         const width = font.measureTextWidth(text, fontSize);
         const height = font.getFontHeight(fontSize);
 

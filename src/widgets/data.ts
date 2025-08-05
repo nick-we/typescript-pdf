@@ -7,14 +7,17 @@
  * @packageDocumentation
  */
 
-import { BaseWidget, type Widget, type WidgetProps } from './base.js';
+import { TextUtils } from '@/core/text-utils.js';
+import type { IPdfColor, IGraphicsContext, IUniversalFont } from '@/types/core-interfaces.js';
 import {
+    type Geometry,
     Layout,
-    Geometry,
     Theme,
     Internal,
-} from '../types.js';
-import type { IPdfColor, IGraphicsContext, IUniversalFont } from '../types/core-interfaces.js';
+} from '@/types.js';
+import { BaseWidget, type Widget, type WidgetProps } from '@/widgets/base.js';
+
+
 
 /**
  * Table column width types
@@ -253,15 +256,15 @@ export class Table extends BaseWidget {
     constructor(props: TableProps = {}) {
         super(props);
 
-        if (props.data) this.data = props.data;
+        if (props.data) { this.data = props.data; }
         this.columnWidths = props.columnWidths ?? [];
-        if (props.borders) this.borders = props.borders;
+        if (props.borders) { this.borders = props.borders; }
         this.defaultVerticalAlignment = props.defaultVerticalAlignment ?? TableCellVerticalAlignment.Middle;
-        if (props.headerStyle) this.headerStyle = props.headerStyle;
+        if (props.headerStyle) { this.headerStyle = props.headerStyle; }
         this.cellPadding = props.cellPadding ?? Layout.EdgeInsets.all(8);
-        if (props.children) this.children = props.children;
+        if (props.children) { this.children = props.children; }
         this.textOverflow = props.textOverflow ?? TextOverflow.Clip;
-        if (props.maxLines) this.maxLines = props.maxLines;
+        if (props.maxLines) { this.maxLines = props.maxLines; }
     }
 
     /**
@@ -313,7 +316,7 @@ export class Table extends BaseWidget {
                                 if (stringValue !== '[object Object]') {
                                     return stringValue;
                                 }
-                            } catch (error) {
+                            } catch (_error) {
                                 // Continue to fallback
                             }
                         }
@@ -435,11 +438,8 @@ export class Table extends BaseWidget {
         }
 
         try {
-            // Try to use existing TextUtils for accurate measurement
-            // This leverages the accurate text measurement system when available
-            const { TextUtils } = require('../core/text-utils.js');
-            return TextUtils.measureWidth(trimmedValue, fontSize, fontFamily);
-        } catch (error) {
+            return TextUtils.measureWidth(trimmedValue, fontSize);
+        } catch (_error) {
             // Robust fallback with improved character width estimation
             return this.estimateTextWidth(trimmedValue, fontSize, fontFamily);
         }
@@ -454,12 +454,12 @@ export class Table extends BaseWidget {
             ['helvetica', 0.56],
             ['arial', 0.56],
             ['times', 0.52],
-            ['courier', 0.6],  // Monospace
+            ['courier', 0.6], // Monospace
             ['default', 0.55]
         ]);
 
-        const normalizedFamily = fontFamily.toLowerCase().split(',')[0]?.trim() || 'default';
-        const multiplier = FONT_MULTIPLIERS.get(normalizedFamily) || FONT_MULTIPLIERS.get('default')!;
+        const normalizedFamily = fontFamily.toLowerCase().split(',')[0]?.trim() ?? 'default';
+        const multiplier = FONT_MULTIPLIERS.get(normalizedFamily) ?? FONT_MULTIPLIERS.get('default') ?? 0.55;
 
         // Account for different character types for better accuracy
         let adjustedLength = 0;
@@ -498,33 +498,33 @@ export class Table extends BaseWidget {
             let maxCellHeight = minRowHeight;
 
             row.forEach((cell, colIndex) => {
-                if (colIndex >= columnWidths.length) return;
+                if (colIndex >= columnWidths.length) { return; }
 
                 const cellValue = Internal.Utils.getTableCellDisplayValue(cell);
-                const cellWidth = columnWidths[colIndex] || 100;
+                const cellWidth = columnWidths[colIndex] ?? 100;
                 const availableWidth = cellWidth - this.cellPadding.left - this.cellPadding.right;
 
                 // Get text style for this cell
                 const textStyle = this.getCellTextStyle(rowIndex, colIndex, context);
 
                 // Calculate required height for text content
-                let textHeight = textStyle.fontSize || 12;
+                let textHeight = textStyle.fontSize ?? 12;
 
                 // If we have text measurement service, use it for more accurate calculation
                 if (context.textMeasurement && cellValue.length > 0) {
                     try {
                         const lines = context.textMeasurement.wrapTextAccurate(cellValue, availableWidth, {
-                            fontSize: textStyle.fontSize || 12,
-                            fontFamily: textStyle.fontFamily || 'Helvetica',
-                            fontWeight: textStyle.fontWeight || Theme.FontWeight.Normal,
-                            fontStyle: textStyle.fontStyle || Theme.FontStyle.Normal,
-                            lineSpacing: textStyle.lineSpacing || 1.2
+                            fontSize: textStyle.fontSize ?? 12,
+                            fontFamily: textStyle.fontFamily ?? 'Helvetica',
+                            fontWeight: textStyle.fontWeight ?? Theme.FontWeight.Normal,
+                            fontStyle: textStyle.fontStyle ?? Theme.FontStyle.Normal,
+                            lineSpacing: textStyle.lineSpacing ?? 1.2
                         });
-                        textHeight = lines.length * (textStyle.fontSize || 12) * (textStyle.lineSpacing || 1.2);
-                    } catch (error) {
+                        textHeight = lines.length * (textStyle.fontSize ?? 12) * (textStyle.lineSpacing ?? 1.2);
+                    } catch (_error) {
                         // Fallback to simple calculation
-                        const estimatedLines = Math.ceil(cellValue.length * (textStyle.fontSize || 12) * 0.55 / availableWidth);
-                        textHeight = Math.max(1, estimatedLines) * (textStyle.fontSize || 12) * 1.2;
+                        const estimatedLines = Math.ceil(cellValue.length * (textStyle.fontSize ?? 12) * 0.55 / availableWidth);
+                        textHeight = Math.max(1, estimatedLines) * (textStyle.fontSize ?? 12) * 1.2;
                     }
                 }
 
@@ -578,25 +578,25 @@ export class Table extends BaseWidget {
         overflowBehavior: TextOverflow = TextOverflow.Clip,
         maxLines?: number
     ): void {
-        if (!context.graphics || !context.fontRegistry) return;
+        if (!context.graphics || !context.fontRegistry) { return; }
 
         const { graphics, fontRegistry } = context;
         const cellValue = Internal.Utils.getTableCellDisplayValue(cell);
 
-        if (!cellValue) return;
+        if (!cellValue) { return; }
 
         // Get text style
         const textStyle = isHeader && this.headerStyle
             ? Theme.Utils.mergeTextStyles(context.theme.defaultTextStyle, this.headerStyle)
             : context.theme.defaultTextStyle;
 
-        const fontSize = textStyle.fontSize || 12;
-        const fontFamily = textStyle.fontFamily || 'Helvetica';
-        const textColor = textStyle.color || (isHeader ? '#ffffff' : context.theme.colorScheme.onSurface);
+        const fontSize = textStyle.fontSize ?? 12;
+        const fontFamily = textStyle.fontFamily ?? 'Helvetica';
+        const textColor = textStyle.color ?? (isHeader ? '#ffffff' : context.theme.colorScheme.onSurface);
 
         // Get font
         const font = fontRegistry.getFont(fontFamily);
-        if (!font) return;
+        if (!font) { return; }
 
         // Set text color
         graphics.setFillColor(this.parseColor(textColor));
@@ -646,7 +646,7 @@ export class Table extends BaseWidget {
         maxLines?: number
     ): void {
         const { graphics } = context;
-        if (!graphics) return;
+        if (!graphics) { return; }
 
         // Set clipping region
         graphics.setClippingRect(cellRect.x, cellRect.y, cellRect.width, cellRect.height);
@@ -657,10 +657,10 @@ export class Table extends BaseWidget {
                 const lines = context.textMeasurement.wrapTextAccurate(cellValue, cellRect.width, {
                     fontSize,
                     fontFamily,
-                    lineSpacing: textStyle.lineSpacing || 1.2
+                    lineSpacing: textStyle.lineSpacing ?? 1.2
                 });
-                const lineHeight = fontSize * (textStyle.lineSpacing || 1.2);
-                const maxLinesLimit = maxLines || Math.floor(cellRect.height / lineHeight);
+                const lineHeight = fontSize * (textStyle.lineSpacing ?? 1.2);
+                const maxLinesLimit = maxLines ?? Math.floor(cellRect.height / lineHeight);
 
                 lines.slice(0, maxLinesLimit).forEach((line: string, lineIndex: number) => {
                     const lineY = textY + (lineIndex * lineHeight);
@@ -669,7 +669,7 @@ export class Table extends BaseWidget {
                     graphics.drawString(font.getUnderlyingFont(), fontSize, line, cellRect.x, -lineY);
                     graphics.restore();
                 });
-            } catch (error) {
+            } catch (_error) {
                 // Fallback to simple text rendering
                 graphics.save();
                 graphics.scale(1, -1);
@@ -709,10 +709,10 @@ export class Table extends BaseWidget {
                 const lines = textMeasurement.wrapTextAccurate(cellValue, cellRect.width, {
                     fontSize,
                     fontFamily,
-                    lineSpacing: textStyle.lineSpacing || 1.2
+                    lineSpacing: textStyle.lineSpacing ?? 1.2
                 });
-                const lineHeight = fontSize * (textStyle.lineSpacing || 1.2);
-                const maxLinesLimit = maxLines || Math.floor(cellRect.height / lineHeight);
+                const lineHeight = fontSize * (textStyle.lineSpacing ?? 1.2);
+                const maxLinesLimit = maxLines ?? Math.floor(cellRect.height / lineHeight);
                 const ellipsisWidth = textMeasurement.measureTextWidth('…', fontSize, fontFamily);
 
                 lines.slice(0, maxLinesLimit).forEach((line: string, lineIndex: number) => {
@@ -743,7 +743,7 @@ export class Table extends BaseWidget {
                         graphics.restore();
                     }
                 });
-            } catch (error) {
+            } catch (_error) {
                 // Fallback to clipped behavior
                 this.paintCellContentClipped(cellValue, cellRect, context, font, fontSize, fontFamily, textY, textStyle, maxLines);
             }
@@ -775,10 +775,10 @@ export class Table extends BaseWidget {
                 const lines = context.textMeasurement.wrapTextAccurate(cellValue, cellRect.width, {
                     fontSize,
                     fontFamily,
-                    lineSpacing: textStyle.lineSpacing || 1.2
+                    lineSpacing: textStyle.lineSpacing ?? 1.2
                 });
-                const lineHeight = fontSize * (textStyle.lineSpacing || 1.2);
-                const maxLinesLimit = maxLines || lines.length; // Use all lines if no limit
+                const lineHeight = fontSize * (textStyle.lineSpacing ?? 1.2);
+                const maxLinesLimit = maxLines ?? lines.length; // Use all lines if no limit
 
                 lines.slice(0, maxLinesLimit).forEach((line: string, lineIndex: number) => {
                     const lineY = textY + (lineIndex * lineHeight);
@@ -789,7 +789,7 @@ export class Table extends BaseWidget {
                         graphics.restore();
                     }
                 });
-            } catch (error) {
+            } catch (_error) {
                 // Fallback to simple text rendering
                 if (graphics) {
                     graphics.save();
@@ -817,7 +817,7 @@ export class Table extends BaseWidget {
         rowHeights: number[],
         context: Layout.PaintContext
     ): void {
-        if (!context.graphics || !this.borders) return;
+        if (!context.graphics || !this.borders) { return; }
 
         const { graphics } = context;
 
@@ -838,8 +838,8 @@ export class Table extends BaseWidget {
             }
         });
 
-        const tableWidth = columnPositions[columnPositions.length - 1] || 0;
-        const tableHeight = rowPositions[rowPositions.length - 1] || 0;
+        const tableWidth = columnPositions[columnPositions.length - 1] ?? 0;
+        const tableHeight = rowPositions[rowPositions.length - 1] ?? 0;
 
         graphics.save();
 
@@ -888,8 +888,8 @@ export class Table extends BaseWidget {
         x1: number, y1: number, x2: number, y2: number,
         graphics: IGraphicsContext
     ): void {
-        const width = border.width || 1;
-        const color = border.color || '#000000';
+        const width = border.width ?? 1;
+        const color = border.color ?? '#000000';
 
         graphics.setStrokeColor(this.parseColor(color));
         graphics.setLineWidth(width);
@@ -968,11 +968,10 @@ export class Table extends BaseWidget {
 
         if (!context.graphics || !context.fontRegistry) {
             // Fallback for testing environments
-            console.log(`Painting table: ${validRows.length} rows x ${Math.max(...validRows.map(row => row.length))} columns`);
             return;
         }
 
-        const { graphics, fontRegistry, textMeasurement } = context;
+        const { graphics } = context;
         const columnCount = Math.max(...validRows.map(row => row.length));
 
         // Calculate available width
@@ -995,7 +994,7 @@ export class Table extends BaseWidget {
 
         // Paint each row
         validRows.forEach((row, rowIndex) => {
-            const rowHeight = rowHeights[rowIndex] || 40;
+            const rowHeight = rowHeights[rowIndex] ?? 40;
             let currentX = 0;
 
             // Draw row background if it's a header row and has header style
@@ -1007,9 +1006,9 @@ export class Table extends BaseWidget {
 
             // Paint each cell in the row
             row.forEach((cell, colIndex) => {
-                if (colIndex >= columnWidths.length) return;
+                if (colIndex >= columnWidths.length) { return; }
 
-                const cellWidth = columnWidths[colIndex] || 0;
+                const cellWidth = columnWidths[colIndex] ?? 0;
                 const cellRect = {
                     x: currentX,
                     y: currentY,
@@ -1087,10 +1086,10 @@ export class TableRow extends BaseWidget {
         super(props);
 
         this.children = props.children;
-        if (props.decoration) this.decoration = props.decoration;
+        if (props.decoration) { this.decoration = props.decoration; }
         this.verticalAlignment = props.verticalAlignment ?? TableCellVerticalAlignment.Middle;
-        if (props.textOverflow) this.textOverflow = props.textOverflow;
-        if (props.maxLines) this.maxLines = props.maxLines;
+        if (props.textOverflow) { this.textOverflow = props.textOverflow; }
+        if (props.maxLines) { this.maxLines = props.maxLines; }
     }
 
     /**
@@ -1129,7 +1128,6 @@ export class TableRow extends BaseWidget {
     paint(context: Layout.PaintContext): void {
         if (!context.graphics) {
             // Fallback for testing environments
-            console.log(`Painting table row with ${this.children.length} cells`);
             return;
         }
 
@@ -1178,11 +1176,11 @@ export class TableRow extends BaseWidget {
      * Draw row border decoration
      */
     private drawRowBorder(border: TableBorder, context: Layout.PaintContext): void {
-        if (!context.graphics) return;
+        if (!context.graphics) { return; }
 
         const { graphics } = context;
-        const width = border.width || 1;
-        const color = border.color || '#000000';
+        const width = border.width ?? 1;
+        const color = border.color ?? '#000000';
 
         graphics.setStrokeColor(this.parseColor(color));
         graphics.setLineWidth(width);
@@ -1222,14 +1220,14 @@ export class Chart extends BaseWidget {
     constructor(props: ChartProps) {
         super(props);
 
-        if (props.title) this.title = props.title;
+        if (props.title) { this.title = props.title; }
         this.series = props.series;
-        if (props.xAxis) this.xAxis = props.xAxis;
-        if (props.yAxis) this.yAxis = props.yAxis;
-        if (props.legend) this.legend = props.legend;
+        if (props.xAxis) { this.xAxis = props.xAxis; }
+        if (props.yAxis) { this.yAxis = props.yAxis; }
+        if (props.legend) { this.legend = props.legend; }
         this.colors = props.colors ?? ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd'];
-        if (props.width) this.width = props.width;
-        if (props.height) this.height = props.height;
+        if (props.width) { this.width = props.width; }
+        if (props.height) { this.height = props.height; }
     }
 
     /**
@@ -1252,17 +1250,7 @@ export class Chart extends BaseWidget {
     }
 
     paint(context: Layout.PaintContext): void {
-        console.log(`Painting chart: "${this.title || 'Untitled'}" (${context.size.width}x${context.size.height})`);
-        console.log(`  - Series: ${this.series.length}`);
-
         if (!context.graphics) {
-            // Fallback for testing - just log
-            this.series.forEach((series, index) => {
-                console.log(`  - Series ${index}: "${series.name}" (${series.data.length} points)`);
-            });
-            if (this.legend?.show) {
-                console.log('  - Drawing legend');
-            }
             return;
         }
 
@@ -1303,7 +1291,7 @@ export class Chart extends BaseWidget {
             if (context.textMeasurement) {
                 try {
                     titleWidth = context.textMeasurement.measureTextWidth(this.title, titleFontSize, 'Helvetica');
-                } catch (error) {
+                } catch (_error) {
                     // Keep fallback value
                 }
             }
@@ -1327,7 +1315,7 @@ export class Chart extends BaseWidget {
             if (context.textMeasurement) {
                 try {
                     labelWidth = context.textMeasurement.measureTextWidth(this.xAxis.title, axisFontSize, 'Helvetica');
-                } catch (error) {
+                } catch (_error) {
                     // Keep fallback value
                 }
             }
@@ -1352,7 +1340,7 @@ export class Chart extends BaseWidget {
             if (context.textMeasurement) {
                 try {
                     labelWidth = context.textMeasurement.measureTextWidth(this.yAxis.title, axisFontSize, 'Helvetica');
-                } catch (error) {
+                } catch (_error) {
                     // Keep fallback value
                 }
             }
@@ -1365,13 +1353,7 @@ export class Chart extends BaseWidget {
 
         graphics.restore();
 
-        this.series.forEach((series, index) => {
-            console.log(`  - Series ${index}: "${series.name}" (${series.data.length} points)`);
-        });
-
-        if (this.legend?.show) {
-            console.log('  - Drawing legend');
-        }
+        // Series rendering would be handled by specific chart implementations
     }
 
     /**
@@ -1412,13 +1394,7 @@ export class BarChart extends Chart {
         super.paint(context);
 
         if (!context.graphics || !context.fontRegistry) {
-            // Fallback for testing
-            console.log(`Painting bar chart (${this.orientation}): "${this.title || 'Untitled'}"`);
-            this.series.forEach((series, seriesIndex) => {
-                series.data.forEach((point, pointIndex) => {
-                    console.log(`  - Bar [${seriesIndex}][${pointIndex}]: ${point.x} = ${point.y}`);
-                });
-            });
+            // Fallback for testing - bar chart rendering not available
             return;
         }
 
@@ -1449,7 +1425,7 @@ export class BarChart extends Chart {
 
         // Draw bars for each series
         this.series.forEach((series, seriesIndex) => {
-            const seriesColor = series.color || this.colors[seriesIndex % this.colors.length] || '#1f77b4';
+            const seriesColor = series.color ?? this.colors[seriesIndex % this.colors.length] ?? '#1f77b4';
             graphics.setFillColor(this.parseColor(seriesColor));
 
             series.data.forEach((point, pointIndex) => {
@@ -1476,7 +1452,7 @@ export class BarChart extends Chart {
                 if (context.textMeasurement) {
                     try {
                         labelWidth = context.textMeasurement.measureTextWidth(label, labelFontSize, 'Helvetica');
-                    } catch (error) {
+                    } catch (_error) {
                         // Keep fallback value
                     }
                 }
@@ -1513,11 +1489,7 @@ export class LineChart extends Chart {
         super.paint(context);
 
         if (!context.graphics || !context.fontRegistry) {
-            // Fallback for testing
-            console.log(`Painting line chart: "${this.title || 'Untitled'}"`);
-            this.series.forEach((series, seriesIndex) => {
-                console.log(`  - Line ${seriesIndex}: "${series.name}" (${series.data.length} points)`);
-            });
+            // Fallback for testing - line chart rendering not available
             return;
         }
 
@@ -1542,7 +1514,7 @@ export class LineChart extends Chart {
 
         // Draw lines for each series
         this.series.forEach((series, seriesIndex) => {
-            const seriesColor = series.color || this.colors[seriesIndex % this.colors.length] || '#1f77b4';
+            const seriesColor = series.color ?? this.colors[seriesIndex % this.colors.length] ?? '#1f77b4';
             graphics.setStrokeColor(this.parseColor(seriesColor));
             graphics.setLineWidth(this.lineWidth);
 
@@ -1611,7 +1583,7 @@ export class LineChart extends Chart {
                     if (context.textMeasurement) {
                         try {
                             labelWidth = context.textMeasurement.measureTextWidth(label, labelFontSize, 'Helvetica');
-                        } catch (error) {
+                        } catch (_error) {
                             // Keep fallback value
                         }
                     }
@@ -1639,7 +1611,7 @@ export const DataUtils = {
         fixed: (width: number): TableColumnWidth => ({ type: TableColumnWidthType.Fixed, value: width }),
         flex: (flex?: number): TableColumnWidth => {
             const result: TableColumnWidth & { value?: number } = { type: TableColumnWidthType.Flex };
-            if (flex !== undefined) result.value = flex;
+            if (flex !== undefined) { result.value = flex; }
             return result;
         },
         fraction: (fraction: number): TableColumnWidth => ({ type: TableColumnWidthType.Fraction, value: fraction }),
@@ -1698,7 +1670,7 @@ export const DataUtils = {
 
         for (let i = 0; i < count; i++) {
             const color = baseColors[i % baseColors.length];
-            if (color) colors.push(color);
+            if (color) { colors.push(color); }
         }
 
         return colors;

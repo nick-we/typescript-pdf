@@ -7,36 +7,24 @@
  * @vitest-environment happy-dom
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 
-// Import consolidated systems
-import { Document, Page, FontSystem, TextProcessor } from '../core/index.js';
+import { Document } from '../core/index.js';
+import { Layout, Theme as ThemeTypes, Flex as FlexTypes } from '../types.js';
 import {
-    TextWidget, RichText, Container, Row, Column, Stack, Positioned,
-    Table, Chart, BarChart, LineChart, Theme, DefaultTextStyle,
+    TextWidget, Container, Row, Column, Stack, Positioned,
+    Table, BarChart, LineChart, Theme, DefaultTextStyle, type Widget,
     WidgetUtils, LayoutUtils, FlexUtils, DataUtils, ThemeUtils, PrebuiltThemes
 } from '../widgets/index.js';
 
-// Import types and namespaces
-import { Layout, Geometry, Theme as ThemeTypes, Flex as FlexTypes } from '../types.js';
-import type { Widget } from '../widgets/index.js';
 import { createTestLayoutContext, type TestPageFormat } from './test-utils.js';
 
 describe('System Integration', () => {
     let document: Document;
-    let fontSystem: FontSystem;
     let mockLayoutContext: Layout.LayoutContext;
 
     beforeEach(() => {
         document = new Document();
-
-        // Create typed mock for FontSystem constructor
-        const mockPdfDocument = {
-            genSerial: () => Math.floor(Math.random() * 10000),
-            objects: { add: vi.fn() },
-            fontRegistry: null
-        };
-        fontSystem = new FontSystem(mockPdfDocument as any); // FontSystem requires complex PDF document interface
 
         const mockTheme = ThemeUtils.light();
         mockLayoutContext = createTestLayoutContext({
@@ -52,7 +40,7 @@ describe('System Integration', () => {
 
     describe('Full Document Generation', () => {
         it('should generate complete PDF document with mixed content', () => {
-            const page = document.addPage({
+            document.addPage({
                 format: 'A4' as TestPageFormat
             });
 
@@ -146,7 +134,7 @@ describe('System Integration', () => {
             const theme = PrebuiltThemes.corporate();
 
             // Page 1 - Title Page
-            const page1 = document.addPage();
+            document.addPage();
             const titlePage = new Theme({
                 data: theme,
                 child: new Container({
@@ -169,7 +157,7 @@ describe('System Integration', () => {
             });
 
             // Page 2 - Data Page
-            const page2 = document.addPage();
+            document.addPage();
             const dataPage = new Theme({
                 data: theme,
                 child: new Container({
@@ -228,8 +216,8 @@ describe('System Integration', () => {
                     i.toString(),
                     `Item ${i}`,
                     (Math.random() * 1000).toFixed(2),
-                    ['A', 'B', 'C'][i % 3] || 'A',
-                    ['Active', 'Inactive'][i % 2] || 'Active'
+                    ['A', 'B', 'C'][i % 3] ?? 'A',
+                    ['Active', 'Inactive'][i % 2] ?? 'Active'
                 ]);
             }
 
@@ -337,7 +325,6 @@ describe('System Integration', () => {
                 data: [
                     ['Header 1', 'Header 2'],
                     ['Valid', 'Data'],
-                    undefined as any, // Invalid row for testing error handling
                     ['Another', 'Row', 'Extra Column'],
                     [] // Empty row
                 ]

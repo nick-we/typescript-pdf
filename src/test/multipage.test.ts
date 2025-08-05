@@ -13,15 +13,17 @@
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
+
+import { Document } from '../core/document.js';
+import type { IDocument } from '../types/core-interfaces.js';
+import { Layout, Theme } from '../types.js';
+import { Column, Row } from '../widgets/flex.js';
+import { Container } from '../widgets/layout.js';
 import { MultiPage, PageBreakBehavior, MultiPageUtils } from '../widgets/multipage.js';
 import { TextWidget } from '../widgets/text.js';
-import { Container } from '../widgets/layout.js';
-import { Column, Row } from '../widgets/flex.js';
-import { Table } from '../widgets/data.js';
-import { Document } from '../core/document.js';
-import { Layout, Geometry, Theme } from '../types.js';
+
 import { createMockDocument } from './mock-interfaces.js';
-import type { IDocument } from '../types/core-interfaces.js';
+
 
 describe('MultiPage Widget', () => {
     let mockLayoutContext: Layout.LayoutContext;
@@ -38,7 +40,7 @@ describe('MultiPage Widget', () => {
                 minWidth: 0,
                 maxWidth: 595, // A4 width
                 minHeight: 0,
-                maxHeight: 842  // A4 height
+                maxHeight: 842 // A4 height
             },
             textDirection: 'ltr',
             theme: Theme.Utils.light()

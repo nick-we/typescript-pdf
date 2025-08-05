@@ -8,12 +8,13 @@
  */
 
 import { describe, it, expect } from 'vitest';
+
+import { Document } from '../core/document.js';
+import type { Layout } from '../types.js';
 import { Table, TableRow, TextOverflow, DataUtils } from '../widgets/data.js';
 import { TextWidget } from '../widgets/text.js';
-import { Document } from '../core/document.js';
-import { Layout, Theme, Internal } from '../types.js';
-import { PdfColor } from '../core/pdf/color.js';
-import { createMockPaintContext, createMockGraphicsContext, createMockTextMeasurementService } from './mock-interfaces.js';
+
+import { createMockPaintContext } from './mock-interfaces.js';
 
 describe('Table Text Overflow System', () => {
     // Use the proper mock paint context factory
@@ -214,8 +215,8 @@ describe('Table Text Overflow System', () => {
             let clippingUsed = false;
 
             // Track different overflow behaviors
-            context.graphics!.drawString = (font: unknown, fontSize: number, text: string, x: number, y: number) => {
-                if (text.includes('…')) ellipsisUsed = true;
+            context.graphics!.drawString = (_font: unknown, _fontSize: number, text: string, _x: number, _y: number) => {
+                if (text.includes('…')) { ellipsisUsed = true; }
             };
             context.graphics!.setClippingRect = () => { clippingUsed = true; };
 
@@ -243,12 +244,12 @@ describe('Table Text Overflow System', () => {
             });
 
             const context = createTestPaintContext();
-            const linesPerRow: number[] = [];
-            let currentRowLines = 0;
+            const _linesPerRow: number[] = [];
+            let _currentRowLines = 0;
 
             // Track lines per row (simplified)
             context.graphics!.drawString = () => {
-                currentRowLines++;
+                _currentRowLines++;
             };
 
             // Mock row transitions (this is simplified for testing)

@@ -7,16 +7,18 @@
  * @packageDocumentation
  */
 
-import { describe, it, beforeEach } from 'vitest';
-import { Document } from '../core/document.js';
-import { TextWidget, TextAlign, TextOverflow } from '../widgets/text.js';
-import { Container } from '../widgets/layout.js';
-import { Column, Row, Expanded } from '../widgets/flex.js';
-import { AccurateTextMeasurementService, initializeGlobalTextMeasurement } from '../core/accurate-text-measurement.js';
-import { FontSystem } from '../core/fonts.js';
-import { Theme, Core, Layout, Flex } from '../types.js';
 import * as fs from 'fs';
 import * as path from 'path';
+
+import { describe, it, beforeEach } from 'vitest';
+
+import { AccurateTextMeasurementService, initializeGlobalTextMeasurement } from '../core/accurate-text-measurement.js';
+import { Document } from '../core/document.js';
+import { FontSystem } from '../core/fonts.js';
+import { Theme, Core, Layout, Flex } from '../types.js';
+import { Column } from '../widgets/flex.js';
+import { Container } from '../widgets/layout.js';
+import { TextWidget, TextOverflow } from '../widgets/text.js';
 
 // Mock PdfDocument for FontSystem
 const mockPdfDocument = {
@@ -30,17 +32,14 @@ describe('Visual Text Measurement Validation', () => {
     let document: Document;
     let fontSystem: FontSystem;
     let textMeasurement: AccurateTextMeasurementService;
-    let theme: Theme.ThemeData;
-
     beforeEach(() => {
         document = new Document();
         fontSystem = new FontSystem(mockPdfDocument);
         textMeasurement = new AccurateTextMeasurementService(fontSystem);
         initializeGlobalTextMeasurement(fontSystem);
-        theme = Theme.Utils.light();
     });
 
-    it('should generate visual comparison PDF showing accuracy improvements', async () => {
+    it('should generate visual comparison PDF showing accuracy improvements', () => {
         const testCases = [
             {
                 title: 'Short Text Comparison',
@@ -272,12 +271,6 @@ describe('Visual Text Measurement Validation', () => {
         });
         contentWidgets.push(summaryWidget);
 
-        // Create main document content
-        const mainContent = new Column({
-            crossAxisAlignment: Flex.CrossAxisAlignment.Stretch,
-            children: contentWidgets
-        });
-
         // FIXED: Add multiple pages to prevent content overflow
         // Split content across multiple pages to prevent layout compression
         const contentPerPage = 6; // Adjust based on content density
@@ -293,7 +286,7 @@ describe('Visual Text Measurement Validation', () => {
         }
 
         // Add pages to document
-        pages.forEach((pageContent, index) => {
+        pages.forEach((pageContent) => {
             document.addPage({
                 format: Core.PageFormat.A4,
                 margins: Layout.EdgeInsets.all(20),
@@ -303,7 +296,7 @@ describe('Visual Text Measurement Validation', () => {
 
         // Generate PDF
         try {
-            const pdfBytes = await document.save();
+            const pdfBytes = document.save();
 
             // Ensure test-output directory exists
             const outputDir = path.join(process.cwd(), 'test-output');

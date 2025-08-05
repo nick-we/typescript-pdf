@@ -12,13 +12,15 @@
  * @packageDocumentation
  */
 
-import { PdfDocument, PdfPage } from './pdf/document.js';
-import { PdfFont } from './pdf/font-engine.js';
-import { FontSystem, PdfStandardFont } from './fonts.js';
-import { PdfGraphics } from './pdf/graphics.js';
-import { PdfColor } from './pdf/color.js';
-import { Core, Geometry, Layout } from '../types.js';
+import type { Core, Geometry, Layout } from '../types.js';
 import type { Widget } from '../widgets/base.js';
+
+import { FontSystem, PdfStandardFont } from './fonts.js';
+import { PdfColor } from './pdf/color.js';
+import type { PdfPage } from './pdf/document.js';
+import { PdfDocument } from './pdf/document.js';
+import type { PdfGraphics } from './pdf/graphics.js';
+
 
 // Text direction enum for simplified usage
 export enum TextDirection {
@@ -75,13 +77,13 @@ export class Page {
             this.size = PAGE_FORMATS[options.format];
         } else {
             this.size = {
-                width: options.width || 612,
-                height: options.height || 792
+                width: options.width ?? 612,
+                height: options.height ?? 792
             };
         }
 
         // MARGIN FIX: Reduce default page margins to match MultiPage widget (20pts)
-        this.margins = options.margins || { top: 20, right: 20, bottom: 20, left: 20 };
+        this.margins = options.margins ?? { top: 20, right: 20, bottom: 20, left: 20 };
     }
 
     /**
@@ -126,8 +128,8 @@ export class Page {
         color?: { red: number; green: number; blue: number };
     } = {}): void {
         const graphics = this.getGraphics();
-        const fontSize = options.fontSize || 12;
-        const font = this.document.fontSystem.getFont(options.font || PdfStandardFont.Helvetica);
+        const fontSize = options.fontSize ?? 12;
+        const font = this.document.fontSystem.getFont(options.font ?? PdfStandardFont.Helvetica);
         const color = options.color ?
             new PdfColor(options.color.red, options.color.green, options.color.blue) :
             PdfColor.black;
@@ -135,7 +137,7 @@ export class Page {
         graphics.setFillColor(color);
         const underlyingFont = font.getUnderlyingFont();
         if (underlyingFont && typeof underlyingFont === 'object' && 'name' in underlyingFont) {
-            graphics.drawString(underlyingFont as PdfFont, fontSize, text, x, y);
+            graphics.drawString(underlyingFont, fontSize, text, x, y);
         }
     }
 
@@ -184,16 +186,45 @@ export class Page {
         };
 
         // Simplified layout and paint - focus on core functionality
-        const layoutContext = {
+        const layoutContext: Layout.LayoutContext = {
             constraints,
             textDirection: TextDirection.LeftToRight,
             theme: {
-                colorScheme: { primary: '#1976d2', surface: '#ffffff', onSurface: '#000000' },
-                defaultTextStyle: { fontSize: 12, color: '#000000', fontFamily: 'Helvetica' },
-                spacing: 8,
-                cornerRadius: 4
-            },
-        } as any;
+                colorScheme: {
+                    primary: '#1976d2',
+                    secondary: '#dc004e',
+                    background: '#ffffff',
+                    surface: '#f5f5f5',
+                    onBackground: '#000000',
+                    onSurface: '#000000',
+                    onPrimary: '#ffffff',
+                    onSecondary: '#ffffff',
+                    error: '#d32f2f',
+                    success: '#388e3c',
+                    warning: '#f57c00',
+                    info: '#1976d2'
+                },
+                spacing: {
+                    xs: 2,
+                    sm: 4,
+                    md: 8,
+                    lg: 16,
+                    xl: 24,
+                    xxl: 32
+                },
+                defaultTextStyle: {
+                    fontSize: 12,
+                    color: '#000000',
+                    fontFamily: 'Helvetica'
+                },
+                cornerRadius: {
+                    none: 0,
+                    small: 4,
+                    medium: 8,
+                    large: 16
+                }
+            }
+        };
 
         // Perform layout (simplified)
         const layoutResult = widget.layout ? widget.layout(layoutContext) : { size: contentArea };
@@ -212,19 +243,23 @@ export class Page {
         graphics.translate(0, contentArea.height);
         graphics.scale(1, -1);
 
-        // Create paint context with transformed graphics
-        const paintContext = {
-            graphics,
-            size: layoutResult.size || contentArea,
+        // Create paint context - minimal version to avoid typing conflicts
+        const paintContext: Layout.PaintContext = {
+            size: layoutResult.size ?? contentArea,
             theme: layoutContext.theme,
             fontRegistry: this.document.fontSystem,
-            pageHeight: this.size.height, // Add page height for coordinate calculations
-            document: this.document, // Add document reference for MultiPage widget integration
-            // CRITICAL FIX: Expose actual page dimensions for MultiPage consistency
-            pageSize: this.size, // Current page dimensions
-            pageMargins: this.margins, // Current page margins
-            contentArea: contentArea, // Calculated content area
-        } as any;
+            document: this.document
+        };
+
+        // Extend paint context with additional properties that widgets need
+        // This is a workaround for the strict typing while maintaining compatibility
+        Object.assign(paintContext, {
+            graphics,
+            pageHeight: this.size.height,
+            pageSize: this.size,
+            pageMargins: this.margins,
+            contentArea: contentArea
+        });
 
         // Paint widget
         if (widget.paint) {
@@ -268,8 +303,8 @@ export class Document {
             size = PAGE_FORMATS[options.format];
         } else {
             size = {
-                width: options.width || 612,
-                height: options.height || 792
+                width: options.width ?? 612,
+                height: options.height ?? 792
             };
         }
 
@@ -308,8 +343,8 @@ export class Document {
     /**
      * Generate PDF output
      */
-    async save(): Promise<Uint8Array> {
-        return await this.pdfDocument.save();
+    save(): Uint8Array {
+        return this.pdfDocument.save();
     }
 
     /**

@@ -7,17 +7,20 @@
  * @packageDocumentation
  */
 
-import { BaseWidget, type Widget, type WidgetProps } from './base.js';
+import { TextDirection } from '@/core/document.js';
+import { widgetLogger } from '@/core/logger.js';
+import type {
+    Geometry
+} from '@/types.js';
 import {
     Layout,
-    Geometry,
-    Core,
     Theme,
     Flex,
-} from '../types.js';
-import { TextWidget } from './text.js';
-import { Container } from './layout.js';
-import { Row } from './flex.js';
+} from '@/types.js';
+import { BaseWidget, type Widget, type WidgetProps } from '@/widgets/base.js';
+import { Row } from '@/widgets/flex.js';
+import { Container } from '@/widgets/layout.js';
+import { TextWidget } from '@/widgets/text.js';
 
 /**
  * Page break behavior options
@@ -136,13 +139,13 @@ export class MultiPage extends BaseWidget {
         super(props);
 
         this.children = props.children || [];
-        if (props.header) this.header = props.header;
-        if (props.footer) this.footer = props.footer;
+        if (props.header) { this.header = props.header; }
+        if (props.footer) { this.footer = props.footer; }
         this.pageBreakBehavior = props.pageBreakBehavior ?? PageBreakBehavior.Auto;
         // MARGIN FIX: Reduce default margins from 72pts to 20pts for better spacing
         this.pageMargins = props.pageMargins ?? Layout.EdgeInsets.all(20);
         this.maxPages = props.maxPages ?? 1000; // Reasonable default limit
-        if (props.pageSize) this.pageSize = props.pageSize;
+        if (props.pageSize) { this.pageSize = props.pageSize; }
     }
 
     layout(context: Layout.LayoutContext): Layout.LayoutResult {
@@ -162,12 +165,12 @@ export class MultiPage extends BaseWidget {
 
         // Ensure we don't exceed max pages
         if (this.totalPages > this.maxPages) {
-            console.warn(`MultiPage: Content requires ${this.totalPages} pages, but maxPages is ${this.maxPages}. Truncating content.`);
+            widgetLogger.warn(`MultiPage: Content requires ${this.totalPages} pages, but maxPages is ${this.maxPages}. Truncating content.`);
             this.contentChunks = this.contentChunks.slice(0, this.maxPages);
             this.totalPages = this.maxPages;
         }
 
-        console.log(`MultiPage: Generated ${this.totalPages} pages from ${this.children.length} widgets`);
+        widgetLogger.info(`MultiPage: Generated ${this.totalPages} pages from ${this.children.length} widgets`);
 
         // Return the size of the first page (others will be created during paint)
         return this.createLayoutResult(this.pageLayout.pageSize);
@@ -175,20 +178,20 @@ export class MultiPage extends BaseWidget {
 
     paint(context: Layout.PaintContext): void {
         if (!this.pageLayout || !this.contentChunks) {
-            console.warn('MultiPage: Layout not calculated before paint');
+            widgetLogger.warn('MultiPage: Layout not calculated before paint');
             return;
         }
 
         // CRITICAL FIX: Extract actual page dimensions from paint context
         this.extractActualPageDimensions(context);
 
-        console.log(`MultiPage: Painting ${this.totalPages} pages`);
-        console.log(`  - Using actual page size: ${this.actualPageSize?.width}x${this.actualPageSize?.height}`);
+        widgetLogger.info(`MultiPage: Painting ${this.totalPages} pages`);
+        widgetLogger.debug(`  - Using actual page size: ${this.actualPageSize?.width}x${this.actualPageSize?.height}`);
 
         // Paint the first page in the current context
         const firstChunk = this.contentChunks[0];
         if (firstChunk) {
-            console.log(`  - Painting page 1 with ${firstChunk.widgets.length} widgets`);
+            widgetLogger.debug(`  - Painting page 1 with ${firstChunk.widgets.length} widgets`);
             this.paintPage(context, firstChunk, 1);
         }
 
@@ -211,21 +214,21 @@ export class MultiPage extends BaseWidget {
         // Extract page size from paint context (provided by Page.renderWidget)
         if (extendedContext.pageSize) {
             this.actualPageSize = { ...extendedContext.pageSize };
-            console.log(`  - Extracted actual page size: ${this.actualPageSize?.width}x${this.actualPageSize?.height}`);
+            widgetLogger.debug(`  - Extracted actual page size: ${this.actualPageSize?.width}x${this.actualPageSize?.height}`);
         } else {
             // Fallback: use user-provided pageSize or default
             this.actualPageSize = this.pageSize ?? { width: 612, height: 792 }; // Letter default
-            console.warn(`  - No page size in context, using fallback: ${this.actualPageSize?.width}x${this.actualPageSize?.height}`);
+            widgetLogger.warn(`  - No page size in context, using fallback: ${this.actualPageSize?.width}x${this.actualPageSize?.height}`);
         }
 
         // Extract page margins from paint context
         if (extendedContext.pageMargins) {
             this.actualPageMargins = { ...extendedContext.pageMargins };
-            console.log(`  - Extracted actual page margins: ${JSON.stringify(this.actualPageMargins)}`);
+            widgetLogger.debug(`  - Extracted actual page margins: ${JSON.stringify(this.actualPageMargins)}`);
         } else {
             // Fallback: use user-provided margins or defaults
             this.actualPageMargins = this.pageMargins;
-            console.log(`  - No page margins in context, using fallback: ${JSON.stringify(this.actualPageMargins)}`);
+            widgetLogger.debug(`  - No page margins in context, using fallback: ${JSON.stringify(this.actualPageMargins)}`);
         }
     }
 
@@ -241,25 +244,25 @@ export class MultiPage extends BaseWidget {
      * Create additional pages for multi-page content
      */
     private createAdditionalPages(context: Layout.PaintContext): void {
-        if (!this.contentChunks || !this.pageLayout || !this.actualPageSize || !this.actualPageMargins || !context.document) return;
+        if (!this.contentChunks || !this.pageLayout || !this.actualPageSize || !this.actualPageMargins || !context.document) { return; }
 
         const document = context.document;
-        console.log(`MultiPage: Creating ${this.totalPages - 1} additional pages`);
+        widgetLogger.info(`MultiPage: Creating ${this.totalPages - 1} additional pages`);
 
         // Create each additional page
         for (let pageIndex = 1; pageIndex < this.totalPages; pageIndex++) {
             const chunk = this.contentChunks[pageIndex];
             if (!chunk) {
-                console.warn(`MultiPage: Missing chunk for page ${pageIndex + 1}`);
+                widgetLogger.warn(`MultiPage: Missing chunk for page ${pageIndex + 1}`);
                 continue;
             }
 
             const pageNumber = pageIndex + 1;
-            console.log(`  - Creating page ${pageNumber} with ${chunk.widgets.length} widgets`);
+            widgetLogger.debug(`  - Creating page ${pageNumber} with ${chunk.widgets.length} widgets`);
 
             try {
                 // CRITICAL FIX: Create new page with ACTUAL dimensions from first page
-                const newPage = document.addPage({
+                document.addPage({
                     width: this.actualPageSize.width,
                     height: this.actualPageSize.height,
                     margins: this.actualPageMargins,
@@ -268,10 +271,8 @@ export class MultiPage extends BaseWidget {
                         return this.createPageWidget(chunk, pageNumber);
                     }
                 });
-
-                console.log(`    - Successfully created page ${pageNumber} (${this.actualPageSize.width}x${this.actualPageSize.height})`);
             } catch (error) {
-                console.error(`MultiPage: Failed to create page ${pageNumber}:`, error);
+                widgetLogger.error(`MultiPage: Failed to create page ${pageNumber}:`, error);
             }
         }
     }
@@ -280,10 +281,13 @@ export class MultiPage extends BaseWidget {
      * Create a widget that renders a specific page chunk
      */
     private createPageWidget(chunk: ContentChunk, pageNumber: number): Widget {
-        const pageLayout = this.pageLayout!;
+        const pageLayout = this.pageLayout;
+        if (!pageLayout) {
+            throw new Error('Page layout is required to create page widget');
+        }
 
         return {
-            layout: (context: Layout.LayoutContext) => {
+            layout: (_context: Layout.LayoutContext) => {
                 return {
                     size: pageLayout.pageSize,
                     needsRepaint: true
@@ -304,14 +308,14 @@ export class MultiPage extends BaseWidget {
         // CRITICAL FIX: Use actual page size if available (from paint context), otherwise fallback to provided or default
         const pageSize = this.actualPageSize ?? this.pageSize ?? {
             width: context.constraints.maxWidth === Number.POSITIVE_INFINITY
-                ? 612  // Changed from A4 to Letter default to match Document default
+                ? 612 // Changed from A4 to Letter default to match Document default
                 : context.constraints.maxWidth,
             height: context.constraints.maxHeight === Number.POSITIVE_INFINITY
-                ? 792  // Changed from A4 to Letter default to match Document default
+                ? 792 // Changed from A4 to Letter default to match Document default
                 : context.constraints.maxHeight
         };
 
-        console.log(`MultiPage: Page size ${pageSize.width}x${pageSize.height} (actual: ${!!this.actualPageSize})`);
+        widgetLogger.debug(`MultiPage: Page size ${pageSize.width}x${pageSize.height} (actual: ${!!this.actualPageSize})`);
 
         // MARGIN FIX: Use smaller header/footer margins separate from content margins
         const headerFooterMargin = 10; // Small margin for headers/footers from page edge
@@ -366,13 +370,13 @@ export class MultiPage extends BaseWidget {
             };
         }
 
-        console.log(`MultiPage: Content area ${contentArea.width}x${contentArea.height} at (${contentArea.x}, ${contentArea.y})`);
-        console.log(`MultiPage: Header height: ${headerHeight}, Footer height: ${footerHeight}`);
+        widgetLogger.debug(`MultiPage: Content area ${contentArea.width}x${contentArea.height} at (${contentArea.x}, ${contentArea.y})`);
+        widgetLogger.debug(`MultiPage: Header height: ${headerHeight}, Footer height: ${footerHeight}`);
         if (pageLayout.headerArea) {
-            console.log(`MultiPage: Header area at (${pageLayout.headerArea.x}, ${pageLayout.headerArea.y})`);
+            widgetLogger.debug(`MultiPage: Header area at (${pageLayout.headerArea.x}, ${pageLayout.headerArea.y})`);
         }
         if (pageLayout.footerArea) {
-            console.log(`MultiPage: Footer area at (${pageLayout.footerArea.x}, ${pageLayout.footerArea.y})`);
+            widgetLogger.debug(`MultiPage: Footer area at (${pageLayout.footerArea.x}, ${pageLayout.footerArea.y})`);
         }
 
         return pageLayout;
@@ -409,10 +413,10 @@ export class MultiPage extends BaseWidget {
 
         try {
             const result = widget.layout(measureContext);
-            console.log(`MultiPage: ${isHeader ? 'Header' : 'Footer'} measured height: ${result.size.height}`);
+            widgetLogger.debug(`MultiPage: ${isHeader ? 'Header' : 'Footer'} measured height: ${result.size.height}`);
             return result.size.height;
         } catch (error) {
-            console.warn(`MultiPage: Failed to measure ${isHeader ? 'header' : 'footer'}:`, error);
+            widgetLogger.warn(`MultiPage: Failed to measure ${isHeader ? 'header' : 'footer'}:`, error);
             return 0;
         }
     }
@@ -425,7 +429,7 @@ export class MultiPage extends BaseWidget {
             throw new Error('Page layout must be calculated before measuring content');
         }
 
-        console.log(`MultiPage: Measuring ${this.children.length} content widgets`);
+        widgetLogger.debug(`MultiPage: Measuring ${this.children.length} content widgets`);
 
         const widgetHeights: number[] = [];
         const breakPoints: number[] = [];
@@ -447,7 +451,13 @@ export class MultiPage extends BaseWidget {
 
         // Measure each widget
         for (let i = 0; i < this.children.length; i++) {
-            const widget = this.children[i]!;
+            const widget = this.children[i];
+            if (!widget) {
+                widgetLogger.warn(`MultiPage: Widget ${i} is undefined, skipping`);
+                widgetHeights.push(0);
+                breakPoints.push(totalHeight);
+                continue;
+            }
 
             try {
                 const result = widget.layout(measureContext);
@@ -460,9 +470,9 @@ export class MultiPage extends BaseWidget {
                 // Add break point after each widget
                 breakPoints.push(totalHeight);
 
-                console.log(`  - Widget ${i}: ${result.size.width}x${height} (total: ${totalHeight})`);
+                widgetLogger.debug(`  - Widget ${i}: ${result.size.width}x${height} (total: ${totalHeight})`);
             } catch (error) {
-                console.warn(`MultiPage: Failed to measure widget ${i}:`, error);
+                widgetLogger.warn(`MultiPage: Failed to measure widget ${i}:`, error);
                 widgetHeights.push(0);
                 breakPoints.push(totalHeight);
             }
@@ -475,8 +485,8 @@ export class MultiPage extends BaseWidget {
             maxWidth
         };
 
-        console.log(`MultiPage: Total content height: ${totalHeight}, max width: ${maxWidth}`);
-        console.log(`MultiPage: Available page height: ${this.pageLayout.contentArea.height}`);
+        widgetLogger.debug(`MultiPage: Total content height: ${totalHeight}, max width: ${maxWidth}`);
+        widgetLogger.debug(`MultiPage: Available page height: ${this.pageLayout.contentArea.height}`);
 
         return measurement;
     }
@@ -496,18 +506,18 @@ export class MultiPage extends BaseWidget {
         let currentStartOffset = 0;
         let pageNumber = 1;
 
-        console.log(`MultiPage: Splitting content with available height ${availableHeight} per page`);
+        widgetLogger.debug(`MultiPage: Splitting content with available height ${availableHeight} per page`);
 
         for (let i = 0; i < this.children.length; i++) {
             const widget = this.children[i];
             if (!widget) {
-                console.warn(`MultiPage: Widget ${i} is undefined, skipping`);
+                widgetLogger.warn(`MultiPage: Widget ${i} is undefined, skipping`);
                 continue;
             }
 
             const widgetHeight = this.contentMeasurement.widgetHeights[i];
             if (widgetHeight === undefined) {
-                console.warn(`MultiPage: Widget ${i} height is undefined, skipping`);
+                widgetLogger.warn(`MultiPage: Widget ${i} height is undefined, skipping`);
                 continue;
             }
 
@@ -516,7 +526,7 @@ export class MultiPage extends BaseWidget {
                 // Widget fits, add to current page
                 currentPageWidgets.push(widget);
                 currentPageHeight += widgetHeight;
-                console.log(`    - Widget ${i} (${widgetHeight}h) added to page ${pageNumber}, total: ${currentPageHeight}`);
+                widgetLogger.debug(`    - Widget ${i} (${widgetHeight}h) added to page ${pageNumber}, total: ${currentPageHeight}`);
             } else {
                 // Widget doesn't fit, finish current page and start new one
                 if (currentPageWidgets.length > 0) {
@@ -527,7 +537,7 @@ export class MultiPage extends BaseWidget {
                         pageNumber
                     });
 
-                    console.log(`  - Completed page ${pageNumber} with ${currentPageWidgets.length} widgets, height: ${currentPageHeight}`);
+                    widgetLogger.debug(`  - Completed page ${pageNumber} with ${currentPageWidgets.length} widgets, height: ${currentPageHeight}`);
                 }
 
                 // Start new page
@@ -537,7 +547,7 @@ export class MultiPage extends BaseWidget {
                 const lastChunk = chunks[chunks.length - 1];
                 currentStartOffset = currentStartOffset + (lastChunk ? lastChunk.endOffset - lastChunk.startOffset : 0);
 
-                console.log(`    - Widget ${i} (${widgetHeight}h) started new page ${pageNumber}`);
+                widgetLogger.debug(`    - Widget ${i} (${widgetHeight}h) started new page ${pageNumber}`);
             }
         }
 
@@ -550,10 +560,10 @@ export class MultiPage extends BaseWidget {
                 pageNumber
             });
 
-            console.log(`  - Completed final page ${pageNumber} with ${currentPageWidgets.length} widgets, height: ${currentPageHeight}`);
+            widgetLogger.debug(`  - Completed final page ${pageNumber} with ${currentPageWidgets.length} widgets, height: ${currentPageHeight}`);
         }
 
-        console.log(`MultiPage: Split into ${chunks.length} pages`);
+        widgetLogger.info(`MultiPage: Split into ${chunks.length} pages`);
         return chunks;
     }
 
@@ -561,9 +571,9 @@ export class MultiPage extends BaseWidget {
      * Paint a single page with its content, header, and footer
      */
     private paintPage(context: Layout.PaintContext, chunk: ContentChunk, pageNumber: number): void {
-        if (!this.pageLayout) return;
+        if (!this.pageLayout) { return; }
 
-        console.log(`    - Painting page ${pageNumber} content`);
+        widgetLogger.debug(`    - Painting page ${pageNumber} content`);
 
         const { graphics } = context;
 
@@ -574,13 +584,11 @@ export class MultiPage extends BaseWidget {
 
         // Paint header if present
         if (this.header && this.pageLayout.headerArea) {
-            console.log(`      - Painting header`);
             this.paintHeaderFooter(context, this.header, this.pageLayout.headerArea, pageNumber, true);
         }
 
         // Paint footer if present
         if (this.footer && this.pageLayout.footerArea) {
-            console.log(`      - Painting footer`);
             this.paintHeaderFooter(context, this.footer, this.pageLayout.footerArea, pageNumber, false);
         }
 
@@ -594,14 +602,12 @@ export class MultiPage extends BaseWidget {
         for (let i = 0; i < chunk.widgets.length; i++) {
             const widget = chunk.widgets[i];
             if (!widget) {
-                console.warn(`MultiPage: Widget ${i} in chunk is undefined, skipping`);
+                widgetLogger.warn(`MultiPage: Widget ${i} in chunk is undefined, skipping`);
                 continue;
             }
 
             const widgetIndex = this.children.indexOf(widget);
             const widgetHeight = this.contentMeasurement?.widgetHeights[widgetIndex] ?? 0;
-
-            console.log(`        - Painting widget ${i} at y=${currentY}, height=${widgetHeight}`);
 
             // Translate to widget position
             if (graphics) {
@@ -663,17 +669,32 @@ export class MultiPage extends BaseWidget {
         // HEADER FIX: Create layout context and layout the widget
         const layoutContext: Layout.LayoutContext = {
             constraints: layoutConstraints,
-            textDirection: 'ltr' as const,
+            textDirection: TextDirection.LeftToRight,
             theme: context.theme || Theme.Utils.light(),
-            textMeasurement: context.textMeasurement!
+            textMeasurement: context.textMeasurement ?? ({
+                measureTextWidth: (text: string, fontSize: number) => text.length * fontSize * 0.6,
+                wrapTextAccurate: (text: string, _maxWidth: number) => [text],
+                truncateTextAccurate: (text: string, _maxWidth: number) => text,
+                getFontMetrics: (fontSize: number) => ({
+                    height: fontSize * 1.2,
+                    baseline: fontSize * 0.8,
+                    ascender: fontSize * 0.8,
+                    descender: fontSize * 0.2
+                }),
+                measureCharWidth: (char: string, fontSize: number) => fontSize * 0.6,
+                measureTextWithWrapping: (text: string, _maxWidth: number) => ({ lines: [text], height: 12 }),
+                getTextBounds: (text: string, fontSize: number) => ({ width: text.length * fontSize * 0.6, height: fontSize * 1.2 }),
+                clearCache: () => { /* no-op */ },
+                getCacheStats: () => ({ size: 0, hits: 0, misses: 0 })
+            } as unknown as NonNullable<Layout.LayoutContext['textMeasurement']>)
         };
 
         try {
             // HEADER FIX: Layout the widget first to ensure child widgets are properly positioned
             const layoutResult = widget.layout(layoutContext);
-            console.log(`        - ${isHeader ? 'Header' : 'Footer'} layout result: ${layoutResult.size.width}x${layoutResult.size.height}`);
+            widgetLogger.debug(`        - ${isHeader ? 'Header' : 'Footer'} layout result: ${layoutResult.size.width}x${layoutResult.size.height}`);
         } catch (error) {
-            console.warn(`MultiPage: Failed to layout ${isHeader ? 'header' : 'footer'} during paint:`, error);
+            widgetLogger.warn(`MultiPage: Failed to layout ${isHeader ? 'header' : 'footer'} during paint:`, error);
         }
 
         // Translate to header/footer area
@@ -723,8 +744,8 @@ export const MultiPageUtils = {
         }
 
         const props: MultiPageProps = { children };
-        if (header) props.header = header;
-        if (footer) props.footer = footer;
+        if (header) { props.header = header; }
+        if (footer) { props.footer = footer; }
 
         return new MultiPage(props);
     },
@@ -745,7 +766,7 @@ export const MultiPageUtils = {
         let header: ((pageNumber: number, totalPages: number) => Widget) | undefined;
         let footer: ((pageNumber: number, totalPages: number) => Widget) | undefined;
 
-        if (title || showPageNumbers) {
+        if (title ?? showPageNumbers) {
             header = (pageNum, totalPages) => {
                 if (title && showPageNumbers) {
                     return new Container({
@@ -763,13 +784,13 @@ export const MultiPageUtils = {
                         child: new TextWidget(title),
                         padding: Layout.EdgeInsets.symmetric({ vertical: 8 })
                     });
-                } else {
-                    return new Container({
-                        child: new TextWidget(`Page ${pageNum} of ${totalPages}`),
-                        padding: Layout.EdgeInsets.symmetric({ vertical: 8 }),
-                        alignment: Layout.Alignment.CenterRight
-                    });
                 }
+                return new Container({
+                    child: new TextWidget(`Page ${pageNum} of ${totalPages}`),
+                    padding: Layout.EdgeInsets.symmetric({ vertical: 8 }),
+                    alignment: Layout.Alignment.CenterRight
+                });
+
             };
         }
 
@@ -777,9 +798,9 @@ export const MultiPageUtils = {
             children,
             pageBreakBehavior: PageBreakBehavior.Auto
         };
-        if (header) props.header = header;
-        if (footer) props.footer = footer;
-        if (margins) props.pageMargins = margins;
+        if (header) { props.header = header; }
+        if (footer) { props.footer = footer; }
+        if (margins) { props.pageMargins = margins; }
 
         return new MultiPage(props);
     }

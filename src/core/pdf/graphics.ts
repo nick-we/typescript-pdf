@@ -7,8 +7,8 @@
  * @packageDocumentation
  */
 
-import { PdfFont } from './font-engine.js';
 import { PdfColor } from './color.js';
+import type { PdfFont } from './font-engine.js';
 
 /**
  * PDF content stream for graphics operations
@@ -56,7 +56,7 @@ export class Matrix4 {
     public elements: number[];
 
     constructor(elements?: number[]) {
-        this.elements = elements || [
+        this.elements = elements ?? [
             1, 0, 0, 0,
             0, 1, 0, 0,
             0, 0, 1, 0,
@@ -85,10 +85,10 @@ export class Matrix4 {
         for (let i = 0; i < 4; i++) {
             for (let j = 0; j < 4; j++) {
                 result[i * 4 + j] =
-                    (a[i * 4 + 0] || 0) * (b[0 * 4 + j] || 0) +
-                    (a[i * 4 + 1] || 0) * (b[1 * 4 + j] || 0) +
-                    (a[i * 4 + 2] || 0) * (b[2 * 4 + j] || 0) +
-                    (a[i * 4 + 3] || 0) * (b[3 * 4 + j] || 0);
+                    (a[i * 4 + 0] ?? 0) * (b[0 * 4 + j] ?? 0) +
+                    (a[i * 4 + 1] ?? 0) * (b[1 * 4 + j] ?? 0) +
+                    (a[i * 4 + 2] ?? 0) * (b[2 * 4 + j] ?? 0) +
+                    (a[i * 4 + 3] ?? 0) * (b[3 * 4 + j] ?? 0);
             }
         }
 
@@ -162,12 +162,14 @@ export class PdfGraphics {
      */
     restore(): void {
         if (this.contextStack.length > 0) {
-            const state = this.contextStack.pop()!;
-            this.context.fillColor = state.fillColor;
-            this.context.strokeColor = state.strokeColor;
-            this.context.lineWidth = state.lineWidth;
-            this.context.font = state.font;
-            this.context.fontSize = state.fontSize;
+            const state = this.contextStack.pop();
+            if (state) {
+                this.context.fillColor = state.fillColor;
+                this.context.strokeColor = state.strokeColor;
+                this.context.lineWidth = state.lineWidth;
+                this.context.font = state.font;
+                this.context.fontSize = state.fontSize;
+            }
         }
         this.contentStream.write('Q\n');
     }
@@ -192,8 +194,8 @@ export class PdfGraphics {
     setTransform(matrix: Matrix4): void {
         const m = matrix.elements;
         this.transform(
-            m[0] || 1, m[1] || 0, m[4] || 0,
-            m[5] || 1, m[12] || 0, m[13] || 0
+            m[0] ?? 1, m[1] ?? 0, m[4] ?? 0,
+            m[5] ?? 1, m[12] ?? 0, m[13] ?? 0
         );
     }
 

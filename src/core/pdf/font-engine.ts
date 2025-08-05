@@ -17,7 +17,7 @@
 export interface PdfDocument {
     genSerial(): number;
     objects: {
-        add(obj: any): void;
+        add(obj: unknown): void;
     };
 }
 
@@ -57,9 +57,9 @@ interface FontMetrics {
  * Create character width array with actual character widths
  */
 function createCharacterWidths(baseWidths: Record<number, number>, defaultWidth: number): number[] {
-    const widths = new Array(256).fill(defaultWidth);
+    const widths: number[] = new Array<number>(256).fill(defaultWidth);
     for (const [charCode, width] of Object.entries(baseWidths)) {
-        widths[parseInt(charCode)] = width;
+        widths[parseInt(charCode, 10)] = width;
     }
     return widths;
 }
@@ -68,15 +68,15 @@ function createCharacterWidths(baseWidths: Record<number, number>, defaultWidth:
  * Helvetica character widths (in font units per 1000 em)
  */
 const HELVETICA_WIDTHS = createCharacterWidths({
-    32: 278,   // space
-    33: 278,   // !
-    48: 556,   // 0-9
+    32: 278, // space
+    33: 278, // !
+    48: 556, // 0-9
     49: 556, 50: 556, 51: 556, 52: 556, 53: 556, 54: 556, 55: 556, 56: 556, 57: 556,
-    65: 667,   // A-Z
+    65: 667, // A-Z
     66: 667, 67: 722, 68: 722, 69: 667, 70: 611, 71: 778, 72: 722, 73: 278, 74: 500,
     75: 667, 76: 556, 77: 833, 78: 722, 79: 778, 80: 667, 81: 778, 82: 722, 83: 667,
     84: 611, 85: 722, 86: 667, 87: 944, 88: 667, 89: 667, 90: 611,
-    97: 556,   // a-z
+    97: 556, // a-z
     98: 556, 99: 500, 100: 556, 101: 556, 102: 278, 103: 556, 104: 556, 105: 222,
     106: 222, 107: 500, 108: 222, 109: 833, 110: 556, 111: 556, 112: 556, 113: 556,
     114: 333, 115: 500, 116: 278, 117: 556, 118: 500, 119: 722, 120: 500, 121: 500, 122: 500,
@@ -86,14 +86,14 @@ const HELVETICA_WIDTHS = createCharacterWidths({
  * Times Roman character widths
  */
 const TIMES_WIDTHS = createCharacterWidths({
-    32: 250,   // space
-    48: 500,   // 0-9
+    32: 250, // space
+    48: 500, // 0-9
     49: 500, 50: 500, 51: 500, 52: 500, 53: 500, 54: 500, 55: 500, 56: 500, 57: 500,
-    65: 722,   // A-Z
+    65: 722, // A-Z
     66: 667, 67: 667, 68: 722, 69: 611, 70: 556, 71: 722, 72: 722, 73: 333, 74: 389,
     75: 722, 76: 611, 77: 889, 78: 722, 79: 722, 80: 556, 81: 722, 82: 667, 83: 556,
     84: 611, 85: 722, 86: 722, 87: 944, 88: 722, 89: 722, 90: 611,
-    97: 444,   // a-z
+    97: 444, // a-z
     98: 500, 99: 444, 100: 500, 101: 444, 102: 333, 103: 500, 104: 500, 105: 278,
     106: 278, 107: 500, 108: 278, 109: 778, 110: 500, 111: 500, 112: 500, 113: 500,
     114: 333, 115: 389, 116: 278, 117: 500, 118: 500, 119: 722, 120: 500, 121: 500, 122: 444,
@@ -184,7 +184,7 @@ const FONT_METRICS: Record<PdfStandardFont, FontMetrics> = {
         unitsPerEm: 1000,
     },
     [PdfStandardFont.Courier]: {
-        widths: new Array(256).fill(600), // Monospace
+        widths: new Array(256).fill(600) as number[], // Monospace
         ascender: 629,
         descender: -157,
         capHeight: 562,
@@ -192,7 +192,7 @@ const FONT_METRICS: Record<PdfStandardFont, FontMetrics> = {
         unitsPerEm: 1000,
     },
     [PdfStandardFont.CourierBold]: {
-        widths: new Array(256).fill(600),
+        widths: new Array(256).fill(600) as number[],
         ascender: 629,
         descender: -157,
         capHeight: 562,
@@ -200,7 +200,7 @@ const FONT_METRICS: Record<PdfStandardFont, FontMetrics> = {
         unitsPerEm: 1000,
     },
     [PdfStandardFont.CourierOblique]: {
-        widths: new Array(256).fill(600),
+        widths: new Array(256).fill(600) as number[],
         ascender: 629,
         descender: -157,
         capHeight: 562,
@@ -208,7 +208,7 @@ const FONT_METRICS: Record<PdfStandardFont, FontMetrics> = {
         unitsPerEm: 1000,
     },
     [PdfStandardFont.CourierBoldOblique]: {
-        widths: new Array(256).fill(600),
+        widths: new Array(256).fill(600) as number[],
         ascender: 629,
         descender: -157,
         capHeight: 562,
@@ -245,8 +245,8 @@ export class PdfFont {
     constructor(document: PdfDocument, fontName: PdfStandardFont, name?: string) {
         this.fontName = fontName;
         // Use standard PDF font names instead of generated names
-        this.name = name || this.getStandardPdfName(fontName);
-        this.metrics = FONT_METRICS[fontName]!;
+        this.name = name ?? this.getStandardPdfName(fontName);
+        this.metrics = FONT_METRICS[fontName] ?? FONT_METRICS[PdfStandardFont.Helvetica];
         this.id = document.genSerial();
 
         // Register with document if provided
@@ -300,7 +300,7 @@ export class PdfFont {
         let width = 0;
         for (let i = 0; i < text.length; i++) {
             const charCode = text.charCodeAt(i);
-            width += this.metrics.widths[charCode] || 500;
+            width += this.metrics.widths[charCode] ?? 500;
         }
         return width;
     }
@@ -357,7 +357,7 @@ export class PdfFont {
     /**
      * Put text string (simplified)
      */
-    putText(stream: any, text: string): void {
+    putText(stream: { write: (data: string) => void }, text: string): void {
         if (stream && typeof stream.write === 'function') {
             stream.write(`(${text.replace(/[()\\]/g, '\\$&')})`);
         }
@@ -399,28 +399,36 @@ export class FontRegistry {
         };
 
         // Default to Helvetica for unknown fonts
-        const pdfStandardFont = fontMapping[fontFamily] || PdfStandardFont.Helvetica;
+        const pdfStandardFont = fontMapping[fontFamily] ?? PdfStandardFont.Helvetica;
 
         if (!this.fonts.has(fontFamily)) {
             const font = new PdfFont(this.document, pdfStandardFont);
             this.fonts.set(fontFamily, font);
         }
 
-        return this.fonts.get(fontFamily)!;
+        const font = this.fonts.get(fontFamily);
+        if (!font) {
+            throw new Error(`Font ${fontFamily} not found in registry`);
+        }
+        return font;
     }
 
     /**
      * Get font by standard PDF font enum (backward compatibility)
      */
     getFontByEnum(fontName: PdfStandardFont, name?: string): PdfFont {
-        const key = name || fontName;
+        const key = name ?? fontName;
 
         if (!this.fonts.has(key)) {
             const font = new PdfFont(this.document, fontName, name);
             this.fonts.set(key, font);
         }
 
-        return this.fonts.get(key)!;
+        const font = this.fonts.get(key);
+        if (!font) {
+            throw new Error(`Font ${key} not found in registry`);
+        }
+        return font;
     }
 
     /**

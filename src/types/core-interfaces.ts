@@ -7,7 +7,7 @@
  * @packageDocumentation
  */
 
-import { Geometry } from '../types.js';
+import type { Geometry } from '../types.js';
 
 /**
  * Font weight enumeration (duplicated from fonts.ts to avoid circular import)
@@ -254,7 +254,7 @@ export interface IDocument {
     addPage(options?: IPageOptions): unknown; // Page
     getPages(): readonly unknown[]; // Page[]
     getPageCount(): number;
-    save(): Promise<Uint8Array>;
+    save(): Uint8Array;
     getStats(): {
         pageCount: number;
         fontStats: unknown;
@@ -273,11 +273,11 @@ export interface IWidget {
  * Color value types for type-safe color operations
  */
 export type ColorValue =
-    | string                           // Hex colors: "#ff0000", "#f00", "red"
-    | IPdfColor                        // RGB object: { red: 1, green: 0, blue: 0 }
-    | [number, number, number]         // RGB array: [255, 0, 0]
+    | string // Hex colors: "#ff0000", "#f00", "red"
+    | IPdfColor // RGB object: { red: 1, green: 0, blue: 0 }
+    | [number, number, number] // RGB array: [255, 0, 0]
     | [number, number, number, number] // RGBA array: [255, 0, 0, 1]
-    | number;                          // Grayscale: 0-255 or 0-1
+    | number; // Grayscale: 0-255 or 0-1
 
 /**
  * Parsed color result interface

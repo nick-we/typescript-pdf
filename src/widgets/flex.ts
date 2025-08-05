@@ -7,12 +7,16 @@
  * @packageDocumentation
  */
 
-import { BaseWidget, type Widget, type WidgetProps } from './base.js';
+import { widgetLogger } from '../core/logger.js';
+import type {
+    Geometry
+} from '../types.js';
 import {
     Layout,
-    Geometry,
     Flex as FlexTypes,
 } from '../types.js';
+
+import { BaseWidget, type Widget, type WidgetProps } from './base.js';
 
 /**
  * Properties for the Flex widget
@@ -253,26 +257,32 @@ export class Flex extends BaseWidget {
         const remainingMainSpace = Math.max(0, containerMainSize - totalMainSize);
 
         switch (this.mainAxisAlignment) {
-            case FlexTypes.MainAxisAlignment.Start:
+            case FlexTypes.MainAxisAlignment.Start: {
                 currentMainPos = 0;
                 break;
-            case FlexTypes.MainAxisAlignment.End:
+            }
+            case FlexTypes.MainAxisAlignment.End: {
                 currentMainPos = remainingMainSpace;
                 break;
-            case FlexTypes.MainAxisAlignment.Center:
+            }
+            case FlexTypes.MainAxisAlignment.Center: {
                 currentMainPos = remainingMainSpace / 2;
                 break;
-            case FlexTypes.MainAxisAlignment.SpaceBetween:
+            }
+            case FlexTypes.MainAxisAlignment.SpaceBetween: {
                 currentMainPos = 0;
                 break;
-            case FlexTypes.MainAxisAlignment.SpaceAround:
+            }
+            case FlexTypes.MainAxisAlignment.SpaceAround: {
                 const aroundSpace = remainingMainSpace / childLayouts.length;
                 currentMainPos = aroundSpace / 2;
                 break;
-            case FlexTypes.MainAxisAlignment.SpaceEvenly:
+            }
+            case FlexTypes.MainAxisAlignment.SpaceEvenly: {
                 const evenSpace = remainingMainSpace / (childLayouts.length + 1);
                 currentMainPos = evenSpace;
                 break;
+            }
         }
 
         childLayouts.forEach((child, i) => {
@@ -368,7 +378,7 @@ export class Flex extends BaseWidget {
             return;
         }
 
-        console.log(`Painting flex (${this.direction}) with ${this.children.length} children`);
+        widgetLogger.debug(`Painting flex (${this.direction}) with ${this.children.length} children`);
 
         // Re-layout to get child positions (in a real implementation, this would be cached)
         const layoutContext: Layout.LayoutContext = {
@@ -381,7 +391,7 @@ export class Flex extends BaseWidget {
 
         // Paint each child at its calculated position
         childLayouts.forEach((childLayout, i) => {
-            console.log(`  - Child ${i} at position (${childLayout.position.x}, ${childLayout.position.y})`);
+            widgetLogger.debug(`  - Child ${i} at position (${childLayout.position.x}, ${childLayout.position.y})`);
 
             // Apply graphics translation using Container pattern
             if (context.graphics) {
@@ -506,7 +516,7 @@ export const FlexUtils = {
      */
     expanded(child: Widget, flex?: number): Expanded {
         const props: { child: Widget; flex?: number } = { child };
-        if (flex !== undefined) props.flex = flex;
+        if (flex !== undefined) { props.flex = flex; }
         return new Expanded(props);
     },
 };

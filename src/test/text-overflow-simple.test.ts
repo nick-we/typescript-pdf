@@ -3,9 +3,10 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { Table, TextOverflow, DataUtils } from '../widgets/data.js';
-import { Layout, Theme } from '../types.js';
-import { createMockPaintContext } from './mock-interfaces.js';
+
+import { createMockPaintContext } from '@/test/mock-interfaces.js';
+import { Table, TextOverflow } from '@/widgets/data.js';
+
 
 describe('Text Overflow Simple Verification', () => {
     it('should have TextOverflow enum with correct values', () => {

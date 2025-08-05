@@ -11,12 +11,12 @@ import { describe, it, expect } from 'vitest';
 
 // Import consolidated systems
 import {
-    Document,
     DocumentFactory,
     PageFactory,
     FontSystem,
     TextProcessor,
-    PdfStandardFont
+    PdfStandardFont,
+    TextAlign
 } from '../core/index.js';
 import { Layout, Geometry, Theme, Internal } from '../types.js';
 
@@ -47,13 +47,17 @@ describe('Core Systems', () => {
 
     describe('Font System', () => {
         let fontSystem: FontSystem;
-        let mockDocument: any;
+        let mockDocument: {
+            genSerial: () => number;
+            objects: { add: (obj: unknown) => void };
+            fontRegistry?: unknown;
+        };
 
         beforeEach(() => {
             mockDocument = {
                 genSerial: () => Math.floor(Math.random() * 10000),
-                objects: { add: vi.fn() },
-                fontRegistry: null
+                objects: { add: () => { } },
+                fontRegistry: undefined
             };
             fontSystem = new FontSystem(mockDocument);
         });
@@ -76,7 +80,7 @@ describe('Core Systems', () => {
         });
 
         it('should handle font fallbacks', () => {
-            const font = fontSystem.getFontWithStyle('NonExistentFont', 'normal' as any, 'normal' as any);
+            const font = fontSystem.getFontWithStyle('NonExistentFont', Theme.FontWeight.Normal, Theme.FontStyle.Normal);
             expect(font).toBeDefined();
             expect(font.fontFamily).toBe('Helvetica'); // Should fallback
         });
@@ -99,8 +103,8 @@ describe('Core Systems', () => {
         beforeEach(() => {
             const mockDocument = {
                 genSerial: () => Math.floor(Math.random() * 10000),
-                objects: { add: vi.fn() },
-                fontRegistry: null
+                objects: { add: () => { } },
+                fontRegistry: undefined
             };
             fontSystem = new FontSystem(mockDocument);
             textProcessor = new TextProcessor(fontSystem);
@@ -136,7 +140,7 @@ describe('Core Systems', () => {
                 {
                     fontSize: 12,
                     fontFamily: 'Helvetica',
-                    align: 'center' as any,
+                    align: TextAlign.Center,
                     maxLines: 2
                 }
             );
@@ -262,7 +266,7 @@ describe('Core Systems', () => {
             expect(result.a).toBe(1); // Unchanged
             expect(result.b).toBe(20); // Overridden
             expect(result.c).toBe(3); // Unchanged
-            expect((result as any).d).toBe(4); // Added
+            expect('d' in result ? (result as Record<string, unknown>).d : undefined).toBe(4); // Added
         });
     });
 });

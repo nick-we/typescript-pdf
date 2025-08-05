@@ -5,8 +5,9 @@
  * while maintaining flexibility for test scenarios.
  */
 
-import { Layout, Geometry, Theme, Internal } from '../types.js';
-import type { ITextMeasurementService, IGraphicsContext, IDocument, IFontSystem, ITextMeasurementOptions, FontWeight, FontStyle } from '../types/core-interfaces.js';
+import type { ITextMeasurementService, IGraphicsContext, IFontSystem, ITextMeasurementOptions, FontWeight, FontStyle } from '../types/core-interfaces.js';
+import type { Geometry } from '../types.js';
+import { Layout, Theme } from '../types.js';
 
 /**
  * Mock Text Measurement Service Interface
@@ -103,7 +104,7 @@ export interface MockGraphicsContext {
  */
 export interface MockDocument {
     addPage: (options?: PageOptions) => MockPage;
-    save: () => Promise<Uint8Array>;
+    save: () => Uint8Array;
     getPages: () => MockPage[];
     fontSystem: MockFontSystem;
     getPageCount: () => number;
@@ -234,11 +235,11 @@ export function createMockTextMeasurementService(options: Partial<MockTextMeasur
                 if (testLine.length <= charsPerLine) {
                     currentLine = testLine;
                 } else {
-                    if (currentLine) lines.push(currentLine);
+                    if (currentLine) { lines.push(currentLine); }
                     currentLine = word;
                 }
             }
-            if (currentLine) lines.push(currentLine);
+            if (currentLine) { lines.push(currentLine); }
             return lines;
         },
 
@@ -294,26 +295,26 @@ export function createMockGraphicsContext(options: Partial<MockGraphicsContext> 
         restoreContext: () => { /* Mock implementation */ },
 
         // Colors
-        setFillColor: (color: { red: number; green: number; blue: number }) => { /* Mock implementation */ },
-        setStrokeColor: (color: { red: number; green: number; blue: number }) => { /* Mock implementation */ },
+        setFillColor: (_color: { red: number; green: number; blue: number }) => { /* Mock implementation */ },
+        setStrokeColor: (_color: { red: number; green: number; blue: number }) => { /* Mock implementation */ },
 
         // Line properties
-        setLineWidth: (width: number) => { /* Mock implementation */ },
-        setLineDash: (dashArray: number[], dashPhase?: number) => { /* Mock implementation */ },
+        setLineWidth: (_width: number) => { /* Mock implementation */ },
+        setLineDash: (_dashArray: number[], _dashPhase?: number) => { /* Mock implementation */ },
 
         // Clipping
-        setClippingRect: (x: number, y: number, width: number, height: number) => { /* Mock implementation */ },
+        setClippingRect: (_x: number, _y: number, _width: number, _height: number) => { /* Mock implementation */ },
         clearClipping: () => { /* Mock implementation */ },
 
         // Path operations
-        moveTo: (x: number, y: number) => { /* Mock implementation */ },
-        lineTo: (x: number, y: number) => { /* Mock implementation */ },
-        curveTo: (cp1x: number, cp1y: number, cp2x: number, cp2y: number, x: number, y: number) => { /* Mock implementation */ },
+        moveTo: (_x: number, _y: number) => { /* Mock implementation */ },
+        lineTo: (_x: number, _y: number) => { /* Mock implementation */ },
+        curveTo: (_cp1x: number, _cp1y: number, _cp2x: number, _cp2y: number, _x: number, _y: number) => { /* Mock implementation */ },
         closePath: () => { /* Mock implementation */ },
 
         // Drawing operations
-        drawRect: (x: number, y: number, width: number, height: number) => { /* Mock implementation */ },
-        drawRoundedRect: (x: number, y: number, width: number, height: number, topLeft?: number, topRight?: number, bottomRight?: number, bottomLeft?: number) => { /* Mock implementation */ },
+        drawRect: (_x: number, _y: number, _width: number, _height: number) => { /* Mock implementation */ },
+        drawRoundedRect: (_x: number, _y: number, _width: number, _height: number, _topLeft?: number, _topRight?: number, _bottomRight?: number, _bottomLeft?: number) => { /* Mock implementation */ },
 
         // Path rendering
         fillPath: () => { /* Mock implementation */ },
@@ -321,14 +322,14 @@ export function createMockGraphicsContext(options: Partial<MockGraphicsContext> 
         fillAndStrokePath: () => { /* Mock implementation */ },
 
         // Text rendering
-        drawString: (font: unknown, fontSize: number, text: string, x: number, y: number) => { /* Mock implementation */ },
-        setFont: (font: unknown, fontSize: number) => { /* Mock implementation */ },
+        drawString: (_font: unknown, _fontSize: number, _text: string, _x: number, _y: number) => { /* Mock implementation */ },
+        setFont: (_font: unknown, _fontSize: number) => { /* Mock implementation */ },
 
         // Transformations
-        transform: (a: number, b: number, c: number, d: number, e: number, f: number) => { /* Mock implementation */ },
-        translate: (x: number, y: number) => { /* Mock implementation */ },
-        scale: (sx: number, sy: number) => { /* Mock implementation */ },
-        rotate: (angle: number) => { /* Mock implementation */ },
+        transform: (_a: number, _b: number, _c: number, _d: number, _e: number, _f: number) => { /* Mock implementation */ },
+        translate: (_x: number, _y: number) => { /* Mock implementation */ },
+        scale: (_sx: number, _sy: number) => { /* Mock implementation */ },
+        rotate: (_angle: number) => { /* Mock implementation */ },
 
         // Content management
         getContent: () => 'mock content',
@@ -340,8 +341,8 @@ export function createMockGraphicsContext(options: Partial<MockGraphicsContext> 
         fontRegistry: undefined,
 
         // Legacy compatibility methods
-        setColor: (color: string | { r: number; g: number; b: number }) => { /* Mock implementation */ },
-        drawLine: (x1: number, y1: number, x2: number, y2: number) => { /* Mock implementation */ },
+        setColor: (_color: string | { r: number; g: number; b: number }) => { /* Mock implementation */ },
+        drawLine: (_x1: number, _y1: number, _x2: number, _y2: number) => { /* Mock implementation */ },
 
         ...options
     };
@@ -356,10 +357,10 @@ export function createMockDocument(options: Partial<MockDocument> = {}): MockDoc
     return {
         addPage: (pageOptions?: PageOptions) => {
             const page: MockPage = {
-                size: pageOptions?.size || { width: 595, height: 842 }, // A4 default
-                margins: pageOptions?.margins || Layout.EdgeInsets.all(20),
-                format: pageOptions?.format || undefined,
-                orientation: pageOptions?.orientation || undefined
+                size: pageOptions?.size ?? { width: 595, height: 842 }, // A4 default
+                margins: pageOptions?.margins ?? Layout.EdgeInsets.all(20),
+                format: pageOptions?.format ?? undefined,
+                orientation: pageOptions?.orientation ?? undefined
             };
             pages.push(page);
             return page;
@@ -367,7 +368,7 @@ export function createMockDocument(options: Partial<MockDocument> = {}): MockDoc
         fontSystem: createMockFontSystem(),
         getPageCount: () => pages.length,
         getStats: () => ({ pageCount: pages.length, fontStats: {} }),
-        save: async () => new Uint8Array(0),
+        save: () => new Uint8Array(0),
         getPages: () => [...pages],
         ...options
     };
@@ -380,8 +381,8 @@ export function createMockFontSystem(options: Partial<MockFontSystem> = {}): Moc
     const fonts = new Map<string, MockFont>();
 
     return {
-        getFont: (fontNameOrFamily: string, name?: string) => {
-            return fonts.get(fontNameOrFamily) || {
+        getFont: (fontNameOrFamily: string, _name?: string) => {
+            return fonts.get(fontNameOrFamily) ?? {
                 name: fontNameOrFamily,
                 fontFamily: fontNameOrFamily,
                 type: 'standard' as const,
@@ -397,11 +398,11 @@ export function createMockFontSystem(options: Partial<MockFontSystem> = {}): Moc
             };
         },
         getFontWithStyle: (family: string | string[], weight?: FontWeight, style?: FontStyle) => {
-            const fontFamily = Array.isArray(family) ? (family[0] || 'Helvetica') : family;
+            const fontFamily = Array.isArray(family) ? (family[0] ?? 'Helvetica') : family;
             const weightStr = weight ? weight.toString() : 'normal';
-            const styleStr = style || 'normal';
+            const styleStr = style ?? 'normal';
             const key = `${fontFamily}-${weightStr}-${styleStr}`;
-            return fonts.get(key) || {
+            return fonts.get(key) ?? {
                 name: `${fontFamily}-${weightStr}-${styleStr}`,
                 fontFamily: fontFamily,
                 type: 'standard' as const,
@@ -418,7 +419,7 @@ export function createMockFontSystem(options: Partial<MockFontSystem> = {}): Moc
                 getUnderlyingFont: () => ({})
             };
         },
-        registerFont: (fontFamily: string, fontData: Uint8Array) => {
+        registerFont: (fontFamily: string, _fontData: Uint8Array) => {
             fonts.set(fontFamily, {
                 name: fontFamily,
                 fontFamily,
@@ -503,8 +504,8 @@ export function setupDOMMocks(): void {
             })
         };
 
-        // Use any for global assignment to avoid complex type issues
-        (global as any).window = mockWindow;
-        (global as any).document = mockDocument;
+        // Use Record<string, unknown> for global assignment with proper typing
+        (global as Record<string, unknown>)['window'] = mockWindow;
+        (global as Record<string, unknown>)['document'] = mockDocument;
     }
 }

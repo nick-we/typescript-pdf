@@ -7,10 +7,11 @@
  */
 
 import { describe, test, expect } from 'vitest';
+
+import { Document } from '../core/document.js';
+import { Layout, defaultTheme } from '../types.js';
 import { Container } from '../widgets/layout.js';
 import { TextWidget } from '../widgets/text.js';
-import { Layout, Theme, defaultTheme } from '../types.js';
-import { Document } from '../core/document.js';
 
 describe('Container Alignment System', () => {
     const mockTheme = defaultTheme;
@@ -138,7 +139,7 @@ describe('Container Alignment System', () => {
 });
 
 describe('Container Alignment Visual Test', () => {
-    test('Generate PDF with alignment demonstration', async () => {
+    test('Generate PDF with alignment demonstration', () => {
         const doc = new Document();
 
         // Create containers with different alignments to visually verify positioning
@@ -167,7 +168,7 @@ describe('Container Alignment Visual Test', () => {
             build: () => alignmentShowcase
         });
 
-        const pdfBytes = await doc.save();
+        const pdfBytes = doc.save();
         expect(pdfBytes).toBeInstanceOf(Uint8Array);
         expect(pdfBytes.length).toBeGreaterThan(0);
 

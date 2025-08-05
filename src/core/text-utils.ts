@@ -13,8 +13,12 @@
  * @packageDocumentation
  */
 
-import { FontSystem, FontWeight, FontStyle } from './fonts.js';
-import { Geometry } from '../types.js';
+
+import { getGlobalTextMeasurement } from '@/core/accurate-text-measurement.js';
+import type { FontSystem } from '@/core/fonts.js';
+import { FontWeight, FontStyle } from '@/core/fonts.js';
+import type { Geometry } from '@/types.js';
+
 
 /**
  * Text alignment options
@@ -105,7 +109,7 @@ export interface TextMeasurement {
  * Provides core text functionality without over-engineering
  */
 export class TextProcessor {
-    private fontSystem: FontSystem;
+    private readonly fontSystem: FontSystem;
 
     constructor(fontSystem: FontSystem) {
         this.fontSystem = fontSystem;
@@ -117,17 +121,17 @@ export class TextProcessor {
     measureText(text: string, options: TextMeasurementOptions): TextMeasurement {
         const font = this.fontSystem.getFontWithStyle(
             options.fontFamily,
-            options.fontWeight || FontWeight.Normal,
-            options.fontStyle || FontStyle.Normal
+            options.fontWeight ?? FontWeight.Normal,
+            options.fontStyle ?? FontStyle.Normal
         );
 
         const fontSize = options.fontSize;
         const width = font.measureTextWidth(text, fontSize);
         // Use standard calculation: fontSize * lineHeight for consistency with tests
-        const height = fontSize * (options.lineHeight || 1.2);
+        const height = fontSize * (options.lineHeight ?? 1.2);
 
         return {
-            width: width + (text.length * (options.letterSpacing || 0)),
+            width: width + (text.length * (options.letterSpacing ?? 0)),
             height,
             lines: 1,
         };
@@ -169,16 +173,19 @@ export class TextProcessor {
         let lines = this.breakIntoLines(text, maxWidth, options);
 
         // Apply line limit
-        const maxLines = options.maxLines || Number.MAX_SAFE_INTEGER;
+        const maxLines = options.maxLines ?? Number.MAX_SAFE_INTEGER;
         const truncated = lines.length > maxLines;
         if (truncated) {
             lines = lines.slice(0, maxLines);
 
             // Handle ellipsis overflow
             if (options.overflow === TextOverflow.Ellipsis && lines.length > 0) {
-                const lastLine = lines[lines.length - 1]!;
+                const lastLine = lines[lines.length - 1];
+                if (!lastLine) {
+                    return this.createEmptyResult();
+                }
+
                 const ellipsis = '…';
-                const ellipsisWidth = this.measureText(ellipsis, options).width;
 
                 // Truncate last line to fit ellipsis
                 let truncatedText = lastLine.text;
@@ -195,12 +202,12 @@ export class TextProcessor {
         }
 
         // Apply alignment
-        lines = this.applyAlignment(lines, maxWidth, options.align || TextAlign.Left);
+        lines = this.applyAlignment(lines, maxWidth, options.align ?? TextAlign.Left);
 
         // Calculate total dimensions
         const totalWidth = Math.max(...lines.map(line => line.width));
         const totalHeight = lines.reduce((sum, line) => sum + line.height, 0);
-        const baseline = lines.length > 0 ? lines[0]!.height * 0.8 : 0;
+        const baseline = lines.length > 0 ? (lines[0]?.height ?? 0) * 0.8 : 0;
 
         return {
             lines,
@@ -217,7 +224,7 @@ export class TextProcessor {
     private breakIntoLines(text: string, maxWidth: number, options: TextMeasurementOptions): TextLine[] {
         const words = text.split(/\s+/).filter(word => word.length > 0);
         const lines: TextLine[] = [];
-        const lineHeight = options.fontSize * (options.lineHeight || 1.2);
+        const lineHeight = options.fontSize * (options.lineHeight ?? 1.2);
 
         let currentLine: string[] = [];
         let currentWidth = 0;
@@ -326,8 +333,8 @@ export class TextProcessor {
             maxFontSize?: number;
         }
     ): number {
-        const minSize = options.minFontSize || 8;
-        const maxSize = options.maxFontSize || 72;
+        const minSize = options.minFontSize ?? 8;
+        const maxSize = options.maxFontSize ?? 72;
 
         let low = minSize;
         let high = maxSize;
@@ -358,11 +365,9 @@ export const TextUtils = {
     /**
      * Quick text width measurement
      */
-    measureWidth: (text: string, fontSize: number, fontFamily = 'Helvetica'): number => {
-        // Simple estimation for basic use cases
+    measureWidth: (text: string, fontSize: number): number => {
         // Use accurate text measurement service if available
         try {
-            const { getGlobalTextMeasurement } = require('./accurate-text-measurement');
             const measurementService = getGlobalTextMeasurement();
             return measurementService.measureTextWidth(text, fontSize);
         } catch {
@@ -402,16 +407,15 @@ export const TextUtils = {
     /**
      * Truncate text to fit width with ellipsis
      */
-    truncateText: (text: string, maxWidth: number, fontSize: number, fontFamily = 'Helvetica'): string => {
+    truncateText: (text: string, maxWidth: number, fontSize: number): string => {
         const ellipsis = '…';
-        const ellipsisWidth = TextUtils.measureWidth(ellipsis, fontSize, fontFamily);
 
-        if (TextUtils.measureWidth(text, fontSize, fontFamily) <= maxWidth) {
+        if (TextUtils.measureWidth(text, fontSize) <= maxWidth) {
             return text;
         }
 
         let truncated = text;
-        while (TextUtils.measureWidth(truncated + ellipsis, fontSize, fontFamily) > maxWidth && truncated.length > 0) {
+        while (TextUtils.measureWidth(truncated + ellipsis, fontSize) > maxWidth && truncated.length > 0) {
             truncated = truncated.slice(0, -1);
         }
 
@@ -421,14 +425,14 @@ export const TextUtils = {
     /**
      * Wrap text to fit within width
      */
-    wrapText: (text: string, maxWidth: number, fontSize: number, fontFamily = 'Helvetica'): string[] => {
+    wrapText: (text: string, maxWidth: number, fontSize: number): string[] => {
         const words = text.split(/\s+/).filter(word => word.length > 0);
         const lines: string[] = [];
         let currentLine: string[] = [];
 
         for (const word of words) {
             const testLine = [...currentLine, word].join(' ');
-            if (TextUtils.measureWidth(testLine, fontSize, fontFamily) <= maxWidth || currentLine.length === 0) {
+            if (TextUtils.measureWidth(testLine, fontSize) <= maxWidth || currentLine.length === 0) {
                 currentLine.push(word);
             } else {
                 if (currentLine.length > 0) {
@@ -452,12 +456,11 @@ export const TextUtils = {
         text: string,
         fontSize: number,
         maxWidth: number,
-        lineHeight = 1.2,
-        fontFamily = 'Helvetica'
+        lineHeight = 1.2
     ): Geometry.Size => {
-        const lines = TextUtils.wrapText(text, maxWidth, fontSize, fontFamily);
+        const lines = TextUtils.wrapText(text, maxWidth, fontSize);
         const width = Math.min(maxWidth, Math.max(...lines.map(line =>
-            TextUtils.measureWidth(line, fontSize, fontFamily)
+            TextUtils.measureWidth(line, fontSize)
         )));
         const height = lines.length * TextUtils.calculateLineHeight(fontSize, lineHeight);
 

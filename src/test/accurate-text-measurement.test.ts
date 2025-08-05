@@ -8,10 +8,12 @@
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
+
 import { AccurateTextMeasurementService } from '../core/accurate-text-measurement.js';
-import { FontSystem, FontWeight, FontStyle, PdfStandardFont } from '../core/fonts.js';
-import { TextWidget, TextAlign, TextOverflow, TextUtils } from '../widgets/text.js';
-import { Theme, Layout, Geometry } from '../types.js';
+import { FontSystem, FontWeight } from '../core/fonts.js';
+import type { Layout } from '../types.js';
+import { Theme } from '../types.js';
+import { TextWidget, TextUtils } from '../widgets/text.js';
 
 // Mock PdfDocument for FontSystem
 const mockPdfDocument = {

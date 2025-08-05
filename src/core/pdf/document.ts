@@ -7,7 +7,7 @@
  * @packageDocumentation
  */
 
-import { PdfFont, FontRegistry } from './font-engine.js';
+import { FontRegistry } from './font-engine.js';
 import { PdfGraphics } from './graphics.js';
 
 /**
@@ -144,7 +144,7 @@ export class PdfDocument {
     /**
      * Save document to bytes (improved implementation with content streams)
      */
-    async save(): Promise<Uint8Array> {
+    save(): Uint8Array {
         if (this.pages.length === 0) {
             throw new Error('Cannot save document with no pages');
         }
@@ -177,9 +177,8 @@ export class PdfDocument {
         objNum++;
 
         // Create page objects and content streams
-        for (let i = 0; i < this.pages.length; i++) {
-            const page = this.pages[i];
-            if (!page) continue;
+        for (const page of this.pages) {
+            if (!page) { continue; }
             const contentObjNum = objNum + this.pages.length;
             const size = page.getSize();
 
@@ -218,9 +217,8 @@ export class PdfDocument {
         }
 
         // Content stream objects
-        for (let i = 0; i < this.pages.length; i++) {
-            const page = this.pages[i];
-            if (!page) continue;
+        for (const page of this.pages) {
+            if (!page) { continue; }
             const content = page.getGraphics().getContent();
 
             objects.push([

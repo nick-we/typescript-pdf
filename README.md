@@ -1,18 +1,14 @@
 # typescript-pdf
 
-[![Version](https://img.shields.io/badge/version-0.5.0-blue.svg)](https://www.npmjs.com/package/typescript-pdf)
+[![Version](https://img.shields.io/badge/version-0.5.1-blue.svg)](https://www.npmjs.com/package/typescript-pdf)
 [![CI](https://github.com/nick-we/typescript-pdf/workflows/CI/badge.svg)](https://github.com/nick-we/typescript-pdf/actions)
-[![Test Coverage](https://img.shields.io/badge/test%20coverage-100%25-brightgreen.svg)](https://github.com/nick-we/typescript-pdf/actions)
 [![TypeScript](https://img.shields.io/badge/TypeScript-100%25-blue.svg)](https://github.com/nick-we/typescript-pdf)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 A TypeScript library for programmatic PDF generation with a declarative, widget-based API inspired by Flutter. Build complex PDF documents with type safety.
 
-## 🎯 Production Ready
+**typescript-pdf v0.5.1** represents a mature PDF generation library:
 
-**typescript-pdf v0.5.0** represents a mature PDF generation library:
-
-- ✅ **100% Test Coverage** - 267/267 tests passing
 - ✅ **Production Stability** - Comprehensive error handling and edge case coverage
 - ✅ **Advanced Features** - MultiPage documents, table text overflow, data visualization
 - ✅ **Cross-Platform** - Universal Node.js and browser compatibility
@@ -174,10 +170,10 @@ const pdfBytes = await doc.save();
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                    Declarative Widget API                   │
-│  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐          │
-│  │   Layout    │ │    Data     │ │   Theme     │          │
-│  │   Widgets   │ │ Visualization│ │   System    │          │
-│  └─────────────┘ └─────────────┘ └─────────────┘          │
+│  ┌─────────────┐ ┌───────────────┐  ┌───────────┐           │
+│  │   Layout    │ │     Data      │  │   Theme   │           │
+│  │   Widgets   │ │ Visualization │  │   System  │           │
+│  └─────────────┘ └───────────────┘  └───────────┘           │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -185,10 +181,10 @@ const pdfBytes = await doc.save();
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                     PDF Generation Core                     │
-│  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐          │
-│  │    Font     │ │  Graphics   │ │   Document  │          │
-│  │   System    │ │   Context   │ │  Management │          │
-│  └─────────────┘ └─────────────┘ └─────────────┘          │
+│  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐            │
+│  │    Font     │ │  Graphics   │ │   Document  │            │
+│  │   System    │ │   Context   │ │  Management │            │
+│  └─────────────┘ └─────────────┘ └─────────────┘            │
 └─────────────────────────────────────────────────────────────┘
 ```
 

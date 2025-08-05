@@ -6,10 +6,11 @@
  */
 
 import { describe, test, expect } from 'vitest';
-import { Container } from '../widgets/layout.js';
-import { TextWidget, TextOverflow, TextAlign, TextUtils } from '../widgets/text.js';
-import { Layout, defaultTheme } from '../types.js';
+
 import { Document } from '../core/document.js';
+import { Layout, defaultTheme } from '../types.js';
+import { Container } from '../widgets/layout.js';
+import { TextWidget, TextOverflow, TextUtils } from '../widgets/text.js';
 
 describe('Text Overflow Issues - Reproduction', () => {
     const mockTheme = defaultTheme;
@@ -18,7 +19,7 @@ describe('Text Overflow Issues - Reproduction', () => {
         const longText = "This is a very long text that should definitely wrap when placed inside a narrow container but currently doesn't wrap properly.";
 
         const narrowContainer = new Container({
-            width: 150,  // Narrow container
+            width: 150, // Narrow container
             height: 100,
             alignment: Layout.Alignment.TopLeft,
             decoration: {
@@ -27,7 +28,7 @@ describe('Text Overflow Issues - Reproduction', () => {
             },
             child: new TextWidget(longText, {
                 style: { fontSize: 12, color: '#000000' },
-                softWrap: true,  // Should wrap but probably doesn't
+                softWrap: true, // Should wrap but probably doesn't
                 overflow: TextOverflow.Clip
             })
         });
@@ -52,7 +53,7 @@ describe('Text Overflow Issues - Reproduction', () => {
 
         const text = new TextWidget(longText, {
             style: { fontSize: 14, color: '#000000' },
-            overflow: TextOverflow.Ellipsis,  // Should add ... but probably doesn't
+            overflow: TextOverflow.Ellipsis, // Should add ... but probably doesn't
             softWrap: false,
             maxLines: 1
         });
@@ -76,7 +77,7 @@ describe('Text Overflow Issues - Reproduction', () => {
 
         const text = new TextWidget(multiLineText, {
             style: { fontSize: 12, color: '#000000' },
-            maxLines: 3,  // Should only show 3 lines
+            maxLines: 3, // Should only show 3 lines
             overflow: TextOverflow.Ellipsis,
             softWrap: true
         });
@@ -125,7 +126,7 @@ describe('Text Overflow Issues - Reproduction', () => {
                                 border: { width: 1, color: '#cccccc' }
                             },
                             child: new Container({
-                                width: 150,  // Narrow container
+                                width: 150, // Narrow container
                                 height: 100,
                                 alignment: Layout.Alignment.TopLeft,
                                 decoration: {
@@ -151,7 +152,7 @@ describe('Text Overflow Issues - Reproduction', () => {
             build: () => textOverflowShowcase
         });
 
-        const pdfBytes = await doc.save();
+        const pdfBytes = doc.save();
         expect(pdfBytes).toBeInstanceOf(Uint8Array);
         expect(pdfBytes.length).toBeGreaterThan(0);
 
@@ -163,7 +164,7 @@ describe('Text Overflow Issues - Reproduction', () => {
         console.log('   - This PDF shows the current broken behavior');
     });
 
-    test('Current TextUtils functions work correctly', async () => {
+    test('Current TextUtils functions work correctly', () => {
         const longText = "This is a long text that should be wrapped or truncated";
 
         // Test TextUtils.wrap function

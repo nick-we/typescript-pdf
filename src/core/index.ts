@@ -62,5 +62,18 @@ export {
     type PdfDocument,
 } from './pdf/font-engine.js';
 
+// Logging System
+export {
+    logger,
+    createModuleLogger,
+    layoutLogger,
+    widgetLogger,
+    chartLogger,
+    tableLogger,
+    themeLogger,
+    fontLogger,
+    pdfLogger
+} from './logger.js';
+
 // Re-export types for convenience
 export type { Core, Geometry, Layout } from '../types.js';

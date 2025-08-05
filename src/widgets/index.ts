@@ -8,18 +8,21 @@
  */
 
 // Base system
-export type { Widget, WidgetProps } from './base.js';
 export {
+    type Widget,
+    type WidgetProps,
     BaseWidget,
     EmptyWidget,
     WidgetUtils,
     WidgetLayoutUtils,
     PageDefaults
-} from './base.js';
+} from '@/widgets/base.js';
 
 // Text widgets
-export type { TextProps, RichTextProps, TextSpan } from './text.js';
 export {
+    type TextProps,
+    type RichTextProps,
+    type TextSpan,
     TextWidget,
     RichText,
     TextAlign,
@@ -28,19 +31,17 @@ export {
     TextStyles,
     createText,
     createRichText
-} from './text.js';
+} from '@/widgets/text.js';
 
 // Layout widgets
-export type {
-    ContainerProps,
-    StackProps,
-    PositionedProps,
-    BoxDecoration,
-    Border,
-    BorderRadius,
-    BoxShadow
-} from './layout.js';
 export {
+    type ContainerProps,
+    type StackProps,
+    type PositionedProps,
+    type BoxDecoration,
+    type Border,
+    type BorderRadius,
+    type BoxShadow,
     Container,
     Stack,
     Positioned,
@@ -51,11 +52,12 @@ export {
     createContainer,
     createStack,
     createPositioned
-} from './layout.js';
+} from '@/widgets/layout.js';
 
 // Flex widgets
-export type { FlexProps, FlexChild } from './flex.js';
 export {
+    type FlexProps,
+    type FlexChild,
     Row,
     Column,
     Flex,
@@ -66,20 +68,18 @@ export {
     createColumn,
     createFlexible,
     createExpanded
-} from './flex.js';
+} from '@/widgets/flex.js';
 
 // Data widgets
-export type {
-    TableProps,
-    TableRowProps,
-    ChartProps,
-    BarChartProps,
-    LineChartProps,
-    TableColumnWidth,
-    ChartDataPoint,
-    ChartDataSeries
-} from './data.js';
 export {
+    type TableProps,
+    type TableRowProps,
+    type ChartProps,
+    type BarChartProps,
+    type LineChartProps,
+    type TableColumnWidth,
+    type ChartDataPoint,
+    type ChartDataSeries,
     Table,
     TableRow,
     Chart,
@@ -96,11 +96,12 @@ export {
     createChart,
     createBarChart,
     createLineChart
-} from './data.js';
+} from '@/widgets/data.js';
 
 // Theme system
-export type { ThemeProps, DefaultTextStyleProps } from './theme.js';
 export {
+    type ThemeProps,
+    type DefaultTextStyleProps,
     Theme,
     DefaultTextStyle,
     ThemeUtils,
@@ -109,20 +110,18 @@ export {
     PrebuiltThemes,
     createTheme,
     createDefaultTextStyle
-} from './theme.js';
+} from '@/widgets/theme.js';
 
 // MultiPage widgets
-export type {
-    MultiPageProps,
-    ContentMeasurement,
-    PageLayout,
-    ContentChunk
-} from './multipage.js';
 export {
+    type MultiPageProps,
+    type ContentMeasurement,
+    type PageLayout,
+    type ContentChunk,
     MultiPage,
     PageBreakBehavior,
     MultiPageUtils
-} from './multipage.js';
+} from '@/widgets/multipage.js';
 
 // Essential types from consolidated type system
 export type {
@@ -131,4 +130,4 @@ export type {
     Theme as ThemeTypes,
     Flex as FlexTypes,
     Internal
-} from '../types.js';
+} from '@/types.js';

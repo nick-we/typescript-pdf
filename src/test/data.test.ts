@@ -10,18 +10,17 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 
 // Import consolidated widget system
+import type { Layout } from '../types.js';
 import {
     Table, TableRow, Chart, BarChart, LineChart, DataUtils,
-    TextWidget, Container, LayoutUtils
+    TextWidget, Container,
+    BarOrientation,
+    LineMarker,
+    TableColumnWidthType
 } from '../widgets/index.js';
-
-// Import types and namespaces
-import { Layout, Theme as ThemeTypes } from '../types.js';
-import type { Widget, TableProps, ChartProps, BarChartProps, LineChartProps } from '../widgets/index.js';
 
 describe('Data Visualization Systems', () => {
     let mockLayoutContext: Layout.LayoutContext;
-    let mockPaintContext: Layout.PaintContext;
 
     beforeEach(() => {
         const mockTheme = {
@@ -58,11 +57,6 @@ describe('Data Visualization Systems', () => {
             textDirection: 'ltr',
             theme: mockTheme,
         };
-
-        mockPaintContext = {
-            size: { width: 600, height: 800 },
-            theme: mockTheme,
-        };
     });
 
     describe('Table System', () => {
@@ -91,9 +85,9 @@ describe('Data Visualization Systems', () => {
             const table = new Table({
                 data: tableData,
                 columnWidths: [
-                    { type: 'fixed' as any, value: 120 },
-                    { type: 'flex' as any, value: 1 },
-                    { type: 'fixed' as any, value: 80 }
+                    { type: TableColumnWidthType.Fixed, value: 120 },
+                    { type: TableColumnWidthType.Flex, value: 1 },
+                    { type: TableColumnWidthType.Fixed, value: 80 }
                 ]
             });
 
@@ -211,7 +205,7 @@ describe('Data Visualization Systems', () => {
             const barChart = new BarChart({
                 title: 'Monthly Revenue',
                 series,
-                orientation: 'vertical' as any
+                orientation: BarOrientation.Vertical,
             });
 
             const layout = barChart.layout(mockLayoutContext);
@@ -234,7 +228,7 @@ describe('Data Visualization Systems', () => {
             const barChart = new BarChart({
                 title: 'Users by Device',
                 series,
-                orientation: 'horizontal' as any
+                orientation: BarOrientation.Horizontal,
             });
 
             const layout = barChart.layout(mockLayoutContext);
@@ -259,7 +253,7 @@ describe('Data Visualization Systems', () => {
             const lineChart = new LineChart({
                 title: 'Growth Trend',
                 series,
-                marker: 'circle' as any,
+                marker: LineMarker.Circle,
                 fill: false
             });
 
@@ -285,7 +279,7 @@ describe('Data Visualization Systems', () => {
                 title: 'Daily Temperature',
                 series,
                 fill: true,
-                marker: 'square' as any
+                marker: LineMarker.Square
             });
 
             const layout = lineChart.layout(mockLayoutContext);
@@ -441,12 +435,6 @@ describe('Data Visualization Systems', () => {
 
     describe('Data Integration', () => {
         it('should create table-chart combination', () => {
-            const salesData = [
-                ['Month', 'Revenue', 'Units'],
-                ['Jan', '$10,000', '100'],
-                ['Feb', '$12,000', '120'],
-                ['Mar', '$11,000', '110']
-            ];
 
             const chartData = DataUtils.arrayToSeries('Revenue', [10000, 12000, 11000]);
 

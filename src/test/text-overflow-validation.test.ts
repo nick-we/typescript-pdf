@@ -6,10 +6,11 @@
  */
 
 import { describe, test, expect } from 'vitest';
+
+import { Document } from '../core/document.js';
+import { Layout, defaultTheme } from '../types.js';
 import { Container } from '../widgets/layout.js';
 import { TextWidget, TextOverflow, TextAlign } from '../widgets/text.js';
-import { Layout, defaultTheme } from '../types.js';
-import { Document } from '../core/document.js';
 
 describe('Text Overflow Validation - Fixed Behavior', () => {
     const mockTheme = defaultTheme;
@@ -54,7 +55,7 @@ describe('Text Overflow Validation - Fixed Behavior', () => {
 
         const text = new TextWidget(longText, {
             style: { fontSize: 14, color: '#000000' },
-            softWrap: false,  // Single line
+            softWrap: false, // Single line
             overflow: TextOverflow.Ellipsis
         });
 
@@ -216,7 +217,7 @@ describe('Text Overflow Validation - Fixed Behavior', () => {
             build: () => textOverflowValidation
         });
 
-        const pdfBytes = await doc.save();
+        const pdfBytes = doc.save();
         expect(pdfBytes).toBeInstanceOf(Uint8Array);
         expect(pdfBytes.length).toBeGreaterThan(0);
 

@@ -7,9 +7,12 @@
  * @packageDocumentation
  */
 
+import { widgetLogger } from '../core/logger.js';
+import type {
+    Geometry
+} from '../types.js';
 import {
-    Layout,
-    Geometry,
+    Layout
 } from '../types.js';
 
 /**
@@ -105,7 +108,7 @@ export abstract class BaseWidget implements Widget {
         // Basic constraint validation - check that min <= max
         if (constraints.minWidth > constraints.maxWidth || constraints.minHeight > constraints.maxHeight) {
             throw new Error(
-                `Invalid constraints: ${JSON.stringify(constraints)} for widget ${this.debugLabel || this.constructor.name}`
+                `Invalid constraints: ${JSON.stringify(constraints)} for widget ${this.debugLabel ?? this.constructor.name}`
             );
         }
     }
@@ -130,7 +133,7 @@ export class EmptyWidget extends BaseWidget {
         );
     }
 
-    paint(context: Layout.PaintContext): void {
+    paint(_context: Layout.PaintContext): void {
         // Empty widget renders nothing
     }
 }
@@ -157,7 +160,7 @@ export const WidgetUtils = {
 
             constructor() {
                 super({ debugLabel: 'SizedBox' });
-                if (child) this.child = child;
+                if (child) { this.child = child; }
                 this.fixedSize = { width, height };
             }
 
@@ -218,7 +221,7 @@ export const WidgetUtils = {
                 return this.createLayoutResult(size, { needsRepaint: false });
             }
 
-            paint(context: Layout.PaintContext): void {
+            paint(_context: Layout.PaintContext): void {
                 // Spacer renders nothing
             }
         })();
@@ -255,7 +258,7 @@ export const WidgetUtils = {
                     const c = context.constraints;
                     if (c.minWidth > c.maxWidth || c.minHeight > c.maxHeight) {
                         throw new Error(
-                            `Invalid constraints for widget ${widget.debugLabel || 'unknown'}: ${JSON.stringify(context.constraints)}`
+                            `Invalid constraints for widget ${widget.debugLabel ?? 'unknown'}: ${JSON.stringify(context.constraints)}`
                         );
                     }
                 }
@@ -267,7 +270,7 @@ export const WidgetUtils = {
                     const c = context.constraints;
                     if (s.width < c.minWidth || s.width > c.maxWidth || s.height < c.minHeight || s.height > c.maxHeight) {
                         throw new Error(
-                            `Widget ${widget.debugLabel || 'unknown'} violated constraints. ` +
+                            `Widget ${widget.debugLabel ?? 'unknown'} violated constraints. ` +
                             `Expected: ${JSON.stringify(context.constraints)}, ` +
                             `Got: ${JSON.stringify(result.size)}`
                         );
@@ -294,7 +297,7 @@ export const WidgetUtils = {
                 const duration = performance.now() - start;
 
                 if (enableLogging) {
-                    console.log(`Layout ${widget.debugLabel || 'unknown'}: ${duration.toFixed(2)}ms`);
+                    widgetLogger.debug(`Layout ${widget.debugLabel ?? 'unknown'}: ${duration.toFixed(2)}ms`);
                 }
 
                 return result;
@@ -305,7 +308,7 @@ export const WidgetUtils = {
                 const duration = performance.now() - start;
 
                 if (enableLogging) {
-                    console.log(`Paint ${widget.debugLabel || 'unknown'}: ${duration.toFixed(2)}ms`);
+                    widgetLogger.debug(`Paint ${widget.debugLabel ?? 'unknown'}: ${duration.toFixed(2)}ms`);
                 }
             },
         });

@@ -12,21 +12,15 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 
 // Import consolidated systems
-import { FontSystem, TextProcessor } from '../core/index.js';
+import { Layout, Geometry, Flex as FlexTypes } from '../types.js';
 import {
-    BaseWidget, EmptyWidget, WidgetUtils,
-    Container, Stack, Positioned, LayoutUtils,
-    Row, Column, Flexible, Expanded, FlexUtils,
+    Container, Stack, Positioned,
+    Row, Column, Flexible, Expanded,
     TextWidget
 } from '../widgets/index.js';
 
-// Import types and namespaces
-import { Layout, Geometry, Flex as FlexTypes } from '../types.js';
-import type { Widget } from '../widgets/index.js';
-
 describe('Layout Systems', () => {
     let mockLayoutContext: Layout.LayoutContext;
-    let mockPaintContext: Layout.PaintContext;
 
     beforeEach(() => {
         const mockTheme = {
@@ -64,10 +58,6 @@ describe('Layout Systems', () => {
             theme: mockTheme,
         };
 
-        mockPaintContext = {
-            size: { width: 600, height: 800 },
-            theme: mockTheme,
-        };
     });
 
     describe('Box Constraints System', () => {
@@ -512,7 +502,7 @@ describe('Layout Systems', () => {
             const rect2: Geometry.Rect = { x: 50, y: 50, width: 100, height: 100 };
 
             const intersection = Geometry.Utils.rectIntersection(rect1, rect2);
-            expect(intersection).not.toBeNull();
+            expect(intersection).not.toBeUndefined();
             expect(intersection?.x).toBe(50);
             expect(intersection?.y).toBe(50);
             expect(intersection?.width).toBe(50);
@@ -524,7 +514,7 @@ describe('Layout Systems', () => {
             const rect2: Geometry.Rect = { x: 100, y: 100, width: 50, height: 50 };
 
             const intersection = Geometry.Utils.rectIntersection(rect1, rect2);
-            expect(intersection).toBeNull();
+            expect(intersection).toBeUndefined();
         });
     });
 

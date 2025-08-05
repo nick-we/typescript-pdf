@@ -7,15 +7,15 @@
  * @packageDocumentation
  */
 
-import { BaseWidget, type Widget, type WidgetProps } from './base.js';
+import type { AccurateTextMeasurementService } from '@/core/accurate-text-measurement.js';
+import { getGlobalTextMeasurement } from '@/core/accurate-text-measurement.js';
+import { FontWeight, FontStyle } from '@/core/fonts.js';
+import { widgetLogger } from '@/core/logger.js';
+import type { IPdfColor } from '@/types/core-interfaces.js';
 import {
-    Layout,
-    Geometry,
-    Theme,
-} from '../types.js';
-import type { IPdfColor } from '../types/core-interfaces.js';
-import { AccurateTextMeasurementService, getGlobalTextMeasurement } from '../core/accurate-text-measurement.js';
-import { FontWeight, FontStyle } from '../core/fonts.js';
+    Theme, type Layout, type Geometry
+} from '@/types.js';
+import { BaseWidget, type WidgetProps } from '@/widgets/base.js';
 
 /**
  * Text alignment options
@@ -110,10 +110,10 @@ export class TextWidget extends BaseWidget {
         super(props);
 
         this.content = content;
-        if (props.style) this.style = props.style;
+        if (props.style) { this.style = props.style; }
         this.textAlign = props.textAlign ?? TextAlign.Left;
         this.overflow = props.overflow ?? TextOverflow.Clip;
-        if (props.maxLines) this.maxLines = props.maxLines;
+        if (props.maxLines) { this.maxLines = props.maxLines; }
         this.softWrap = props.softWrap ?? true;
     }
 
@@ -141,25 +141,25 @@ export class TextWidget extends BaseWidget {
         effectiveStyle: Theme.TextStyle,
         textMeasurement?: AccurateTextMeasurementService
     ): TextMeasurement {
-        const fontSize = effectiveStyle.fontSize || 12;
-        const fontFamily = effectiveStyle.fontFamily || 'Helvetica';
-        const fontWeight = effectiveStyle.fontWeight || FontWeight.Normal;
-        const fontStyle = effectiveStyle.fontStyle || FontStyle.Normal;
-        const lineSpacing = effectiveStyle.lineSpacing || 1.2;
+        const fontSize = effectiveStyle.fontSize ?? 12;
+        const fontFamily = effectiveStyle.fontFamily ?? 'Helvetica';
+        const fontWeight = effectiveStyle.fontWeight ?? FontWeight.Normal;
+        const fontStyle = effectiveStyle.fontStyle ?? FontStyle.Normal;
+        const lineSpacing = effectiveStyle.lineSpacing ?? 1.2;
 
         // FIXED: Better text measurement service resolution
-        const measurementService = textMeasurement || (() => {
+        const measurementService = textMeasurement ?? (() => {
             try {
                 return getGlobalTextMeasurement();
             } catch {
                 // Fallback to approximation if service not available (testing scenarios)
-                return null;
+                return undefined;
             }
         })();
 
         // FIXED: Handle empty text properly
         if (!this.content || this.content.trim() === '') {
-            const metrics = measurementService?.getFontMetrics(fontSize, fontFamily, fontWeight, fontStyle, lineSpacing) || {
+            const metrics = measurementService?.getFontMetrics(fontSize, fontFamily, fontWeight, fontStyle, lineSpacing) ?? {
                 height: fontSize * lineSpacing,
                 baseline: fontSize * 0.8,
                 ascender: fontSize * 0.8,
@@ -202,7 +202,7 @@ export class TextWidget extends BaseWidget {
                 width = maxWidth;
             }
 
-            const metrics = measurementService?.getFontMetrics(fontSize, fontFamily, fontWeight, fontStyle, lineSpacing) || {
+            const metrics = measurementService?.getFontMetrics(fontSize, fontFamily, fontWeight, fontStyle, lineSpacing) ?? {
                 height: fontSize * lineSpacing,
                 baseline: fontSize * 0.8,
                 ascender: fontSize * 0.8,
@@ -265,7 +265,7 @@ export class TextWidget extends BaseWidget {
         }
 
         const actualLineCount = finalLines.length;
-        const metrics = measurementService?.getFontMetrics(fontSize, fontFamily, fontWeight, fontStyle, lineSpacing) || {
+        const metrics = measurementService?.getFontMetrics(fontSize, fontFamily, fontWeight, fontStyle, lineSpacing) ?? {
             height: fontSize * lineSpacing,
             baseline: fontSize * 0.8,
             ascender: fontSize * 0.8,
@@ -327,14 +327,14 @@ export class TextWidget extends BaseWidget {
         }
 
         const effectiveStyle = this.getEffectiveStyle(context.theme);
-        const fontSize = effectiveStyle.fontSize || 12;
-        const fontFamily = effectiveStyle.fontFamily || 'Helvetica';
-        const fontWeight = effectiveStyle.fontWeight || FontWeight.Normal;
-        const fontStyle = effectiveStyle.fontStyle || FontStyle.Normal;
-        const lineSpacing = effectiveStyle.lineSpacing || 1.2;
+        const fontSize = effectiveStyle.fontSize ?? 12;
+        const fontFamily = effectiveStyle.fontFamily ?? 'Helvetica';
+        const fontWeight = effectiveStyle.fontWeight ?? FontWeight.Normal;
+        const fontStyle = effectiveStyle.fontStyle ?? FontStyle.Normal;
+        const lineSpacing = effectiveStyle.lineSpacing ?? 1.2;
 
         // Get text measurement service
-        const measurementService = context.textMeasurement || (() => {
+        const measurementService = context.textMeasurement ?? (() => {
             try {
                 return getGlobalTextMeasurement();
             } catch {
@@ -345,11 +345,9 @@ export class TextWidget extends BaseWidget {
         // Get the processed text lines (same logic as measureText)
         const textLines = this.getProcessedTextLines(context.size.width, effectiveStyle, measurementService as AccurateTextMeasurementService);
 
-        console.log(`Painting text: "${this.content}" at size ${context.size.width}x${context.size.height} (${textLines.length} lines)`);
-
         // Only do actual graphics operations if graphics context is available
         if (context.graphics && context.fontRegistry) {
-            const color = this.parseColor(effectiveStyle.color || '#000000');
+            const color = this.parseColor(effectiveStyle.color ?? '#000000');
 
             // Get font from registry
             const font = context.fontRegistry.getFont(fontFamily);
@@ -364,7 +362,7 @@ export class TextWidget extends BaseWidget {
             context.graphics.scale(1, -1);
 
             // Get font metrics for accurate positioning
-            const metrics = measurementService?.getFontMetrics(fontSize, fontFamily, fontWeight, fontStyle, lineSpacing) || {
+            const metrics = measurementService?.getFontMetrics(fontSize, fontFamily, fontWeight, fontStyle, lineSpacing) ?? {
                 height: fontSize * lineSpacing,
                 baseline: fontSize * 0.8,
                 ascender: fontSize * 0.8,
@@ -411,18 +409,18 @@ export class TextWidget extends BaseWidget {
         effectiveStyle: Theme.TextStyle,
         textMeasurement?: AccurateTextMeasurementService
     ): string[] {
-        const fontSize = effectiveStyle.fontSize || 12;
-        const fontFamily = effectiveStyle.fontFamily || 'Helvetica';
-        const fontWeight = effectiveStyle.fontWeight || FontWeight.Normal;
-        const fontStyle = effectiveStyle.fontStyle || FontStyle.Normal;
-        const lineSpacing = effectiveStyle.lineSpacing || 1.2;
+        const fontSize = effectiveStyle.fontSize ?? 12;
+        const fontFamily = effectiveStyle.fontFamily ?? 'Helvetica';
+        const fontWeight = effectiveStyle.fontWeight ?? FontWeight.Normal;
+        const fontStyle = effectiveStyle.fontStyle ?? FontStyle.Normal;
+        const lineSpacing = effectiveStyle.lineSpacing ?? 1.2;
 
         // Get text measurement service
-        const measurementService = textMeasurement || (() => {
+        const measurementService = textMeasurement ?? (() => {
             try {
                 return getGlobalTextMeasurement();
             } catch {
-                return null;
+                return undefined;
             }
         })();
 
@@ -530,7 +528,7 @@ export class RichText extends BaseWidget {
         this.spans = props.spans;
         this.textAlign = props.textAlign ?? TextAlign.Left;
         this.overflow = props.overflow ?? TextOverflow.Clip;
-        if (props.maxLines) this.maxLines = props.maxLines;
+        if (props.maxLines) { this.maxLines = props.maxLines; }
         this.softWrap = props.softWrap ?? true;
     }
 
@@ -556,12 +554,12 @@ export class RichText extends BaseWidget {
             ? Theme.Utils.mergeTextStyles(theme.defaultTextStyle, firstSpanStyle)
             : theme.defaultTextStyle;
 
-        const fontSize = effectiveStyle.fontSize || 12;
-        const lineHeight = fontSize * (effectiveStyle.lineSpacing || 1.2);
+        const fontSize = effectiveStyle.fontSize ?? 12;
+        const lineHeight = fontSize * (effectiveStyle.lineSpacing ?? 1.2);
         let totalWidth: number;
         try {
             const measurementService = getGlobalTextMeasurement();
-            totalWidth = measurementService.measureTextWidth(combinedText, fontSize, effectiveStyle.fontFamily || 'Helvetica', effectiveStyle.fontWeight || FontWeight.Normal, effectiveStyle.fontStyle || FontStyle.Normal);
+            totalWidth = measurementService.measureTextWidth(combinedText, fontSize, effectiveStyle.fontFamily ?? 'Helvetica', effectiveStyle.fontWeight ?? FontWeight.Normal, effectiveStyle.fontStyle ?? FontStyle.Normal);
         } catch {
             // Fallback to approximation
             totalWidth = combinedText.length * fontSize * 0.55;
@@ -598,15 +596,14 @@ export class RichText extends BaseWidget {
         });
     }
 
-    paint(context: Layout.PaintContext): void {
+    paint(_context: Layout.PaintContext): void {
         const combinedText = this.getCombinedText();
         if (!combinedText.trim()) {
             return;
         }
 
-        console.log(`Painting rich text: ${this.spans.length} spans at size ${context.size.width}x${context.size.height}`);
         this.spans.forEach((span, index) => {
-            console.log(`  Span ${index}: "${span.text}"`);
+            widgetLogger.debug(`  Span ${index}: "${span.text}"`);
         });
     }
 }
@@ -634,7 +631,7 @@ export const TextUtils = {
      */
     span(text: string, style?: Theme.TextStyle): TextSpan {
         const span: TextSpan = { text };
-        if (style) span.style = style;
+        if (style) { span.style = style; }
         return span;
     },
 

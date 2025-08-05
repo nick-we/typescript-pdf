@@ -7,11 +7,13 @@
  * @packageDocumentation
  */
 
-import { BaseWidget, type Widget, type WidgetProps } from './base.js';
+import type {
+    Layout
+} from '@/types.js';
 import {
-    Layout,
     Theme as ThemeTypes,
-} from '../types.js';
+} from '@/types.js';
+import { BaseWidget, type Widget, type WidgetProps } from '@/widgets/base.js';
 
 /**
  * Theme provider widget properties
@@ -60,8 +62,6 @@ export class Theme extends BaseWidget {
     }
 
     paint(context: Layout.PaintContext): void {
-        console.log(`Applying theme: ${this.data.colorScheme.primary}`);
-
         // Create new context with our theme data
         const themedContext: Layout.PaintContext = {
             ...context,
@@ -107,8 +107,6 @@ export class DefaultTextStyle extends BaseWidget {
     }
 
     paint(context: Layout.PaintContext): void {
-        console.log(`Applying default text style: ${this.style.fontSize}px ${this.style.fontFamily}`);
-
         // Merge our text style with the current theme's default
         const mergedTextStyle = ThemeTypes.Utils.mergeTextStyles(context.theme.defaultTextStyle, this.style);
 

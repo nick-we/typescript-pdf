@@ -33,9 +33,9 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v2
+        uses: pnpm/action-setup@v4
         with:
-          version: 8
+          version: 10
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -67,12 +67,12 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Update package-lock.json
+      - name: Update pnpm-lock.yaml
         if: steps.semantic.outputs.new_release_published == 'true'
         run: |
-          npm install --package-lock-only
-          git add package-lock.json
-          git commit -m "chore: update package-lock.json [skip ci]" || exit 0
+          pnpm install --lockfile-only
+          git add pnpm-lock.yaml
+          git commit -m "chore: update pnpm-lock.yaml [skip ci]" || exit 0
           git push
 
   publish-docs:
@@ -84,9 +84,6 @@ jobs:
       contents: read
       pages: write
       id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -98,9 +95,9 @@ jobs:
           cache: 'pnpm'
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v2
+        uses: pnpm/action-setup@v4
         with:
-          version: 8
+          version: 10
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile

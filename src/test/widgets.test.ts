@@ -11,33 +11,26 @@ import { describe, it, expect, beforeEach } from 'vitest';
 
 // Import consolidated widget system
 import {
+    Layout, Theme as ThemeTypes, Flex as FlexTypes
+} from '../types.js';
+import {
     // Base widgets
-    BaseWidget, EmptyWidget, WidgetUtils,
+    EmptyWidget, WidgetUtils,
 
     // Text widgets
     TextWidget, RichText, TextAlign, TextOverflow, TextUtils, TextStyles,
 
     // Layout widgets
-    Container, Stack, Positioned, StackFit, LayoutUtils,
+    Container, Stack, Positioned, LayoutUtils,
 
     // Flex widgets
     Row, Column, Flexible, Expanded, FlexUtils,
 
     // Data widgets
-    Table, TableRow, Chart, BarChart, LineChart, DataUtils,
+    Table, Chart, BarChart, LineChart, DataUtils,
 
     // Theme widgets
     Theme, DefaultTextStyle, ThemeUtils, PrebuiltThemes
-} from '../widgets/index.js';
-
-// Import namespaces from types
-import {
-    Layout, Geometry, Theme as ThemeTypes, Flex as FlexTypes
-} from '../types.js';
-
-// Type-only imports
-import type {
-    Widget, TextProps, ContainerProps
 } from '../widgets/index.js';
 
 describe('Widget Systems', () => {

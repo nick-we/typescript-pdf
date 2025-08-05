@@ -8,8 +8,11 @@
  * @packageDocumentation
  */
 
-import { FontSystem, FontWeight, FontStyle } from './fonts.js';
-import { Geometry } from '../types.js';
+import type { Geometry } from '../types.js';
+
+import type { FontSystem } from './fonts.js';
+import { FontWeight, FontStyle } from './fonts.js';
+
 
 /**
  * Font height and baseline metrics
@@ -56,11 +59,11 @@ export interface TextMeasurementOptions {
  * Accurate text measurement service using real font metrics
  */
 export class AccurateTextMeasurementService {
-    private fontSystem: FontSystem;
+    private readonly fontSystem: FontSystem;
 
     // Cache for frequently used measurements
-    private measurementCache = new Map<string, number>();
-    private fontMetricsCache = new Map<string, FontHeightMetrics>();
+    private readonly measurementCache = new Map<string, number>();
+    private readonly fontMetricsCache = new Map<string, FontHeightMetrics>();
 
     constructor(fontSystem: FontSystem) {
         this.fontSystem = fontSystem;
@@ -76,7 +79,7 @@ export class AccurateTextMeasurementService {
         fontWeight: FontWeight = FontWeight.Normal,
         fontStyle: FontStyle = FontStyle.Normal
     ): number {
-        if (!text) return 0;
+        if (!text) { return 0; }
 
         // Check cache first
         const cacheKey = `${text}|${fontSize}|${fontFamily}|${fontWeight}|${fontStyle}`;
@@ -129,7 +132,6 @@ export class AccurateTextMeasurementService {
         const font = this.fontSystem.getFontWithStyle(fontFamily, fontWeight, fontStyle);
         const ascender = font.getAscender(fontSize);
         const descender = font.getDescender(fontSize);
-        const fontHeight = font.getFontHeight(fontSize);
 
         const metrics: FontHeightMetrics = {
             height: fontSize * lineSpacing,
@@ -337,7 +339,7 @@ export class AccurateTextMeasurementService {
 /**
  * Global instance for easy access (will be initialized with document)
  */
-export let globalTextMeasurement: AccurateTextMeasurementService | null = null;
+export let globalTextMeasurement: AccurateTextMeasurementService | undefined = undefined;
 
 /**
  * Initialize global text measurement service

@@ -5,16 +5,18 @@
  * to validate functionality and provide visual examples.
  */
 
-import { describe, test, expect, beforeAll } from 'vitest';
-import { Document } from '../core/document.js';
-import { MultiPage, PageBreakBehavior, MultiPageUtils } from '../widgets/multipage.js';
-import { TextWidget, TextAlign } from '../widgets/text.js';
-import { Container } from '../widgets/layout.js';
-import { Column, Row } from '../widgets/flex.js';
-import { Table, TableColumnWidthType } from '../widgets/data.js';
-import { Layout, Geometry, Flex } from '../types.js';
 import * as fs from 'fs/promises';
 import * as path from 'path';
+
+import { describe, test, expect, beforeAll } from 'vitest';
+
+import { Document } from '../core/document.js';
+import { Layout, Flex } from '../types.js';
+import { Table, TableColumnWidthType } from '../widgets/data.js';
+import { Column, Row } from '../widgets/flex.js';
+import { Container } from '../widgets/layout.js';
+import { MultiPage, PageBreakBehavior, MultiPageUtils } from '../widgets/multipage.js';
+import { TextWidget } from '../widgets/text.js';
 
 const TEST_OUTPUT_DIR = 'test-output/multipage-pdf-generation';
 
@@ -149,7 +151,7 @@ describe('MultiPage PDF Generation', () => {
             build: () => multiPageWidget
         });
 
-        const bytes = await document.save();
+        const bytes = document.save();
         const filePath = path.join(TEST_OUTPUT_DIR, 'header-footer-multipage.pdf');
         await fs.writeFile(filePath, bytes);
 
@@ -284,7 +286,7 @@ describe('MultiPage PDF Generation', () => {
             build: () => multiPageWidget
         });
 
-        const bytes = await document.save();
+        const bytes = document.save();
         const filePath = path.join(TEST_OUTPUT_DIR, 'mixed-content-multipage.pdf');
         await fs.writeFile(filePath, bytes);
 
@@ -385,7 +387,7 @@ describe('MultiPage PDF Generation', () => {
             build: () => multiPageWidget
         });
 
-        const bytes = await document.save();
+        const bytes = document.save();
         const filePath = path.join(TEST_OUTPUT_DIR, 'utils-report-multipage.pdf');
         await fs.writeFile(filePath, bytes);
 
@@ -472,7 +474,7 @@ describe('MultiPage PDF Generation', () => {
         });
 
         const layoutTime = Date.now();
-        const bytes = await document.save();
+        const bytes = document.save();
         const endTime = Date.now();
 
         const filePath = path.join(TEST_OUTPUT_DIR, 'performance-test-multipage.pdf');

@@ -11,39 +11,38 @@
  * @vitest-environment happy-dom
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
 import { writeFileSync, mkdirSync } from 'fs';
 import { join } from 'path';
 
+import { describe, it, expect, beforeEach } from 'vitest';
+
 // Import required modules
 import { Document } from '../core/document.js';
+import type { Internal } from '../types.js';
+import { Layout, Theme } from '../types.js';
 import {
     Table,
-    TableRow,
     DataUtils,
     TextWidget,
     Container,
     Column,
-    TableColumnWidthType,
     TableCellVerticalAlignment
 } from '../widgets/index.js';
-import { Layout, Theme, Internal } from '../types.js';
-import { AccurateTextMeasurementService } from '../core/accurate-text-measurement.js';
 
 describe('Table Visual Validation', () => {
     let outputDir: string;
 
-    beforeEach(async () => {
+    beforeEach(() => {
         // Create output directory for test PDFs
         outputDir = join(process.cwd(), 'test-output', 'table-visual-validation');
         try {
             mkdirSync(outputDir, { recursive: true });
-        } catch (error) {
+        } catch (_error) {
             // Directory might already exist
         }
     });
 
-    it('should render basic table with proper PDF output', async () => {
+    it('should render basic table with proper PDF output', () => {
         const document = new Document({
             info: {
                 creator: 'Table Visual Validation Test',
@@ -93,7 +92,7 @@ describe('Table Visual Validation', () => {
             })
         });
 
-        const pdfBytes = await document.save();
+        const pdfBytes = document.save();
         expect(pdfBytes).toBeInstanceOf(Uint8Array);
         expect(pdfBytes.length).toBeGreaterThan(1000);
 
@@ -103,7 +102,7 @@ describe('Table Visual Validation', () => {
         console.log(`✅ Basic table PDF generated: ${filename}`);
     });
 
-    it('should render table with different column width types', async () => {
+    it('should render table with different column width types', () => {
         const document = new Document({
             info: {
                 creator: 'Table Column Width Test',
@@ -121,10 +120,10 @@ describe('Table Visual Validation', () => {
         const table = new Table({
             data: tableData,
             columnWidths: [
-                DataUtils.columnWidths.fixed(100),        // Fixed 100px
-                DataUtils.columnWidths.flex(2),           // Flex weight 2
-                DataUtils.columnWidths.fraction(0.3),     // 30% of available width
-                DataUtils.columnWidths.intrinsic()        // Based on content
+                DataUtils.columnWidths.fixed(100), // Fixed 100px
+                DataUtils.columnWidths.flex(2), // Flex weight 2
+                DataUtils.columnWidths.fraction(0.3), // 30% of available width
+                DataUtils.columnWidths.intrinsic() // Based on content
             ],
             headerStyle: {
                 fontSize: 12,
@@ -165,7 +164,7 @@ describe('Table Visual Validation', () => {
             })
         });
 
-        const pdfBytes = await document.save();
+        const pdfBytes = document.save();
         expect(pdfBytes).toBeInstanceOf(Uint8Array);
 
         const filename = join(outputDir, 'column-widths-test.pdf');
@@ -285,11 +284,11 @@ describe('Table Visual Validation', () => {
         const table = new Table({
             data: complexData,
             columnWidths: [
-                DataUtils.columnWidths.fixed(120),        // Name - fixed
-                DataUtils.columnWidths.intrinsic(),       // Department - auto
-                DataUtils.columnWidths.fixed(80),         // Salary - fixed
-                DataUtils.columnWidths.fixed(90),         // Rating - fixed
-                DataUtils.columnWidths.flex(1)            // Notes - flexible
+                DataUtils.columnWidths.fixed(120), // Name - fixed
+                DataUtils.columnWidths.intrinsic(), // Department - auto
+                DataUtils.columnWidths.fixed(80), // Salary - fixed
+                DataUtils.columnWidths.fixed(90), // Rating - fixed
+                DataUtils.columnWidths.flex(1) // Notes - flexible
             ],
             headerStyle: {
                 fontSize: 12,
@@ -361,10 +360,10 @@ describe('Table Visual Validation', () => {
         const table = new Table({
             data: measurementTestData,
             columnWidths: [
-                DataUtils.columnWidths.intrinsic(),    // Will use actual content measurement
-                DataUtils.columnWidths.flex(2),        // Flexible for long text
-                DataUtils.columnWidths.intrinsic(),    // Auto-sized based on content
-                DataUtils.columnWidths.intrinsic()     // Auto-sized based on content
+                DataUtils.columnWidths.intrinsic(), // Will use actual content measurement
+                DataUtils.columnWidths.flex(2), // Flexible for long text
+                DataUtils.columnWidths.intrinsic(), // Auto-sized based on content
+                DataUtils.columnWidths.intrinsic() // Auto-sized based on content
             ],
             headerStyle: {
                 fontSize: 14,
@@ -453,10 +452,10 @@ describe('Table Visual Validation', () => {
                 `EMP${i.toString().padStart(3, '0')}`,
                 `Employee ${i}`,
                 `employee${i}@company.com`,
-                ['Engineering', 'Marketing', 'Finance', 'HR', 'Operations'][i % 5] || 'Engineering',
+                ['Engineering', 'Marketing', 'Finance', 'HR', 'Operations'][i % 5] ?? 'Engineering',
                 `$${(50000 + Math.random() * 50000).toFixed(0)}`,
                 `2024-${String(Math.floor(Math.random() * 12) + 1).padStart(2, '0')}-${String(Math.floor(Math.random() * 28) + 1).padStart(2, '0')}`,
-                ['Active', 'On Leave', 'Terminated'][Math.floor(Math.random() * 3)] || 'Active'
+                ['Active', 'On Leave', 'Terminated'][Math.floor(Math.random() * 3)] ?? 'Active'
             ]);
         }
 
@@ -465,13 +464,13 @@ describe('Table Visual Validation', () => {
         const table = new Table({
             data: performanceData,
             columnWidths: [
-                DataUtils.columnWidths.fixed(60),         // ID
-                DataUtils.columnWidths.fixed(100),        // Name
-                DataUtils.columnWidths.flex(1),           // Email
-                DataUtils.columnWidths.intrinsic(),       // Department
-                DataUtils.columnWidths.fixed(80),         // Salary
-                DataUtils.columnWidths.fixed(90),         // Start Date
-                DataUtils.columnWidths.intrinsic()        // Status
+                DataUtils.columnWidths.fixed(60), // ID
+                DataUtils.columnWidths.fixed(100), // Name
+                DataUtils.columnWidths.flex(1), // Email
+                DataUtils.columnWidths.intrinsic(), // Department
+                DataUtils.columnWidths.fixed(80), // Salary
+                DataUtils.columnWidths.fixed(90), // Start Date
+                DataUtils.columnWidths.intrinsic() // Status
             ],
             headerStyle: {
                 fontSize: 11,
@@ -606,7 +605,7 @@ describe('Table Visual Validation', () => {
             })
         });
 
-        const pdfBytes = await document.save();
+        const pdfBytes = document.save();
         expect(pdfBytes).toBeInstanceOf(Uint8Array);
 
         const filename = join(outputDir, 'table-showcase.pdf');
