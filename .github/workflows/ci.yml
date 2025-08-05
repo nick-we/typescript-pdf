@@ -28,14 +28,28 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'pnpm'
+          registry-url: 'https://registry.npmjs.org'
 
       - name: Verify pnpm installation
         run: |
           echo "Verifying pnpm installation..."
-          which pnpm
-          pnpm --version
-          echo "pnpm is available at: $(which pnpm)"
+          echo "PATH: $PATH"
+          which pnpm || { echo "❌ pnpm not found in PATH"; exit 1; }
+          pnpm --version || { echo "❌ pnpm version check failed"; exit 1; }
+          echo "✅ pnpm is available at: $(which pnpm)"
+
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
 
       - name: Install dependencies
         run: |
@@ -77,14 +91,28 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'pnpm'
+          registry-url: 'https://registry.npmjs.org'
 
       - name: Verify pnpm installation
         run: |
           echo "Verifying pnpm installation..."
-          which pnpm
-          pnpm --version
-          echo "pnpm is available at: $(which pnpm)"
+          echo "PATH: $PATH"
+          which pnpm || { echo "❌ pnpm not found in PATH"; exit 1; }
+          pnpm --version || { echo "❌ pnpm version check failed"; exit 1; }
+          echo "✅ pnpm is available at: $(which pnpm)"
+
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
 
       - name: Install dependencies
         run: |
@@ -122,14 +150,28 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'pnpm'
+          registry-url: 'https://registry.npmjs.org'
 
       - name: Verify pnpm installation
         run: |
           echo "Verifying pnpm installation..."
-          which pnpm
-          pnpm --version
-          echo "pnpm is available at: $(which pnpm)"
+          echo "PATH: $PATH"
+          which pnpm || { echo "❌ pnpm not found in PATH"; exit 1; }
+          pnpm --version || { echo "❌ pnpm version check failed"; exit 1; }
+          echo "✅ pnpm is available at: $(which pnpm)"
+
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
 
       - name: Install dependencies
         run: |
@@ -170,14 +212,28 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'pnpm'
+          registry-url: 'https://registry.npmjs.org'
 
       - name: Verify pnpm installation
         run: |
           echo "Verifying pnpm installation..."
-          which pnpm
-          pnpm --version
-          echo "pnpm is available at: $(which pnpm)"
+          echo "PATH: $PATH"
+          which pnpm || { echo "❌ pnpm not found in PATH"; exit 1; }
+          pnpm --version || { echo "❌ pnpm version check failed"; exit 1; }
+          echo "✅ pnpm is available at: $(which pnpm)"
+
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
 
       - name: Install dependencies
         run: |
