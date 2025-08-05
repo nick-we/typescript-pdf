@@ -266,7 +266,7 @@ describe('Core Systems', () => {
             expect(result.a).toBe(1); // Unchanged
             expect(result.b).toBe(20); // Overridden
             expect(result.c).toBe(3); // Unchanged
-            expect('d' in result ? (result as Record<string, unknown>).d : undefined).toBe(4); // Added
+            expect('d' in result ? (result as Record<string, unknown>)['d'] : undefined).toBe(4); // Added
         });
     });
 });
