@@ -529,7 +529,9 @@ class FontLoader {
             if (typeof window !== 'undefined') {
                 throw new Error('File loading not supported in browser');
             }
-            throw new Error(`Unsupported font loading from file not yet implemented`);
+            throw new Error(
+                `Unsupported font loading from file not yet implemented`
+            );
         }
 
         throw new Error('Unsupported font source type');
