@@ -1,6 +1,6 @@
 /**
  * Logging utility using Pino
- * 
+ *
  * Provides structured logging for the typescript-pdf library
  */
 
@@ -19,16 +19,16 @@ const loggerConfig: pino.LoggerOptions = {
             options: {
                 colorize: true,
                 translateTime: 'HH:MM:ss',
-                ignore: 'pid,hostname'
-            }
-        }
-    })
+                ignore: 'pid,hostname',
+            },
+        },
+    }),
 };
 
 // Create the main logger instance
 export const logger = pino({
     ...loggerConfig,
-    name: 'typescript-pdf'
+    name: 'typescript-pdf',
 });
 
 // Create child loggers for different modules

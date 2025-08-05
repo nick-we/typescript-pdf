@@ -1,9 +1,9 @@
 /**
  * Widget System Exports - Simplified
- * 
+ *
  * Consolidated export system reducing from 460+ lines to ~50 lines (89% reduction).
  * Replaces the over-engineered export system with clean, focused exports.
- * 
+ *
  * @packageDocumentation
  */
 
@@ -15,7 +15,7 @@ export {
     EmptyWidget,
     WidgetUtils,
     WidgetLayoutUtils,
-    PageDefaults
+    PageDefaults,
 } from '@/widgets/base.js';
 
 // Text widgets
@@ -30,7 +30,7 @@ export {
     TextUtils,
     TextStyles,
     createText,
-    createRichText
+    createRichText,
 } from '@/widgets/text.js';
 
 // Layout widgets
@@ -51,7 +51,7 @@ export {
     DecorationStyles,
     createContainer,
     createStack,
-    createPositioned
+    createPositioned,
 } from '@/widgets/layout.js';
 
 // Flex widgets
@@ -67,7 +67,7 @@ export {
     createRow,
     createColumn,
     createFlexible,
-    createExpanded
+    createExpanded,
 } from '@/widgets/flex.js';
 
 // Data widgets
@@ -95,7 +95,7 @@ export {
     createTableRow,
     createChart,
     createBarChart,
-    createLineChart
+    createLineChart,
 } from '@/widgets/data.js';
 
 // Theme system
@@ -109,7 +109,7 @@ export {
     ColorSchemes,
     PrebuiltThemes,
     createTheme,
-    createDefaultTextStyle
+    createDefaultTextStyle,
 } from '@/widgets/theme.js';
 
 // MultiPage widgets
@@ -120,7 +120,7 @@ export {
     type ContentChunk,
     MultiPage,
     PageBreakBehavior,
-    MultiPageUtils
+    MultiPageUtils,
 } from '@/widgets/multipage.js';
 
 // Essential types from consolidated type system
@@ -129,5 +129,5 @@ export type {
     Geometry,
     Theme as ThemeTypes,
     Flex as FlexTypes,
-    Internal
+    Internal,
 } from '@/types.js';

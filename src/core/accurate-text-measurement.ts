@@ -1,10 +1,10 @@
 /**
  * Accurate Text Measurement Service
- * 
+ *
  * Provides precise text measurement using real font metrics instead of
  * crude avgCharWidth approximations. Integrates with the existing FontSystem
  * to deliver accurate character-by-character width calculations.
- * 
+ *
  * @packageDocumentation
  */
 
@@ -12,7 +12,6 @@ import type { Geometry } from '../types.js';
 
 import type { FontSystem } from './fonts.js';
 import { FontWeight, FontStyle } from './fonts.js';
-
 
 /**
  * Font height and baseline metrics
@@ -79,7 +78,9 @@ export class AccurateTextMeasurementService {
         fontWeight: FontWeight = FontWeight.Normal,
         fontStyle: FontStyle = FontStyle.Normal
     ): number {
-        if (!text) { return 0; }
+        if (!text) {
+            return 0;
+        }
 
         // Check cache first
         const cacheKey = `${text}|${fontSize}|${fontFamily}|${fontWeight}|${fontStyle}`;
@@ -89,7 +90,11 @@ export class AccurateTextMeasurementService {
         }
 
         // Get font and measure
-        const font = this.fontSystem.getFontWithStyle(fontFamily, fontWeight, fontStyle);
+        const font = this.fontSystem.getFontWithStyle(
+            fontFamily,
+            fontWeight,
+            fontStyle
+        );
         const width = font.measureTextWidth(text, fontSize);
 
         // Cache result
@@ -108,7 +113,13 @@ export class AccurateTextMeasurementService {
         fontWeight: FontWeight = FontWeight.Normal,
         fontStyle: FontStyle = FontStyle.Normal
     ): number {
-        return this.measureTextWidth(char, fontSize, fontFamily, fontWeight, fontStyle);
+        return this.measureTextWidth(
+            char,
+            fontSize,
+            fontFamily,
+            fontWeight,
+            fontStyle
+        );
     }
 
     /**
@@ -129,7 +140,11 @@ export class AccurateTextMeasurementService {
         }
 
         // Get font metrics
-        const font = this.fontSystem.getFontWithStyle(fontFamily, fontWeight, fontStyle);
+        const font = this.fontSystem.getFontWithStyle(
+            fontFamily,
+            fontWeight,
+            fontStyle
+        );
         const ascender = font.getAscender(fontSize);
         const descender = font.getDescender(fontSize);
 
@@ -310,7 +325,11 @@ export class AccurateTextMeasurementService {
         maxWidth: number,
         options: TextMeasurementOptions
     ): Geometry.Size {
-        const measurement = this.measureTextWithWrapping(text, maxWidth, options);
+        const measurement = this.measureTextWithWrapping(
+            text,
+            maxWidth,
+            options
+        );
         return {
             width: measurement.width,
             height: measurement.height,
@@ -339,7 +358,8 @@ export class AccurateTextMeasurementService {
 /**
  * Global instance for easy access (will be initialized with document)
  */
-export let globalTextMeasurement: AccurateTextMeasurementService | undefined = undefined;
+export let globalTextMeasurement: AccurateTextMeasurementService | undefined =
+    undefined;
 
 /**
  * Initialize global text measurement service
@@ -353,7 +373,9 @@ export function initializeGlobalTextMeasurement(fontSystem: FontSystem): void {
  */
 export function getGlobalTextMeasurement(): AccurateTextMeasurementService {
     if (!globalTextMeasurement) {
-        throw new Error('Text measurement service not initialized. Call initializeGlobalTextMeasurement() first.');
+        throw new Error(
+            'Text measurement service not initialized. Call initializeGlobalTextMeasurement() first.'
+        );
     }
     return globalTextMeasurement;
 }

@@ -1,9 +1,9 @@
 /**
  * Core Systems Test Suite - Consolidated
- * 
+ *
  * Tests core PDF engine, utilities, and type systems.
  * Consolidates: core-utils.test.ts, types.test.ts, pdf-engine.test.ts
- * 
+ *
  * @vitest-environment happy-dom
  */
 
@@ -16,7 +16,7 @@ import {
     FontSystem,
     TextProcessor,
     PdfStandardFont,
-    TextAlign
+    TextAlign,
 } from '../core/index.js';
 import { Layout, Geometry, Theme, Internal } from '../types.js';
 
@@ -56,14 +56,16 @@ describe('Core Systems', () => {
         beforeEach(() => {
             mockDocument = {
                 genSerial: () => Math.floor(Math.random() * 10000),
-                objects: { add: () => { } },
-                fontRegistry: undefined
+                objects: { add: () => {} },
+                fontRegistry: undefined,
             };
             fontSystem = new FontSystem(mockDocument);
         });
 
         it('should register standard fonts', () => {
-            const font = fontSystem.registerStandardFont(PdfStandardFont.Helvetica);
+            const font = fontSystem.registerStandardFont(
+                PdfStandardFont.Helvetica
+            );
             expect(font).toBeDefined();
             expect(font.name).toBe('Helvetica'); // Now uses standard PDF font names
             expect(font.type).toBe('standard');
@@ -80,7 +82,11 @@ describe('Core Systems', () => {
         });
 
         it('should handle font fallbacks', () => {
-            const font = fontSystem.getFontWithStyle('NonExistentFont', Theme.FontWeight.Normal, Theme.FontStyle.Normal);
+            const font = fontSystem.getFontWithStyle(
+                'NonExistentFont',
+                Theme.FontWeight.Normal,
+                Theme.FontStyle.Normal
+            );
             expect(font).toBeDefined();
             expect(font.fontFamily).toBe('Helvetica'); // Should fallback
         });
@@ -103,8 +109,8 @@ describe('Core Systems', () => {
         beforeEach(() => {
             const mockDocument = {
                 genSerial: () => Math.floor(Math.random() * 10000),
-                objects: { add: () => { } },
-                fontRegistry: undefined
+                objects: { add: () => {} },
+                fontRegistry: undefined,
             };
             fontSystem = new FontSystem(mockDocument);
             textProcessor = new TextProcessor(fontSystem);
@@ -113,7 +119,7 @@ describe('Core Systems', () => {
         it('should measure single line text', () => {
             const measurement = textProcessor.measureText('Single line', {
                 fontSize: 12,
-                fontFamily: 'Helvetica'
+                fontFamily: 'Helvetica',
             });
 
             expect(measurement.width).toBeGreaterThan(0);
@@ -141,7 +147,7 @@ describe('Core Systems', () => {
                     fontSize: 12,
                     fontFamily: 'Helvetica',
                     align: TextAlign.Center,
-                    maxLines: 2
+                    maxLines: 2,
                 }
             );
 
@@ -192,7 +198,10 @@ describe('Core Systems', () => {
             expect(allInsets.bottom).toBe(16);
             expect(allInsets.left).toBe(16);
 
-            const symmetricInsets = Layout.EdgeInsets.symmetric({ horizontal: 20, vertical: 10 });
+            const symmetricInsets = Layout.EdgeInsets.symmetric({
+                horizontal: 20,
+                vertical: 10,
+            });
             expect(symmetricInsets.left).toBe(20);
             expect(symmetricInsets.right).toBe(20);
             expect(symmetricInsets.top).toBe(10);
@@ -233,15 +242,26 @@ describe('Core Systems', () => {
         it('should handle table cell data properly', () => {
             const stringCell = 'Hello';
             const numberCell = 42;
-            const objectCell = { value: 'Object value', displayValue: 'Display Value' };
+            const objectCell = {
+                value: 'Object value',
+                displayValue: 'Display Value',
+            };
 
             expect(Internal.Utils.getTableCellValue(stringCell)).toBe('Hello');
             expect(Internal.Utils.getTableCellValue(numberCell)).toBe(42);
-            expect(Internal.Utils.getTableCellValue(objectCell)).toBe('Object value');
+            expect(Internal.Utils.getTableCellValue(objectCell)).toBe(
+                'Object value'
+            );
 
-            expect(Internal.Utils.getTableCellDisplayValue(stringCell)).toBe('Hello');
-            expect(Internal.Utils.getTableCellDisplayValue(numberCell)).toBe('42');
-            expect(Internal.Utils.getTableCellDisplayValue(objectCell)).toBe('Display Value');
+            expect(Internal.Utils.getTableCellDisplayValue(stringCell)).toBe(
+                'Hello'
+            );
+            expect(Internal.Utils.getTableCellDisplayValue(numberCell)).toBe(
+                '42'
+            );
+            expect(Internal.Utils.getTableCellDisplayValue(objectCell)).toBe(
+                'Display Value'
+            );
         });
 
         it('should generate consistent object hashes', () => {
@@ -266,7 +286,11 @@ describe('Core Systems', () => {
             expect(result.a).toBe(1); // Unchanged
             expect(result.b).toBe(20); // Overridden
             expect(result.c).toBe(3); // Unchanged
-            expect('d' in result ? (result as Record<string, unknown>)['d'] : undefined).toBe(4); // Added
+            expect(
+                'd' in result
+                    ? (result as Record<string, unknown>)['d']
+                    : undefined
+            ).toBe(4); // Added
         });
     });
 });

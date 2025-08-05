@@ -1,9 +1,9 @@
 /**
  * Comprehensive Text Overflow Test for Table Widget
- * 
+ *
  * Tests all three text overflow behaviors:
  * - Clip: Hard cutoff at cell boundaries
- * - Ellipsis: Truncate with "..." indicator  
+ * - Ellipsis: Truncate with "..." indicator
  * - Visible: Allow text to extend beyond boundaries
  */
 
@@ -18,30 +18,33 @@ import { createMockPaintContext } from './mock-interfaces.js';
 
 describe('Table Text Overflow System', () => {
     // Use the proper mock paint context factory
-    const createTestPaintContext = () => createMockPaintContext({
-        size: { width: 400, height: 300 }
-    });
+    const createTestPaintContext = () =>
+        createMockPaintContext({
+            size: { width: 400, height: 300 },
+        });
 
     // Test data with various content lengths
-    const shortText = "Short";
-    const mediumText = "Medium length content";
-    const longText = "This is a very long text that will definitely exceed the normal cell width and should trigger overflow behavior";
-    const veryLongText = "This is an extremely long text content that spans multiple lines and should definitely test the limits of our text overflow system with various behaviors including clipping ellipsis and visible modes";
+    const shortText = 'Short';
+    const mediumText = 'Medium length content';
+    const longText =
+        'This is a very long text that will definitely exceed the normal cell width and should trigger overflow behavior';
+    const veryLongText =
+        'This is an extremely long text content that spans multiple lines and should definitely test the limits of our text overflow system with various behaviors including clipping ellipsis and visible modes';
 
     describe('TextOverflow.Clip Behavior', () => {
         it('should clip text at cell boundaries using PDF clipping regions', () => {
             const table = new Table({
                 data: [
                     ['Short', 'Medium text', longText],
-                    [shortText, mediumText, veryLongText]
+                    [shortText, mediumText, veryLongText],
                 ],
                 columnWidths: [
                     DataUtils.columnWidths.fixed(80),
                     DataUtils.columnWidths.fixed(120),
-                    DataUtils.columnWidths.fixed(100)
+                    DataUtils.columnWidths.fixed(100),
                 ],
                 textOverflow: TextOverflow.Clip,
-                borders: DataUtils.borders.all({ width: 1, color: '#cccccc' })
+                borders: DataUtils.borders.all({ width: 1, color: '#cccccc' }),
             });
 
             const context = createTestPaintContext();
@@ -49,13 +52,22 @@ describe('Table Text Overflow System', () => {
             let clipRegionCleared = false;
 
             // Track clipping calls
-            context.graphics!.setClippingRect = () => { clipRegionSet = true; };
-            context.graphics!.clearClipping = () => { clipRegionCleared = true; };
+            context.graphics!.setClippingRect = () => {
+                clipRegionSet = true;
+            };
+            context.graphics!.clearClipping = () => {
+                clipRegionCleared = true;
+            };
 
             // Layout and paint
             const layoutResult = table.layout({
-                constraints: { minWidth: 0, maxWidth: 400, minHeight: 0, maxHeight: 300 },
-                theme: context.theme
+                constraints: {
+                    minWidth: 0,
+                    maxWidth: 400,
+                    minHeight: 0,
+                    maxHeight: 300,
+                },
+                theme: context.theme,
             } as Layout.LayoutContext);
 
             expect(layoutResult.size.width).toBeGreaterThan(0);
@@ -74,14 +86,16 @@ describe('Table Text Overflow System', () => {
                 data: [[veryLongText]],
                 columnWidths: [DataUtils.columnWidths.fixed(150)],
                 textOverflow: TextOverflow.Clip,
-                maxLines: 2
+                maxLines: 2,
             });
 
             const context = createTestPaintContext();
             let linesRendered = 0;
 
             // Count text rendering calls
-            context.graphics!.drawString = () => { linesRendered++; };
+            context.graphics!.drawString = () => {
+                linesRendered++;
+            };
 
             table.paint(context);
 
@@ -94,12 +108,12 @@ describe('Table Text Overflow System', () => {
         it('should truncate text with ellipsis when exceeding boundaries', () => {
             const table = new Table({
                 data: [
-                    [longText] // Use very long text in narrow column to force ellipsis
+                    [longText], // Use very long text in narrow column to force ellipsis
                 ],
                 columnWidths: [
-                    DataUtils.columnWidths.fixed(50) // Very narrow to force overflow
+                    DataUtils.columnWidths.fixed(50), // Very narrow to force overflow
                 ],
-                textOverflow: TextOverflow.Ellipsis
+                textOverflow: TextOverflow.Ellipsis,
             });
 
             const context = createTestPaintContext();
@@ -107,7 +121,13 @@ describe('Table Text Overflow System', () => {
 
             // Track ellipsis usage
             const originalDrawString = context.graphics!.drawString;
-            context.graphics!.drawString = (font: unknown, fontSize: number, text: string, x: number, y: number) => {
+            context.graphics!.drawString = (
+                font: unknown,
+                fontSize: number,
+                text: string,
+                x: number,
+                y: number
+            ) => {
                 if (text.includes('…')) {
                     ellipsisUsed = true;
                 }
@@ -124,15 +144,19 @@ describe('Table Text Overflow System', () => {
             const table = new Table({
                 data: [[longText]],
                 columnWidths: [DataUtils.columnWidths.fixed(100)],
-                textOverflow: TextOverflow.Ellipsis
+                textOverflow: TextOverflow.Ellipsis,
             });
 
             const context = createTestPaintContext();
             let ellipsisWidthMeasured = false;
 
             // Track ellipsis width measurement
-            const originalMeasureTextWidth = context.textMeasurement!.measureTextWidth;
-            context.textMeasurement!.measureTextWidth = (text: string, fontSize: number) => {
+            const originalMeasureTextWidth =
+                context.textMeasurement!.measureTextWidth;
+            context.textMeasurement!.measureTextWidth = (
+                text: string,
+                fontSize: number
+            ) => {
                 if (text === '…') {
                     ellipsisWidthMeasured = true;
                 }
@@ -151,16 +175,18 @@ describe('Table Text Overflow System', () => {
                 data: [[longText, shortText]],
                 columnWidths: [
                     DataUtils.columnWidths.fixed(50), // Very narrow
-                    DataUtils.columnWidths.fixed(100)
+                    DataUtils.columnWidths.fixed(100),
                 ],
-                textOverflow: TextOverflow.Visible
+                textOverflow: TextOverflow.Visible,
             });
 
             const context = createTestPaintContext();
             let clippingUsed = false;
 
             // Ensure no clipping is used
-            context.graphics!.setClippingRect = () => { clippingUsed = true; };
+            context.graphics!.setClippingRect = () => {
+                clippingUsed = true;
+            };
 
             table.paint(context);
 
@@ -173,13 +199,15 @@ describe('Table Text Overflow System', () => {
                 data: [[veryLongText]],
                 columnWidths: [DataUtils.columnWidths.fixed(80)],
                 textOverflow: TextOverflow.Visible,
-                maxLines: 3
+                maxLines: 3,
             });
 
             const context = createTestPaintContext();
             let linesRendered = 0;
 
-            context.graphics!.drawString = () => { linesRendered++; };
+            context.graphics!.drawString = () => {
+                linesRendered++;
+            };
 
             table.paint(context);
 
@@ -197,17 +225,17 @@ describe('Table Text Overflow System', () => {
                 children: [
                     new TableRow({
                         children: [new TextWidget(longText)],
-                        textOverflow: TextOverflow.Ellipsis // Override to ellipsis
+                        textOverflow: TextOverflow.Ellipsis, // Override to ellipsis
                     }),
                     new TableRow({
                         children: [new TextWidget(longText)],
-                        textOverflow: TextOverflow.Visible // Override to visible
+                        textOverflow: TextOverflow.Visible, // Override to visible
                     }),
                     new TableRow({
-                        children: [new TextWidget(longText)]
+                        children: [new TextWidget(longText)],
                         // Use table default (Clip)
-                    })
-                ]
+                    }),
+                ],
             });
 
             const context = createTestPaintContext();
@@ -215,10 +243,20 @@ describe('Table Text Overflow System', () => {
             let clippingUsed = false;
 
             // Track different overflow behaviors
-            context.graphics!.drawString = (_font: unknown, _fontSize: number, text: string, _x: number, _y: number) => {
-                if (text.includes('…')) { ellipsisUsed = true; }
+            context.graphics!.drawString = (
+                _font: unknown,
+                _fontSize: number,
+                text: string,
+                _x: number,
+                _y: number
+            ) => {
+                if (text.includes('…')) {
+                    ellipsisUsed = true;
+                }
             };
-            context.graphics!.setClippingRect = () => { clippingUsed = true; };
+            context.graphics!.setClippingRect = () => {
+                clippingUsed = true;
+            };
 
             table.paint(context);
 
@@ -234,13 +272,13 @@ describe('Table Text Overflow System', () => {
                 children: [
                     new TableRow({
                         children: [new TextWidget(veryLongText)],
-                        maxLines: 3 // Override to 3 lines
+                        maxLines: 3, // Override to 3 lines
                     }),
                     new TableRow({
-                        children: [new TextWidget(veryLongText)]
+                        children: [new TextWidget(veryLongText)],
                         // Use table default (1 line)
-                    })
-                ]
+                    }),
+                ],
             });
 
             const context = createTestPaintContext();
@@ -265,9 +303,9 @@ describe('Table Text Overflow System', () => {
             const table = new Table({
                 data: [
                     ['', longText, ''],
-                    [shortText, '', veryLongText]
+                    [shortText, '', veryLongText],
                 ],
-                textOverflow: TextOverflow.Ellipsis
+                textOverflow: TextOverflow.Ellipsis,
             });
 
             const context = createTestPaintContext();
@@ -281,9 +319,9 @@ describe('Table Text Overflow System', () => {
             const table = new Table({
                 data: [
                     [null, longText, undefined],
-                    [shortText, null, '']
+                    [shortText, null, ''],
                 ] as any,
-                textOverflow: TextOverflow.Clip
+                textOverflow: TextOverflow.Clip,
             });
 
             const context = createTestPaintContext();
@@ -295,24 +333,27 @@ describe('Table Text Overflow System', () => {
 
         it('should work with different column width types', () => {
             const table = new Table({
-                data: [
-                    [longText, longText, longText, longText]
-                ],
+                data: [[longText, longText, longText, longText]],
                 columnWidths: [
                     DataUtils.columnWidths.fixed(80),
                     DataUtils.columnWidths.flex(),
                     DataUtils.columnWidths.fraction(0.2),
-                    DataUtils.columnWidths.intrinsic()
+                    DataUtils.columnWidths.intrinsic(),
                 ],
-                textOverflow: TextOverflow.Ellipsis
+                textOverflow: TextOverflow.Ellipsis,
             });
 
             const context = createTestPaintContext();
 
             expect(() => {
                 const layoutResult = table.layout({
-                    constraints: { minWidth: 0, maxWidth: 400, minHeight: 0, maxHeight: 300 },
-                    theme: context.theme
+                    constraints: {
+                        minWidth: 0,
+                        maxWidth: 400,
+                        minHeight: 0,
+                        maxHeight: 300,
+                    },
+                    theme: context.theme,
                 } as Layout.LayoutContext);
 
                 expect(layoutResult.size.width).toBeGreaterThan(0);
@@ -326,7 +367,7 @@ describe('Table Text Overflow System', () => {
             const table = new Table({
                 data: [[longText]],
                 columnWidths: [DataUtils.columnWidths.fixed(50)], // Very narrow to force truncation
-                textOverflow: TextOverflow.Ellipsis
+                textOverflow: TextOverflow.Ellipsis,
             });
 
             const context = createTestPaintContext();
@@ -335,21 +376,30 @@ describe('Table Text Overflow System', () => {
             let truncateTextCalled = false;
 
             // Track text measurement service usage
-            const originalMeasureTextWidth = context.textMeasurement!.measureTextWidth;
-            const originalWrapTextAccurate = context.textMeasurement!.wrapTextAccurate;
-            const originalTruncateTextAccurate = context.textMeasurement!.truncateTextAccurate;
+            const originalMeasureTextWidth =
+                context.textMeasurement!.measureTextWidth;
+            const originalWrapTextAccurate =
+                context.textMeasurement!.wrapTextAccurate;
+            const originalTruncateTextAccurate =
+                context.textMeasurement!.truncateTextAccurate;
 
-            context.textMeasurement!.measureTextWidth = (...args: Parameters<typeof originalMeasureTextWidth>) => {
+            context.textMeasurement!.measureTextWidth = (
+                ...args: Parameters<typeof originalMeasureTextWidth>
+            ) => {
                 measureTextCalled = true;
                 return originalMeasureTextWidth(...args);
             };
 
-            context.textMeasurement!.wrapTextAccurate = (...args: Parameters<typeof originalWrapTextAccurate>) => {
+            context.textMeasurement!.wrapTextAccurate = (
+                ...args: Parameters<typeof originalWrapTextAccurate>
+            ) => {
                 wrapTextCalled = true;
                 return originalWrapTextAccurate(...args);
             };
 
-            context.textMeasurement!.truncateTextAccurate = (...args: Parameters<typeof originalTruncateTextAccurate>) => {
+            context.textMeasurement!.truncateTextAccurate = (
+                ...args: Parameters<typeof originalTruncateTextAccurate>
+            ) => {
                 truncateTextCalled = true;
                 return originalTruncateTextAccurate(...args);
             };
@@ -364,15 +414,21 @@ describe('Table Text Overflow System', () => {
         it('should fallback gracefully when text measurement fails', () => {
             const table = new Table({
                 data: [[longText]],
-                textOverflow: TextOverflow.Ellipsis
+                textOverflow: TextOverflow.Ellipsis,
             });
 
             const context = createTestPaintContext();
 
             // Make text measurement throw errors
-            context.textMeasurement!.measureTextWidth = () => { throw new Error('Measurement failed'); };
-            context.textMeasurement!.wrapTextAccurate = () => { throw new Error('Wrapping failed'); };
-            context.textMeasurement!.truncateTextAccurate = () => { throw new Error('Truncation failed'); };
+            context.textMeasurement!.measureTextWidth = () => {
+                throw new Error('Measurement failed');
+            };
+            context.textMeasurement!.wrapTextAccurate = () => {
+                throw new Error('Wrapping failed');
+            };
+            context.textMeasurement!.truncateTextAccurate = () => {
+                throw new Error('Truncation failed');
+            };
 
             expect(() => {
                 table.paint(context);
@@ -388,7 +444,7 @@ describe('Table Text Overflow System', () => {
                 largeData.push([
                     `Row ${i} Col 1: ${longText}`,
                     `Row ${i} Col 2: ${veryLongText}`,
-                    `Row ${i} Col 3: ${mediumText}`
+                    `Row ${i} Col 3: ${mediumText}`,
                 ]);
             }
 
@@ -397,9 +453,9 @@ describe('Table Text Overflow System', () => {
                 columnWidths: [
                     DataUtils.columnWidths.fixed(100),
                     DataUtils.columnWidths.fixed(120),
-                    DataUtils.columnWidths.fixed(80)
+                    DataUtils.columnWidths.fixed(80),
                 ],
-                textOverflow: TextOverflow.Ellipsis
+                textOverflow: TextOverflow.Ellipsis,
             });
 
             const context = createTestPaintContext();
@@ -424,26 +480,42 @@ describe('Text Overflow PDF Generation Integration', () => {
         const doc = new Document();
 
         doc.addPage({
-            build: () => new Table({
-                data: [
-                    ['Overflow Type', 'Content', 'Result'],
-                    ['Clip', 'This text will be clipped at boundaries', 'Hard cutoff'],
-                    ['Ellipsis', 'This text will show ellipsis when too long', 'Truncated...'],
-                    ['Visible', 'This text will extend beyond cell boundaries', 'Full text shown']
-                ],
-                columnWidths: [
-                    DataUtils.columnWidths.flex(1),
-                    DataUtils.columnWidths.flex(1),
-                    DataUtils.columnWidths.flex(1),
-                ],
-                borders: DataUtils.borders.all({ width: 1, color: '#000000' }),
-                textOverflow: TextOverflow.Ellipsis,
-                headerStyle: {
-                    fontSize: 12,
-                    fontWeight: 700,
-                    color: '#ffffff'
-                }
-            })
+            build: () =>
+                new Table({
+                    data: [
+                        ['Overflow Type', 'Content', 'Result'],
+                        [
+                            'Clip',
+                            'This text will be clipped at boundaries',
+                            'Hard cutoff',
+                        ],
+                        [
+                            'Ellipsis',
+                            'This text will show ellipsis when too long',
+                            'Truncated...',
+                        ],
+                        [
+                            'Visible',
+                            'This text will extend beyond cell boundaries',
+                            'Full text shown',
+                        ],
+                    ],
+                    columnWidths: [
+                        DataUtils.columnWidths.flex(1),
+                        DataUtils.columnWidths.flex(1),
+                        DataUtils.columnWidths.flex(1),
+                    ],
+                    borders: DataUtils.borders.all({
+                        width: 1,
+                        color: '#000000',
+                    }),
+                    textOverflow: TextOverflow.Ellipsis,
+                    headerStyle: {
+                        fontSize: 12,
+                        fontWeight: 700,
+                        color: '#ffffff',
+                    },
+                }),
         });
 
         // Should not throw when generating PDF

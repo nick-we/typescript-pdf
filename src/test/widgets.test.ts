@@ -1,36 +1,54 @@
 /**
  * Widget Systems Test Suite - Consolidated
- * 
+ *
  * Tests all widget functionality from the consolidated widget system.
  * Consolidates: widgets.test.ts, text-*.test.ts, rich-text.test.ts, flex.test.ts
- * 
+ *
  * @vitest-environment happy-dom
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
 
 // Import consolidated widget system
-import {
-    Layout, Theme as ThemeTypes, Flex as FlexTypes
-} from '../types.js';
+import { Layout, Theme as ThemeTypes, Flex as FlexTypes } from '../types.js';
 import {
     // Base widgets
-    EmptyWidget, WidgetUtils,
+    EmptyWidget,
+    WidgetUtils,
 
     // Text widgets
-    TextWidget, RichText, TextAlign, TextOverflow, TextUtils, TextStyles,
+    TextWidget,
+    RichText,
+    TextAlign,
+    TextOverflow,
+    TextUtils,
+    TextStyles,
 
     // Layout widgets
-    Container, Stack, Positioned, LayoutUtils,
+    Container,
+    Stack,
+    Positioned,
+    LayoutUtils,
 
     // Flex widgets
-    Row, Column, Flexible, Expanded, FlexUtils,
+    Row,
+    Column,
+    Flexible,
+    Expanded,
+    FlexUtils,
 
     // Data widgets
-    Table, Chart, BarChart, LineChart, DataUtils,
+    Table,
+    Chart,
+    BarChart,
+    LineChart,
+    DataUtils,
 
     // Theme widgets
-    Theme, DefaultTextStyle, ThemeUtils, PrebuiltThemes
+    Theme,
+    DefaultTextStyle,
+    ThemeUtils,
+    PrebuiltThemes,
 } from '../widgets/index.js';
 
 describe('Widget Systems', () => {
@@ -99,7 +117,10 @@ describe('Widget Systems', () => {
             };
 
             expect(() => {
-                sizedBox.layout({ ...mockLayoutContext, constraints: invalidConstraints });
+                sizedBox.layout({
+                    ...mockLayoutContext,
+                    constraints: invalidConstraints,
+                });
             }).toThrow();
         });
     });
@@ -115,9 +136,15 @@ describe('Widget Systems', () => {
         });
 
         it('should handle text alignment', () => {
-            const leftText = new TextWidget('Left', { textAlign: TextAlign.Left });
-            const centerText = new TextWidget('Center', { textAlign: TextAlign.Center });
-            const rightText = new TextWidget('Right', { textAlign: TextAlign.Right });
+            const leftText = new TextWidget('Left', {
+                textAlign: TextAlign.Left,
+            });
+            const centerText = new TextWidget('Center', {
+                textAlign: TextAlign.Center,
+            });
+            const rightText = new TextWidget('Right', {
+                textAlign: TextAlign.Right,
+            });
 
             const leftLayout = leftText.layout(mockLayoutContext);
             const centerLayout = centerText.layout(mockLayoutContext);
@@ -129,8 +156,12 @@ describe('Widget Systems', () => {
         });
 
         it('should handle text overflow', () => {
-            const clipText = new TextWidget('Long text', { overflow: TextOverflow.Clip });
-            const ellipsisText = new TextWidget('Long text', { overflow: TextOverflow.Ellipsis });
+            const clipText = new TextWidget('Long text', {
+                overflow: TextOverflow.Clip,
+            });
+            const ellipsisText = new TextWidget('Long text', {
+                overflow: TextOverflow.Ellipsis,
+            });
 
             const clipLayout = clipText.layout(mockLayoutContext);
             const ellipsisLayout = ellipsisText.layout(mockLayoutContext);
@@ -142,10 +173,16 @@ describe('Widget Systems', () => {
         it('should render rich text with multiple spans', () => {
             const richText = new RichText({
                 spans: [
-                    { text: 'Bold ', style: { fontWeight: ThemeTypes.FontWeight.Bold } },
-                    { text: 'Italic ', style: { fontStyle: ThemeTypes.FontStyle.Italic } },
-                    { text: 'Normal' }
-                ]
+                    {
+                        text: 'Bold ',
+                        style: { fontWeight: ThemeTypes.FontWeight.Bold },
+                    },
+                    {
+                        text: 'Italic ',
+                        style: { fontStyle: ThemeTypes.FontStyle.Italic },
+                    },
+                    { text: 'Normal' },
+                ],
             });
 
             const layout = richText.layout(mockLayoutContext);
@@ -156,15 +193,21 @@ describe('Widget Systems', () => {
         it('should use text styles properly', () => {
             const h1Text = new TextWidget('Heading', { style: TextStyles.h1 });
             const bodyText = new TextWidget('Body', { style: TextStyles.body });
-            const captionText = new TextWidget('Caption', { style: TextStyles.caption });
+            const captionText = new TextWidget('Caption', {
+                style: TextStyles.caption,
+            });
 
             const h1Layout = h1Text.layout(mockLayoutContext);
             const bodyLayout = bodyText.layout(mockLayoutContext);
             const captionLayout = captionText.layout(mockLayoutContext);
 
             // H1 should be larger than body, body larger than caption
-            expect(h1Layout.size.height).toBeGreaterThan(bodyLayout.size.height);
-            expect(bodyLayout.size.height).toBeGreaterThan(captionLayout.size.height);
+            expect(h1Layout.size.height).toBeGreaterThan(
+                bodyLayout.size.height
+            );
+            expect(bodyLayout.size.height).toBeGreaterThan(
+                captionLayout.size.height
+            );
         });
 
         it('should provide text utility functions', () => {
@@ -174,10 +217,18 @@ describe('Widget Systems', () => {
             const height = TextUtils.estimateHeight(12, 1.2);
             expect(height).toBeCloseTo(14.4, 1); // 12 * 1.2 with tolerance
 
-            const truncated = TextUtils.truncate('Very long text that should be truncated', 50, 12);
+            const truncated = TextUtils.truncate(
+                'Very long text that should be truncated',
+                50,
+                12
+            );
             expect(truncated).toContain('...');
 
-            const wrapped = TextUtils.wrap('This is a long sentence that should wrap', 80, 12);
+            const wrapped = TextUtils.wrap(
+                'This is a long sentence that should wrap',
+                80,
+                12
+            );
             expect(wrapped.length).toBeGreaterThan(1);
         });
     });
@@ -187,7 +238,7 @@ describe('Widget Systems', () => {
             const child = new TextWidget('Child');
             const container = new Container({
                 child,
-                padding: Layout.EdgeInsets.all(16)
+                padding: Layout.EdgeInsets.all(16),
             });
 
             const layout = container.layout(mockLayoutContext);
@@ -202,7 +253,7 @@ describe('Widget Systems', () => {
             const child = new TextWidget('Child');
             const container = new Container({
                 child,
-                margin: Layout.EdgeInsets.all(20)
+                margin: Layout.EdgeInsets.all(20),
             });
 
             const layout = container.layout(mockLayoutContext);
@@ -217,11 +268,11 @@ describe('Widget Systems', () => {
             const child = new TextWidget('Child');
             const centered = new Container({
                 child,
-                alignment: Layout.Alignment.Center
+                alignment: Layout.Alignment.Center,
             });
             const topLeft = new Container({
                 child,
-                alignment: Layout.Alignment.TopLeft
+                alignment: Layout.Alignment.TopLeft,
             });
 
             const centeredLayout = centered.layout(mockLayoutContext);
@@ -238,9 +289,9 @@ describe('Widget Systems', () => {
                     new Positioned({
                         child: new TextWidget('Positioned'),
                         top: 10,
-                        left: 20
-                    })
-                ]
+                        left: 20,
+                    }),
+                ],
             });
 
             const layout = stack.layout(mockLayoutContext);
@@ -271,9 +322,9 @@ describe('Widget Systems', () => {
                 children: [
                     new TextWidget('Item 1'),
                     new TextWidget('Item 2'),
-                    new TextWidget('Item 3')
+                    new TextWidget('Item 3'),
                 ],
-                mainAxisAlignment: FlexTypes.MainAxisAlignment.SpaceBetween
+                mainAxisAlignment: FlexTypes.MainAxisAlignment.SpaceBetween,
             });
 
             const layout = row.layout(mockLayoutContext);
@@ -286,9 +337,9 @@ describe('Widget Systems', () => {
                 children: [
                     new TextWidget('Line 1'),
                     new TextWidget('Line 2'),
-                    new TextWidget('Line 3')
+                    new TextWidget('Line 3'),
                 ],
-                crossAxisAlignment: FlexTypes.CrossAxisAlignment.Center
+                crossAxisAlignment: FlexTypes.CrossAxisAlignment.Center,
             });
 
             const layout = column.layout(mockLayoutContext);
@@ -299,7 +350,7 @@ describe('Widget Systems', () => {
         it('should handle flexible children', () => {
             const flexible = new Flexible({
                 child: new TextWidget('Flexible'),
-                flex: 2
+                flex: 2,
             });
 
             expect(flexible.flexData?.flex).toBe(2);
@@ -312,7 +363,7 @@ describe('Widget Systems', () => {
         it('should handle expanded children', () => {
             const expanded = new Expanded({
                 child: new TextWidget('Expanded'),
-                flex: 3
+                flex: 3,
             });
 
             expect(expanded.flexData?.flex).toBe(3);
@@ -320,7 +371,11 @@ describe('Widget Systems', () => {
         });
 
         it('should use flex utility functions', () => {
-            const children = [new TextWidget('A'), new TextWidget('B'), new TextWidget('C')];
+            const children = [
+                new TextWidget('A'),
+                new TextWidget('B'),
+                new TextWidget('C'),
+            ];
 
             const row = FlexUtils.row(children);
             const column = FlexUtils.column(children);
@@ -339,19 +394,21 @@ describe('Widget Systems', () => {
                     new TextWidget('Fixed'),
                     new Flexible({
                         child: new TextWidget('Flexible'),
-                        flex: 1
+                        flex: 1,
                     }),
                     new Expanded({
                         child: new TextWidget('Expanded'),
-                        flex: 2
-                    })
+                        flex: 2,
+                    }),
                 ],
                 mainAxisAlignment: FlexTypes.MainAxisAlignment.SpaceEvenly,
-                crossAxisAlignment: FlexTypes.CrossAxisAlignment.Stretch
+                crossAxisAlignment: FlexTypes.CrossAxisAlignment.Stretch,
             });
 
             const layout = complexRow.layout(mockLayoutContext);
-            expect(layout.size.width).toBeLessThanOrEqual(mockLayoutContext.constraints.maxWidth);
+            expect(layout.size.width).toBeLessThanOrEqual(
+                mockLayoutContext.constraints.maxWidth
+            );
             expect(layout.size.height).toBeGreaterThan(0);
         });
     });
@@ -361,7 +418,7 @@ describe('Widget Systems', () => {
             const tableData = [
                 ['Name', 'Age', 'City'],
                 ['Alice', '25', 'New York'],
-                ['Bob', '30', 'London']
+                ['Bob', '30', 'London'],
             ];
 
             const table = new Table({ data: tableData });
@@ -377,8 +434,8 @@ describe('Widget Systems', () => {
                 columnWidths: [
                     DataUtils.columnWidths.fixed(100),
                     DataUtils.columnWidths.flex(1),
-                    DataUtils.columnWidths.fraction(0.3)
-                ]
+                    DataUtils.columnWidths.fraction(0.3),
+                ],
             });
 
             const layout = table.layout(mockLayoutContext);
@@ -390,15 +447,15 @@ describe('Widget Systems', () => {
                 DataUtils.createSeries('Sales', [
                     { x: 'Q1', y: 100 },
                     { x: 'Q2', y: 150 },
-                    { x: 'Q3', y: 120 }
-                ])
+                    { x: 'Q3', y: 120 },
+                ]),
             ];
 
             const chart = new Chart({
                 title: 'Test Chart',
                 series,
                 width: 400,
-                height: 300
+                height: 300,
             });
 
             const layout = chart.layout(mockLayoutContext);
@@ -407,12 +464,14 @@ describe('Widget Systems', () => {
         });
 
         it('should create bar charts', () => {
-            const series = [DataUtils.arrayToSeries('Values', [10, 20, 15, 25])];
+            const series = [
+                DataUtils.arrayToSeries('Values', [10, 20, 15, 25]),
+            ];
 
             const barChart = new BarChart({
                 title: 'Bar Chart',
                 series,
-                orientation: 'vertical' as any
+                orientation: 'vertical' as any,
             });
 
             const layout = barChart.layout(mockLayoutContext);
@@ -421,13 +480,15 @@ describe('Widget Systems', () => {
         });
 
         it('should create line charts', () => {
-            const series = [DataUtils.arrayToSeries('Trend', [5, 10, 7, 15, 12])];
+            const series = [
+                DataUtils.arrayToSeries('Trend', [5, 10, 7, 15, 12]),
+            ];
 
             const lineChart = new LineChart({
                 title: 'Line Chart',
                 series,
                 fill: true,
-                marker: 'circle' as any
+                marker: 'circle' as any,
             });
 
             const layout = lineChart.layout(mockLayoutContext);
@@ -440,7 +501,10 @@ describe('Widget Systems', () => {
             expect(colors).toHaveLength(5);
             expect(colors[0]).toMatch(/^#[0-9a-f]{6}$/i);
 
-            const series = DataUtils.createSeries('Test', [{ x: 1, y: 10 }, { x: 2, y: 20 }]);
+            const series = DataUtils.createSeries('Test', [
+                { x: 1, y: 10 },
+                { x: 2, y: 20 },
+            ]);
             expect(series.name).toBe('Test');
             expect(series.data).toHaveLength(2);
 
@@ -457,7 +521,7 @@ describe('Widget Systems', () => {
             const child = new TextWidget('Themed text');
             const theme = new Theme({
                 child,
-                data: customTheme
+                data: customTheme,
             });
 
             const layout = theme.layout(mockLayoutContext);
@@ -467,13 +531,13 @@ describe('Widget Systems', () => {
         it('should provide default text styles', () => {
             const textStyle = ThemeUtils.textStyle({
                 fontSize: 16,
-                fontWeight: ThemeTypes.FontWeight.Bold
+                fontWeight: ThemeTypes.FontWeight.Bold,
             });
 
             const child = new TextWidget('Styled text');
             const defaultTextStyle = new DefaultTextStyle({
                 child,
-                style: textStyle
+                style: textStyle,
             });
 
             const layout = defaultTextStyle.layout(mockLayoutContext);
@@ -494,12 +558,12 @@ describe('Widget Systems', () => {
             const baseStyle = ThemeUtils.textStyle({
                 fontSize: 12,
                 fontWeight: ThemeTypes.FontWeight.Normal,
-                fontFamily: 'Helvetica' // Include fontFamily in base
+                fontFamily: 'Helvetica', // Include fontFamily in base
             });
 
             const overrideStyle: ThemeTypes.TextStyle = {
                 fontSize: 16,
-                fontWeight: ThemeTypes.FontWeight.Bold
+                fontWeight: ThemeTypes.FontWeight.Bold,
             };
 
             const merged = ThemeUtils.mergeTextStyles(baseStyle, overrideStyle);
@@ -521,21 +585,24 @@ describe('Widget Systems', () => {
                                 children: [
                                     new Flexible({
                                         child: new TextWidget('Left'),
-                                        flex: 1
+                                        flex: 1,
                                     }),
                                     new Expanded({
                                         child: new TextWidget('Right'),
-                                        flex: 2
-                                    })
-                                ]
+                                        flex: 2,
+                                    }),
+                                ],
                             }),
                             16
                         ),
                         new Table({
-                            data: [['A', 'B'], ['1', '2']]
-                        })
-                    ]
-                })
+                            data: [
+                                ['A', 'B'],
+                                ['1', '2'],
+                            ],
+                        }),
+                    ],
+                }),
             });
 
             const layout = complexWidget.layout(mockLayoutContext);
@@ -561,14 +628,20 @@ describe('Widget Systems', () => {
                                 new RichText({
                                     spans: [
                                         { text: 'Rich ' },
-                                        { text: 'themed ', style: { fontWeight: ThemeTypes.FontWeight.Bold } },
-                                        { text: 'text' }
-                                    ]
-                                })
-                            ]
-                        })
-                    })
-                })
+                                        {
+                                            text: 'themed ',
+                                            style: {
+                                                fontWeight:
+                                                    ThemeTypes.FontWeight.Bold,
+                                            },
+                                        },
+                                        { text: 'text' },
+                                    ],
+                                }),
+                            ],
+                        }),
+                    }),
+                }),
             });
 
             const layout = nestedTheme.layout(mockLayoutContext);
@@ -581,7 +654,7 @@ describe('Widget Systems', () => {
                 new TextWidget('Test'),
                 new Container({ child: new TextWidget('Container') }),
                 new Row({ children: [new TextWidget('Row')] }),
-                new Table({ data: [['Table']] })
+                new Table({ data: [['Table']] }),
             ];
 
             widgets.forEach(widget => {

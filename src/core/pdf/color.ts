@@ -1,9 +1,9 @@
 /**
  * PDF Color System - Basic Color Management
- * 
+ *
  * Provides essential color functionality for the consolidated
  * typescript-pdf system.
- * 
+ *
  * @packageDocumentation
  */
 
@@ -56,9 +56,15 @@ export class PdfColor {
      * Convert to hex string
      */
     toHex(): string {
-        const r = Math.round(this.red * 255).toString(16).padStart(2, '0');
-        const g = Math.round(this.green * 255).toString(16).padStart(2, '0');
-        const b = Math.round(this.blue * 255).toString(16).padStart(2, '0');
+        const r = Math.round(this.red * 255)
+            .toString(16)
+            .padStart(2, '0');
+        const g = Math.round(this.green * 255)
+            .toString(16)
+            .padStart(2, '0');
+        const b = Math.round(this.blue * 255)
+            .toString(16)
+            .padStart(2, '0');
         return `#${r}${g}${b}`;
     }
 
@@ -69,7 +75,7 @@ export class PdfColor {
         return [
             Math.round(this.red * 255),
             Math.round(this.green * 255),
-            Math.round(this.blue * 255)
+            Math.round(this.blue * 255),
         ];
     }
 
@@ -84,9 +90,11 @@ export class PdfColor {
      * Check if colors are equal
      */
     equals(other: PdfColor): boolean {
-        return this.red === other.red &&
+        return (
+            this.red === other.red &&
             this.green === other.green &&
-            this.blue === other.blue;
+            this.blue === other.blue
+        );
     }
 
     /**

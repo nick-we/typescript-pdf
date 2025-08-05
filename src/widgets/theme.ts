@@ -1,18 +1,14 @@
 /**
  * Theme System - Consolidated
- * 
+ *
  * Consolidates theme functionality into a single focused module.
  * Replaces the theme parts from the original theme.ts.
- * 
+ *
  * @packageDocumentation
  */
 
-import type {
-    Layout
-} from '@/types.js';
-import {
-    Theme as ThemeTypes,
-} from '@/types.js';
+import type { Layout } from '@/types.js';
+import { Theme as ThemeTypes } from '@/types.js';
 import { BaseWidget, type Widget, type WidgetProps } from '@/widgets/base.js';
 
 /**
@@ -90,7 +86,10 @@ export class DefaultTextStyle extends BaseWidget {
         this.validateConstraints(context.constraints);
 
         // Merge our text style with the current theme's default
-        const mergedTextStyle = ThemeTypes.Utils.mergeTextStyles(context.theme.defaultTextStyle, this.style);
+        const mergedTextStyle = ThemeTypes.Utils.mergeTextStyles(
+            context.theme.defaultTextStyle,
+            this.style
+        );
 
         // Create new theme with merged text style
         const newTheme: ThemeTypes.ThemeData = {
@@ -108,7 +107,10 @@ export class DefaultTextStyle extends BaseWidget {
 
     paint(context: Layout.PaintContext): void {
         // Merge our text style with the current theme's default
-        const mergedTextStyle = ThemeTypes.Utils.mergeTextStyles(context.theme.defaultTextStyle, this.style);
+        const mergedTextStyle = ThemeTypes.Utils.mergeTextStyles(
+            context.theme.defaultTextStyle,
+            this.style
+        );
 
         // Create new theme with merged text style
         const newTheme: ThemeTypes.ThemeData = {
@@ -153,7 +155,10 @@ export const ThemeUtils = {
     /**
      * Merge text styles
      */
-    mergeTextStyles(base: ThemeTypes.TextStyle, override?: ThemeTypes.TextStyle): ThemeTypes.TextStyle {
+    mergeTextStyles(
+        base: ThemeTypes.TextStyle,
+        override?: ThemeTypes.TextStyle
+    ): ThemeTypes.TextStyle {
         return ThemeTypes.Utils.mergeTextStyles(base, override);
     },
 
@@ -174,7 +179,9 @@ export const ThemeUtils = {
     /**
      * Create a color scheme
      */
-    colorScheme(options: Partial<ThemeTypes.ColorScheme>): ThemeTypes.ColorScheme {
+    colorScheme(
+        options: Partial<ThemeTypes.ColorScheme>
+    ): ThemeTypes.ColorScheme {
         return {
             primary: '#1976d2',
             secondary: '#dc004e',
@@ -291,7 +298,9 @@ export function createTheme(props: ThemeProps): Theme {
     return new Theme(props);
 }
 
-export function createDefaultTextStyle(props: DefaultTextStyleProps): DefaultTextStyle {
+export function createDefaultTextStyle(
+    props: DefaultTextStyleProps
+): DefaultTextStyle {
     return new DefaultTextStyle(props);
 }
 
@@ -300,50 +309,53 @@ export function createDefaultTextStyle(props: DefaultTextStyleProps): DefaultTex
  */
 export const PrebuiltThemes = {
     /** Clean, minimal light theme */
-    minimal: (): ThemeTypes.ThemeData => ThemeUtils.custom({
-        primary: '#2c3e50',
-        secondary: '#95a5a6',
-        background: '#ffffff',
-        surface: '#ffffff',
-        onBackground: '#2c3e50',
-        onSurface: '#2c3e50',
-        onPrimary: '#ffffff',
-        onSecondary: '#ffffff',
-        error: '#e74c3c',
-        success: '#27ae60',
-        warning: '#f39c12',
-        info: '#3498db',
-    }),
+    minimal: (): ThemeTypes.ThemeData =>
+        ThemeUtils.custom({
+            primary: '#2c3e50',
+            secondary: '#95a5a6',
+            background: '#ffffff',
+            surface: '#ffffff',
+            onBackground: '#2c3e50',
+            onSurface: '#2c3e50',
+            onPrimary: '#ffffff',
+            onSecondary: '#ffffff',
+            error: '#e74c3c',
+            success: '#27ae60',
+            warning: '#f39c12',
+            info: '#3498db',
+        }),
 
     /** Corporate/business theme */
-    corporate: (): ThemeTypes.ThemeData => ThemeUtils.custom({
-        primary: '#1f4e79',
-        secondary: '#5b9bd5',
-        background: '#ffffff',
-        surface: '#f2f2f2',
-        onBackground: '#1f4e79',
-        onSurface: '#1f4e79',
-        onPrimary: '#ffffff',
-        onSecondary: '#ffffff',
-        error: '#c5504b',
-        success: '#70ad47',
-        warning: '#ffc000',
-        info: '#5b9bd5',
-    }),
+    corporate: (): ThemeTypes.ThemeData =>
+        ThemeUtils.custom({
+            primary: '#1f4e79',
+            secondary: '#5b9bd5',
+            background: '#ffffff',
+            surface: '#f2f2f2',
+            onBackground: '#1f4e79',
+            onSurface: '#1f4e79',
+            onPrimary: '#ffffff',
+            onSecondary: '#ffffff',
+            error: '#c5504b',
+            success: '#70ad47',
+            warning: '#ffc000',
+            info: '#5b9bd5',
+        }),
 
     /** Modern, vibrant theme */
-    modern: (): ThemeTypes.ThemeData => ThemeUtils.custom({
-        primary: '#6c5ce7',
-        secondary: '#fd79a8',
-        background: '#ffffff',
-        surface: '#f8f9fa',
-        onBackground: '#2d3436',
-        onSurface: '#2d3436',
-        onPrimary: '#ffffff',
-        onSecondary: '#ffffff',
-        error: '#e17055',
-        success: '#00b894',
-        warning: '#fdcb6e',
-        info: '#74b9ff',
-    }),
+    modern: (): ThemeTypes.ThemeData =>
+        ThemeUtils.custom({
+            primary: '#6c5ce7',
+            secondary: '#fd79a8',
+            background: '#ffffff',
+            surface: '#f8f9fa',
+            onBackground: '#2d3436',
+            onSurface: '#2d3436',
+            onPrimary: '#ffffff',
+            onSecondary: '#ffffff',
+            error: '#e17055',
+            success: '#00b894',
+            warning: '#fdcb6e',
+            info: '#74b9ff',
+        }),
 };

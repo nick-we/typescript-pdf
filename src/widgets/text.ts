@@ -12,9 +12,7 @@ import { getGlobalTextMeasurement } from '@/core/accurate-text-measurement.js';
 import { FontWeight, FontStyle } from '@/core/fonts.js';
 import { widgetLogger } from '@/core/logger.js';
 import type { IPdfColor } from '@/types/core-interfaces.js';
-import {
-    Theme, type Layout, type Geometry
-} from '@/types.js';
+import { Theme, type Layout, type Geometry } from '@/types.js';
 import { BaseWidget, type WidgetProps } from '@/widgets/base.js';
 
 /**
@@ -110,10 +108,14 @@ export class TextWidget extends BaseWidget {
         super(props);
 
         this.content = content;
-        if (props.style) { this.style = props.style; }
+        if (props.style) {
+            this.style = props.style;
+        }
         this.textAlign = props.textAlign ?? TextAlign.Left;
         this.overflow = props.overflow ?? TextOverflow.Clip;
-        if (props.maxLines) { this.maxLines = props.maxLines; }
+        if (props.maxLines) {
+            this.maxLines = props.maxLines;
+        }
         this.softWrap = props.softWrap ?? true;
     }
 
@@ -148,22 +150,30 @@ export class TextWidget extends BaseWidget {
         const lineSpacing = effectiveStyle.lineSpacing ?? 1.2;
 
         // FIXED: Better text measurement service resolution
-        const measurementService = textMeasurement ?? (() => {
-            try {
-                return getGlobalTextMeasurement();
-            } catch {
-                // Fallback to approximation if service not available (testing scenarios)
-                return undefined;
-            }
-        })();
+        const measurementService =
+            textMeasurement ??
+            (() => {
+                try {
+                    return getGlobalTextMeasurement();
+                } catch {
+                    // Fallback to approximation if service not available (testing scenarios)
+                    return undefined;
+                }
+            })();
 
         // FIXED: Handle empty text properly
         if (!this.content || this.content.trim() === '') {
-            const metrics = measurementService?.getFontMetrics(fontSize, fontFamily, fontWeight, fontStyle, lineSpacing) ?? {
+            const metrics = measurementService?.getFontMetrics(
+                fontSize,
+                fontFamily,
+                fontWeight,
+                fontStyle,
+                lineSpacing
+            ) ?? {
                 height: fontSize * lineSpacing,
                 baseline: fontSize * 0.8,
                 ascender: fontSize * 0.8,
-                descender: fontSize * 0.2
+                descender: fontSize * 0.2,
             };
 
             return {
@@ -180,7 +190,13 @@ export class TextWidget extends BaseWidget {
             let width: number;
 
             if (measurementService) {
-                width = measurementService.measureTextWidth(content, fontSize, fontFamily, fontWeight, fontStyle);
+                width = measurementService.measureTextWidth(
+                    content,
+                    fontSize,
+                    fontFamily,
+                    fontWeight,
+                    fontStyle
+                );
             } else {
                 // FIXED: Use consistent fallback multiplier (0.6 to match mock)
                 width = content.length * fontSize * 0.55;
@@ -189,24 +205,46 @@ export class TextWidget extends BaseWidget {
             // Apply truncation if text exceeds maxWidth
             if (width > maxWidth && this.overflow === TextOverflow.Ellipsis) {
                 if (measurementService) {
-                    content = measurementService.truncateTextAccurate(content, maxWidth, {
-                        fontSize, fontFamily, fontWeight, fontStyle
-                    });
-                    width = measurementService.measureTextWidth(content, fontSize, fontFamily, fontWeight, fontStyle);
+                    content = measurementService.truncateTextAccurate(
+                        content,
+                        maxWidth,
+                        {
+                            fontSize,
+                            fontFamily,
+                            fontWeight,
+                            fontStyle,
+                        }
+                    );
+                    width = measurementService.measureTextWidth(
+                        content,
+                        fontSize,
+                        fontFamily,
+                        fontWeight,
+                        fontStyle
+                    );
                 } else {
                     // Fallback truncation
                     content = TextUtils.truncate(content, maxWidth, fontSize);
                     width = content.length * fontSize * 0.55;
                 }
-            } else if (width > maxWidth && this.overflow === TextOverflow.Clip) {
+            } else if (
+                width > maxWidth &&
+                this.overflow === TextOverflow.Clip
+            ) {
                 width = maxWidth;
             }
 
-            const metrics = measurementService?.getFontMetrics(fontSize, fontFamily, fontWeight, fontStyle, lineSpacing) ?? {
+            const metrics = measurementService?.getFontMetrics(
+                fontSize,
+                fontFamily,
+                fontWeight,
+                fontStyle,
+                lineSpacing
+            ) ?? {
                 height: fontSize * lineSpacing,
                 baseline: fontSize * 0.8,
                 ascender: fontSize * 0.8,
-                descender: fontSize * 0.2
+                descender: fontSize * 0.2,
             };
 
             return {
@@ -222,9 +260,17 @@ export class TextWidget extends BaseWidget {
 
         if (measurementService) {
             // FIXED: Always use accurate measurement service when available
-            wrappedLines = measurementService.wrapTextAccurate(this.content, maxWidth, {
-                fontSize, fontFamily, fontWeight, fontStyle, lineSpacing
-            });
+            wrappedLines = measurementService.wrapTextAccurate(
+                this.content,
+                maxWidth,
+                {
+                    fontSize,
+                    fontFamily,
+                    fontWeight,
+                    fontStyle,
+                    lineSpacing,
+                }
+            );
         } else {
             // Fallback to old wrapping
             wrappedLines = TextUtils.wrap(this.content, maxWidth, fontSize);
@@ -237,39 +283,72 @@ export class TextWidget extends BaseWidget {
             finalLines = finalLines.slice(0, this.maxLines);
 
             // Add ellipsis to last line if overflow is ellipsis
-            if (this.overflow === TextOverflow.Ellipsis && finalLines.length > 0) {
+            if (
+                this.overflow === TextOverflow.Ellipsis &&
+                finalLines.length > 0
+            ) {
                 const lastLineIndex = finalLines.length - 1;
                 const lastLine = finalLines[lastLineIndex];
 
                 if (lastLine && measurementService) {
                     // Use accurate ellipsis truncation
-                    const ellipsisWidth = measurementService.measureTextWidth('...', fontSize, fontFamily, fontWeight, fontStyle);
+                    const ellipsisWidth = measurementService.measureTextWidth(
+                        '...',
+                        fontSize,
+                        fontFamily,
+                        fontWeight,
+                        fontStyle
+                    );
                     const availableWidth = maxWidth - ellipsisWidth;
 
-                    const lineWidth = measurementService.measureTextWidth(lastLine, fontSize, fontFamily, fontWeight, fontStyle);
+                    const lineWidth = measurementService.measureTextWidth(
+                        lastLine,
+                        fontSize,
+                        fontFamily,
+                        fontWeight,
+                        fontStyle
+                    );
                     if (lineWidth > availableWidth) {
-                        finalLines[lastLineIndex] = measurementService.truncateTextAccurate(lastLine, maxWidth, {
-                            fontSize, fontFamily, fontWeight, fontStyle
-                        }, '...');
+                        finalLines[lastLineIndex] =
+                            measurementService.truncateTextAccurate(
+                                lastLine,
+                                maxWidth,
+                                {
+                                    fontSize,
+                                    fontFamily,
+                                    fontWeight,
+                                    fontStyle,
+                                },
+                                '...'
+                            );
                     }
                 } else if (lastLine) {
                     // Fallback ellipsis handling
                     const avgCharWidth = fontSize * 0.55;
-                    const availableWidth = maxWidth - (3 * avgCharWidth);
+                    const availableWidth = maxWidth - 3 * avgCharWidth;
                     if (lastLine.length * avgCharWidth > availableWidth) {
-                        const maxChars = Math.floor(availableWidth / avgCharWidth);
-                        finalLines[lastLineIndex] = lastLine.substring(0, maxChars) + '...';
+                        const maxChars = Math.floor(
+                            availableWidth / avgCharWidth
+                        );
+                        finalLines[lastLineIndex] =
+                            lastLine.substring(0, maxChars) + '...';
                     }
                 }
             }
         }
 
         const actualLineCount = finalLines.length;
-        const metrics = measurementService?.getFontMetrics(fontSize, fontFamily, fontWeight, fontStyle, lineSpacing) ?? {
+        const metrics = measurementService?.getFontMetrics(
+            fontSize,
+            fontFamily,
+            fontWeight,
+            fontStyle,
+            lineSpacing
+        ) ?? {
             height: fontSize * lineSpacing,
             baseline: fontSize * 0.8,
             ascender: fontSize * 0.8,
-            descender: fontSize * 0.2
+            descender: fontSize * 0.2,
         };
 
         const totalHeight = actualLineCount * metrics.height;
@@ -278,13 +357,21 @@ export class TextWidget extends BaseWidget {
         let maxLineWidth: number;
         if (measurementService) {
             const actualWidths = finalLines.map(line =>
-                measurementService.measureTextWidth(line, fontSize, fontFamily, fontWeight, fontStyle)
+                measurementService.measureTextWidth(
+                    line,
+                    fontSize,
+                    fontFamily,
+                    fontWeight,
+                    fontStyle
+                )
             );
             maxLineWidth = Math.max(...actualWidths, 0); // Ensure non-negative
         } else {
             // Fallback width calculation
             maxLineWidth = Math.max(
-                ...finalLines.map(line => Math.min(line.length * fontSize * 0.55, maxWidth)),
+                ...finalLines.map(line =>
+                    Math.min(line.length * fontSize * 0.55, maxWidth)
+                ),
                 0 // Ensure non-negative
             );
         }
@@ -305,7 +392,11 @@ export class TextWidget extends BaseWidget {
         const maxWidth = context.constraints.maxWidth;
 
         // FIXED: Always prefer AccurateTextMeasurementService when available
-        const measurement = this.measureText(maxWidth, effectiveStyle, context.textMeasurement as AccurateTextMeasurementService);
+        const measurement = this.measureText(
+            maxWidth,
+            effectiveStyle,
+            context.textMeasurement as AccurateTextMeasurementService
+        );
 
         // FIXED: Better size calculation that respects both measurement and constraints
         const size: Geometry.Size = {
@@ -334,16 +425,22 @@ export class TextWidget extends BaseWidget {
         const lineSpacing = effectiveStyle.lineSpacing ?? 1.2;
 
         // Get text measurement service
-        const measurementService = context.textMeasurement ?? (() => {
-            try {
-                return getGlobalTextMeasurement();
-            } catch {
-                return null;
-            }
-        })();
+        const measurementService =
+            context.textMeasurement ??
+            (() => {
+                try {
+                    return getGlobalTextMeasurement();
+                } catch {
+                    return null;
+                }
+            })();
 
         // Get the processed text lines (same logic as measureText)
-        const textLines = this.getProcessedTextLines(context.size.width, effectiveStyle, measurementService as AccurateTextMeasurementService);
+        const textLines = this.getProcessedTextLines(
+            context.size.width,
+            effectiveStyle,
+            measurementService as AccurateTextMeasurementService
+        );
 
         // Only do actual graphics operations if graphics context is available
         if (context.graphics && context.fontRegistry) {
@@ -362,11 +459,17 @@ export class TextWidget extends BaseWidget {
             context.graphics.scale(1, -1);
 
             // Get font metrics for accurate positioning
-            const metrics = measurementService?.getFontMetrics(fontSize, fontFamily, fontWeight, fontStyle, lineSpacing) ?? {
+            const metrics = measurementService?.getFontMetrics(
+                fontSize,
+                fontFamily,
+                fontWeight,
+                fontStyle,
+                lineSpacing
+            ) ?? {
                 height: fontSize * lineSpacing,
                 baseline: fontSize * 0.8,
                 ascender: fontSize * 0.8,
-                descender: fontSize * 0.2
+                descender: fontSize * 0.2,
             };
 
             // Draw each line of text
@@ -376,7 +479,13 @@ export class TextWidget extends BaseWidget {
                 let actualLineWidth: number;
 
                 if (measurementService) {
-                    actualLineWidth = measurementService.measureTextWidth(line, fontSize, fontFamily, fontWeight, fontStyle);
+                    actualLineWidth = measurementService.measureTextWidth(
+                        line,
+                        fontSize,
+                        fontFamily,
+                        fontWeight,
+                        fontStyle
+                    );
                 } else {
                     // Fallback to approximation
                     actualLineWidth = line.length * fontSize * 0.55;
@@ -390,7 +499,7 @@ export class TextWidget extends BaseWidget {
 
                 // Y position for this line (negative because coordinate system is flipped)
                 // Use accurate baseline positioning
-                const y = -(metrics.baseline + (lineIndex * metrics.height));
+                const y = -(metrics.baseline + lineIndex * metrics.height);
 
                 // Draw the line
                 context.graphics?.drawString(font, fontSize, line, x, y);
@@ -416,13 +525,15 @@ export class TextWidget extends BaseWidget {
         const lineSpacing = effectiveStyle.lineSpacing ?? 1.2;
 
         // Get text measurement service
-        const measurementService = textMeasurement ?? (() => {
-            try {
-                return getGlobalTextMeasurement();
-            } catch {
-                return undefined;
-            }
-        })();
+        const measurementService =
+            textMeasurement ??
+            (() => {
+                try {
+                    return getGlobalTextMeasurement();
+                } catch {
+                    return undefined;
+                }
+            })();
 
         // Handle single line text (no wrapping)
         if (!this.softWrap) {
@@ -431,11 +542,24 @@ export class TextWidget extends BaseWidget {
             // Apply truncation if text exceeds maxWidth
             if (this.overflow === TextOverflow.Ellipsis) {
                 if (measurementService) {
-                    const totalWidth = measurementService.measureTextWidth(content, fontSize, fontFamily, fontWeight, fontStyle);
+                    const totalWidth = measurementService.measureTextWidth(
+                        content,
+                        fontSize,
+                        fontFamily,
+                        fontWeight,
+                        fontStyle
+                    );
                     if (totalWidth > maxWidth) {
-                        content = measurementService.truncateTextAccurate(content, maxWidth, {
-                            fontSize, fontFamily, fontWeight, fontStyle
-                        });
+                        content = measurementService.truncateTextAccurate(
+                            content,
+                            maxWidth,
+                            {
+                                fontSize,
+                                fontFamily,
+                                fontWeight,
+                                fontStyle,
+                            }
+                        );
                     }
                 } else {
                     // Fallback truncation
@@ -450,9 +574,17 @@ export class TextWidget extends BaseWidget {
         let wrappedLines: string[];
 
         if (measurementService) {
-            wrappedLines = measurementService.wrapTextAccurate(this.content, maxWidth, {
-                fontSize, fontFamily, fontWeight, fontStyle, lineSpacing
-            });
+            wrappedLines = measurementService.wrapTextAccurate(
+                this.content,
+                maxWidth,
+                {
+                    fontSize,
+                    fontFamily,
+                    fontWeight,
+                    fontStyle,
+                    lineSpacing,
+                }
+            );
         } else {
             // Fallback to old wrapping
             wrappedLines = TextUtils.wrap(this.content, maxWidth, fontSize);
@@ -465,28 +597,55 @@ export class TextWidget extends BaseWidget {
             finalLines = finalLines.slice(0, this.maxLines);
 
             // Add ellipsis to last line if overflow is ellipsis
-            if (this.overflow === TextOverflow.Ellipsis && finalLines.length > 0) {
+            if (
+                this.overflow === TextOverflow.Ellipsis &&
+                finalLines.length > 0
+            ) {
                 const lastLineIndex = finalLines.length - 1;
                 const lastLine = finalLines[lastLineIndex];
 
                 if (lastLine && measurementService) {
                     // Use accurate ellipsis truncation
-                    const ellipsisWidth = measurementService.measureTextWidth('...', fontSize, fontFamily, fontWeight, fontStyle);
+                    const ellipsisWidth = measurementService.measureTextWidth(
+                        '...',
+                        fontSize,
+                        fontFamily,
+                        fontWeight,
+                        fontStyle
+                    );
                     const availableWidth = maxWidth - ellipsisWidth;
 
-                    const lineWidth = measurementService.measureTextWidth(lastLine, fontSize, fontFamily, fontWeight, fontStyle);
+                    const lineWidth = measurementService.measureTextWidth(
+                        lastLine,
+                        fontSize,
+                        fontFamily,
+                        fontWeight,
+                        fontStyle
+                    );
                     if (lineWidth > availableWidth) {
-                        finalLines[lastLineIndex] = measurementService.truncateTextAccurate(lastLine, maxWidth, {
-                            fontSize, fontFamily, fontWeight, fontStyle
-                        }, '...');
+                        finalLines[lastLineIndex] =
+                            measurementService.truncateTextAccurate(
+                                lastLine,
+                                maxWidth,
+                                {
+                                    fontSize,
+                                    fontFamily,
+                                    fontWeight,
+                                    fontStyle,
+                                },
+                                '...'
+                            );
                     }
                 } else if (lastLine) {
                     // Fallback ellipsis handling
                     const avgCharWidth = fontSize * 0.55;
-                    const availableWidth = maxWidth - (3 * avgCharWidth);
+                    const availableWidth = maxWidth - 3 * avgCharWidth;
                     if (lastLine.length * avgCharWidth > availableWidth) {
-                        const maxChars = Math.floor(availableWidth / avgCharWidth);
-                        finalLines[lastLineIndex] = lastLine.substring(0, maxChars) + '...';
+                        const maxChars = Math.floor(
+                            availableWidth / avgCharWidth
+                        );
+                        finalLines[lastLineIndex] =
+                            lastLine.substring(0, maxChars) + '...';
                     }
                 }
             }
@@ -528,7 +687,9 @@ export class RichText extends BaseWidget {
         this.spans = props.spans;
         this.textAlign = props.textAlign ?? TextAlign.Left;
         this.overflow = props.overflow ?? TextOverflow.Clip;
-        if (props.maxLines) { this.maxLines = props.maxLines; }
+        if (props.maxLines) {
+            this.maxLines = props.maxLines;
+        }
         this.softWrap = props.softWrap ?? true;
     }
 
@@ -551,7 +712,10 @@ export class RichText extends BaseWidget {
         // Use the first span's style or theme default for measurement
         const firstSpanStyle = this.spans[0]?.style;
         const effectiveStyle = firstSpanStyle
-            ? Theme.Utils.mergeTextStyles(theme.defaultTextStyle, firstSpanStyle)
+            ? Theme.Utils.mergeTextStyles(
+                  theme.defaultTextStyle,
+                  firstSpanStyle
+              )
             : theme.defaultTextStyle;
 
         const fontSize = effectiveStyle.fontSize ?? 12;
@@ -559,7 +723,13 @@ export class RichText extends BaseWidget {
         let totalWidth: number;
         try {
             const measurementService = getGlobalTextMeasurement();
-            totalWidth = measurementService.measureTextWidth(combinedText, fontSize, effectiveStyle.fontFamily ?? 'Helvetica', effectiveStyle.fontWeight ?? FontWeight.Normal, effectiveStyle.fontStyle ?? FontStyle.Normal);
+            totalWidth = measurementService.measureTextWidth(
+                combinedText,
+                fontSize,
+                effectiveStyle.fontFamily ?? 'Helvetica',
+                effectiveStyle.fontWeight ?? FontWeight.Normal,
+                effectiveStyle.fontStyle ?? FontStyle.Normal
+            );
         } catch {
             // Fallback to approximation
             totalWidth = combinedText.length * fontSize * 0.55;
@@ -577,9 +747,10 @@ export class RichText extends BaseWidget {
     layout(context: Layout.LayoutContext): Layout.LayoutResult {
         this.validateConstraints(context.constraints);
 
-        const maxWidth = context.constraints.maxWidth === Number.POSITIVE_INFINITY
-            ? 1000
-            : context.constraints.maxWidth;
+        const maxWidth =
+            context.constraints.maxWidth === Number.POSITIVE_INFINITY
+                ? 1000
+                : context.constraints.maxWidth;
 
         const measurement = this.measureRichText(maxWidth, context.theme);
 
@@ -611,7 +782,10 @@ export class RichText extends BaseWidget {
 /**
  * Convenience function to create a Text widget
  */
-export function createText(content: string, props: Omit<TextProps, 'content'> = {}): TextWidget {
+export function createText(
+    content: string,
+    props: Omit<TextProps, 'content'> = {}
+): TextWidget {
     return new TextWidget(content, props);
 }
 
@@ -631,18 +805,20 @@ export const TextUtils = {
      */
     span(text: string, style?: Theme.TextStyle): TextSpan {
         const span: TextSpan = { text };
-        if (style) { span.style = style; }
+        if (style) {
+            span.style = style;
+        }
         return span;
     },
 
     /**
      * Create multiple spans from text array
      */
-    spans(texts: Array<string | { text: string; style?: Theme.TextStyle }>): TextSpan[] {
+    spans(
+        texts: Array<string | { text: string; style?: Theme.TextStyle }>
+    ): TextSpan[] {
         return texts.map(item =>
-            typeof item === 'string'
-                ? { text: item }
-                : item
+            typeof item === 'string' ? { text: item } : item
         );
     },
 

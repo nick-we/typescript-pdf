@@ -8,7 +8,7 @@ import { setupTestDOM } from './test-utils.js';
 
 // Global test setup
 globalThis.performance = globalThis.performance || {
-    now: () => Date.now()
+    now: () => Date.now(),
 };
 
 // Setup DOM mocks using typed utilities
@@ -26,5 +26,5 @@ export {
     type TestCrossAxisAlignment,
     type TestStackFit,
     type TestChartMarker,
-    type TestColumnWidthType
+    type TestColumnWidthType,
 } from './test-utils.js';

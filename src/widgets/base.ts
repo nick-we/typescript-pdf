@@ -1,23 +1,19 @@
 /**
  * Base Widget System - Consolidated
- * 
+ *
  * Consolidates base widget functionality and utilities into a single focused module.
  * Replaces fragmented helper classes with unified WidgetUtils.
- * 
+ *
  * @packageDocumentation
  */
 
 import { widgetLogger } from '../core/logger.js';
-import type {
-    Geometry
-} from '../types.js';
-import {
-    Layout
-} from '../types.js';
+import type { Geometry } from '../types.js';
+import { Layout } from '../types.js';
 
 /**
  * Base Widget interface
- * 
+ *
  * All widgets must implement layout() and paint() methods for the
  * constraint-based layout system.
  */
@@ -65,14 +61,14 @@ export abstract class BaseWidget implements Widget {
             value: props.key,
             writable: false,
             enumerable: true,
-            configurable: false
+            configurable: false,
         });
 
         Object.defineProperty(this, 'debugLabel', {
             value: props.debugLabel,
             writable: false,
             enumerable: true,
-            configurable: false
+            configurable: false,
         });
     }
 
@@ -106,7 +102,10 @@ export abstract class BaseWidget implements Widget {
      */
     protected validateConstraints(constraints: Layout.BoxConstraints): void {
         // Basic constraint validation - check that min <= max
-        if (constraints.minWidth > constraints.maxWidth || constraints.minHeight > constraints.maxHeight) {
+        if (
+            constraints.minWidth > constraints.maxWidth ||
+            constraints.minHeight > constraints.maxHeight
+        ) {
             throw new Error(
                 `Invalid constraints: ${JSON.stringify(constraints)} for widget ${this.debugLabel ?? this.constructor.name}`
             );
@@ -116,7 +115,10 @@ export abstract class BaseWidget implements Widget {
     /**
      * Helper method to constrain size
      */
-    protected constrainSize(constraints: Layout.BoxConstraints, size: Geometry.Size): Geometry.Size {
+    protected constrainSize(
+        constraints: Layout.BoxConstraints,
+        size: Geometry.Size
+    ): Geometry.Size {
         return Layout.BoxConstraints.constrain(constraints, size);
     }
 }
@@ -140,10 +142,10 @@ export class EmptyWidget extends BaseWidget {
 
 /**
  * Unified Widget Utilities - Consolidates 12+ helper classes
- * 
+ *
  * Replaces:
  * - WidgetComposition, WidgetUtils
- * - WidgetHelpers, LayoutHelpers  
+ * - WidgetHelpers, LayoutHelpers
  * - AlignHelpers, CenterHelpers
  * - PaddingHelpers, MarginHelpers
  * - PositionedHelpers, StackHelpers
@@ -160,7 +162,9 @@ export const WidgetUtils = {
 
             constructor() {
                 super({ debugLabel: 'SizedBox' });
-                if (child) { this.child = child; }
+                if (child) {
+                    this.child = child;
+                }
                 this.fixedSize = { width, height };
             }
 
@@ -183,7 +187,10 @@ export const WidgetUtils = {
                     this.child.layout(childContext);
                 }
 
-                const constrainedSize = this.constrainSize(context.constraints, this.fixedSize);
+                const constrainedSize = this.constrainSize(
+                    context.constraints,
+                    this.fixedSize
+                );
                 return this.createLayoutResult(constrainedSize);
             }
 
@@ -211,12 +218,16 @@ export const WidgetUtils = {
             layout(context: Layout.LayoutContext): Layout.LayoutResult {
                 this.validateConstraints(context.constraints);
                 const size: Geometry.Size = {
-                    width: context.constraints.maxWidth === Number.POSITIVE_INFINITY
-                        ? context.constraints.minWidth
-                        : context.constraints.maxWidth,
-                    height: context.constraints.maxHeight === Number.POSITIVE_INFINITY
-                        ? context.constraints.minHeight
-                        : context.constraints.maxHeight,
+                    width:
+                        context.constraints.maxWidth ===
+                        Number.POSITIVE_INFINITY
+                            ? context.constraints.minWidth
+                            : context.constraints.maxWidth,
+                    height:
+                        context.constraints.maxHeight ===
+                        Number.POSITIVE_INFINITY
+                            ? context.constraints.minHeight
+                            : context.constraints.maxHeight,
                 };
                 return this.createLayoutResult(size, { needsRepaint: false });
             }
@@ -230,14 +241,19 @@ export const WidgetUtils = {
     /**
      * Compose multiple widget behaviors (functional composition)
      */
-    compose<T extends Widget>(...behaviors: Array<(widget: T) => T>): (widget: T) => T {
-        return (widget: T) => behaviors.reduce((w, behavior) => behavior(w), widget);
+    compose<T extends Widget>(
+        ...behaviors: Array<(widget: T) => T>
+    ): (widget: T) => T {
+        return (widget: T) =>
+            behaviors.reduce((w, behavior) => behavior(w), widget);
     },
 
     /**
      * Add debugging information to a widget
      */
-    withDebug<T extends Widget>(label: string): (widget: T) => T & { debugLabel: string } {
+    withDebug<T extends Widget>(
+        label: string
+    ): (widget: T) => T & { debugLabel: string } {
         return (widget: T) => ({
             ...widget,
             debugLabel: label,
@@ -247,7 +263,9 @@ export const WidgetUtils = {
     /**
      * Add constraint validation to a widget
      */
-    withConstraintValidation<T extends Widget>(strictMode = true): (widget: T) => T {
+    withConstraintValidation<T extends Widget>(
+        strictMode = true
+    ): (widget: T) => T {
         const originalLayout = (widget: T) => widget.layout.bind(widget);
 
         return (widget: T) => ({
@@ -268,11 +286,16 @@ export const WidgetUtils = {
                 if (strictMode) {
                     const s = result.size;
                     const c = context.constraints;
-                    if (s.width < c.minWidth || s.width > c.maxWidth || s.height < c.minHeight || s.height > c.maxHeight) {
+                    if (
+                        s.width < c.minWidth ||
+                        s.width > c.maxWidth ||
+                        s.height < c.minHeight ||
+                        s.height > c.maxHeight
+                    ) {
                         throw new Error(
                             `Widget ${widget.debugLabel ?? 'unknown'} violated constraints. ` +
-                            `Expected: ${JSON.stringify(context.constraints)}, ` +
-                            `Got: ${JSON.stringify(result.size)}`
+                                `Expected: ${JSON.stringify(context.constraints)}, ` +
+                                `Got: ${JSON.stringify(result.size)}`
                         );
                     }
                 }
@@ -285,7 +308,9 @@ export const WidgetUtils = {
     /**
      * Add performance monitoring to a widget
      */
-    withPerformanceMonitoring<T extends Widget>(enableLogging = false): (widget: T) => T {
+    withPerformanceMonitoring<T extends Widget>(
+        enableLogging = false
+    ): (widget: T) => T {
         const originalLayout = (widget: T) => widget.layout.bind(widget);
         const originalPaint = (widget: T) => widget.paint.bind(widget);
 
@@ -297,7 +322,9 @@ export const WidgetUtils = {
                 const duration = performance.now() - start;
 
                 if (enableLogging) {
-                    widgetLogger.debug(`Layout ${widget.debugLabel ?? 'unknown'}: ${duration.toFixed(2)}ms`);
+                    widgetLogger.debug(
+                        `Layout ${widget.debugLabel ?? 'unknown'}: ${duration.toFixed(2)}ms`
+                    );
                 }
 
                 return result;
@@ -308,7 +335,9 @@ export const WidgetUtils = {
                 const duration = performance.now() - start;
 
                 if (enableLogging) {
-                    widgetLogger.debug(`Paint ${widget.debugLabel ?? 'unknown'}: ${duration.toFixed(2)}ms`);
+                    widgetLogger.debug(
+                        `Paint ${widget.debugLabel ?? 'unknown'}: ${duration.toFixed(2)}ms`
+                    );
                 }
             },
         });
@@ -362,11 +391,17 @@ export const WidgetLayoutUtils = {
         let constraints = parentConstraints;
 
         if (margin) {
-            constraints = Layout.EdgeInsets.deflateConstraints(margin, constraints);
+            constraints = Layout.EdgeInsets.deflateConstraints(
+                margin,
+                constraints
+            );
         }
 
         if (padding) {
-            constraints = Layout.EdgeInsets.deflateConstraints(padding, constraints);
+            constraints = Layout.EdgeInsets.deflateConstraints(
+                padding,
+                constraints
+            );
         }
 
         return constraints;
@@ -383,17 +418,23 @@ export const WidgetLayoutUtils = {
     ): Geometry.Point {
         const availableSize: Geometry.Size = padding
             ? {
-                width: parentSize.width - Layout.EdgeInsets.horizontal(padding),
-                height: parentSize.height - Layout.EdgeInsets.vertical(padding)
-            }
+                  width:
+                      parentSize.width - Layout.EdgeInsets.horizontal(padding),
+                  height:
+                      parentSize.height - Layout.EdgeInsets.vertical(padding),
+              }
             : parentSize;
 
-        const position = Layout.AlignmentUtils.resolve(alignment, availableSize, childSize);
+        const position = Layout.AlignmentUtils.resolve(
+            alignment,
+            availableSize,
+            childSize
+        );
 
         if (padding) {
             return {
                 x: position.x + padding.left,
-                y: position.y + padding.top
+                y: position.y + padding.top,
             };
         }
 

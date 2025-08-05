@@ -1,9 +1,9 @@
 /**
  * Core Interface Definitions
- * 
+ *
  * Defines interfaces for core services to break circular import dependencies.
  * These interfaces allow types.ts to reference core services without importing them directly.
- * 
+ *
  * @packageDocumentation
  */
 
@@ -194,14 +194,27 @@ export interface IGraphicsContext {
     // Path operations
     moveTo(x: number, y: number): void;
     lineTo(x: number, y: number): void;
-    curveTo(cp1x: number, cp1y: number, cp2x: number, cp2y: number, x: number, y: number): void;
+    curveTo(
+        cp1x: number,
+        cp1y: number,
+        cp2x: number,
+        cp2y: number,
+        x: number,
+        y: number
+    ): void;
     closePath(): void;
 
     // Drawing operations
     drawRect(x: number, y: number, width: number, height: number): void;
     drawRoundedRect(
-        x: number, y: number, width: number, height: number,
-        topLeft?: number, topRight?: number, bottomRight?: number, bottomLeft?: number
+        x: number,
+        y: number,
+        width: number,
+        height: number,
+        topLeft?: number,
+        topRight?: number,
+        bottomRight?: number,
+        bottomLeft?: number
     ): void;
 
     // Path rendering
@@ -210,11 +223,24 @@ export interface IGraphicsContext {
     fillAndStrokePath(): void;
 
     // Text rendering
-    drawString(font: unknown, fontSize: number, text: string, x: number, y: number): void;
+    drawString(
+        font: unknown,
+        fontSize: number,
+        text: string,
+        x: number,
+        y: number
+    ): void;
     setFont(font: unknown, fontSize: number): void;
 
     // Transformations
-    transform(a: number, b: number, c: number, d: number, e: number, f: number): void;
+    transform(
+        a: number,
+        b: number,
+        c: number,
+        d: number,
+        e: number,
+        f: number
+    ): void;
     translate(x: number, y: number): void;
     scale(sx: number, sy: number): void;
     rotate(angle: number): void;
@@ -265,7 +291,11 @@ export interface IDocument {
  * Widget interface (minimal definition to avoid circular import)
  */
 export interface IWidget {
-    layout?(context: unknown): { size: Geometry.Size; needsRepaint?: boolean; baseline?: number };
+    layout?(context: unknown): {
+        size: Geometry.Size;
+        needsRepaint?: boolean;
+        baseline?: number;
+    };
     paint?(context: unknown): void;
 }
 

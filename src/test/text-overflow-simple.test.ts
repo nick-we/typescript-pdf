@@ -7,7 +7,6 @@ import { describe, it, expect } from 'vitest';
 import { createMockPaintContext } from '@/test/mock-interfaces.js';
 import { Table, TextOverflow } from '@/widgets/data.js';
 
-
 describe('Text Overflow Simple Verification', () => {
     it('should have TextOverflow enum with correct values', () => {
         expect(TextOverflow.Clip).toBe('clip');
@@ -18,7 +17,7 @@ describe('Text Overflow Simple Verification', () => {
     it('should create table with textOverflow property', () => {
         const table = new Table({
             data: [['test']],
-            textOverflow: TextOverflow.Ellipsis
+            textOverflow: TextOverflow.Ellipsis,
         });
 
         expect(table).toBeDefined();
@@ -26,12 +25,12 @@ describe('Text Overflow Simple Verification', () => {
 
     it('should create table with PDF clipping support', () => {
         const context = createMockPaintContext({
-            size: { width: 400, height: 300 }
+            size: { width: 400, height: 300 },
         });
 
         const table = new Table({
             data: [['Very long text that should be clipped']],
-            textOverflow: TextOverflow.Clip
+            textOverflow: TextOverflow.Clip,
         });
 
         // Should not throw when painting
@@ -43,7 +42,7 @@ describe('Text Overflow Simple Verification', () => {
     it('should support per-row text overflow overrides', () => {
         const table = new Table({
             textOverflow: TextOverflow.Clip,
-            children: []
+            children: [],
         });
 
         expect(table).toBeDefined();

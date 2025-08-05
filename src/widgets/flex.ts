@@ -1,20 +1,15 @@
 /**
  * Flex Layout System - Simplified
- * 
+ *
  * Keeps the existing flex system but removes over-engineered helpers.
  * Provides Row, Column, Flexible, and Expanded widgets.
- * 
+ *
  * @packageDocumentation
  */
 
 import { widgetLogger } from '../core/logger.js';
-import type {
-    Geometry
-} from '../types.js';
-import {
-    Layout,
-    Flex as FlexTypes,
-} from '../types.js';
+import type { Geometry } from '../types.js';
+import { Layout, Flex as FlexTypes } from '../types.js';
 
 import { BaseWidget, type Widget, type WidgetProps } from './base.js';
 
@@ -75,11 +70,14 @@ export class Flex extends BaseWidget {
 
         this.children = props.children;
         this.direction = props.direction;
-        this.mainAxisAlignment = props.mainAxisAlignment ?? FlexTypes.MainAxisAlignment.Start;
-        this.crossAxisAlignment = props.crossAxisAlignment ?? FlexTypes.CrossAxisAlignment.Center;
+        this.mainAxisAlignment =
+            props.mainAxisAlignment ?? FlexTypes.MainAxisAlignment.Start;
+        this.crossAxisAlignment =
+            props.crossAxisAlignment ?? FlexTypes.CrossAxisAlignment.Center;
         this.mainAxisSize = props.mainAxisSize ?? FlexTypes.MainAxisSize.Max;
         this.mainAxisSpacing = props.mainAxisSpacing ?? 0;
-        this.verticalDirection = props.verticalDirection ?? FlexTypes.VerticalDirection.Down;
+        this.verticalDirection =
+            props.verticalDirection ?? FlexTypes.VerticalDirection.Down;
     }
 
     /**
@@ -94,20 +92,27 @@ export class Flex extends BaseWidget {
      * Get main axis size from a size based on direction
      */
     private getMainAxisSize(size: Geometry.Size): number {
-        return this.direction === FlexTypes.Axis.Horizontal ? size.width : size.height;
+        return this.direction === FlexTypes.Axis.Horizontal
+            ? size.width
+            : size.height;
     }
 
     /**
      * Get cross axis size from a size based on direction
      */
     private getCrossAxisSize(size: Geometry.Size): number {
-        return this.direction === FlexTypes.Axis.Horizontal ? size.height : size.width;
+        return this.direction === FlexTypes.Axis.Horizontal
+            ? size.height
+            : size.width;
     }
 
     /**
      * Create size from main and cross axis values
      */
-    private createSize(mainAxisSize: number, crossAxisSize: number): Geometry.Size {
+    private createSize(
+        mainAxisSize: number,
+        crossAxisSize: number
+    ): Geometry.Size {
         return this.direction === FlexTypes.Axis.Horizontal
             ? { width: mainAxisSize, height: crossAxisSize }
             : { width: crossAxisSize, height: mainAxisSize };
@@ -121,15 +126,21 @@ export class Flex extends BaseWidget {
             return [];
         }
 
-        const maxMainAxis = this.direction === FlexTypes.Axis.Horizontal
-            ? context.constraints.maxWidth
-            : context.constraints.maxHeight;
-        const maxCrossAxis = this.direction === FlexTypes.Axis.Horizontal
-            ? context.constraints.maxHeight
-            : context.constraints.maxWidth;
+        const maxMainAxis =
+            this.direction === FlexTypes.Axis.Horizontal
+                ? context.constraints.maxWidth
+                : context.constraints.maxHeight;
+        const maxCrossAxis =
+            this.direction === FlexTypes.Axis.Horizontal
+                ? context.constraints.maxHeight
+                : context.constraints.maxWidth;
 
         // Separate flexible and non-flexible children
-        const flexibleChildren: Array<{ child: Widget; flex: number; index: number }> = [];
+        const flexibleChildren: Array<{
+            child: Widget;
+            flex: number;
+            index: number;
+        }> = [];
         const nonFlexibleChildren: Array<{ child: Widget; index: number }> = [];
 
         this.children.forEach((child, index) => {
@@ -147,17 +158,26 @@ export class Flex extends BaseWidget {
 
         // Layout non-flexible children first
         for (const { child, index } of nonFlexibleChildren) {
-            const childConstraints: Layout.BoxConstraints = this.direction === FlexTypes.Axis.Horizontal ? {
-                minWidth: 0,
-                maxWidth: Math.max(0, maxMainAxis - usedMainAxisSpace),
-                minHeight: 0,
-                maxHeight: maxCrossAxis,
-            } : {
-                minWidth: 0,
-                maxWidth: maxCrossAxis,
-                minHeight: 0,
-                maxHeight: Math.max(0, maxMainAxis - usedMainAxisSpace),
-            };
+            const childConstraints: Layout.BoxConstraints =
+                this.direction === FlexTypes.Axis.Horizontal
+                    ? {
+                          minWidth: 0,
+                          maxWidth: Math.max(
+                              0,
+                              maxMainAxis - usedMainAxisSpace
+                          ),
+                          minHeight: 0,
+                          maxHeight: maxCrossAxis,
+                      }
+                    : {
+                          minWidth: 0,
+                          maxWidth: maxCrossAxis,
+                          minHeight: 0,
+                          maxHeight: Math.max(
+                              0,
+                              maxMainAxis - usedMainAxisSpace
+                          ),
+                      };
 
             const childContext: Layout.LayoutContext = {
                 ...context,
@@ -182,11 +202,18 @@ export class Flex extends BaseWidget {
         }
 
         // Calculate available space for flexible children
-        const totalSpacing = this.mainAxisSpacing * Math.max(0, this.children.length - 1);
-        const remainingSpace = Math.max(0, maxMainAxis - usedMainAxisSpace - totalSpacing);
+        const totalSpacing =
+            this.mainAxisSpacing * Math.max(0, this.children.length - 1);
+        const remainingSpace = Math.max(
+            0,
+            maxMainAxis - usedMainAxisSpace - totalSpacing
+        );
 
         // Layout flexible children
-        const totalFlex = flexibleChildren.reduce((sum, { flex }) => sum + flex, 0);
+        const totalFlex = flexibleChildren.reduce(
+            (sum, { flex }) => sum + flex,
+            0
+        );
 
         if (flexibleChildren.length > 0 && totalFlex > 0) {
             const flexUnit = remainingSpace / totalFlex;
@@ -195,17 +222,34 @@ export class Flex extends BaseWidget {
                 const childFlexSpace = flex * flexUnit;
                 const flexData = this.getFlexData(child);
 
-                const childConstraints: Layout.BoxConstraints = this.direction === FlexTypes.Axis.Horizontal ? {
-                    minWidth: flexData.fit === FlexTypes.FlexFit.Tight ? childFlexSpace : 0,
-                    maxWidth: childFlexSpace,
-                    minHeight: this.crossAxisAlignment === FlexTypes.CrossAxisAlignment.Stretch ? maxCrossAxis : 0,
-                    maxHeight: maxCrossAxis,
-                } : {
-                    minWidth: this.crossAxisAlignment === FlexTypes.CrossAxisAlignment.Stretch ? maxCrossAxis : 0,
-                    maxWidth: maxCrossAxis,
-                    minHeight: flexData.fit === FlexTypes.FlexFit.Tight ? childFlexSpace : 0,
-                    maxHeight: childFlexSpace,
-                };
+                const childConstraints: Layout.BoxConstraints =
+                    this.direction === FlexTypes.Axis.Horizontal
+                        ? {
+                              minWidth:
+                                  flexData.fit === FlexTypes.FlexFit.Tight
+                                      ? childFlexSpace
+                                      : 0,
+                              maxWidth: childFlexSpace,
+                              minHeight:
+                                  this.crossAxisAlignment ===
+                                  FlexTypes.CrossAxisAlignment.Stretch
+                                      ? maxCrossAxis
+                                      : 0,
+                              maxHeight: maxCrossAxis,
+                          }
+                        : {
+                              minWidth:
+                                  this.crossAxisAlignment ===
+                                  FlexTypes.CrossAxisAlignment.Stretch
+                                      ? maxCrossAxis
+                                      : 0,
+                              maxWidth: maxCrossAxis,
+                              minHeight:
+                                  flexData.fit === FlexTypes.FlexFit.Tight
+                                      ? childFlexSpace
+                                      : 0,
+                              maxHeight: childFlexSpace,
+                          };
 
                 const childContext: Layout.LayoutContext = {
                     ...context,
@@ -213,7 +257,9 @@ export class Flex extends BaseWidget {
                 };
 
                 const childLayout = child.layout(childContext);
-                const crossAxisChildSize = this.getCrossAxisSize(childLayout.size);
+                const crossAxisChildSize = this.getCrossAxisSize(
+                    childLayout.size
+                );
 
                 childLayouts.push({
                     widget: child,
@@ -224,7 +270,10 @@ export class Flex extends BaseWidget {
                     flex,
                 });
 
-                maxCrossAxisSize = Math.max(maxCrossAxisSize, crossAxisChildSize);
+                maxCrossAxisSize = Math.max(
+                    maxCrossAxisSize,
+                    crossAxisChildSize
+                );
             }
         }
 
@@ -249,12 +298,16 @@ export class Flex extends BaseWidget {
             (sum, child) => sum + this.getMainAxisSize(child.size),
             0
         );
-        const totalSpacing = this.mainAxisSpacing * Math.max(0, childLayouts.length - 1);
+        const totalSpacing =
+            this.mainAxisSpacing * Math.max(0, childLayouts.length - 1);
         const totalMainSize = totalChildMainSize + totalSpacing;
 
         // Calculate main axis positions
         let currentMainPos = 0;
-        const remainingMainSpace = Math.max(0, containerMainSize - totalMainSize);
+        const remainingMainSpace = Math.max(
+            0,
+            containerMainSize - totalMainSize
+        );
 
         switch (this.mainAxisAlignment) {
             case FlexTypes.MainAxisAlignment.Start: {
@@ -279,7 +332,8 @@ export class Flex extends BaseWidget {
                 break;
             }
             case FlexTypes.MainAxisAlignment.SpaceEvenly: {
-                const evenSpace = remainingMainSpace / (childLayouts.length + 1);
+                const evenSpace =
+                    remainingMainSpace / (childLayouts.length + 1);
                 currentMainPos = evenSpace;
                 break;
             }
@@ -324,14 +378,17 @@ export class Flex extends BaseWidget {
                 switch (this.mainAxisAlignment) {
                     case FlexTypes.MainAxisAlignment.SpaceBetween:
                         if (childLayouts.length > 1) {
-                            currentMainPos += remainingMainSpace / (childLayouts.length - 1);
+                            currentMainPos +=
+                                remainingMainSpace / (childLayouts.length - 1);
                         }
                         break;
                     case FlexTypes.MainAxisAlignment.SpaceAround:
-                        currentMainPos += (remainingMainSpace / childLayouts.length);
+                        currentMainPos +=
+                            remainingMainSpace / childLayouts.length;
                         break;
                     case FlexTypes.MainAxisAlignment.SpaceEvenly:
-                        currentMainPos += (remainingMainSpace / (childLayouts.length + 1));
+                        currentMainPos +=
+                            remainingMainSpace / (childLayouts.length + 1);
                         break;
                     default:
                         currentMainPos += this.mainAxisSpacing;
@@ -353,7 +410,10 @@ export class Flex extends BaseWidget {
         // Calculate container size
         const maxMainAxis = Math.max(
             ...childLayouts.map(child => {
-                const mainPos = this.direction === FlexTypes.Axis.Horizontal ? child.position.x : child.position.y;
+                const mainPos =
+                    this.direction === FlexTypes.Axis.Horizontal
+                        ? child.position.x
+                        : child.position.y;
                 const mainSize = this.getMainAxisSize(child.size);
                 return mainPos + mainSize;
             })
@@ -361,7 +421,10 @@ export class Flex extends BaseWidget {
 
         const maxCrossAxis = Math.max(
             ...childLayouts.map(child => {
-                const crossPos = this.direction === FlexTypes.Axis.Horizontal ? child.position.y : child.position.x;
+                const crossPos =
+                    this.direction === FlexTypes.Axis.Horizontal
+                        ? child.position.y
+                        : child.position.x;
                 const crossSize = this.getCrossAxisSize(child.size);
                 return crossPos + crossSize;
             })
@@ -378,7 +441,9 @@ export class Flex extends BaseWidget {
             return;
         }
 
-        widgetLogger.debug(`Painting flex (${this.direction}) with ${this.children.length} children`);
+        widgetLogger.debug(
+            `Painting flex (${this.direction}) with ${this.children.length} children`
+        );
 
         // Re-layout to get child positions (in a real implementation, this would be cached)
         const layoutContext: Layout.LayoutContext = {
@@ -391,12 +456,17 @@ export class Flex extends BaseWidget {
 
         // Paint each child at its calculated position
         childLayouts.forEach((childLayout, i) => {
-            widgetLogger.debug(`  - Child ${i} at position (${childLayout.position.x}, ${childLayout.position.y})`);
+            widgetLogger.debug(
+                `  - Child ${i} at position (${childLayout.position.x}, ${childLayout.position.y})`
+            );
 
             // Apply graphics translation using Container pattern
             if (context.graphics) {
                 context.graphics.save();
-                context.graphics.translate(childLayout.position.x, childLayout.position.y);
+                context.graphics.translate(
+                    childLayout.position.x,
+                    childLayout.position.y
+                );
             }
 
             const childContext: Layout.PaintContext = {
@@ -420,11 +490,13 @@ export class Flexible extends BaseWidget implements FlexChild {
     private readonly child: Widget;
     readonly flexData: FlexTypes.FlexChildData;
 
-    constructor(props: {
-        child: Widget;
-        flex?: number;
-        fit?: FlexTypes.FlexFit;
-    } & WidgetProps) {
+    constructor(
+        props: {
+            child: Widget;
+            flex?: number;
+            fit?: FlexTypes.FlexFit;
+        } & WidgetProps
+    ) {
         super(props);
 
         this.child = props.child;
@@ -449,10 +521,12 @@ export class Flexible extends BaseWidget implements FlexChild {
  * Expanded widget - a Flexible widget with flex = 1 and fit = tight
  */
 export class Expanded extends Flexible {
-    constructor(props: {
-        child: Widget;
-        flex?: number;
-    } & WidgetProps) {
+    constructor(
+        props: {
+            child: Widget;
+            flex?: number;
+        } & WidgetProps
+    ) {
         super({
             ...props,
             flex: props.flex ?? 1,
@@ -481,7 +555,8 @@ export class Column extends Flex {
         super({
             ...props,
             direction: FlexTypes.Axis.Vertical,
-            verticalDirection: props.verticalDirection ?? FlexTypes.VerticalDirection.Down,
+            verticalDirection:
+                props.verticalDirection ?? FlexTypes.VerticalDirection.Down,
         });
     }
 }
@@ -493,21 +568,30 @@ export const FlexUtils = {
     /**
      * Create a Row widget
      */
-    row(children: Widget[], options: Omit<FlexProps, 'direction' | 'children'> = {}): Row {
+    row(
+        children: Widget[],
+        options: Omit<FlexProps, 'direction' | 'children'> = {}
+    ): Row {
         return new Row({ children, ...options });
     },
 
     /**
      * Create a Column widget
      */
-    column(children: Widget[], options: Omit<FlexProps, 'direction' | 'children'> = {}): Column {
+    column(
+        children: Widget[],
+        options: Omit<FlexProps, 'direction' | 'children'> = {}
+    ): Column {
         return new Column({ children, ...options });
     },
 
     /**
      * Create a Flexible widget
      */
-    flexible(child: Widget, options: { flex?: number; fit?: FlexTypes.FlexFit } = {}): Flexible {
+    flexible(
+        child: Widget,
+        options: { flex?: number; fit?: FlexTypes.FlexFit } = {}
+    ): Flexible {
         return new Flexible({ child, ...options });
     },
 
@@ -516,7 +600,9 @@ export const FlexUtils = {
      */
     expanded(child: Widget, flex?: number): Expanded {
         const props: { child: Widget; flex?: number } = { child };
-        if (flex !== undefined) { props.flex = flex; }
+        if (flex !== undefined) {
+            props.flex = flex;
+        }
         return new Expanded(props);
     },
 };
@@ -532,10 +618,18 @@ export function createColumn(props: Omit<FlexProps, 'direction'>): Column {
     return new Column(props);
 }
 
-export function createFlexible(props: { child: Widget; flex?: number; fit?: FlexTypes.FlexFit } & WidgetProps): Flexible {
+export function createFlexible(
+    props: {
+        child: Widget;
+        flex?: number;
+        fit?: FlexTypes.FlexFit;
+    } & WidgetProps
+): Flexible {
     return new Flexible(props);
 }
 
-export function createExpanded(props: { child: Widget; flex?: number } & WidgetProps): Expanded {
+export function createExpanded(
+    props: { child: Widget; flex?: number } & WidgetProps
+): Expanded {
     return new Expanded(props);
 }

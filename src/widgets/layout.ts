@@ -13,11 +13,7 @@ import { BaseWidget, type Widget, type WidgetProps } from './base.js';
 
 import { widgetLogger } from '@/core/logger.js';
 import type { IPdfColor } from '@/types/core-interfaces.js';
-import {
-    type Geometry, Layout,
-} from '@/types.js';
-
-
+import { type Geometry, Layout } from '@/types.js';
 
 /**
  * Border style options
@@ -145,7 +141,7 @@ export interface PositionedProps extends WidgetProps {
 
 /**
  * Container widget - the primary layout widget with all capabilities
- * 
+ *
  * This replaces the need for separate Padding, Margin, Align, and Center widgets
  */
 export class Container extends BaseWidget {
@@ -165,23 +161,41 @@ export class Container extends BaseWidget {
     constructor(props: ContainerProps = {}) {
         super(props);
 
-        if (props.child) { this.child = props.child; }
+        if (props.child) {
+            this.child = props.child;
+        }
         this.padding = props.padding ?? Layout.EdgeInsets.zero;
         this.margin = props.margin ?? Layout.EdgeInsets.zero;
-        if (props.width !== undefined) { this.width = props.width; }
-        if (props.height !== undefined) { this.height = props.height; }
-        if (props.minWidth !== undefined) { this.minWidth = props.minWidth; }
-        if (props.minHeight !== undefined) { this.minHeight = props.minHeight; }
-        if (props.maxWidth !== undefined) { this.maxWidth = props.maxWidth; }
-        if (props.maxHeight !== undefined) { this.maxHeight = props.maxHeight; }
+        if (props.width !== undefined) {
+            this.width = props.width;
+        }
+        if (props.height !== undefined) {
+            this.height = props.height;
+        }
+        if (props.minWidth !== undefined) {
+            this.minWidth = props.minWidth;
+        }
+        if (props.minHeight !== undefined) {
+            this.minHeight = props.minHeight;
+        }
+        if (props.maxWidth !== undefined) {
+            this.maxWidth = props.maxWidth;
+        }
+        if (props.maxHeight !== undefined) {
+            this.maxHeight = props.maxHeight;
+        }
         this.alignment = props.alignment ?? Layout.Alignment.Center;
-        if (props.decoration) { this.decoration = props.decoration; }
+        if (props.decoration) {
+            this.decoration = props.decoration;
+        }
     }
 
     /**
      * Apply container size constraints
      */
-    private applyContainerConstraints(constraints: Layout.BoxConstraints): Layout.BoxConstraints {
+    private applyContainerConstraints(
+        constraints: Layout.BoxConstraints
+    ): Layout.BoxConstraints {
         let minWidth = constraints.minWidth;
         let maxWidth = constraints.maxWidth;
         let minHeight = constraints.minHeight;
@@ -223,7 +237,8 @@ export class Container extends BaseWidget {
         );
 
         // Apply container-specific size constraints
-        const containerConstraints = this.applyContainerConstraints(availableConstraints);
+        const containerConstraints =
+            this.applyContainerConstraints(availableConstraints);
 
         let childSize: Geometry.Size = { width: 0, height: 0 };
         let childBaseline: number | undefined;
@@ -238,20 +253,22 @@ export class Container extends BaseWidget {
 
             // If container has explicit dimensions, child should have loose constraints within that space
             if (this.width !== undefined) {
-                const availableWidth = this.width - Layout.EdgeInsets.horizontal(this.padding);
+                const availableWidth =
+                    this.width - Layout.EdgeInsets.horizontal(this.padding);
                 childConstraints = {
                     ...childConstraints,
                     minWidth: 0,
-                    maxWidth: Math.max(0, availableWidth)
+                    maxWidth: Math.max(0, availableWidth),
                 };
             }
 
             if (this.height !== undefined) {
-                const availableHeight = this.height - Layout.EdgeInsets.vertical(this.padding);
+                const availableHeight =
+                    this.height - Layout.EdgeInsets.vertical(this.padding);
                 childConstraints = {
                     ...childConstraints,
                     minHeight: 0,
-                    maxHeight: Math.max(0, availableHeight)
+                    maxHeight: Math.max(0, availableHeight),
                 };
             }
 
@@ -293,8 +310,12 @@ export class Container extends BaseWidget {
 
         // Add margin to final size
         const finalSize: Geometry.Size = {
-            width: constrainedSize.width + Layout.EdgeInsets.horizontal(this.margin),
-            height: constrainedSize.height + Layout.EdgeInsets.vertical(this.margin),
+            width:
+                constrainedSize.width +
+                Layout.EdgeInsets.horizontal(this.margin),
+            height:
+                constrainedSize.height +
+                Layout.EdgeInsets.vertical(this.margin),
         };
 
         // Constrain to parent's constraints
@@ -305,7 +326,8 @@ export class Container extends BaseWidget {
         };
 
         if (childBaseline !== undefined) {
-            layoutOptions.baseline = childBaseline + this.padding.top + this.margin.top;
+            layoutOptions.baseline =
+                childBaseline + this.padding.top + this.margin.top;
         }
 
         return this.createLayoutResult(result, layoutOptions);
@@ -330,12 +352,12 @@ export class Container extends BaseWidget {
 
             // Paint decoration background if present
             if (this.decoration) {
-                const hasRadius = this.decoration.borderRadius && (
-                    this.decoration.borderRadius.topLeft ??
-                    this.decoration.borderRadius.topRight ??
-                    this.decoration.borderRadius.bottomLeft ??
-                    this.decoration.borderRadius.bottomRight
-                );
+                const hasRadius =
+                    this.decoration.borderRadius &&
+                    (this.decoration.borderRadius.topLeft ??
+                        this.decoration.borderRadius.topRight ??
+                        this.decoration.borderRadius.bottomLeft ??
+                        this.decoration.borderRadius.bottomRight);
 
                 // Draw background color
                 if (this.decoration.color) {
@@ -344,34 +366,52 @@ export class Container extends BaseWidget {
 
                     if (hasRadius && this.decoration.borderRadius) {
                         graphics.drawRoundedRect(
-                            0, 0, contentArea.width, contentArea.height,
+                            0,
+                            0,
+                            contentArea.width,
+                            contentArea.height,
                             this.decoration.borderRadius.topLeft ?? 0,
                             this.decoration.borderRadius.topRight ?? 0,
                             this.decoration.borderRadius.bottomRight ?? 0,
                             this.decoration.borderRadius.bottomLeft ?? 0
                         );
                     } else {
-                        graphics.drawRect(0, 0, contentArea.width, contentArea.height);
+                        graphics.drawRect(
+                            0,
+                            0,
+                            contentArea.width,
+                            contentArea.height
+                        );
                     }
                     graphics.fillPath();
                 }
 
                 // Draw border
                 if (this.decoration.border) {
-                    const color = this.parseColor(this.decoration.border.color ?? '#000000');
+                    const color = this.parseColor(
+                        this.decoration.border.color ?? '#000000'
+                    );
                     graphics.setStrokeColor(color);
                     graphics.setLineWidth(this.decoration.border.width ?? 1);
 
                     if (hasRadius && this.decoration.borderRadius) {
                         graphics.drawRoundedRect(
-                            0, 0, contentArea.width, contentArea.height,
+                            0,
+                            0,
+                            contentArea.width,
+                            contentArea.height,
                             this.decoration.borderRadius.topLeft ?? 0,
                             this.decoration.borderRadius.topRight ?? 0,
                             this.decoration.borderRadius.bottomRight ?? 0,
                             this.decoration.borderRadius.bottomLeft ?? 0
                         );
                     } else {
-                        graphics.drawRect(0, 0, contentArea.width, contentArea.height);
+                        graphics.drawRect(
+                            0,
+                            0,
+                            contentArea.width,
+                            contentArea.height
+                        );
                     }
                     graphics.strokePath();
                 }
@@ -379,15 +419,21 @@ export class Container extends BaseWidget {
         } else {
             // Fallback for testing - just log decoration info
             if (this.decoration) {
-                widgetLogger.debug(`  - Drawing decoration: color=${this.decoration.color}, border=${!!this.decoration.border}`);
+                widgetLogger.debug(
+                    `  - Drawing decoration: color=${this.decoration.color}, border=${!!this.decoration.border}`
+                );
             }
         }
 
         // Paint child content
         if (this.child && this.childLayoutResult) {
             const childArea: Geometry.Size = {
-                width: contentArea.width - Layout.EdgeInsets.horizontal(this.padding),
-                height: contentArea.height - Layout.EdgeInsets.vertical(this.padding),
+                width:
+                    contentArea.width -
+                    Layout.EdgeInsets.horizontal(this.padding),
+                height:
+                    contentArea.height -
+                    Layout.EdgeInsets.vertical(this.padding),
             };
 
             const childSize: Geometry.Size = this.childLayoutResult.size;
@@ -490,23 +536,30 @@ export class Stack extends BaseWidget {
                 break;
             case StackFit.Expand:
                 stackSize = {
-                    width: context.constraints.maxWidth === Number.POSITIVE_INFINITY
-                        ? maxWidth
-                        : context.constraints.maxWidth,
-                    height: context.constraints.maxHeight === Number.POSITIVE_INFINITY
-                        ? maxHeight
-                        : context.constraints.maxHeight,
+                    width:
+                        context.constraints.maxWidth ===
+                        Number.POSITIVE_INFINITY
+                            ? maxWidth
+                            : context.constraints.maxWidth,
+                    height:
+                        context.constraints.maxHeight ===
+                        Number.POSITIVE_INFINITY
+                            ? maxHeight
+                            : context.constraints.maxHeight,
                 };
                 break;
             case StackFit.PassThrough:
                 stackSize = {
                     width: context.constraints.maxWidth,
-                    height: context.constraints.maxHeight
+                    height: context.constraints.maxHeight,
                 };
                 break;
         }
 
-        const constrainedSize = this.constrainSize(context.constraints, stackSize);
+        const constrainedSize = this.constrainSize(
+            context.constraints,
+            stackSize
+        );
         return this.createLayoutResult(constrainedSize);
     }
 
@@ -518,7 +571,9 @@ export class Stack extends BaseWidget {
         // Paint each child at their calculated position
         this.children.forEach((child, index) => {
             const childResult = this.childrenLayoutResults[index];
-            if (!childResult) { return; }
+            if (!childResult) {
+                return;
+            }
 
             let childPosition: Geometry.Point;
 
@@ -570,12 +625,24 @@ export class Positioned extends BaseWidget {
         super(props);
 
         this.child = props.child;
-        if (props.top !== undefined) { this.top = props.top; }
-        if (props.right !== undefined) { this.right = props.right; }
-        if (props.bottom !== undefined) { this.bottom = props.bottom; }
-        if (props.left !== undefined) { this.left = props.left; }
-        if (props.width !== undefined) { this.width = props.width; }
-        if (props.height !== undefined) { this.height = props.height; }
+        if (props.top !== undefined) {
+            this.top = props.top;
+        }
+        if (props.right !== undefined) {
+            this.right = props.right;
+        }
+        if (props.bottom !== undefined) {
+            this.bottom = props.bottom;
+        }
+        if (props.left !== undefined) {
+            this.left = props.left;
+        }
+        if (props.width !== undefined) {
+            this.width = props.width;
+        }
+        if (props.height !== undefined) {
+            this.height = props.height;
+        }
     }
 
     /**
@@ -638,9 +705,10 @@ export const LayoutUtils = {
      * Create a padded container (replaces Padding widget)
      */
     padded(child: Widget, padding: number | Layout.EdgeInsets): Container {
-        const paddingInsets = typeof padding === 'number'
-            ? Layout.EdgeInsets.all(padding)
-            : padding;
+        const paddingInsets =
+            typeof padding === 'number'
+                ? Layout.EdgeInsets.all(padding)
+                : padding;
 
         return new Container({
             child,
@@ -652,9 +720,8 @@ export const LayoutUtils = {
      * Create a container with margin (replaces Margin widget)
      */
     withMargin(child: Widget, margin: number | Layout.EdgeInsets): Container {
-        const marginInsets = typeof margin === 'number'
-            ? Layout.EdgeInsets.all(margin)
-            : margin;
+        const marginInsets =
+            typeof margin === 'number' ? Layout.EdgeInsets.all(margin) : margin;
 
         return new Container({
             child,
@@ -687,8 +754,12 @@ export const LayoutUtils = {
      */
     sized(child: Widget, width?: number, height?: number): Container {
         const props: ContainerProps = { child };
-        if (width !== undefined) { props.width = width; }
-        if (height !== undefined) { props.height = height; }
+        if (width !== undefined) {
+            props.width = width;
+        }
+        if (height !== undefined) {
+            props.height = height;
+        }
         return new Container(props);
     },
 

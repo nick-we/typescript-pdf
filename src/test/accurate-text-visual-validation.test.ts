@@ -1,9 +1,9 @@
 /**
  * Visual Validation Test for Accurate Text Measurements
- * 
+ *
  * Generates PDF files that visually demonstrate the improvements in text
  * measurement accuracy compared to the old avgCharWidth approximations.
- * 
+ *
  * @packageDocumentation
  */
 
@@ -12,7 +12,10 @@ import * as path from 'path';
 
 import { describe, it, beforeEach } from 'vitest';
 
-import { AccurateTextMeasurementService, initializeGlobalTextMeasurement } from '../core/accurate-text-measurement.js';
+import {
+    AccurateTextMeasurementService,
+    initializeGlobalTextMeasurement,
+} from '../core/accurate-text-measurement.js';
 import { Document } from '../core/document.js';
 import { FontSystem } from '../core/fonts.js';
 import { Theme, Core, Layout, Flex } from '../types.js';
@@ -24,8 +27,8 @@ import { TextWidget, TextOverflow } from '../widgets/text.js';
 const mockPdfDocument = {
     genSerial: () => Math.floor(Math.random() * 1000),
     objects: {
-        add: () => { }
-    }
+        add: () => {},
+    },
 };
 
 describe('Visual Text Measurement Validation', () => {
@@ -46,56 +49,62 @@ describe('Visual Text Measurement Validation', () => {
                 text: 'Hello World',
                 containerWidth: 200,
                 fontSize: 12,
-                fonts: ['Helvetica', 'Times', 'Courier']
+                fonts: ['Helvetica', 'Times', 'Courier'],
             },
             {
                 title: 'Long Text Wrapping',
                 text: 'This is a longer text that demonstrates how accurate font measurements improve text wrapping and line breaking compared to character-count approximations.',
                 containerWidth: 300,
                 fontSize: 12,
-                fonts: ['Helvetica', 'Times']
+                fonts: ['Helvetica', 'Times'],
             },
             {
                 title: 'Text Truncation',
                 text: 'This text is too long for its container and needs truncation with ellipsis',
                 containerWidth: 150,
                 fontSize: 11,
-                fonts: ['Helvetica', 'Times']
+                fonts: ['Helvetica', 'Times'],
             },
             {
                 title: 'Different Font Sizes',
                 text: 'Font size comparison test',
                 containerWidth: 200,
                 fontSize: 16,
-                fonts: ['Helvetica']
-            }
+                fonts: ['Helvetica'],
+            },
         ];
 
         // Create header
         const headerWidget = new Container({
             padding: Layout.EdgeInsets.all(20),
             decoration: {
-                color: '#f0f0f0'
+                color: '#f0f0f0',
             },
             child: new Column({
                 crossAxisAlignment: Flex.CrossAxisAlignment.Start,
                 children: [
-                    new TextWidget('Accurate Text Measurement Visual Validation', {
-                        style: {
-                            fontSize: 18,
-                            fontWeight: Theme.FontWeight.Bold,
-                            color: '#2c3e50'
+                    new TextWidget(
+                        'Accurate Text Measurement Visual Validation',
+                        {
+                            style: {
+                                fontSize: 18,
+                                fontWeight: Theme.FontWeight.Bold,
+                                color: '#2c3e50',
+                            },
                         }
-                    }),
-                    new TextWidget('Comparison of avgCharWidth approximations vs actual font metrics', {
-                        style: {
-                            fontSize: 12,
-                            color: '#7f8c8d',
-                            lineSpacing: 1.4
+                    ),
+                    new TextWidget(
+                        'Comparison of avgCharWidth approximations vs actual font metrics',
+                        {
+                            style: {
+                                fontSize: 12,
+                                color: '#7f8c8d',
+                                lineSpacing: 1.4,
+                            },
                         }
-                    })
-                ]
-            })
+                    ),
+                ],
+            }),
         });
 
         const contentWidgets = [];
@@ -105,33 +114,44 @@ describe('Visual Text Measurement Validation', () => {
         testCases.forEach((testCase, index) => {
             // Section header
             const sectionHeader = new Container({
-                padding: Layout.EdgeInsets.symmetric({ vertical: 15, horizontal: 20 }),
+                padding: Layout.EdgeInsets.symmetric({
+                    vertical: 15,
+                    horizontal: 20,
+                }),
                 child: new TextWidget(`${index + 1}. ${testCase.title}`, {
                     style: {
                         fontSize: 14,
                         fontWeight: Theme.FontWeight.Bold,
-                        color: '#2c3e50'
-                    }
-                })
+                        color: '#2c3e50',
+                    },
+                }),
             });
             contentWidgets.push(sectionHeader);
 
             testCase.fonts.forEach(fontFamily => {
                 // Font family header
                 const fontHeader = new Container({
-                    padding: Layout.EdgeInsets.only({ left: 20, top: 10, bottom: 5 }),
-                    child: new TextWidget(`Font: ${fontFamily} ${testCase.fontSize}pt`, {
-                        style: {
-                            fontSize: 12,
-                            fontWeight: Theme.FontWeight.Bold,
-                            color: '#34495e'
+                    padding: Layout.EdgeInsets.only({
+                        left: 20,
+                        top: 10,
+                        bottom: 5,
+                    }),
+                    child: new TextWidget(
+                        `Font: ${fontFamily} ${testCase.fontSize}pt`,
+                        {
+                            style: {
+                                fontSize: 12,
+                                fontWeight: Theme.FontWeight.Bold,
+                                color: '#34495e',
+                            },
                         }
-                    })
+                    ),
                 });
                 contentWidgets.push(fontHeader);
 
                 // Calculate approximate width (old method)
-                const approximateWidth = testCase.text.length * testCase.fontSize * 0.55;
+                const approximateWidth =
+                    testCase.text.length * testCase.fontSize * 0.55;
 
                 // Calculate accurate width (new method)
                 const accurateWidth = textMeasurement.measureTextWidth(
@@ -142,92 +162,119 @@ describe('Visual Text Measurement Validation', () => {
 
                 // Create comparison row
                 const comparisonRow = new Container({
-                    padding: Layout.EdgeInsets.only({ left: 20, right: 20, bottom: 15 }),
+                    padding: Layout.EdgeInsets.only({
+                        left: 20,
+                        right: 20,
+                        bottom: 15,
+                    }),
                     child: new Column({
                         crossAxisAlignment: Flex.CrossAxisAlignment.Start,
                         children: [
                             // Stats
-                            new TextWidget(`Container Width: ${testCase.containerWidth}pt | Approx: ${approximateWidth.toFixed(1)}pt | Accurate: ${accurateWidth.toFixed(1)}pt | Diff: ${Math.abs(accurateWidth - approximateWidth).toFixed(1)}pt`, {
-                                style: {
-                                    fontSize: 9,
-                                    color: '#7f8c8d',
-                                    fontFamily: 'Courier'
+                            new TextWidget(
+                                `Container Width: ${testCase.containerWidth}pt | Approx: ${approximateWidth.toFixed(1)}pt | Accurate: ${accurateWidth.toFixed(1)}pt | Diff: ${Math.abs(accurateWidth - approximateWidth).toFixed(1)}pt`,
+                                {
+                                    style: {
+                                        fontSize: 9,
+                                        color: '#7f8c8d',
+                                        fontFamily: 'Courier',
+                                    },
                                 }
-                            }),
+                            ),
 
                             // Visual comparison containers - FIXED: Use Column layout to avoid Row constraints
                             new Column({
-                                crossAxisAlignment: Flex.CrossAxisAlignment.Start,
+                                crossAxisAlignment:
+                                    Flex.CrossAxisAlignment.Start,
                                 children: [
                                     // Old method (approximation) - Red border
                                     new Container({
                                         width: testCase.containerWidth,
-                                        margin: Layout.EdgeInsets.only({ bottom: 10, top: 10 }),
+                                        margin: Layout.EdgeInsets.only({
+                                            bottom: 10,
+                                            top: 10,
+                                        }),
                                         padding: Layout.EdgeInsets.all(8),
                                         decoration: {
                                             border: {
                                                 color: '#e74c3c',
-                                                width: 1
-                                            }
+                                                width: 1,
+                                            },
                                         },
                                         child: new Column({
-                                            crossAxisAlignment: Flex.CrossAxisAlignment.Start,
+                                            crossAxisAlignment:
+                                                Flex.CrossAxisAlignment.Start,
                                             children: [
-                                                new TextWidget('OLD (avgCharWidth)', {
-                                                    style: {
-                                                        fontSize: 8,
-                                                        color: '#e74c3c',
-                                                        fontWeight: Theme.FontWeight.Bold
+                                                new TextWidget(
+                                                    'OLD (avgCharWidth)',
+                                                    {
+                                                        style: {
+                                                            fontSize: 8,
+                                                            color: '#e74c3c',
+                                                            fontWeight:
+                                                                Theme.FontWeight
+                                                                    .Bold,
+                                                        },
                                                     }
-                                                }),
+                                                ),
                                                 new TextWidget(testCase.text, {
                                                     style: {
-                                                        fontSize: testCase.fontSize,
-                                                        fontFamily: fontFamily
+                                                        fontSize:
+                                                            testCase.fontSize,
+                                                        fontFamily: fontFamily,
                                                     },
                                                     overflow: TextOverflow.Clip,
-                                                    softWrap: true // FIXED: Always enable wrapping for OLD method comparison
-                                                })
-                                            ]
-                                        })
+                                                    softWrap: true, // FIXED: Always enable wrapping for OLD method comparison
+                                                }),
+                                            ],
+                                        }),
                                     }),
 
                                     // New method (accurate) - Green border
                                     new Container({
                                         width: testCase.containerWidth,
-                                        margin: Layout.EdgeInsets.only({ bottom: 10 }),
+                                        margin: Layout.EdgeInsets.only({
+                                            bottom: 10,
+                                        }),
                                         padding: Layout.EdgeInsets.all(8),
                                         decoration: {
                                             border: {
                                                 color: '#27ae60',
-                                                width: 1
-                                            }
+                                                width: 1,
+                                            },
                                         },
                                         child: new Column({
-                                            crossAxisAlignment: Flex.CrossAxisAlignment.Start,
+                                            crossAxisAlignment:
+                                                Flex.CrossAxisAlignment.Start,
                                             children: [
-                                                new TextWidget('NEW (Accurate)', {
-                                                    style: {
-                                                        fontSize: 8,
-                                                        color: '#27ae60',
-                                                        fontWeight: Theme.FontWeight.Bold
+                                                new TextWidget(
+                                                    'NEW (Accurate)',
+                                                    {
+                                                        style: {
+                                                            fontSize: 8,
+                                                            color: '#27ae60',
+                                                            fontWeight:
+                                                                Theme.FontWeight
+                                                                    .Bold,
+                                                        },
                                                     }
-                                                }),
+                                                ),
                                                 new TextWidget(testCase.text, {
                                                     style: {
-                                                        fontSize: testCase.fontSize,
-                                                        fontFamily: fontFamily
+                                                        fontSize:
+                                                            testCase.fontSize,
+                                                        fontFamily: fontFamily,
                                                     },
                                                     overflow: TextOverflow.Clip,
-                                                    softWrap: true // FIXED: Always enable wrapping for NEW method comparison
-                                                })
-                                            ]
-                                        })
-                                    })
-                                ]
-                            })
-                        ]
-                    })
+                                                    softWrap: true, // FIXED: Always enable wrapping for NEW method comparison
+                                                }),
+                                            ],
+                                        }),
+                                    }),
+                                ],
+                            }),
+                        ],
+                    }),
                 });
                 contentWidgets.push(comparisonRow);
             });
@@ -241,8 +288,8 @@ describe('Visual Text Measurement Validation', () => {
                 color: '#f8f9fa',
                 border: {
                     color: '#dee2e6',
-                    width: 1
-                }
+                    width: 1,
+                },
             },
             child: new Column({
                 crossAxisAlignment: Flex.CrossAxisAlignment.Start,
@@ -251,23 +298,51 @@ describe('Visual Text Measurement Validation', () => {
                         style: {
                             fontSize: 14,
                             fontWeight: Theme.FontWeight.Bold,
-                            color: '#2c3e50'
+                            color: '#2c3e50',
+                        },
+                    }),
+                    new TextWidget(
+                        '• Red boxes show OLD method using avgCharWidth = fontSize × 0.55 approximation',
+                        {
+                            style: {
+                                fontSize: 10,
+                                color: '#e74c3c',
+                                lineSpacing: 1.6,
+                            },
                         }
-                    }),
-                    new TextWidget('• Red boxes show OLD method using avgCharWidth = fontSize × 0.55 approximation', {
-                        style: { fontSize: 10, color: '#e74c3c', lineSpacing: 1.6 }
-                    }),
-                    new TextWidget('• Green boxes show NEW method using actual font character width metrics', {
-                        style: { fontSize: 10, color: '#27ae60', lineSpacing: 1.6 }
-                    }),
-                    new TextWidget('• Accurate measurements provide better text wrapping and ellipsis positioning', {
-                        style: { fontSize: 10, color: '#2c3e50', lineSpacing: 1.6 }
-                    }),
-                    new TextWidget('• Different fonts now render with correct proportional spacing', {
-                        style: { fontSize: 10, color: '#2c3e50', lineSpacing: 1.6 }
-                    })
-                ]
-            })
+                    ),
+                    new TextWidget(
+                        '• Green boxes show NEW method using actual font character width metrics',
+                        {
+                            style: {
+                                fontSize: 10,
+                                color: '#27ae60',
+                                lineSpacing: 1.6,
+                            },
+                        }
+                    ),
+                    new TextWidget(
+                        '• Accurate measurements provide better text wrapping and ellipsis positioning',
+                        {
+                            style: {
+                                fontSize: 10,
+                                color: '#2c3e50',
+                                lineSpacing: 1.6,
+                            },
+                        }
+                    ),
+                    new TextWidget(
+                        '• Different fonts now render with correct proportional spacing',
+                        {
+                            style: {
+                                fontSize: 10,
+                                color: '#2c3e50',
+                                lineSpacing: 1.6,
+                            },
+                        }
+                    ),
+                ],
+            }),
         });
         contentWidgets.push(summaryWidget);
 
@@ -280,17 +355,17 @@ describe('Visual Text Measurement Validation', () => {
             const pageContent = contentWidgets.slice(i, i + contentPerPage);
             const pageColumn = new Column({
                 crossAxisAlignment: Flex.CrossAxisAlignment.Stretch,
-                children: pageContent
+                children: pageContent,
             });
             pages.push(pageColumn);
         }
 
         // Add pages to document
-        pages.forEach((pageContent) => {
+        pages.forEach(pageContent => {
             document.addPage({
                 format: Core.PageFormat.A4,
                 margins: Layout.EdgeInsets.all(20),
-                build: () => pageContent
+                build: () => pageContent,
             });
         });
 
@@ -305,15 +380,24 @@ describe('Visual Text Measurement Validation', () => {
             }
 
             // Write PDF to file
-            const outputPath = path.join(outputDir, 'accurate-text-measurement-comparison.pdf');
+            const outputPath = path.join(
+                outputDir,
+                'accurate-text-measurement-comparison.pdf'
+            );
             fs.writeFileSync(outputPath, Buffer.from(pdfBytes));
 
             console.log(`✅ Visual validation PDF generated: ${outputPath}`);
-            console.log('📊 This PDF demonstrates the accuracy improvements in text measurement');
-            console.log('🔍 Compare red boxes (old method) with green boxes (new method)');
-
+            console.log(
+                '📊 This PDF demonstrates the accuracy improvements in text measurement'
+            );
+            console.log(
+                '🔍 Compare red boxes (old method) with green boxes (new method)'
+            );
         } catch (error) {
-            console.error('❌ Failed to generate visual validation PDF:', error);
+            console.error(
+                '❌ Failed to generate visual validation PDF:',
+                error
+            );
             // Don't fail the test if PDF generation has issues
         }
     });
@@ -326,7 +410,7 @@ describe('Visual Text Measurement Validation', () => {
             'lowercase text example',
             'Mixed Case With Numbers 123456',
             'Special chars: !@#$%^&*()',
-            'Lorem ipsum dolor sit amet, consectetur adipiscing elit'
+            'Lorem ipsum dolor sit amet, consectetur adipiscing elit',
         ];
 
         const fonts = ['Helvetica', 'Times', 'Courier'];
@@ -351,18 +435,35 @@ describe('Visual Text Measurement Validation', () => {
                     const approximateWidth = text.length * fontSize * 0.55;
 
                     // New method
-                    const accurateWidth = textMeasurement.measureTextWidth(text, fontSize, fontFamily);
+                    const accurateWidth = textMeasurement.measureTextWidth(
+                        text,
+                        fontSize,
+                        fontFamily
+                    );
 
-                    const difference = Math.abs(accurateWidth - approximateWidth);
-                    const improvementPercent = (difference / approximateWidth) * 100;
+                    const difference = Math.abs(
+                        accurateWidth - approximateWidth
+                    );
+                    const improvementPercent =
+                        (difference / approximateWidth) * 100;
 
                     totalTests++;
                     totalImprovement += improvementPercent;
-                    maxImprovement = Math.max(maxImprovement, improvementPercent);
-                    minImprovement = Math.min(minImprovement, improvementPercent);
+                    maxImprovement = Math.max(
+                        maxImprovement,
+                        improvementPercent
+                    );
+                    minImprovement = Math.min(
+                        minImprovement,
+                        improvementPercent
+                    );
 
-                    console.log(`  "${text.substring(0, 30)}${text.length > 30 ? '...' : ''}"`);
-                    console.log(`    Approx: ${approximateWidth.toFixed(1)}pt | Accurate: ${accurateWidth.toFixed(1)}pt | Diff: ${difference.toFixed(1)}pt (${improvementPercent.toFixed(1)}%)`);
+                    console.log(
+                        `  "${text.substring(0, 30)}${text.length > 30 ? '...' : ''}"`
+                    );
+                    console.log(
+                        `    Approx: ${approximateWidth.toFixed(1)}pt | Accurate: ${accurateWidth.toFixed(1)}pt | Diff: ${difference.toFixed(1)}pt (${improvementPercent.toFixed(1)}%)`
+                    );
                 });
             });
             console.log('\n');
@@ -374,10 +475,16 @@ describe('Visual Text Measurement Validation', () => {
         console.log('OVERALL ACCURACY IMPROVEMENT STATISTICS');
         console.log('='.repeat(70));
         console.log(`Total Tests Performed: ${totalTests}`);
-        console.log(`Average Accuracy Improvement: ${averageImprovement.toFixed(2)}%`);
+        console.log(
+            `Average Accuracy Improvement: ${averageImprovement.toFixed(2)}%`
+        );
         console.log(`Maximum Improvement: ${maxImprovement.toFixed(2)}%`);
         console.log(`Minimum Improvement: ${minImprovement.toFixed(2)}%`);
-        console.log(`\n✅ Accurate font-based measurements provide significantly better precision`);
-        console.log(`📈 Average improvement of ${averageImprovement.toFixed(1)}% across all test cases`);
+        console.log(
+            `\n✅ Accurate font-based measurements provide significantly better precision`
+        );
+        console.log(
+            `📈 Average improvement of ${averageImprovement.toFixed(1)}% across all test cases`
+        );
     });
 });

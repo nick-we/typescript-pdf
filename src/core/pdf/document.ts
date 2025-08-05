@@ -1,9 +1,9 @@
 /**
  * PDF Document Core - Basic PDF Document and Page Implementation
- * 
+ *
  * Provides essential PDF document structure and page management
  * for the consolidated typescript-pdf system.
- * 
+ *
  * @packageDocumentation
  */
 
@@ -114,7 +114,7 @@ export class PdfDocument {
         return {
             add: (obj: PdfObject) => {
                 this._objects.push(obj);
-            }
+            },
         };
     }
 
@@ -153,32 +153,38 @@ export class PdfDocument {
         let objNum = 1;
 
         // Object 1: Catalog
-        objects.push([
-            `${objNum} 0 obj`,
-            '<<',
-            '/Type /Catalog',
-            '/Pages 2 0 R',
-            '>>',
-            'endobj'
-        ].join('\n'));
+        objects.push(
+            [
+                `${objNum} 0 obj`,
+                '<<',
+                '/Type /Catalog',
+                '/Pages 2 0 R',
+                '>>',
+                'endobj',
+            ].join('\n')
+        );
         objNum++;
 
         // Object 2: Pages
         const pageRefs = this.pages.map((_, i) => `${i + 3} 0 R`).join(' ');
-        objects.push([
-            `${objNum} 0 obj`,
-            '<<',
-            '/Type /Pages',
-            `/Count ${this.pages.length}`,
-            `/Kids [${pageRefs}]`,
-            '>>',
-            'endobj'
-        ].join('\n'));
+        objects.push(
+            [
+                `${objNum} 0 obj`,
+                '<<',
+                '/Type /Pages',
+                `/Count ${this.pages.length}`,
+                `/Kids [${pageRefs}]`,
+                '>>',
+                'endobj',
+            ].join('\n')
+        );
         objNum++;
 
         // Create page objects and content streams
         for (const page of this.pages) {
-            if (!page) { continue; }
+            if (!page) {
+                continue;
+            }
             const contentObjNum = objNum + this.pages.length;
             const size = page.getSize();
 
@@ -198,39 +204,45 @@ export class PdfDocument {
             }
 
             // Page object
-            objects.push([
-                `${objNum} 0 obj`,
-                '<<',
-                '/Type /Page',
-                '/Parent 2 0 R',
-                `/MediaBox [0 0 ${size.width} ${size.height}]`,
-                `/Contents ${contentObjNum} 0 R`,
-                '/Resources <<',
-                '/Font <<',
-                ...fontResourceEntries,
-                '>>',
-                '>>',
-                '>>',
-                'endobj'
-            ].join('\n'));
+            objects.push(
+                [
+                    `${objNum} 0 obj`,
+                    '<<',
+                    '/Type /Page',
+                    '/Parent 2 0 R',
+                    `/MediaBox [0 0 ${size.width} ${size.height}]`,
+                    `/Contents ${contentObjNum} 0 R`,
+                    '/Resources <<',
+                    '/Font <<',
+                    ...fontResourceEntries,
+                    '>>',
+                    '>>',
+                    '>>',
+                    'endobj',
+                ].join('\n')
+            );
             objNum++;
         }
 
         // Content stream objects
         for (const page of this.pages) {
-            if (!page) { continue; }
+            if (!page) {
+                continue;
+            }
             const content = page.getGraphics().getContent();
 
-            objects.push([
-                `${objNum} 0 obj`,
-                '<<',
-                `/Length ${content.length}`,
-                '>>',
-                'stream',
-                content,
-                'endstream',
-                'endobj'
-            ].join('\n'));
+            objects.push(
+                [
+                    `${objNum} 0 obj`,
+                    '<<',
+                    `/Length ${content.length}`,
+                    '>>',
+                    'stream',
+                    content,
+                    'endstream',
+                    'endobj',
+                ].join('\n')
+            );
             objNum++;
         }
 
@@ -246,11 +258,7 @@ export class PdfDocument {
 
         // Build xref table
         const xrefStart = position;
-        const xref = [
-            'xref',
-            `0 ${objNum}`,
-            '0000000000 65535 f '
-        ];
+        const xref = ['xref', `0 ${objNum}`, '0000000000 65535 f '];
 
         for (let i = 1; i < objNum; i++) {
             const pos = positions[i];
@@ -268,7 +276,7 @@ export class PdfDocument {
             '>>',
             'startxref',
             xrefStart.toString(),
-            '%%EOF'
+            '%%EOF',
         ];
 
         // Combine all parts
@@ -276,7 +284,7 @@ export class PdfDocument {
             header.slice(0, -1), // Remove trailing newline
             ...objects,
             ...xref,
-            ...trailer
+            ...trailer,
         ].join('\n');
 
         return new TextEncoder().encode(pdfContent);

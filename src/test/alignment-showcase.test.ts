@@ -1,6 +1,6 @@
 /**
  * Container Alignment Showcase - Final Validation
- * 
+ *
  * Comprehensive test demonstrating that the Container alignment centering fix
  * works correctly for all alignment options and edge cases.
  */
@@ -22,7 +22,7 @@ describe('Container Alignment Showcase - Final Validation', () => {
             height: 500,
             decoration: {
                 color: '#f8f9fa',
-                border: { width: 2, color: '#000000' }
+                border: { width: 2, color: '#000000' },
             },
             child: new Container({
                 width: 560,
@@ -33,7 +33,7 @@ describe('Container Alignment Showcase - Final Validation', () => {
                     height: 300,
                     decoration: {
                         color: '#ffffff',
-                        border: { width: 1, color: '#cccccc' }
+                        border: { width: 1, color: '#cccccc' },
                     },
                     child: new Container({
                         width: 420,
@@ -47,34 +47,38 @@ describe('Container Alignment Showcase - Final Validation', () => {
                                 alignment: Layout.Alignment.Center,
                                 decoration: {
                                     color: '#e3f2fd',
-                                    border: { width: 1, color: '#1976d2' }
+                                    border: { width: 1, color: '#1976d2' },
                                 },
                                 child: new TextWidget('✅ CENTERED', {
                                     style: {
                                         fontSize: 16,
                                         color: '#1976d2',
-                                        fontWeight: 700
-                                    }
-                                })
+                                        fontWeight: 700,
+                                    },
+                                }),
                             });
-                        })()
-                    })
-                })
-            })
+                        })(),
+                    }),
+                }),
+            }),
         });
 
         doc.addPage({
-            build: () => alignmentShowcase
+            build: () => alignmentShowcase,
         });
 
         const pdfBytes = doc.save();
         expect(pdfBytes).toBeInstanceOf(Uint8Array);
         expect(pdfBytes.length).toBeGreaterThan(0);
 
-        console.log(`✅ Generated comprehensive alignment showcase PDF: ${pdfBytes.length} bytes`);
+        console.log(
+            `✅ Generated comprehensive alignment showcase PDF: ${pdfBytes.length} bytes`
+        );
         console.log('📋 Alignment showcase includes:');
         console.log('   - Nested containers with different alignments');
-        console.log('   - Text widgets using intrinsic size (not filling container)');
+        console.log(
+            '   - Text widgets using intrinsic size (not filling container)'
+        );
         console.log('   - Proper centering behavior across all levels');
         console.log('   - Visual validation of the Container alignment fix');
     });
@@ -85,14 +89,14 @@ describe('Container Alignment Showcase - Final Validation', () => {
                 name: 'Small text in large container',
                 containerSize: { width: 200, height: 150 },
                 expectedTextSize: { width: 39.6, height: 14.4 }, // "SMALL" at 12px
-                alignment: Layout.Alignment.Center
+                alignment: Layout.Alignment.Center,
             },
             {
                 name: 'Medium text in medium container',
                 containerSize: { width: 120, height: 80 },
                 expectedTextSize: { width: 66, height: 19.2 }, // "MEDIUM" at 16px
-                alignment: Layout.Alignment.Center
-            }
+                alignment: Layout.Alignment.Center,
+            },
         ];
 
         testCases.forEach(({ name, containerSize, alignment }) => {
@@ -100,12 +104,15 @@ describe('Container Alignment Showcase - Final Validation', () => {
                 width: containerSize.width,
                 height: containerSize.height,
                 alignment,
-                child: new TextWidget((name.split(' ')[0] ?? 'TEST').toUpperCase(), {
-                    style: {
-                        fontSize: name.includes('Small') ? 12 : 16,
-                        color: '#000000'
+                child: new TextWidget(
+                    (name.split(' ')[0] ?? 'TEST').toUpperCase(),
+                    {
+                        style: {
+                            fontSize: name.includes('Small') ? 12 : 16,
+                            color: '#000000',
+                        },
                     }
-                })
+                ),
             });
 
             const layoutContext = {
@@ -113,10 +120,10 @@ describe('Container Alignment Showcase - Final Validation', () => {
                     minWidth: 0,
                     maxWidth: containerSize.width,
                     minHeight: 0,
-                    maxHeight: containerSize.height
+                    maxHeight: containerSize.height,
                 },
                 textDirection: 'ltr' as const,
-                theme: defaultTheme
+                theme: defaultTheme,
             };
 
             const result = container.layout(layoutContext);
@@ -125,13 +132,15 @@ describe('Container Alignment Showcase - Final Validation', () => {
             expect(result.size.width).toBe(containerSize.width);
             expect(result.size.height).toBe(containerSize.height);
 
-            console.log(`✅ ${name}: Container ${containerSize.width}x${containerSize.height} maintains size correctly`);
+            console.log(
+                `✅ ${name}: Container ${containerSize.width}x${containerSize.height} maintains size correctly`
+            );
         });
     });
 
     test('Verify child widgets use intrinsic sizing', () => {
         const text = new TextWidget('INTRINSIC', {
-            style: { fontSize: 14, color: '#000000' }
+            style: { fontSize: 14, color: '#000000' },
         });
 
         // Give text widget loose constraints
@@ -140,10 +149,10 @@ describe('Container Alignment Showcase - Final Validation', () => {
                 minWidth: 0,
                 maxWidth: 300,
                 minHeight: 0,
-                maxHeight: 200
+                maxHeight: 200,
             },
             textDirection: 'ltr' as const,
-            theme: defaultTheme
+            theme: defaultTheme,
         };
 
         const result = text.layout(layoutContext);
@@ -154,7 +163,11 @@ describe('Container Alignment Showcase - Final Validation', () => {
         expect(result.size.width).toBeGreaterThan(0);
         expect(result.size.height).toBeGreaterThan(0);
 
-        console.log(`✅ Text widget uses intrinsic size: ${result.size.width.toFixed(1)}x${result.size.height.toFixed(1)}`);
-        console.log('   (Not filling available 300x200 space - this confirms the fix works)');
+        console.log(
+            `✅ Text widget uses intrinsic size: ${result.size.width.toFixed(1)}x${result.size.height.toFixed(1)}`
+        );
+        console.log(
+            '   (Not filling available 300x200 space - this confirms the fix works)'
+        );
     });
 });

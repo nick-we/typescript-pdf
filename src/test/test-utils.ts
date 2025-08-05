@@ -1,13 +1,12 @@
 /**
  * Test Utilities
- * 
+ *
  * Simple typed utilities for testing without complex mock interfaces
  */
 
 import { TextDirection } from '@/core/text-utils.js';
 import type { Layout } from '@/types.js';
 import { Theme } from '@/types.js';
-
 
 /**
  * Simple text measurement options for testing
@@ -23,10 +22,26 @@ export interface TestTextOptions {
  * Simple text measurement service for testing
  */
 export interface TestTextMeasurement {
-    measureTextWidth: (text: string, fontSize: number, fontFamily?: string) => number;
-    wrapTextAccurate: (text: string, maxWidth: number, options: TestTextOptions) => string[];
-    truncateTextAccurate: (text: string, maxWidth: number, options: TestTextOptions, suffix?: string) => string;
-    getFontMetrics: (fontSize: number, fontFamily?: string) => {
+    measureTextWidth: (
+        text: string,
+        fontSize: number,
+        fontFamily?: string
+    ) => number;
+    wrapTextAccurate: (
+        text: string,
+        maxWidth: number,
+        options: TestTextOptions
+    ) => string[];
+    truncateTextAccurate: (
+        text: string,
+        maxWidth: number,
+        options: TestTextOptions,
+        suffix?: string
+    ) => string;
+    getFontMetrics: (
+        fontSize: number,
+        fontFamily?: string
+    ) => {
         height: number;
         baseline: number;
         ascender: number;
@@ -37,12 +52,18 @@ export interface TestTextMeasurement {
 /**
  * Create a simple mock layout context for testing
  */
-export function createTestLayoutContext(overrides: Partial<Layout.LayoutContext> = {}): Layout.LayoutContext {
+export function createTestLayoutContext(
+    overrides: Partial<Layout.LayoutContext> = {}
+): Layout.LayoutContext {
     const mockTextMeasurement: TestTextMeasurement = {
         measureTextWidth: (text: string, fontSize: number) => {
             return text.length * fontSize * 0.6;
         },
-        wrapTextAccurate: (text: string, maxWidth: number, options: TestTextOptions) => {
+        wrapTextAccurate: (
+            text: string,
+            maxWidth: number,
+            options: TestTextOptions
+        ) => {
             const charWidth = options.fontSize * 0.6;
             const charsPerLine = Math.floor(maxWidth / charWidth);
             const words = text.split(' ');
@@ -54,24 +75,35 @@ export function createTestLayoutContext(overrides: Partial<Layout.LayoutContext>
                 if (testLine.length <= charsPerLine) {
                     currentLine = testLine;
                 } else {
-                    if (currentLine) { lines.push(currentLine); }
+                    if (currentLine) {
+                        lines.push(currentLine);
+                    }
                     currentLine = word;
                 }
             }
-            if (currentLine) { lines.push(currentLine); }
+            if (currentLine) {
+                lines.push(currentLine);
+            }
             return lines;
         },
-        truncateTextAccurate: (text: string, maxWidth: number, options: TestTextOptions, suffix = '...') => {
+        truncateTextAccurate: (
+            text: string,
+            maxWidth: number,
+            options: TestTextOptions,
+            suffix = '...'
+        ) => {
             const charWidth = options.fontSize * 0.6;
             const maxChars = Math.floor(maxWidth / charWidth) - suffix.length;
-            return text.length > maxChars ? text.substring(0, maxChars) + suffix : text;
+            return text.length > maxChars
+                ? text.substring(0, maxChars) + suffix
+                : text;
         },
         getFontMetrics: (fontSize: number) => ({
             height: fontSize * 1.2,
             baseline: fontSize * 0.8,
             ascender: fontSize * 0.8,
-            descender: fontSize * 0.2
-        })
+            descender: fontSize * 0.2,
+        }),
     };
 
     const baseContext: Layout.LayoutContext = {
@@ -88,19 +120,29 @@ export function createTestLayoutContext(overrides: Partial<Layout.LayoutContext>
             defaultTextStyle: {
                 fontSize: 12,
                 fontFamily: 'Helvetica',
-                color: '#000000'
+                color: '#000000',
             },
-            cornerRadius: { none: 0, small: 4, medium: 8, large: 16 }
+            cornerRadius: { none: 0, small: 4, medium: 8, large: 16 },
         } as Theme.ThemeData,
-        textMeasurement: mockTextMeasurement as unknown as NonNullable<Layout.LayoutContext['textMeasurement']>
+        textMeasurement: mockTextMeasurement as unknown as NonNullable<
+            Layout.LayoutContext['textMeasurement']
+        >,
     };
 
     // Handle optional properties properly for exactOptionalPropertyTypes
     const result = { ...baseContext };
-    if (overrides.constraints !== undefined) { result.constraints = overrides.constraints; }
-    if (overrides.textDirection !== undefined) { result.textDirection = overrides.textDirection; }
-    if (overrides.theme !== undefined) { result.theme = overrides.theme; }
-    if (overrides.textMeasurement !== undefined) { result.textMeasurement = overrides.textMeasurement; }
+    if (overrides.constraints !== undefined) {
+        result.constraints = overrides.constraints;
+    }
+    if (overrides.textDirection !== undefined) {
+        result.textDirection = overrides.textDirection;
+    }
+    if (overrides.theme !== undefined) {
+        result.theme = overrides.theme;
+    }
+    if (overrides.textMeasurement !== undefined) {
+        result.textMeasurement = overrides.textMeasurement;
+    }
 
     return result;
 }
@@ -108,18 +150,25 @@ export function createTestLayoutContext(overrides: Partial<Layout.LayoutContext>
 /**
  * Create simple test paint context
  */
-export function createTestPaintContext(overrides: Partial<Layout.PaintContext> = {}): Layout.PaintContext {
+export function createTestPaintContext(
+    overrides: Partial<Layout.PaintContext> = {}
+): Layout.PaintContext {
     const mockGraphics = {
-        drawString: () => { },
-        drawRect: () => { },
-        save: () => { },
-        restore: () => { },
-        translate: () => { }
+        drawString: () => {},
+        drawRect: () => {},
+        save: () => {},
+        restore: () => {},
+        translate: () => {},
     };
 
     const mockTextMeasurement: TestTextMeasurement = {
-        measureTextWidth: (text: string, fontSize: number) => text.length * fontSize * 0.6,
-        wrapTextAccurate: (text: string, maxWidth: number, options: TestTextOptions) => {
+        measureTextWidth: (text: string, fontSize: number) =>
+            text.length * fontSize * 0.6,
+        wrapTextAccurate: (
+            text: string,
+            maxWidth: number,
+            options: TestTextOptions
+        ) => {
             const charWidth = options.fontSize * 0.6;
             const charsPerLine = Math.floor(maxWidth / charWidth);
             const words = text.split(' ');
@@ -130,50 +179,77 @@ export function createTestPaintContext(overrides: Partial<Layout.PaintContext> =
                 if (testLine.length <= charsPerLine) {
                     currentLine = testLine;
                 } else {
-                    if (currentLine) { lines.push(currentLine); }
+                    if (currentLine) {
+                        lines.push(currentLine);
+                    }
                     currentLine = word;
                 }
             }
-            if (currentLine) { lines.push(currentLine); }
+            if (currentLine) {
+                lines.push(currentLine);
+            }
             return lines;
         },
-        truncateTextAccurate: (text: string, maxWidth: number, options: TestTextOptions, suffix = '...') => {
+        truncateTextAccurate: (
+            text: string,
+            maxWidth: number,
+            options: TestTextOptions,
+            suffix = '...'
+        ) => {
             const charWidth = options.fontSize * 0.6;
             const maxChars = Math.floor(maxWidth / charWidth) - suffix.length;
-            return text.length > maxChars ? text.substring(0, maxChars) + suffix : text;
+            return text.length > maxChars
+                ? text.substring(0, maxChars) + suffix
+                : text;
         },
         getFontMetrics: (fontSize: number) => ({
             height: fontSize * 1.2,
             baseline: fontSize * 0.8,
             ascender: fontSize * 0.8,
-            descender: fontSize * 0.2
-        })
+            descender: fontSize * 0.2,
+        }),
     };
 
     const baseContext: Layout.PaintContext = {
         size: { width: 600, height: 800 },
-        graphics: mockGraphics as unknown as NonNullable<Layout.PaintContext['graphics']>,
+        graphics: mockGraphics as unknown as NonNullable<
+            Layout.PaintContext['graphics']
+        >,
         theme: {
             colorScheme: Theme.ColorSchemes.light,
             spacing: Theme.defaultSpacing,
             defaultTextStyle: {
                 fontSize: 12,
                 fontFamily: 'Helvetica',
-                color: '#000000'
+                color: '#000000',
             },
-            cornerRadius: { none: 0, small: 4, medium: 8, large: 16 }
+            cornerRadius: { none: 0, small: 4, medium: 8, large: 16 },
         } as Theme.ThemeData,
-        textMeasurement: mockTextMeasurement as unknown as NonNullable<Layout.LayoutContext['textMeasurement']>
+        textMeasurement: mockTextMeasurement as unknown as NonNullable<
+            Layout.LayoutContext['textMeasurement']
+        >,
     };
 
     // Handle optional properties properly for exactOptionalPropertyTypes
     const result = { ...baseContext };
-    if (overrides.size !== undefined) { result.size = overrides.size; }
-    if (overrides.theme !== undefined) { result.theme = overrides.theme; }
-    if (overrides.document !== undefined) { result.document = overrides.document; }
-    if (overrides.graphics !== undefined) { result.graphics = overrides.graphics; }
-    if (overrides.fontRegistry !== undefined) { result.fontRegistry = overrides.fontRegistry; }
-    if (overrides.textMeasurement !== undefined) { result.textMeasurement = overrides.textMeasurement; }
+    if (overrides.size !== undefined) {
+        result.size = overrides.size;
+    }
+    if (overrides.theme !== undefined) {
+        result.theme = overrides.theme;
+    }
+    if (overrides.document !== undefined) {
+        result.document = overrides.document;
+    }
+    if (overrides.graphics !== undefined) {
+        result.graphics = overrides.graphics;
+    }
+    if (overrides.fontRegistry !== undefined) {
+        result.fontRegistry = overrides.fontRegistry;
+    }
+    if (overrides.textMeasurement !== undefined) {
+        result.textMeasurement = overrides.textMeasurement;
+    }
 
     return result;
 }
@@ -196,12 +272,23 @@ export type TestAlignment = 'left' | 'center' | 'right' | 'justify';
 /**
  * Test axis alignment type
  */
-export type TestAxisAlignment = 'start' | 'center' | 'end' | 'spaceBetween' | 'spaceAround' | 'spaceEvenly';
+export type TestAxisAlignment =
+    | 'start'
+    | 'center'
+    | 'end'
+    | 'spaceBetween'
+    | 'spaceAround'
+    | 'spaceEvenly';
 
 /**
  * Test cross axis alignment type
  */
-export type TestCrossAxisAlignment = 'start' | 'center' | 'end' | 'stretch' | 'baseline';
+export type TestCrossAxisAlignment =
+    | 'start'
+    | 'center'
+    | 'end'
+    | 'stretch'
+    | 'baseline';
 
 /**
  * Test stack fit type
@@ -227,15 +314,15 @@ export function setupTestDOM(): void {
         (global as Record<string, unknown>)['document'] = {
             createElement: () => ({
                 getContext: () => ({
-                    fillText: () => { },
+                    fillText: () => {},
                     measureText: () => ({ width: 100 }),
-                    beginPath: () => { },
-                    moveTo: () => { },
-                    lineTo: () => { },
-                    stroke: () => { },
-                    fill: () => { }
-                })
-            })
+                    beginPath: () => {},
+                    moveTo: () => {},
+                    lineTo: () => {},
+                    stroke: () => {},
+                    fill: () => {},
+                }),
+            }),
         };
     }
 }

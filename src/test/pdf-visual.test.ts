@@ -1,9 +1,9 @@
 /**
  * PDF Visual Validation Tests - Simplified
- * 
+ *
  * These tests create actual PDF files to verify visual output quality.
  * Generated PDFs are saved to test-output/ for manual inspection.
- * 
+ *
  * @vitest-environment happy-dom
  */
 
@@ -16,9 +16,20 @@ import { describe, it, expect } from 'vitest';
 import { Document } from '../core/index.js';
 import { Layout, Theme as ThemeTypes } from '../types.js';
 import {
-    Container, TextWidget, Row, Column, Stack, Positioned,
-    Table, BarChart, LineChart, Theme, PrebuiltThemes,
-    LayoutUtils, FlexUtils, DataUtils
+    Container,
+    TextWidget,
+    Row,
+    Column,
+    Stack,
+    Positioned,
+    Table,
+    BarChart,
+    LineChart,
+    Theme,
+    PrebuiltThemes,
+    LayoutUtils,
+    FlexUtils,
+    DataUtils,
 } from '../widgets/index.js';
 
 // Test output directory
@@ -32,13 +43,12 @@ try {
 }
 
 describe('PDF Visual Validation Tests', () => {
-
     it('should generate containers with background colors', async () => {
         const doc = new Document();
 
         const page = doc.addPage({
             format: 'A4' as any,
-            margins: Layout.EdgeInsets.all(40)
+            margins: Layout.EdgeInsets.all(40),
         });
 
         // Create nested containers with different background colors
@@ -47,7 +57,7 @@ describe('PDF Visual Validation Tests', () => {
             height: 600,
             decoration: {
                 color: '#f0f0f0',
-                border: { width: 2, color: '#333333' }
+                border: { width: 2, color: '#333333' },
             },
             padding: Layout.EdgeInsets.all(20),
             child: new Column({
@@ -59,16 +69,21 @@ describe('PDF Visual Validation Tests', () => {
                         height: 120,
                         decoration: {
                             color: '#ff6b6b',
-                            borderRadius: { topLeft: 10, topRight: 10, bottomLeft: 10, bottomRight: 10 }
+                            borderRadius: {
+                                topLeft: 10,
+                                topRight: 10,
+                                bottomLeft: 10,
+                                bottomRight: 10,
+                            },
                         },
                         alignment: Layout.Alignment.Center,
                         child: new TextWidget('Red Container - Centered Text', {
                             style: {
                                 fontSize: 18,
                                 fontWeight: ThemeTypes.FontWeight.Bold,
-                                color: '#ffffff'
-                            }
-                        })
+                                color: '#ffffff',
+                            },
+                        }),
                     }),
 
                     // Blue container
@@ -77,16 +92,21 @@ describe('PDF Visual Validation Tests', () => {
                         height: 120,
                         decoration: {
                             color: '#4dabf7',
-                            borderRadius: { topLeft: 15, topRight: 15, bottomLeft: 15, bottomRight: 15 }
+                            borderRadius: {
+                                topLeft: 15,
+                                topRight: 15,
+                                bottomLeft: 15,
+                                bottomRight: 15,
+                            },
                         },
                         padding: Layout.EdgeInsets.all(15),
                         child: new TextWidget('Blue Container with Padding', {
                             style: {
                                 fontSize: 14,
-                                color: '#ffffff'
+                                color: '#ffffff',
                             },
-                            textAlign: 'center' as any
-                        })
+                            textAlign: 'center' as any,
+                        }),
                     }),
 
                     // Green container with layout
@@ -95,34 +115,60 @@ describe('PDF Visual Validation Tests', () => {
                         height: 120,
                         decoration: {
                             color: '#51cf66',
-                            borderRadius: { topLeft: 8, topRight: 8, bottomLeft: 8, bottomRight: 8 }
+                            borderRadius: {
+                                topLeft: 8,
+                                topRight: 8,
+                                bottomLeft: 8,
+                                bottomRight: 8,
+                            },
                         },
-                        padding: Layout.EdgeInsets.symmetric({ horizontal: 20, vertical: 10 }),
+                        padding: Layout.EdgeInsets.symmetric({
+                            horizontal: 20,
+                            vertical: 10,
+                        }),
                         child: new Row({
                             mainAxisAlignment: 'spaceBetween' as any,
                             crossAxisAlignment: 'center' as any,
                             children: [
                                 new TextWidget('Left Side', {
-                                    style: { fontSize: 16, fontWeight: ThemeTypes.FontWeight.Bold, color: '#ffffff' }
+                                    style: {
+                                        fontSize: 16,
+                                        fontWeight: ThemeTypes.FontWeight.Bold,
+                                        color: '#ffffff',
+                                    },
                                 }),
                                 new Container({
                                     width: 60,
                                     height: 60,
                                     decoration: {
                                         color: '#ffffff',
-                                        borderRadius: { topLeft: 30, topRight: 30, bottomLeft: 30, bottomRight: 30 }
+                                        borderRadius: {
+                                            topLeft: 30,
+                                            topRight: 30,
+                                            bottomLeft: 30,
+                                            bottomRight: 30,
+                                        },
                                     },
                                     alignment: Layout.Alignment.Center,
-                                    child: new TextWidget('•', { style: { fontSize: 24, color: '#51cf66' } })
+                                    child: new TextWidget('•', {
+                                        style: {
+                                            fontSize: 24,
+                                            color: '#51cf66',
+                                        },
+                                    }),
                                 }),
                                 new TextWidget('Right Side', {
-                                    style: { fontSize: 16, fontWeight: ThemeTypes.FontWeight.Bold, color: '#ffffff' }
-                                })
-                            ]
-                        })
-                    })
-                ]
-            })
+                                    style: {
+                                        fontSize: 16,
+                                        fontWeight: ThemeTypes.FontWeight.Bold,
+                                        color: '#ffffff',
+                                    },
+                                }),
+                            ],
+                        }),
+                    }),
+                ],
+            }),
         });
 
         page.renderWidget(content);
@@ -140,7 +186,7 @@ describe('PDF Visual Validation Tests', () => {
 
         const page = doc.addPage({
             format: 'A4' as any,
-            margins: Layout.EdgeInsets.all(30)
+            margins: Layout.EdgeInsets.all(30),
         });
 
         const content = new Theme({
@@ -153,16 +199,21 @@ describe('PDF Visual Validation Tests', () => {
                         padding: Layout.EdgeInsets.all(20),
                         decoration: {
                             color: '#2c3e50',
-                            borderRadius: { topLeft: 8, topRight: 8, bottomLeft: 8, bottomRight: 8 }
+                            borderRadius: {
+                                topLeft: 8,
+                                topRight: 8,
+                                bottomLeft: 8,
+                                bottomRight: 8,
+                            },
                         },
                         child: new TextWidget('Typography Showcase', {
                             style: {
                                 fontSize: 28,
                                 fontWeight: ThemeTypes.FontWeight.Bold,
-                                color: '#ffffff'
+                                color: '#ffffff',
                             },
-                            textAlign: 'center' as any
-                        })
+                            textAlign: 'center' as any,
+                        }),
                     }),
 
                     LayoutUtils.padded(
@@ -170,18 +221,29 @@ describe('PDF Visual Validation Tests', () => {
                             crossAxisAlignment: 'start' as any,
                             children: [
                                 new TextWidget('Heading 1 - Large Text', {
-                                    style: { fontSize: 24, fontWeight: ThemeTypes.FontWeight.Bold, color: '#2c3e50' }
+                                    style: {
+                                        fontSize: 24,
+                                        fontWeight: ThemeTypes.FontWeight.Bold,
+                                        color: '#2c3e50',
+                                    },
                                 }),
                                 new TextWidget('Heading 2 - Medium Text', {
-                                    style: { fontSize: 20, fontWeight: ThemeTypes.FontWeight.Bold, color: '#34495e' }
-                                }),
-                                new TextWidget('Body text with proper spacing. This demonstrates text flow.', {
                                     style: {
-                                        fontSize: 12,
-                                        lineSpacing: 1.6,
-                                        color: '#2c3e50'
-                                    }
+                                        fontSize: 20,
+                                        fontWeight: ThemeTypes.FontWeight.Bold,
+                                        color: '#34495e',
+                                    },
                                 }),
+                                new TextWidget(
+                                    'Body text with proper spacing. This demonstrates text flow.',
+                                    {
+                                        style: {
+                                            fontSize: 12,
+                                            lineSpacing: 1.6,
+                                            color: '#2c3e50',
+                                        },
+                                    }
+                                ),
 
                                 // Text alignment examples
                                 new Container({
@@ -189,31 +251,54 @@ describe('PDF Visual Validation Tests', () => {
                                     padding: Layout.EdgeInsets.all(15),
                                     decoration: {
                                         color: '#ecf0f1',
-                                        borderRadius: { topLeft: 5, topRight: 5, bottomLeft: 5, bottomRight: 5 }
+                                        borderRadius: {
+                                            topLeft: 5,
+                                            topRight: 5,
+                                            bottomLeft: 5,
+                                            bottomRight: 5,
+                                        },
                                     },
                                     child: new Column({
                                         children: [
-                                            new TextWidget('Left Aligned Text', {
-                                                textAlign: 'left' as any,
-                                                style: { fontSize: 14, color: '#2c3e50' }
-                                            }),
-                                            new TextWidget('Center Aligned Text', {
-                                                textAlign: 'center' as any,
-                                                style: { fontSize: 14, color: '#2c3e50' }
-                                            }),
-                                            new TextWidget('Right Aligned Text', {
-                                                textAlign: 'right' as any,
-                                                style: { fontSize: 14, color: '#2c3e50' }
-                                            })
-                                        ]
-                                    })
-                                })
-                            ]
+                                            new TextWidget(
+                                                'Left Aligned Text',
+                                                {
+                                                    textAlign: 'left' as any,
+                                                    style: {
+                                                        fontSize: 14,
+                                                        color: '#2c3e50',
+                                                    },
+                                                }
+                                            ),
+                                            new TextWidget(
+                                                'Center Aligned Text',
+                                                {
+                                                    textAlign: 'center' as any,
+                                                    style: {
+                                                        fontSize: 14,
+                                                        color: '#2c3e50',
+                                                    },
+                                                }
+                                            ),
+                                            new TextWidget(
+                                                'Right Aligned Text',
+                                                {
+                                                    textAlign: 'right' as any,
+                                                    style: {
+                                                        fontSize: 14,
+                                                        color: '#2c3e50',
+                                                    },
+                                                }
+                                            ),
+                                        ],
+                                    }),
+                                }),
+                            ],
                         }),
                         Layout.EdgeInsets.all(20)
-                    )
-                ]
-            })
+                    ),
+                ],
+            }),
         });
 
         page.renderWidget(content);
@@ -231,7 +316,7 @@ describe('PDF Visual Validation Tests', () => {
 
         const page = doc.addPage({
             format: 'A4' as any,
-            margins: Layout.EdgeInsets.all(25)
+            margins: Layout.EdgeInsets.all(25),
         });
 
         // Sample data
@@ -240,7 +325,7 @@ describe('PDF Visual Validation Tests', () => {
             ['January', '$45,200', '+12%'],
             ['February', '$52,100', '+15%'],
             ['March', '$48,900', '+8%'],
-            ['April', '$59,300', '+21%']
+            ['April', '$59,300', '+21%'],
         ];
 
         const content = new Container({
@@ -254,9 +339,9 @@ describe('PDF Visual Validation Tests', () => {
                             style: {
                                 fontSize: 26,
                                 fontWeight: ThemeTypes.FontWeight.Bold,
-                                color: '#2c3e50'
-                            }
-                        })
+                                color: '#2c3e50',
+                            },
+                        }),
                     }),
 
                     LayoutUtils.padded(
@@ -264,32 +349,55 @@ describe('PDF Visual Validation Tests', () => {
                             padding: Layout.EdgeInsets.all(10),
                             decoration: {
                                 color: '#f8f9fa',
-                                borderRadius: { topLeft: 8, topRight: 8, bottomLeft: 8, bottomRight: 8 },
-                                border: { width: 1, color: '#dee2e6' }
+                                borderRadius: {
+                                    topLeft: 8,
+                                    topRight: 8,
+                                    bottomLeft: 8,
+                                    bottomRight: 8,
+                                },
+                                border: { width: 1, color: '#dee2e6' },
                             },
                             child: new Column({
                                 children: [
                                     new TextWidget('Monthly Performance', {
-                                        style: { fontSize: 16, fontWeight: ThemeTypes.FontWeight.Bold, color: '#495057' }
+                                        style: {
+                                            fontSize: 16,
+                                            fontWeight:
+                                                ThemeTypes.FontWeight.Bold,
+                                            color: '#495057',
+                                        },
                                     }),
                                     LayoutUtils.padded(
                                         new Table({
                                             data: salesData,
                                             borders: {
-                                                top: { width: 1, color: '#dee2e6' },
-                                                bottom: { width: 1, color: '#dee2e6' },
-                                                horizontal: { width: 0.5, color: '#e9ecef' }
+                                                top: {
+                                                    width: 1,
+                                                    color: '#dee2e6',
+                                                },
+                                                bottom: {
+                                                    width: 1,
+                                                    color: '#dee2e6',
+                                                },
+                                                horizontal: {
+                                                    width: 0.5,
+                                                    color: '#e9ecef',
+                                                },
                                             },
                                             columnWidths: [
-                                                DataUtils.columnWidths.fixed(80),
+                                                DataUtils.columnWidths.fixed(
+                                                    80
+                                                ),
                                                 DataUtils.columnWidths.flex(1),
-                                                DataUtils.columnWidths.fixed(60)
-                                            ]
+                                                DataUtils.columnWidths.fixed(
+                                                    60
+                                                ),
+                                            ],
                                         }),
                                         Layout.EdgeInsets.only({ top: 10 })
-                                    )
-                                ]
-                            })
+                                    ),
+                                ],
+                            }),
                         }),
                         Layout.EdgeInsets.symmetric({ vertical: 20 })
                     ),
@@ -299,8 +407,13 @@ describe('PDF Visual Validation Tests', () => {
                         padding: Layout.EdgeInsets.all(20),
                         decoration: {
                             color: '#e3f2fd',
-                            borderRadius: { topLeft: 10, topRight: 10, bottomLeft: 10, bottomRight: 10 },
-                            border: { width: 1, color: '#bbdefb' }
+                            borderRadius: {
+                                topLeft: 10,
+                                topRight: 10,
+                                bottomLeft: 10,
+                                bottomRight: 10,
+                            },
+                            border: { width: 1, color: '#bbdefb' },
                         },
                         child: new Row({
                             mainAxisAlignment: 'spaceEvenly' as any,
@@ -308,22 +421,46 @@ describe('PDF Visual Validation Tests', () => {
                                 new Column({
                                     crossAxisAlignment: 'center' as any,
                                     children: [
-                                        new TextWidget('Total Revenue', { style: { fontSize: 12, color: '#666' } }),
-                                        new TextWidget('$205,500', { style: { fontSize: 20, fontWeight: ThemeTypes.FontWeight.Bold, color: '#1976d2' } })
-                                    ]
+                                        new TextWidget('Total Revenue', {
+                                            style: {
+                                                fontSize: 12,
+                                                color: '#666',
+                                            },
+                                        }),
+                                        new TextWidget('$205,500', {
+                                            style: {
+                                                fontSize: 20,
+                                                fontWeight:
+                                                    ThemeTypes.FontWeight.Bold,
+                                                color: '#1976d2',
+                                            },
+                                        }),
+                                    ],
                                 }),
                                 new Column({
                                     crossAxisAlignment: 'center' as any,
                                     children: [
-                                        new TextWidget('Avg Growth', { style: { fontSize: 12, color: '#666' } }),
-                                        new TextWidget('+14%', { style: { fontSize: 20, fontWeight: ThemeTypes.FontWeight.Bold, color: '#388e3c' } })
-                                    ]
-                                })
-                            ]
-                        })
-                    })
-                ]
-            })
+                                        new TextWidget('Avg Growth', {
+                                            style: {
+                                                fontSize: 12,
+                                                color: '#666',
+                                            },
+                                        }),
+                                        new TextWidget('+14%', {
+                                            style: {
+                                                fontSize: 20,
+                                                fontWeight:
+                                                    ThemeTypes.FontWeight.Bold,
+                                                color: '#388e3c',
+                                            },
+                                        }),
+                                    ],
+                                }),
+                            ],
+                        }),
+                    }),
+                ],
+            }),
         });
 
         page.renderWidget(content);
@@ -341,7 +478,7 @@ describe('PDF Visual Validation Tests', () => {
 
         const page = doc.addPage({
             format: 'A4' as any,
-            margins: Layout.EdgeInsets.all(15)
+            margins: Layout.EdgeInsets.all(15),
         });
 
         const content = new Container({
@@ -353,12 +490,21 @@ describe('PDF Visual Validation Tests', () => {
                         height: 60,
                         decoration: {
                             color: '#2c3e50',
-                            borderRadius: { topLeft: 5, topRight: 5, bottomLeft: 5, bottomRight: 5 }
+                            borderRadius: {
+                                topLeft: 5,
+                                topRight: 5,
+                                bottomLeft: 5,
+                                bottomRight: 5,
+                            },
                         },
                         alignment: Layout.Alignment.Center,
                         child: new TextWidget('Responsive Layout Demo', {
-                            style: { fontSize: 20, fontWeight: ThemeTypes.FontWeight.Bold, color: '#ffffff' }
-                        })
+                            style: {
+                                fontSize: 20,
+                                fontWeight: ThemeTypes.FontWeight.Bold,
+                                color: '#ffffff',
+                            },
+                        }),
                     }),
 
                     // Three equal columns
@@ -368,46 +514,82 @@ describe('PDF Visual Validation Tests', () => {
                                 FlexUtils.expanded(
                                     new Container({
                                         height: 100,
-                                        margin: Layout.EdgeInsets.only({ right: 5 }),
+                                        margin: Layout.EdgeInsets.only({
+                                            right: 5,
+                                        }),
                                         decoration: {
                                             color: '#e74c3c',
-                                            borderRadius: { topLeft: 5, topRight: 5, bottomLeft: 5, bottomRight: 5 }
+                                            borderRadius: {
+                                                topLeft: 5,
+                                                topRight: 5,
+                                                bottomLeft: 5,
+                                                bottomRight: 5,
+                                            },
                                         },
                                         alignment: Layout.Alignment.Center,
                                         child: new TextWidget('Column 1', {
-                                            style: { fontSize: 14, fontWeight: ThemeTypes.FontWeight.Bold, color: '#fff' }
-                                        })
+                                            style: {
+                                                fontSize: 14,
+                                                fontWeight:
+                                                    ThemeTypes.FontWeight.Bold,
+                                                color: '#fff',
+                                            },
+                                        }),
                                     })
                                 ),
                                 FlexUtils.expanded(
                                     new Container({
                                         height: 100,
-                                        margin: Layout.EdgeInsets.symmetric({ horizontal: 5 }),
+                                        margin: Layout.EdgeInsets.symmetric({
+                                            horizontal: 5,
+                                        }),
                                         decoration: {
                                             color: '#f39c12',
-                                            borderRadius: { topLeft: 5, topRight: 5, bottomLeft: 5, bottomRight: 5 }
+                                            borderRadius: {
+                                                topLeft: 5,
+                                                topRight: 5,
+                                                bottomLeft: 5,
+                                                bottomRight: 5,
+                                            },
                                         },
                                         alignment: Layout.Alignment.Center,
                                         child: new TextWidget('Column 2', {
-                                            style: { fontSize: 14, fontWeight: ThemeTypes.FontWeight.Bold, color: '#fff' }
-                                        })
+                                            style: {
+                                                fontSize: 14,
+                                                fontWeight:
+                                                    ThemeTypes.FontWeight.Bold,
+                                                color: '#fff',
+                                            },
+                                        }),
                                     })
                                 ),
                                 FlexUtils.expanded(
                                     new Container({
                                         height: 100,
-                                        margin: Layout.EdgeInsets.only({ left: 5 }),
+                                        margin: Layout.EdgeInsets.only({
+                                            left: 5,
+                                        }),
                                         decoration: {
                                             color: '#27ae60',
-                                            borderRadius: { topLeft: 5, topRight: 5, bottomLeft: 5, bottomRight: 5 }
+                                            borderRadius: {
+                                                topLeft: 5,
+                                                topRight: 5,
+                                                bottomLeft: 5,
+                                                bottomRight: 5,
+                                            },
                                         },
                                         alignment: Layout.Alignment.Center,
                                         child: new TextWidget('Column 3', {
-                                            style: { fontSize: 14, fontWeight: ThemeTypes.FontWeight.Bold, color: '#fff' }
-                                        })
+                                            style: {
+                                                fontSize: 14,
+                                                fontWeight:
+                                                    ThemeTypes.FontWeight.Bold,
+                                                color: '#fff',
+                                            },
+                                        }),
                                     })
-                                )
-                            ]
+                                ),
+                            ],
                         }),
                         Layout.EdgeInsets.symmetric({ vertical: 10 })
                     ),
@@ -418,26 +600,48 @@ describe('PDF Visual Validation Tests', () => {
                             FlexUtils.flexible(
                                 new Container({
                                     height: 120,
-                                    margin: Layout.EdgeInsets.only({ right: 10 }),
+                                    margin: Layout.EdgeInsets.only({
+                                        right: 10,
+                                    }),
                                     decoration: {
                                         color: '#3498db',
-                                        borderRadius: { topLeft: 5, topRight: 5, bottomLeft: 5, bottomRight: 5 }
+                                        borderRadius: {
+                                            topLeft: 5,
+                                            topRight: 5,
+                                            bottomLeft: 5,
+                                            bottomRight: 5,
+                                        },
                                     },
                                     padding: Layout.EdgeInsets.all(15),
                                     child: new Column({
                                         crossAxisAlignment: 'start' as any,
                                         children: [
                                             new TextWidget('Main Content', {
-                                                style: { fontSize: 16, fontWeight: ThemeTypes.FontWeight.Bold, color: '#fff' }
+                                                style: {
+                                                    fontSize: 16,
+                                                    fontWeight:
+                                                        ThemeTypes.FontWeight
+                                                            .Bold,
+                                                    color: '#fff',
+                                                },
                                             }),
                                             LayoutUtils.padded(
-                                                new TextWidget('This takes up 2/3 of available space.', {
-                                                    style: { fontSize: 10, color: '#fff', lineSpacing: 1.4 }
-                                                }),
-                                                Layout.EdgeInsets.only({ top: 8 })
-                                            )
-                                        ]
-                                    })
+                                                new TextWidget(
+                                                    'This takes up 2/3 of available space.',
+                                                    {
+                                                        style: {
+                                                            fontSize: 10,
+                                                            color: '#fff',
+                                                            lineSpacing: 1.4,
+                                                        },
+                                                    }
+                                                ),
+                                                Layout.EdgeInsets.only({
+                                                    top: 8,
+                                                })
+                                            ),
+                                        ],
+                                    }),
                                 }),
                                 { flex: 2 }
                             ),
@@ -446,27 +650,41 @@ describe('PDF Visual Validation Tests', () => {
                                     height: 120,
                                     decoration: {
                                         color: '#9b59b6',
-                                        borderRadius: { topLeft: 5, topRight: 5, bottomLeft: 5, bottomRight: 5 }
+                                        borderRadius: {
+                                            topLeft: 5,
+                                            topRight: 5,
+                                            bottomLeft: 5,
+                                            bottomRight: 5,
+                                        },
                                     },
                                     alignment: Layout.Alignment.Center,
                                     child: new Column({
                                         mainAxisAlignment: 'center' as any,
                                         children: [
                                             new TextWidget('Sidebar', {
-                                                style: { fontSize: 14, fontWeight: ThemeTypes.FontWeight.Bold, color: '#fff' }
+                                                style: {
+                                                    fontSize: 14,
+                                                    fontWeight:
+                                                        ThemeTypes.FontWeight
+                                                            .Bold,
+                                                    color: '#fff',
+                                                },
                                             }),
                                             new TextWidget('1/3 width', {
-                                                style: { fontSize: 10, color: '#fff' }
-                                            })
-                                        ]
-                                    })
+                                                style: {
+                                                    fontSize: 10,
+                                                    color: '#fff',
+                                                },
+                                            }),
+                                        ],
+                                    }),
                                 }),
                                 { flex: 1 }
-                            )
-                        ]
-                    })
-                ]
-            })
+                            ),
+                        ],
+                    }),
+                ],
+            }),
         });
 
         page.renderWidget(content);
@@ -484,32 +702,44 @@ describe('PDF Visual Validation Tests', () => {
 
         const page = doc.addPage({
             format: 'A4' as any,
-            margins: Layout.EdgeInsets.all(20)
+            margins: Layout.EdgeInsets.all(20),
         });
 
         // Sample chart data
-        const salesData = DataUtils.createSeries('Sales', [
-            { x: 'Q1', y: 125000 },
-            { x: 'Q2', y: 145000 },
-            { x: 'Q3', y: 135000 },
-            { x: 'Q4', y: 162000 }
-        ], '#3498db');
+        const salesData = DataUtils.createSeries(
+            'Sales',
+            [
+                { x: 'Q1', y: 125000 },
+                { x: 'Q2', y: 145000 },
+                { x: 'Q3', y: 135000 },
+                { x: 'Q4', y: 162000 },
+            ],
+            '#3498db'
+        );
 
-        const profitData = DataUtils.createSeries('Profit', [
-            { x: 'Q1', y: 45000 },
-            { x: 'Q2', y: 52000 },
-            { x: 'Q3', y: 48000 },
-            { x: 'Q4', y: 61000 }
-        ], '#e74c3c');
+        const profitData = DataUtils.createSeries(
+            'Profit',
+            [
+                { x: 'Q1', y: 45000 },
+                { x: 'Q2', y: 52000 },
+                { x: 'Q3', y: 48000 },
+                { x: 'Q4', y: 61000 },
+            ],
+            '#e74c3c'
+        );
 
-        const trendData = DataUtils.createSeries('Growth Trend', [
-            { x: 0, y: 100 },
-            { x: 1, y: 115 },
-            { x: 2, y: 108 },
-            { x: 3, y: 130 },
-            { x: 4, y: 125 },
-            { x: 5, y: 142 }
-        ], '#27ae60');
+        const trendData = DataUtils.createSeries(
+            'Growth Trend',
+            [
+                { x: 0, y: 100 },
+                { x: 1, y: 115 },
+                { x: 2, y: 108 },
+                { x: 3, y: 130 },
+                { x: 4, y: 125 },
+                { x: 5, y: 142 },
+            ],
+            '#27ae60'
+        );
 
         const content = new Container({
             padding: Layout.EdgeInsets.all(15),
@@ -523,9 +753,9 @@ describe('PDF Visual Validation Tests', () => {
                             style: {
                                 fontSize: 24,
                                 fontWeight: ThemeTypes.FontWeight.Bold,
-                                color: '#2c3e50'
-                            }
-                        })
+                                color: '#2c3e50',
+                            },
+                        }),
                     }),
 
                     // Bar chart section
@@ -534,8 +764,13 @@ describe('PDF Visual Validation Tests', () => {
                         margin: Layout.EdgeInsets.only({ bottom: 20 }),
                         decoration: {
                             color: '#f8f9fa',
-                            borderRadius: { topLeft: 8, topRight: 8, bottomLeft: 8, bottomRight: 8 },
-                            border: { width: 1, color: '#dee2e6' }
+                            borderRadius: {
+                                topLeft: 8,
+                                topRight: 8,
+                                bottomLeft: 8,
+                                bottomRight: 8,
+                            },
+                            border: { width: 1, color: '#dee2e6' },
                         },
                         padding: Layout.EdgeInsets.all(10),
                         child: new BarChart({
@@ -543,16 +778,21 @@ describe('PDF Visual Validation Tests', () => {
                             series: [salesData, profitData],
                             xAxis: {
                                 title: 'Quarter',
-                                showLabels: true
+                                showLabels: true,
                             },
                             yAxis: {
                                 title: 'Amount ($)',
-                                showLabels: true
+                                showLabels: true,
                             },
                             width: 540,
                             height: 260,
-                            colors: ['#3498db', '#e74c3c', '#f39c12', '#27ae60']
-                        })
+                            colors: [
+                                '#3498db',
+                                '#e74c3c',
+                                '#f39c12',
+                                '#27ae60',
+                            ],
+                        }),
                     }),
 
                     // Line chart section
@@ -561,8 +801,13 @@ describe('PDF Visual Validation Tests', () => {
                         margin: Layout.EdgeInsets.only({ bottom: 15 }),
                         decoration: {
                             color: '#f0f8ff',
-                            borderRadius: { topLeft: 8, topRight: 8, bottomLeft: 8, bottomRight: 8 },
-                            border: { width: 1, color: '#b3d9ff' }
+                            borderRadius: {
+                                topLeft: 8,
+                                topRight: 8,
+                                bottomLeft: 8,
+                                bottomRight: 8,
+                            },
+                            border: { width: 1, color: '#b3d9ff' },
                         },
                         padding: Layout.EdgeInsets.all(10),
                         child: new LineChart({
@@ -570,18 +815,18 @@ describe('PDF Visual Validation Tests', () => {
                             series: [trendData],
                             xAxis: {
                                 title: 'Time Period',
-                                showLabels: true
+                                showLabels: true,
                             },
                             yAxis: {
                                 title: 'Index Value',
-                                showLabels: true
+                                showLabels: true,
                             },
                             width: 540,
                             height: 260,
                             marker: 'circle' as any,
                             lineWidth: 2,
-                            colors: ['#27ae60']
-                        })
+                            colors: ['#27ae60'],
+                        }),
                     }),
 
                     // Chart description
@@ -589,33 +834,45 @@ describe('PDF Visual Validation Tests', () => {
                         padding: Layout.EdgeInsets.all(15),
                         decoration: {
                             color: '#fff3cd',
-                            borderRadius: { topLeft: 6, topRight: 6, bottomLeft: 6, bottomRight: 6 },
-                            border: { width: 1, color: '#ffeaa7' }
+                            borderRadius: {
+                                topLeft: 6,
+                                topRight: 6,
+                                bottomLeft: 6,
+                                bottomRight: 6,
+                            },
+                            border: { width: 1, color: '#ffeaa7' },
                         },
                         child: new Column({
                             children: [
-                                new TextWidget('Chart Text Positioning Validation', {
-                                    style: {
-                                        fontSize: 14,
-                                        fontWeight: ThemeTypes.FontWeight.Bold,
-                                        color: '#856404'
-                                    }
-                                }),
-                                LayoutUtils.padded(
-                                    new TextWidget('This test validates that all text elements in charts render correctly:\n• Chart titles are centered at the top\n• X-axis labels appear at the bottom\n• Y-axis labels are rotated vertically on the left\n• Value labels are positioned above bars/near markers\n• All text respects the PDF coordinate system transformation', {
+                                new TextWidget(
+                                    'Chart Text Positioning Validation',
+                                    {
                                         style: {
-                                            fontSize: 11,
+                                            fontSize: 14,
+                                            fontWeight:
+                                                ThemeTypes.FontWeight.Bold,
                                             color: '#856404',
-                                            lineSpacing: 1.4
+                                        },
+                                    }
+                                ),
+                                LayoutUtils.padded(
+                                    new TextWidget(
+                                        'This test validates that all text elements in charts render correctly:\n• Chart titles are centered at the top\n• X-axis labels appear at the bottom\n• Y-axis labels are rotated vertically on the left\n• Value labels are positioned above bars/near markers\n• All text respects the PDF coordinate system transformation',
+                                        {
+                                            style: {
+                                                fontSize: 11,
+                                                color: '#856404',
+                                                lineSpacing: 1.4,
+                                            },
                                         }
-                                    }),
+                                    ),
                                     Layout.EdgeInsets.only({ top: 8 })
-                                )
-                            ]
-                        })
-                    })
-                ]
-            })
+                                ),
+                            ],
+                        }),
+                    }),
+                ],
+            }),
         });
 
         page.renderWidget(content);
@@ -629,7 +886,9 @@ describe('PDF Visual Validation Tests', () => {
         console.log(`📊 Chart test includes:`);
         console.log(`   - Bar chart with title, axis labels, and value labels`);
         console.log(`   - Line chart with markers and trend line`);
-        console.log(`   - Text positioning validation across coordinate systems`);
+        console.log(
+            `   - Text positioning validation across coordinate systems`
+        );
     });
 
     it('should demonstrate child positioning issues in layout widgets', async () => {
@@ -637,26 +896,31 @@ describe('PDF Visual Validation Tests', () => {
 
         const page = doc.addPage({
             format: 'A4' as any,
-            margins: Layout.EdgeInsets.all(20)
+            margins: Layout.EdgeInsets.all(20),
         });
 
         // Create colored test widgets to make positioning issues visible
-        const createColoredBox = (color: string, text: string, size: number = 80) => new Container({
-            width: size,
-            height: size,
-            decoration: {
-                color,
-                border: { width: 2, color: '#000000' }
-            },
-            alignment: Layout.Alignment.Center,
-            child: new TextWidget(text, {
-                style: {
-                    fontSize: 10,
-                    fontWeight: ThemeTypes.FontWeight.Bold,
-                    color: '#ffffff'
-                }
-            })
-        });
+        const createColoredBox = (
+            color: string,
+            text: string,
+            size: number = 80
+        ) =>
+            new Container({
+                width: size,
+                height: size,
+                decoration: {
+                    color,
+                    border: { width: 2, color: '#000000' },
+                },
+                alignment: Layout.Alignment.Center,
+                child: new TextWidget(text, {
+                    style: {
+                        fontSize: 10,
+                        fontWeight: ThemeTypes.FontWeight.Bold,
+                        color: '#ffffff',
+                    },
+                }),
+            });
 
         const content = new Container({
             padding: Layout.EdgeInsets.all(20),
@@ -669,8 +933,8 @@ describe('PDF Visual Validation Tests', () => {
                         style: {
                             fontSize: 20,
                             fontWeight: ThemeTypes.FontWeight.Bold,
-                            color: '#2c3e50'
-                        }
+                            color: '#2c3e50',
+                        },
                     }),
 
                     // 1. Container test (SHOULD WORK - baseline)
@@ -678,20 +942,27 @@ describe('PDF Visual Validation Tests', () => {
                         crossAxisAlignment: 'start' as any,
                         mainAxisSpacing: 10,
                         children: [
-                            new TextWidget('1. Container Widget (Expected: GREEN at center)', {
-                                style: { fontSize: 14, fontWeight: ThemeTypes.FontWeight.Bold, color: '#333' }
-                            }),
+                            new TextWidget(
+                                '1. Container Widget (Expected: GREEN at center)',
+                                {
+                                    style: {
+                                        fontSize: 14,
+                                        fontWeight: ThemeTypes.FontWeight.Bold,
+                                        color: '#333',
+                                    },
+                                }
+                            ),
                             new Container({
                                 width: 200,
                                 height: 100,
                                 decoration: {
                                     color: '#f0f0f0',
-                                    border: { width: 1, color: '#999' }
+                                    border: { width: 1, color: '#999' },
                                 },
                                 alignment: Layout.Alignment.Center,
-                                child: createColoredBox('#27ae60', 'OK', 60)
-                            })
-                        ]
+                                child: createColoredBox('#27ae60', 'OK', 60),
+                            }),
+                        ],
                     }),
 
                     // 2. Stack test (EXPECTED TO BE BROKEN)
@@ -699,35 +970,53 @@ describe('PDF Visual Validation Tests', () => {
                         crossAxisAlignment: 'start' as any,
                         mainAxisSpacing: 10,
                         children: [
-                            new TextWidget('2. Stack Widget (Expected: BLUE centered, RED top-right)', {
-                                style: { fontSize: 14, fontWeight: ThemeTypes.FontWeight.Bold, color: '#333' }
-                            }),
-                            new TextWidget('   → If broken: both boxes at top-left corner overlapping', {
-                                style: { fontSize: 12, color: '#666' }
-                            }),
+                            new TextWidget(
+                                '2. Stack Widget (Expected: BLUE centered, RED top-right)',
+                                {
+                                    style: {
+                                        fontSize: 14,
+                                        fontWeight: ThemeTypes.FontWeight.Bold,
+                                        color: '#333',
+                                    },
+                                }
+                            ),
+                            new TextWidget(
+                                '   → If broken: both boxes at top-left corner overlapping',
+                                {
+                                    style: { fontSize: 12, color: '#666' },
+                                }
+                            ),
                             new Container({
                                 width: 200,
                                 height: 100,
                                 decoration: {
                                     color: '#f0f0f0',
-                                    border: { width: 1, color: '#999' }
+                                    border: { width: 1, color: '#999' },
                                 },
                                 child: new Stack({
                                     fit: 'expand' as any,
                                     children: [
                                         new Container({
                                             alignment: Layout.Alignment.Center,
-                                            child: createColoredBox('#3498db', 'CENTER', 50)
+                                            child: createColoredBox(
+                                                '#3498db',
+                                                'CENTER',
+                                                50
+                                            ),
                                         }),
                                         new Positioned({
                                             top: 10,
                                             right: 10,
-                                            child: createColoredBox('#e74c3c', 'TOP-R', 30)
-                                        })
-                                    ]
-                                })
-                            })
-                        ]
+                                            child: createColoredBox(
+                                                '#e74c3c',
+                                                'TOP-R',
+                                                30
+                                            ),
+                                        }),
+                                    ],
+                                }),
+                            }),
+                        ],
                     }),
 
                     // 3. Row test (EXPECTED TO BE BROKEN)
@@ -735,18 +1024,28 @@ describe('PDF Visual Validation Tests', () => {
                         crossAxisAlignment: 'start' as any,
                         mainAxisSpacing: 10,
                         children: [
-                            new TextWidget('3. Row Widget (Expected: 3 boxes in horizontal line)', {
-                                style: { fontSize: 14, fontWeight: ThemeTypes.FontWeight.Bold, color: '#333' }
-                            }),
-                            new TextWidget('   → If broken: all 3 boxes stacked at left edge', {
-                                style: { fontSize: 12, color: '#666' }
-                            }),
+                            new TextWidget(
+                                '3. Row Widget (Expected: 3 boxes in horizontal line)',
+                                {
+                                    style: {
+                                        fontSize: 14,
+                                        fontWeight: ThemeTypes.FontWeight.Bold,
+                                        color: '#333',
+                                    },
+                                }
+                            ),
+                            new TextWidget(
+                                '   → If broken: all 3 boxes stacked at left edge',
+                                {
+                                    style: { fontSize: 12, color: '#666' },
+                                }
+                            ),
                             new Container({
                                 width: 300,
                                 height: 80,
                                 decoration: {
                                     color: '#f0f0f0',
-                                    border: { width: 1, color: '#999' }
+                                    border: { width: 1, color: '#999' },
                                 },
                                 child: new Row({
                                     mainAxisAlignment: 'spaceEvenly' as any,
@@ -754,11 +1053,11 @@ describe('PDF Visual Validation Tests', () => {
                                     children: [
                                         createColoredBox('#e67e22', '1', 50),
                                         createColoredBox('#9b59b6', '2', 50),
-                                        createColoredBox('#1abc9c', '3', 50)
-                                    ]
-                                })
-                            })
-                        ]
+                                        createColoredBox('#1abc9c', '3', 50),
+                                    ],
+                                }),
+                            }),
+                        ],
                     }),
 
                     // 4. Column test (EXPECTED TO BE BROKEN)
@@ -766,18 +1065,28 @@ describe('PDF Visual Validation Tests', () => {
                         crossAxisAlignment: 'start' as any,
                         mainAxisSpacing: 10,
                         children: [
-                            new TextWidget('4. Column Widget (Expected: 3 boxes in vertical line)', {
-                                style: { fontSize: 14, fontWeight: ThemeTypes.FontWeight.Bold, color: '#333' }
-                            }),
-                            new TextWidget('   → If broken: all 3 boxes stacked at top edge', {
-                                style: { fontSize: 12, color: '#666' }
-                            }),
+                            new TextWidget(
+                                '4. Column Widget (Expected: 3 boxes in vertical line)',
+                                {
+                                    style: {
+                                        fontSize: 14,
+                                        fontWeight: ThemeTypes.FontWeight.Bold,
+                                        color: '#333',
+                                    },
+                                }
+                            ),
+                            new TextWidget(
+                                '   → If broken: all 3 boxes stacked at top edge',
+                                {
+                                    style: { fontSize: 12, color: '#666' },
+                                }
+                            ),
                             new Container({
                                 width: 100,
                                 height: 200,
                                 decoration: {
                                     color: '#f0f0f0',
-                                    border: { width: 1, color: '#999' }
+                                    border: { width: 1, color: '#999' },
                                 },
                                 child: new Column({
                                     mainAxisAlignment: 'spaceEvenly' as any,
@@ -785,11 +1094,11 @@ describe('PDF Visual Validation Tests', () => {
                                     children: [
                                         createColoredBox('#f39c12', 'A', 40),
                                         createColoredBox('#8e44ad', 'B', 40),
-                                        createColoredBox('#16a085', 'C', 40)
-                                    ]
-                                })
-                            })
-                        ]
+                                        createColoredBox('#16a085', 'C', 40),
+                                    ],
+                                }),
+                            }),
+                        ],
                     }),
 
                     // Expected results description
@@ -797,8 +1106,13 @@ describe('PDF Visual Validation Tests', () => {
                         padding: Layout.EdgeInsets.all(15),
                         decoration: {
                             color: '#fff3cd',
-                            borderRadius: { topLeft: 8, topRight: 8, bottomLeft: 8, bottomRight: 8 },
-                            border: { width: 1, color: '#ffeaa7' }
+                            borderRadius: {
+                                topLeft: 8,
+                                topRight: 8,
+                                bottomLeft: 8,
+                                bottomRight: 8,
+                            },
+                            border: { width: 1, color: '#ffeaa7' },
                         },
                         child: new Column({
                             crossAxisAlignment: 'start' as any,
@@ -807,24 +1121,27 @@ describe('PDF Visual Validation Tests', () => {
                                     style: {
                                         fontSize: 14,
                                         fontWeight: ThemeTypes.FontWeight.Bold,
-                                        color: '#856404'
-                                    }
+                                        color: '#856404',
+                                    },
                                 }),
                                 LayoutUtils.padded(
-                                    new TextWidget('• Container: GREEN box should be centered (✓ Working)\n• Stack: BLUE centered + RED at top-right (❌ Broken)\n• Row: 3 boxes spread horizontally (❌ Broken)\n• Column: 3 boxes spread vertically (❌ Broken)', {
-                                        style: {
-                                            fontSize: 11,
-                                            color: '#856404',
-                                            lineSpacing: 1.4
+                                    new TextWidget(
+                                        '• Container: GREEN box should be centered (✓ Working)\n• Stack: BLUE centered + RED at top-right (❌ Broken)\n• Row: 3 boxes spread horizontally (❌ Broken)\n• Column: 3 boxes spread vertically (❌ Broken)',
+                                        {
+                                            style: {
+                                                fontSize: 11,
+                                                color: '#856404',
+                                                lineSpacing: 1.4,
+                                            },
                                         }
-                                    }),
+                                    ),
                                     Layout.EdgeInsets.only({ top: 8 })
-                                )
-                            ]
-                        })
-                    })
-                ]
-            })
+                                ),
+                            ],
+                        }),
+                    }),
+                ],
+            }),
         });
 
         page.renderWidget(content);
@@ -840,7 +1157,9 @@ describe('PDF Visual Validation Tests', () => {
         console.log(`   - Stack widget: Broken positioning (children at 0,0)`);
         console.log(`   - Row widget: Broken positioning (children at 0,0)`);
         console.log(`   - Column widget: Broken positioning (children at 0,0)`);
-        console.log(`⚠️  Expected issues: Stack, Row, and Column children should overlap at origin`);
+        console.log(
+            `⚠️  Expected issues: Stack, Row, and Column children should overlap at origin`
+        );
     });
 
     it('should generate BorderRadius validation test', async () => {
@@ -848,7 +1167,7 @@ describe('PDF Visual Validation Tests', () => {
 
         const page = doc.addPage({
             format: 'A4' as any,
-            margins: Layout.EdgeInsets.all(20)
+            margins: Layout.EdgeInsets.all(20),
         });
 
         const content = new Container({
@@ -862,8 +1181,8 @@ describe('PDF Visual Validation Tests', () => {
                         style: {
                             fontSize: 24,
                             fontWeight: ThemeTypes.FontWeight.Bold,
-                            color: '#2c3e50'
-                        }
+                            color: '#2c3e50',
+                        },
                     }),
 
                     // Row 1: Different radius values
@@ -871,9 +1190,16 @@ describe('PDF Visual Validation Tests', () => {
                         crossAxisAlignment: 'start' as any,
                         mainAxisSpacing: 10,
                         children: [
-                            new TextWidget('1. Different Border Radius Values', {
-                                style: { fontSize: 16, fontWeight: ThemeTypes.FontWeight.Bold, color: '#333' }
-                            }),
+                            new TextWidget(
+                                '1. Different Border Radius Values',
+                                {
+                                    style: {
+                                        fontSize: 16,
+                                        fontWeight: ThemeTypes.FontWeight.Bold,
+                                        color: '#333',
+                                    },
+                                }
+                            ),
                             new Row({
                                 mainAxisAlignment: 'spaceEvenly' as any,
                                 children: [
@@ -882,52 +1208,87 @@ describe('PDF Visual Validation Tests', () => {
                                         height: 80,
                                         decoration: {
                                             color: '#e74c3c',
-                                            borderRadius: { topLeft: 0, topRight: 0, bottomLeft: 0, bottomRight: 0 }
+                                            borderRadius: {
+                                                topLeft: 0,
+                                                topRight: 0,
+                                                bottomLeft: 0,
+                                                bottomRight: 0,
+                                            },
                                         },
                                         alignment: Layout.Alignment.Center,
                                         child: new TextWidget('No\nRadius', {
-                                            style: { fontSize: 10, color: '#fff' }
-                                        })
+                                            style: {
+                                                fontSize: 10,
+                                                color: '#fff',
+                                            },
+                                        }),
                                     }),
                                     new Container({
                                         width: 100,
                                         height: 80,
                                         decoration: {
                                             color: '#3498db',
-                                            borderRadius: { topLeft: 5, topRight: 5, bottomLeft: 5, bottomRight: 5 }
+                                            borderRadius: {
+                                                topLeft: 5,
+                                                topRight: 5,
+                                                bottomLeft: 5,
+                                                bottomRight: 5,
+                                            },
                                         },
                                         alignment: Layout.Alignment.Center,
                                         child: new TextWidget('5px\nRadius', {
-                                            style: { fontSize: 10, color: '#fff' }
-                                        })
+                                            style: {
+                                                fontSize: 10,
+                                                color: '#fff',
+                                            },
+                                        }),
                                     }),
                                     new Container({
                                         width: 100,
                                         height: 80,
                                         decoration: {
                                             color: '#27ae60',
-                                            borderRadius: { topLeft: 15, topRight: 15, bottomLeft: 15, bottomRight: 15 }
+                                            borderRadius: {
+                                                topLeft: 15,
+                                                topRight: 15,
+                                                bottomLeft: 15,
+                                                bottomRight: 15,
+                                            },
                                         },
                                         alignment: Layout.Alignment.Center,
                                         child: new TextWidget('15px\nRadius', {
-                                            style: { fontSize: 10, color: '#fff' }
-                                        })
+                                            style: {
+                                                fontSize: 10,
+                                                color: '#fff',
+                                            },
+                                        }),
                                     }),
                                     new Container({
                                         width: 100,
                                         height: 80,
                                         decoration: {
                                             color: '#f39c12',
-                                            borderRadius: { topLeft: 40, topRight: 40, bottomLeft: 40, bottomRight: 40 }
+                                            borderRadius: {
+                                                topLeft: 40,
+                                                topRight: 40,
+                                                bottomLeft: 40,
+                                                bottomRight: 40,
+                                            },
                                         },
                                         alignment: Layout.Alignment.Center,
-                                        child: new TextWidget('40px\nRadius\n(Circle)', {
-                                            style: { fontSize: 9, color: '#fff' }
-                                        })
-                                    })
-                                ]
-                            })
-                        ]
+                                        child: new TextWidget(
+                                            '40px\nRadius\n(Circle)',
+                                            {
+                                                style: {
+                                                    fontSize: 9,
+                                                    color: '#fff',
+                                                },
+                                            }
+                                        ),
+                                    }),
+                                ],
+                            }),
+                        ],
                     }),
 
                     // Row 2: Different corner combinations
@@ -936,7 +1297,11 @@ describe('PDF Visual Validation Tests', () => {
                         mainAxisSpacing: 10,
                         children: [
                             new TextWidget('2. Individual Corner Radius', {
-                                style: { fontSize: 16, fontWeight: ThemeTypes.FontWeight.Bold, color: '#333' }
+                                style: {
+                                    fontSize: 16,
+                                    fontWeight: ThemeTypes.FontWeight.Bold,
+                                    color: '#333',
+                                },
                             }),
                             new Row({
                                 mainAxisAlignment: 'spaceEvenly' as any,
@@ -946,52 +1311,87 @@ describe('PDF Visual Validation Tests', () => {
                                         height: 80,
                                         decoration: {
                                             color: '#9b59b6',
-                                            borderRadius: { topLeft: 20, topRight: 0, bottomLeft: 0, bottomRight: 0 }
+                                            borderRadius: {
+                                                topLeft: 20,
+                                                topRight: 0,
+                                                bottomLeft: 0,
+                                                bottomRight: 0,
+                                            },
                                         },
                                         alignment: Layout.Alignment.Center,
-                                        child: new TextWidget('Top-Left\nOnly', {
-                                            style: { fontSize: 10, color: '#fff' }
-                                        })
+                                        child: new TextWidget(
+                                            'Top-Left\nOnly',
+                                            {
+                                                style: {
+                                                    fontSize: 10,
+                                                    color: '#fff',
+                                                },
+                                            }
+                                        ),
                                     }),
                                     new Container({
                                         width: 100,
                                         height: 80,
                                         decoration: {
                                             color: '#1abc9c',
-                                            borderRadius: { topLeft: 0, topRight: 20, bottomLeft: 0, bottomRight: 20 }
+                                            borderRadius: {
+                                                topLeft: 0,
+                                                topRight: 20,
+                                                bottomLeft: 0,
+                                                bottomRight: 20,
+                                            },
                                         },
                                         alignment: Layout.Alignment.Center,
                                         child: new TextWidget('Right\nSide', {
-                                            style: { fontSize: 10, color: '#fff' }
-                                        })
+                                            style: {
+                                                fontSize: 10,
+                                                color: '#fff',
+                                            },
+                                        }),
                                     }),
                                     new Container({
                                         width: 100,
                                         height: 80,
                                         decoration: {
                                             color: '#e67e22',
-                                            borderRadius: { topLeft: 15, topRight: 15, bottomLeft: 0, bottomRight: 0 }
+                                            borderRadius: {
+                                                topLeft: 15,
+                                                topRight: 15,
+                                                bottomLeft: 0,
+                                                bottomRight: 0,
+                                            },
                                         },
                                         alignment: Layout.Alignment.Center,
                                         child: new TextWidget('Top\nOnly', {
-                                            style: { fontSize: 10, color: '#fff' }
-                                        })
+                                            style: {
+                                                fontSize: 10,
+                                                color: '#fff',
+                                            },
+                                        }),
                                     }),
                                     new Container({
                                         width: 100,
                                         height: 80,
                                         decoration: {
                                             color: '#34495e',
-                                            borderRadius: { topLeft: 10, topRight: 20, bottomLeft: 30, bottomRight: 5 }
+                                            borderRadius: {
+                                                topLeft: 10,
+                                                topRight: 20,
+                                                bottomLeft: 30,
+                                                bottomRight: 5,
+                                            },
                                         },
                                         alignment: Layout.Alignment.Center,
                                         child: new TextWidget('Mixed\nRadius', {
-                                            style: { fontSize: 10, color: '#fff' }
-                                        })
-                                    })
-                                ]
-                            })
-                        ]
+                                            style: {
+                                                fontSize: 10,
+                                                color: '#fff',
+                                            },
+                                        }),
+                                    }),
+                                ],
+                            }),
+                        ],
                     }),
 
                     // Row 3: Border + BorderRadius
@@ -999,9 +1399,16 @@ describe('PDF Visual Validation Tests', () => {
                         crossAxisAlignment: 'start' as any,
                         mainAxisSpacing: 10,
                         children: [
-                            new TextWidget('3. Border + BorderRadius Combination', {
-                                style: { fontSize: 16, fontWeight: ThemeTypes.FontWeight.Bold, color: '#333' }
-                            }),
+                            new TextWidget(
+                                '3. Border + BorderRadius Combination',
+                                {
+                                    style: {
+                                        fontSize: 16,
+                                        fontWeight: ThemeTypes.FontWeight.Bold,
+                                        color: '#333',
+                                    },
+                                }
+                            ),
                             new Row({
                                 mainAxisAlignment: 'spaceEvenly' as any,
                                 children: [
@@ -1010,43 +1417,85 @@ describe('PDF Visual Validation Tests', () => {
                                         height: 80,
                                         decoration: {
                                             color: '#ffffff',
-                                            borderRadius: { topLeft: 10, topRight: 10, bottomLeft: 10, bottomRight: 10 },
-                                            border: { width: 2, color: '#e74c3c' }
+                                            borderRadius: {
+                                                topLeft: 10,
+                                                topRight: 10,
+                                                bottomLeft: 10,
+                                                bottomRight: 10,
+                                            },
+                                            border: {
+                                                width: 2,
+                                                color: '#e74c3c',
+                                            },
                                         },
                                         alignment: Layout.Alignment.Center,
-                                        child: new TextWidget('Border +\nRadius', {
-                                            style: { fontSize: 10, color: '#e74c3c' }
-                                        })
+                                        child: new TextWidget(
+                                            'Border +\nRadius',
+                                            {
+                                                style: {
+                                                    fontSize: 10,
+                                                    color: '#e74c3c',
+                                                },
+                                            }
+                                        ),
                                     }),
                                     new Container({
                                         width: 120,
                                         height: 80,
                                         decoration: {
                                             color: '#f8f9fa',
-                                            borderRadius: { topLeft: 20, topRight: 20, bottomLeft: 20, bottomRight: 20 },
-                                            border: { width: 3, color: '#3498db' }
+                                            borderRadius: {
+                                                topLeft: 20,
+                                                topRight: 20,
+                                                bottomLeft: 20,
+                                                bottomRight: 20,
+                                            },
+                                            border: {
+                                                width: 3,
+                                                color: '#3498db',
+                                            },
                                         },
                                         alignment: Layout.Alignment.Center,
-                                        child: new TextWidget('Thick Border\n+ Circle', {
-                                            style: { fontSize: 10, color: '#3498db' }
-                                        })
+                                        child: new TextWidget(
+                                            'Thick Border\n+ Circle',
+                                            {
+                                                style: {
+                                                    fontSize: 10,
+                                                    color: '#3498db',
+                                                },
+                                            }
+                                        ),
                                     }),
                                     new Container({
                                         width: 120,
                                         height: 80,
                                         decoration: {
                                             color: '#27ae60',
-                                            borderRadius: { topLeft: 0, topRight: 15, bottomLeft: 15, bottomRight: 0 },
-                                            border: { width: 1, color: '#ffffff' }
+                                            borderRadius: {
+                                                topLeft: 0,
+                                                topRight: 15,
+                                                bottomLeft: 15,
+                                                bottomRight: 0,
+                                            },
+                                            border: {
+                                                width: 1,
+                                                color: '#ffffff',
+                                            },
                                         },
                                         alignment: Layout.Alignment.Center,
-                                        child: new TextWidget('Diagonal\nRadius', {
-                                            style: { fontSize: 10, color: '#fff' }
-                                        })
-                                    })
-                                ]
-                            })
-                        ]
+                                        child: new TextWidget(
+                                            'Diagonal\nRadius',
+                                            {
+                                                style: {
+                                                    fontSize: 10,
+                                                    color: '#fff',
+                                                },
+                                            }
+                                        ),
+                                    }),
+                                ],
+                            }),
+                        ],
                     }),
 
                     // Expected results description
@@ -1054,8 +1503,13 @@ describe('PDF Visual Validation Tests', () => {
                         padding: Layout.EdgeInsets.all(15),
                         decoration: {
                             color: '#d4edda',
-                            borderRadius: { topLeft: 8, topRight: 8, bottomLeft: 8, bottomRight: 8 },
-                            border: { width: 1, color: '#c3e6cb' }
+                            borderRadius: {
+                                topLeft: 8,
+                                topRight: 8,
+                                bottomLeft: 8,
+                                bottomRight: 8,
+                            },
+                            border: { width: 1, color: '#c3e6cb' },
                         },
                         child: new Column({
                             crossAxisAlignment: 'start' as any,
@@ -1064,24 +1518,27 @@ describe('PDF Visual Validation Tests', () => {
                                     style: {
                                         fontSize: 14,
                                         fontWeight: ThemeTypes.FontWeight.Bold,
-                                        color: '#155724'
-                                    }
+                                        color: '#155724',
+                                    },
                                 }),
                                 LayoutUtils.padded(
-                                    new TextWidget('✅ All containers should have properly rounded corners\n✅ Different radius values should be visually distinct\n✅ Individual corner radius should work correctly\n✅ Borders should follow the rounded shape\n✅ This green container should also have rounded corners', {
-                                        style: {
-                                            fontSize: 11,
-                                            color: '#155724',
-                                            lineSpacing: 1.4
+                                    new TextWidget(
+                                        '✅ All containers should have properly rounded corners\n✅ Different radius values should be visually distinct\n✅ Individual corner radius should work correctly\n✅ Borders should follow the rounded shape\n✅ This green container should also have rounded corners',
+                                        {
+                                            style: {
+                                                fontSize: 11,
+                                                color: '#155724',
+                                                lineSpacing: 1.4,
+                                            },
                                         }
-                                    }),
+                                    ),
                                     Layout.EdgeInsets.only({ top: 8 })
-                                )
-                            ]
-                        })
-                    })
-                ]
-            })
+                                ),
+                            ],
+                        }),
+                    }),
+                ],
+            }),
         });
 
         page.renderWidget(content);
@@ -1096,6 +1553,8 @@ describe('PDF Visual Validation Tests', () => {
         console.log(`   - Different radius values (0px, 5px, 15px, 40px)`);
         console.log(`   - Individual corner radius combinations`);
         console.log(`   - Border + BorderRadius combinations`);
-        console.log(`   - Expected: All containers should have properly rounded corners`);
+        console.log(
+            `   - Expected: All containers should have properly rounded corners`
+        );
     });
 });

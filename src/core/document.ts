@@ -1,14 +1,14 @@
 /**
  * Document and Page Management - Consolidated Core
- * 
+ *
  * Streamlined document and page system combining:
  * - Document creation and management
  * - Simplified page handling
  * - Widget rendering pipeline
  * - Essential page functionality
- * 
+ *
  * Consolidates document.ts + page.ts (798 lines → ~200 lines)
- * 
+ *
  * @packageDocumentation
  */
 
@@ -20,7 +20,6 @@ import { PdfColor } from './pdf/color.js';
 import type { PdfPage } from './pdf/document.js';
 import { PdfDocument } from './pdf/document.js';
 import type { PdfGraphics } from './pdf/graphics.js';
-
 
 // Text direction enum for simplified usage
 export enum TextDirection {
@@ -68,7 +67,11 @@ export class Page {
     private readonly size: Geometry.Size;
     private readonly margins: Layout.EdgeInsets;
 
-    constructor(pdfPage: PdfPage, document: Document, options: PageOptions = {}) {
+    constructor(
+        pdfPage: PdfPage,
+        document: Document,
+        options: PageOptions = {}
+    ) {
         this.pdfPage = pdfPage;
         this.document = document;
 
@@ -78,12 +81,17 @@ export class Page {
         } else {
             this.size = {
                 width: options.width ?? 612,
-                height: options.height ?? 792
+                height: options.height ?? 792,
             };
         }
 
         // MARGIN FIX: Reduce default page margins to match MultiPage widget (20pts)
-        this.margins = options.margins ?? { top: 20, right: 20, bottom: 20, left: 20 };
+        this.margins = options.margins ?? {
+            top: 20,
+            right: 20,
+            bottom: 20,
+            left: 20,
+        };
     }
 
     /**
@@ -115,28 +123,43 @@ export class Page {
             x: this.margins.left,
             y: this.margins.top,
             width: this.size.width - this.margins.left - this.margins.right,
-            height: this.size.height - this.margins.top - this.margins.bottom
+            height: this.size.height - this.margins.top - this.margins.bottom,
         };
     }
 
     /**
      * Draw simple text (convenience method)
      */
-    drawText(text: string, x: number, y: number, options: {
-        fontSize?: number;
-        font?: PdfStandardFont;
-        color?: { red: number; green: number; blue: number };
-    } = {}): void {
+    drawText(
+        text: string,
+        x: number,
+        y: number,
+        options: {
+            fontSize?: number;
+            font?: PdfStandardFont;
+            color?: { red: number; green: number; blue: number };
+        } = {}
+    ): void {
         const graphics = this.getGraphics();
         const fontSize = options.fontSize ?? 12;
-        const font = this.document.fontSystem.getFont(options.font ?? PdfStandardFont.Helvetica);
-        const color = options.color ?
-            new PdfColor(options.color.red, options.color.green, options.color.blue) :
-            PdfColor.black;
+        const font = this.document.fontSystem.getFont(
+            options.font ?? PdfStandardFont.Helvetica
+        );
+        const color = options.color
+            ? new PdfColor(
+                  options.color.red,
+                  options.color.green,
+                  options.color.blue
+              )
+            : PdfColor.black;
 
         graphics.setFillColor(color);
         const underlyingFont = font.getUnderlyingFont();
-        if (underlyingFont && typeof underlyingFont === 'object' && 'name' in underlyingFont) {
+        if (
+            underlyingFont &&
+            typeof underlyingFont === 'object' &&
+            'name' in underlyingFont
+        ) {
             graphics.drawString(underlyingFont, fontSize, text, x, y);
         }
     }
@@ -144,16 +167,26 @@ export class Page {
     /**
      * Draw rectangle (convenience method)
      */
-    drawRect(x: number, y: number, width: number, height: number, options: {
-        fill?: boolean;
-        stroke?: boolean;
-        color?: { red: number; green: number; blue: number };
-        lineWidth?: number;
-    } = {}): void {
+    drawRect(
+        x: number,
+        y: number,
+        width: number,
+        height: number,
+        options: {
+            fill?: boolean;
+            stroke?: boolean;
+            color?: { red: number; green: number; blue: number };
+            lineWidth?: number;
+        } = {}
+    ): void {
         const graphics = this.getGraphics();
-        const color = options.color ?
-            new PdfColor(options.color.red, options.color.green, options.color.blue) :
-            PdfColor.black;
+        const color = options.color
+            ? new PdfColor(
+                  options.color.red,
+                  options.color.green,
+                  options.color.blue
+              )
+            : PdfColor.black;
 
         graphics.setFillColor(color);
         graphics.setStrokeColor(color);
@@ -202,7 +235,7 @@ export class Page {
                     error: '#d32f2f',
                     success: '#388e3c',
                     warning: '#f57c00',
-                    info: '#1976d2'
+                    info: '#1976d2',
                 },
                 spacing: {
                     xs: 2,
@@ -210,24 +243,26 @@ export class Page {
                     md: 8,
                     lg: 16,
                     xl: 24,
-                    xxl: 32
+                    xxl: 32,
                 },
                 defaultTextStyle: {
                     fontSize: 12,
                     color: '#000000',
-                    fontFamily: 'Helvetica'
+                    fontFamily: 'Helvetica',
                 },
                 cornerRadius: {
                     none: 0,
                     small: 4,
                     medium: 8,
-                    large: 16
-                }
-            }
+                    large: 16,
+                },
+            },
         };
 
         // Perform layout (simplified)
-        const layoutResult = widget.layout ? widget.layout(layoutContext) : { size: contentArea };
+        const layoutResult = widget.layout
+            ? widget.layout(layoutContext)
+            : { size: contentArea };
 
         // Get graphics context and set up coordinate system transformation
         const graphics = this.getGraphics();
@@ -248,7 +283,7 @@ export class Page {
             size: layoutResult.size ?? contentArea,
             theme: layoutContext.theme,
             fontRegistry: this.document.fontSystem,
-            document: this.document
+            document: this.document,
         };
 
         // Extend paint context with additional properties that widgets need
@@ -258,7 +293,7 @@ export class Page {
             pageHeight: this.size.height,
             pageSize: this.size,
             pageMargins: this.margins,
-            contentArea: contentArea
+            contentArea: contentArea,
         });
 
         // Paint widget
@@ -304,7 +339,7 @@ export class Document {
         } else {
             size = {
                 width: options.width ?? 612,
-                height: options.height ?? 792
+                height: options.height ?? 792,
             };
         }
 
@@ -391,21 +426,29 @@ export const PageFactory = {
     /**
      * Create an A4 page
      */
-    a4(options: Omit<PageOptions, 'format'> = {}): PageOptions & { format: 'A4' } {
+    a4(
+        options: Omit<PageOptions, 'format'> = {}
+    ): PageOptions & { format: 'A4' } {
         return { format: 'A4', width: 595, height: 842, ...options };
     },
 
     /**
      * Create a letter page
      */
-    letter(options: Omit<PageOptions, 'format'> = {}): PageOptions & { format: 'Letter' } {
+    letter(
+        options: Omit<PageOptions, 'format'> = {}
+    ): PageOptions & { format: 'Letter' } {
         return { format: 'Letter', width: 612, height: 792, ...options };
     },
 
     /**
      * Create a custom size page
      */
-    custom(width: number, height: number, options: Omit<PageOptions, 'width' | 'height'> = {}): PageOptions {
+    custom(
+        width: number,
+        height: number,
+        options: Omit<PageOptions, 'width' | 'height'> = {}
+    ): PageOptions {
         return { width, height, ...options };
     },
 };

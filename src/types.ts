@@ -23,7 +23,7 @@ export namespace Core {
     export enum PageFormat {
         A4 = 'A4',
         Letter = 'Letter',
-        A3 = 'A3'
+        A3 = 'A3',
     }
 
     /**
@@ -31,7 +31,7 @@ export namespace Core {
      */
     export enum PageOrientation {
         Portrait = 'portrait',
-        Landscape = 'landscape'
+        Landscape = 'landscape',
     }
 
     /**
@@ -69,7 +69,7 @@ export namespace Core {
         PDF_1_4 = '1.4',
         PDF_1_5 = '1.5',
         PDF_1_6 = '1.6',
-        PDF_1_7 = '1.7'
+        PDF_1_7 = '1.7',
     }
 
     /**
@@ -78,14 +78,17 @@ export namespace Core {
     export const PageDimensions = {
         A4: { width: 595, height: 842 },
         Letter: { width: 612, height: 792 },
-        A3: { width: 842, height: 1191 }
+        A3: { width: 842, height: 1191 },
     } as const;
 
     /**
      * Page utilities (essential functions only)
      */
     export const Utils = {
-        getDimensions(format: PageFormat, orientation: PageOrientation = PageOrientation.Portrait): Geometry.Size {
+        getDimensions(
+            format: PageFormat,
+            orientation: PageOrientation = PageOrientation.Portrait
+        ): Geometry.Size {
             const size = PageDimensions[format];
             if (orientation === PageOrientation.Landscape) {
                 return { width: size.height, height: size.width };
@@ -102,9 +105,9 @@ export namespace Core {
                 x: margin.left,
                 y: margin.top,
                 width: width - margin.left - margin.right,
-                height: height - margin.top - margin.bottom
+                height: height - margin.top - margin.bottom,
             };
-        }
+        },
     };
 }
 
@@ -166,18 +169,23 @@ export namespace Geometry {
 
         size: (width: number, height: number): Size => ({ width, height }),
 
-        rect: (x: number, y: number, width: number, height: number): Rect => ({ x, y, width, height }),
+        rect: (x: number, y: number, width: number, height: number): Rect => ({
+            x,
+            y,
+            width,
+            height,
+        }),
 
         identityMatrix: (): Matrix => ({ a: 1, b: 0, c: 0, d: 1, e: 0, f: 0 }),
 
         transformPoint: (point: Point, matrix: Matrix): Point => ({
             x: matrix.a * point.x + matrix.c * point.y + matrix.e,
-            y: matrix.b * point.x + matrix.d * point.y + matrix.f
+            y: matrix.b * point.x + matrix.d * point.y + matrix.f,
         }),
 
         rectCenter: (rect: Rect): Point => ({
             x: rect.x + rect.width / 2,
-            y: rect.y + rect.height / 2
+            y: rect.y + rect.height / 2,
         }),
 
         distance: (point1: Point, point2: Point): number => {
@@ -189,14 +197,25 @@ export namespace Geometry {
         rectIntersection: (rect1: Rect, rect2: Rect): Rect | undefined => {
             const left = Math.max(rect1.x, rect2.x);
             const top = Math.max(rect1.y, rect2.y);
-            const right = Math.min(rect1.x + rect1.width, rect2.x + rect2.width);
-            const bottom = Math.min(rect1.y + rect1.height, rect2.y + rect2.height);
+            const right = Math.min(
+                rect1.x + rect1.width,
+                rect2.x + rect2.width
+            );
+            const bottom = Math.min(
+                rect1.y + rect1.height,
+                rect2.y + rect2.height
+            );
 
             if (left < right && top < bottom) {
-                return { x: left, y: top, width: right - left, height: bottom - top };
+                return {
+                    x: left,
+                    y: top,
+                    width: right - left,
+                    height: bottom - top,
+                };
             }
             return undefined;
-        }
+        },
     };
 }
 
@@ -220,29 +239,46 @@ export namespace Layout {
      */
     export const BoxConstraints = {
         tight: (size: Geometry.Size): BoxConstraints => ({
-            minWidth: size.width, maxWidth: size.width,
-            minHeight: size.height, maxHeight: size.height
+            minWidth: size.width,
+            maxWidth: size.width,
+            minHeight: size.height,
+            maxHeight: size.height,
         }),
 
         loose: (size: Geometry.Size): BoxConstraints => ({
-            minWidth: 0, maxWidth: size.width,
-            minHeight: 0, maxHeight: size.height
+            minWidth: 0,
+            maxWidth: size.width,
+            minHeight: 0,
+            maxHeight: size.height,
         }),
 
         expand: (width?: number, height?: number): BoxConstraints => ({
-            minWidth: width ?? 0, maxWidth: width ?? Number.POSITIVE_INFINITY,
-            minHeight: height ?? 0, maxHeight: height ?? Number.POSITIVE_INFINITY
+            minWidth: width ?? 0,
+            maxWidth: width ?? Number.POSITIVE_INFINITY,
+            minHeight: height ?? 0,
+            maxHeight: height ?? Number.POSITIVE_INFINITY,
         }),
 
         tightFor: (width?: number, height?: number): BoxConstraints => ({
-            minWidth: width ?? 0, maxWidth: width ?? Number.POSITIVE_INFINITY,
-            minHeight: height ?? 0, maxHeight: height ?? Number.POSITIVE_INFINITY
+            minWidth: width ?? 0,
+            maxWidth: width ?? Number.POSITIVE_INFINITY,
+            minHeight: height ?? 0,
+            maxHeight: height ?? Number.POSITIVE_INFINITY,
         }),
 
-        constrain: (constraints: BoxConstraints, size: Geometry.Size): Geometry.Size => ({
-            width: Math.max(constraints.minWidth, Math.min(constraints.maxWidth, size.width)),
-            height: Math.max(constraints.minHeight, Math.min(constraints.maxHeight, size.height))
-        })
+        constrain: (
+            constraints: BoxConstraints,
+            size: Geometry.Size
+        ): Geometry.Size => ({
+            width: Math.max(
+                constraints.minWidth,
+                Math.min(constraints.maxWidth, size.width)
+            ),
+            height: Math.max(
+                constraints.minHeight,
+                Math.min(constraints.maxHeight, size.height)
+            ),
+        }),
     };
 
     /**
@@ -259,16 +295,33 @@ export namespace Layout {
      * Helper functions for creating EdgeInsets
      */
     export const EdgeInsets = {
-        all: (value: number): EdgeInsets => ({ top: value, right: value, bottom: value, left: value }),
-
-        symmetric: (options: { horizontal?: number; vertical?: number }): EdgeInsets => ({
-            top: options.vertical ?? 0, bottom: options.vertical ?? 0,
-            left: options.horizontal ?? 0, right: options.horizontal ?? 0
+        all: (value: number): EdgeInsets => ({
+            top: value,
+            right: value,
+            bottom: value,
+            left: value,
         }),
 
-        only: (options: { top?: number; right?: number; bottom?: number; left?: number }): EdgeInsets => ({
-            top: options.top ?? 0, right: options.right ?? 0,
-            bottom: options.bottom ?? 0, left: options.left ?? 0
+        symmetric: (options: {
+            horizontal?: number;
+            vertical?: number;
+        }): EdgeInsets => ({
+            top: options.vertical ?? 0,
+            bottom: options.vertical ?? 0,
+            left: options.horizontal ?? 0,
+            right: options.horizontal ?? 0,
+        }),
+
+        only: (options: {
+            top?: number;
+            right?: number;
+            bottom?: number;
+            left?: number;
+        }): EdgeInsets => ({
+            top: options.top ?? 0,
+            right: options.right ?? 0,
+            bottom: options.bottom ?? 0,
+            left: options.left ?? 0,
         }),
 
         zero: { top: 0, right: 0, bottom: 0, left: 0 } as EdgeInsets,
@@ -277,53 +330,79 @@ export namespace Layout {
 
         vertical: (insets: EdgeInsets): number => insets.top + insets.bottom,
 
-        deflateSize: (insets: EdgeInsets, size: Geometry.Size): Geometry.Size => ({
+        deflateSize: (
+            insets: EdgeInsets,
+            size: Geometry.Size
+        ): Geometry.Size => ({
             width: Math.max(0, size.width - EdgeInsets.horizontal(insets)),
-            height: Math.max(0, size.height - EdgeInsets.vertical(insets))
+            height: Math.max(0, size.height - EdgeInsets.vertical(insets)),
         }),
 
-        deflateConstraints: (insets: EdgeInsets, constraints: BoxConstraints): BoxConstraints => {
+        deflateConstraints: (
+            insets: EdgeInsets,
+            constraints: BoxConstraints
+        ): BoxConstraints => {
             const horizontal = EdgeInsets.horizontal(insets);
             const vertical = EdgeInsets.vertical(insets);
             return {
                 minWidth: Math.max(0, constraints.minWidth - horizontal),
                 maxWidth: Math.max(0, constraints.maxWidth - horizontal),
                 minHeight: Math.max(0, constraints.minHeight - vertical),
-                maxHeight: Math.max(0, constraints.maxHeight - vertical)
+                maxHeight: Math.max(0, constraints.maxHeight - vertical),
             };
-        }
+        },
     };
 
     /**
      * Alignment options for positioning within available space
      */
     export enum Alignment {
-        TopLeft = 'topLeft', TopCenter = 'topCenter', TopRight = 'topRight',
-        CenterLeft = 'centerLeft', Center = 'center', CenterRight = 'centerRight',
-        BottomLeft = 'bottomLeft', BottomCenter = 'bottomCenter', BottomRight = 'bottomRight'
+        TopLeft = 'topLeft',
+        TopCenter = 'topCenter',
+        TopRight = 'topRight',
+        CenterLeft = 'centerLeft',
+        Center = 'center',
+        CenterRight = 'centerRight',
+        BottomLeft = 'bottomLeft',
+        BottomCenter = 'bottomCenter',
+        BottomRight = 'bottomRight',
     }
 
     /**
      * Helper functions for alignment calculations
      */
     export const AlignmentUtils = {
-        resolve: (alignment: Alignment, containerSize: Geometry.Size, childSize: Geometry.Size): Geometry.Point => {
+        resolve: (
+            alignment: Alignment,
+            containerSize: Geometry.Size,
+            childSize: Geometry.Size
+        ): Geometry.Point => {
             const xOffset = containerSize.width - childSize.width;
             const yOffset = containerSize.height - childSize.height;
 
             switch (alignment) {
-                case Alignment.TopLeft: return { x: 0, y: 0 };
-                case Alignment.TopCenter: return { x: xOffset / 2, y: 0 };
-                case Alignment.TopRight: return { x: xOffset, y: 0 };
-                case Alignment.CenterLeft: return { x: 0, y: yOffset / 2 };
-                case Alignment.Center: return { x: xOffset / 2, y: yOffset / 2 };
-                case Alignment.CenterRight: return { x: xOffset, y: yOffset / 2 };
-                case Alignment.BottomLeft: return { x: 0, y: yOffset };
-                case Alignment.BottomCenter: return { x: xOffset / 2, y: yOffset };
-                case Alignment.BottomRight: return { x: xOffset, y: yOffset };
-                default: return { x: 0, y: 0 };
+                case Alignment.TopLeft:
+                    return { x: 0, y: 0 };
+                case Alignment.TopCenter:
+                    return { x: xOffset / 2, y: 0 };
+                case Alignment.TopRight:
+                    return { x: xOffset, y: 0 };
+                case Alignment.CenterLeft:
+                    return { x: 0, y: yOffset / 2 };
+                case Alignment.Center:
+                    return { x: xOffset / 2, y: yOffset / 2 };
+                case Alignment.CenterRight:
+                    return { x: xOffset, y: yOffset / 2 };
+                case Alignment.BottomLeft:
+                    return { x: 0, y: yOffset };
+                case Alignment.BottomCenter:
+                    return { x: xOffset / 2, y: yOffset };
+                case Alignment.BottomRight:
+                    return { x: xOffset, y: yOffset };
+                default:
+                    return { x: 0, y: 0 };
             }
-        }
+        },
     };
 
     /**
@@ -367,22 +446,30 @@ export namespace Flex {
      */
     export enum Axis {
         Horizontal = 'horizontal',
-        Vertical = 'vertical'
+        Vertical = 'vertical',
     }
 
     /**
      * How children should be aligned along the main axis
      */
     export enum MainAxisAlignment {
-        Start = 'start', End = 'end', Center = 'center',
-        SpaceBetween = 'spaceBetween', SpaceAround = 'spaceAround', SpaceEvenly = 'spaceEvenly'
+        Start = 'start',
+        End = 'end',
+        Center = 'center',
+        SpaceBetween = 'spaceBetween',
+        SpaceAround = 'spaceAround',
+        SpaceEvenly = 'spaceEvenly',
     }
 
     /**
      * How children should be aligned along the cross axis
      */
     export enum CrossAxisAlignment {
-        Start = 'start', End = 'end', Center = 'center', Stretch = 'stretch', Baseline = 'baseline'
+        Start = 'start',
+        End = 'end',
+        Center = 'center',
+        Stretch = 'stretch',
+        Baseline = 'baseline',
     }
 
     /**
@@ -390,7 +477,7 @@ export namespace Flex {
      */
     export enum VerticalDirection {
         Down = 'down',
-        Up = 'up'
+        Up = 'up',
     }
 
     /**
@@ -398,7 +485,7 @@ export namespace Flex {
      */
     export enum MainAxisSize {
         Min = 'min',
-        Max = 'max'
+        Max = 'max',
     }
 
     /**
@@ -406,7 +493,7 @@ export namespace Flex {
      */
     export enum FlexFit {
         Loose = 'loose',
-        Tight = 'tight'
+        Tight = 'tight',
     }
 
     /**
@@ -437,11 +524,15 @@ export namespace Flex {
             return axis === Axis.Horizontal ? size.height : size.width;
         },
 
-        createSize: (mainAxisSize: number, crossAxisSize: number, axis: Axis): Geometry.Size => {
+        createSize: (
+            mainAxisSize: number,
+            crossAxisSize: number,
+            axis: Axis
+        ): Geometry.Size => {
             return axis === Axis.Horizontal
                 ? { width: mainAxisSize, height: crossAxisSize }
                 : { width: crossAxisSize, height: mainAxisSize };
-        }
+        },
     };
 }
 
@@ -454,7 +545,7 @@ export namespace Theme {
      */
     export enum FontWeight {
         Normal = 400,
-        Bold = 700
+        Bold = 700,
     }
 
     /**
@@ -462,7 +553,7 @@ export namespace Theme {
      */
     export enum FontStyle {
         Normal = 'normal',
-        Italic = 'italic'
+        Italic = 'italic',
     }
 
     /**
@@ -471,7 +562,7 @@ export namespace Theme {
     export enum TextDecorationStyle {
         Solid = 'solid',
         Dashed = 'dashed',
-        Dotted = 'dotted'
+        Dotted = 'dotted',
     }
 
     /**
@@ -546,32 +637,55 @@ export namespace Theme {
      */
     export const ColorSchemes = {
         light: {
-            primary: '#1976d2', secondary: '#dc004e', background: '#ffffff',
-            surface: '#f5f5f5', onBackground: '#000000', onSurface: '#000000',
-            onPrimary: '#ffffff', onSecondary: '#ffffff', error: '#d32f2f',
-            success: '#388e3c', warning: '#f57c00', info: '#1976d2'
+            primary: '#1976d2',
+            secondary: '#dc004e',
+            background: '#ffffff',
+            surface: '#f5f5f5',
+            onBackground: '#000000',
+            onSurface: '#000000',
+            onPrimary: '#ffffff',
+            onSecondary: '#ffffff',
+            error: '#d32f2f',
+            success: '#388e3c',
+            warning: '#f57c00',
+            info: '#1976d2',
         } as ColorScheme,
 
         professional: {
-            primary: '#2c3e50', secondary: '#34495e', background: '#ffffff',
-            surface: '#f8f9fa', onBackground: '#2c3e50', onSurface: '#2c3e50',
-            onPrimary: '#ffffff', onSecondary: '#ffffff', error: '#e74c3c',
-            success: '#27ae60', warning: '#f39c12', info: '#3498db'
-        } as ColorScheme
+            primary: '#2c3e50',
+            secondary: '#34495e',
+            background: '#ffffff',
+            surface: '#f8f9fa',
+            onBackground: '#2c3e50',
+            onSurface: '#2c3e50',
+            onPrimary: '#ffffff',
+            onSecondary: '#ffffff',
+            error: '#e74c3c',
+            success: '#27ae60',
+            warning: '#f39c12',
+            info: '#3498db',
+        } as ColorScheme,
     };
 
     /**
      * Default spacing system
      */
     export const defaultSpacing: SpacingSystem = {
-        xs: 2, sm: 4, md: 8, lg: 16, xl: 24, xxl: 32
+        xs: 2,
+        sm: 4,
+        md: 8,
+        lg: 16,
+        xl: 24,
+        xxl: 32,
     };
 
     /**
      * Theme creation utilities (simplified from complex ThemeUtils)
      */
     export const Utils = {
-        createTheme: (colorScheme: ColorScheme = ColorSchemes.light): ThemeData => ({
+        createTheme: (
+            colorScheme: ColorScheme = ColorSchemes.light
+        ): ThemeData => ({
             colorScheme,
             spacing: defaultSpacing,
             defaultTextStyle: {
@@ -579,24 +693,29 @@ export namespace Theme {
                 color: colorScheme.onBackground,
                 fontFamily: 'Helvetica',
                 fontWeight: FontWeight.Normal,
-                fontStyle: FontStyle.Normal
+                fontStyle: FontStyle.Normal,
             },
-            cornerRadius: { none: 0, small: 4, medium: 8, large: 16 }
+            cornerRadius: { none: 0, small: 4, medium: 8, large: 16 },
         }),
 
         light: (): ThemeData => Utils.createTheme(ColorSchemes.light),
 
-        professional: (): ThemeData => Utils.createTheme(ColorSchemes.professional),
+        professional: (): ThemeData =>
+            Utils.createTheme(ColorSchemes.professional),
 
         mergeTextStyles: (base: TextStyle, override?: TextStyle): TextStyle => {
-            if (!override) { return base; }
+            if (!override) {
+                return base;
+            }
 
             // Only skip merging if explicitly set to not inherit
-            if (override.inherit === false) { return override; }
+            if (override.inherit === false) {
+                return override;
+            }
 
             const result: TextStyle = {
                 ...base,
-                ...override
+                ...override,
             };
 
             // Ensure fontFamily is preserved from base if not in override
@@ -606,7 +725,10 @@ export namespace Theme {
 
             // Handle decoration merging carefully
             if (override.decoration && base.decoration) {
-                result.decoration = { ...base.decoration, ...override.decoration };
+                result.decoration = {
+                    ...base.decoration,
+                    ...override.decoration,
+                };
             } else if (override.decoration) {
                 result.decoration = override.decoration;
             } else if (base.decoration) {
@@ -614,7 +736,7 @@ export namespace Theme {
             }
 
             return result;
-        }
+        },
     };
 }
 
@@ -623,13 +745,19 @@ export namespace Theme {
 //===========================================
 export namespace Internal {
     /**
-     * Table cell data interface 
+     * Table cell data interface
      */
-    export type TableCellData = string | number | boolean | null | undefined | {
-        value: string | number | boolean | null | undefined;
-        displayValue?: string;
-        metadata?: Record<string, unknown>;
-    };
+    export type TableCellData =
+        | string
+        | number
+        | boolean
+        | null
+        | undefined
+        | {
+              value: string | number | boolean | null | undefined;
+              displayValue?: string;
+              metadata?: Record<string, unknown>;
+          };
 
     /**
      * Table row data
@@ -691,7 +819,10 @@ export namespace Internal {
         mergeObjects: <T>(target: T, source: Partial<T>): T => {
             const result = { ...target };
             for (const key in source) {
-                if (Object.prototype.hasOwnProperty.call(source, key) && source[key] !== undefined) {
+                if (
+                    Object.prototype.hasOwnProperty.call(source, key) &&
+                    source[key] !== undefined
+                ) {
                     (result as Record<string, unknown>)[key] = source[key];
                 }
             }
@@ -701,28 +832,42 @@ export namespace Internal {
         hashObject: (obj: unknown): string => {
             const objAsRecord = obj as Record<string, unknown>;
             return JSON.stringify(obj, Object.keys(objAsRecord).sort())
-                .split('').reduce((hash, char) => {
-                    hash = ((hash << 5) - hash) + char.charCodeAt(0);
+                .split('')
+                .reduce((hash, char) => {
+                    hash = (hash << 5) - hash + char.charCodeAt(0);
                     return hash & hash;
-                }, 0).toString(36);
+                }, 0)
+                .toString(36);
         },
 
-        getTableCellValue: (cellData: TableCellData): string | number | boolean | null | undefined => {
-            if (cellData === null || cellData === undefined ||
-                typeof cellData === 'string' || typeof cellData === 'number' ||
-                typeof cellData === 'boolean') {
+        getTableCellValue: (
+            cellData: TableCellData
+        ): string | number | boolean | null | undefined => {
+            if (
+                cellData === null ||
+                cellData === undefined ||
+                typeof cellData === 'string' ||
+                typeof cellData === 'number' ||
+                typeof cellData === 'boolean'
+            ) {
                 return cellData;
             }
             return cellData.value;
         },
 
         getTableCellDisplayValue: (cellData: TableCellData): string => {
-            if (cellData === null || cellData === undefined) { return ''; }
-            if (typeof cellData === 'string' || typeof cellData === 'number' || typeof cellData === 'boolean') {
+            if (cellData === null || cellData === undefined) {
+                return '';
+            }
+            if (
+                typeof cellData === 'string' ||
+                typeof cellData === 'number' ||
+                typeof cellData === 'boolean'
+            ) {
                 return String(cellData);
             }
             return cellData.displayValue ?? String(cellData.value);
-        }
+        },
     };
 }
 
@@ -734,7 +879,6 @@ export namespace Internal {
  * Default theme instance
  */
 export const defaultTheme = Theme.Utils.light();
-
 
 /**
  * Common alignments for quick access

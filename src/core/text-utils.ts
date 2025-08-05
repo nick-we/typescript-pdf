@@ -1,24 +1,22 @@
 /**
  * Text Processing Utilities - Consolidated
- * 
+ *
  * Essential text processing functionality combining:
  * - Text measurement and metrics
  * - Simple line breaking
  * - Basic text layout
  * - Font-based calculations
- * 
+ *
  * Consolidates text-layout.ts + text-metrics.ts (1,448 lines → ~250 lines)
  * Removes over-engineered features like hyphenation, bidirectional text, kerning
- * 
+ *
  * @packageDocumentation
  */
-
 
 import { getGlobalTextMeasurement } from '@/core/accurate-text-measurement.js';
 import type { FontSystem } from '@/core/fonts.js';
 import { FontWeight, FontStyle } from '@/core/fonts.js';
 import type { Geometry } from '@/types.js';
-
 
 /**
  * Text alignment options
@@ -105,7 +103,7 @@ export interface TextMeasurement {
 
 /**
  * Essential Text Processing Engine
- * 
+ *
  * Provides core text functionality without over-engineering
  */
 export class TextProcessor {
@@ -118,7 +116,10 @@ export class TextProcessor {
     /**
      * Measure single line text dimensions
      */
-    measureText(text: string, options: TextMeasurementOptions): TextMeasurement {
+    measureText(
+        text: string,
+        options: TextMeasurementOptions
+    ): TextMeasurement {
         const font = this.fontSystem.getFontWithStyle(
             options.fontFamily,
             options.fontWeight ?? FontWeight.Normal,
@@ -131,7 +132,7 @@ export class TextProcessor {
         const height = fontSize * (options.lineHeight ?? 1.2);
 
         return {
-            width: width + (text.length * (options.letterSpacing ?? 0)),
+            width: width + text.length * (options.letterSpacing ?? 0),
             height,
             lines: 1,
         };
@@ -140,7 +141,11 @@ export class TextProcessor {
     /**
      * Measure multi-line text with word wrapping
      */
-    measureTextBlock(text: string, maxWidth: number, options: TextMeasurementOptions): TextMeasurement {
+    measureTextBlock(
+        text: string,
+        maxWidth: number,
+        options: TextMeasurementOptions
+    ): TextMeasurement {
         const lines = this.breakIntoLines(text, maxWidth, options);
         const width = Math.max(...lines.map(line => line.width));
         const height = lines.reduce((sum, line) => sum + line.height, 0);
@@ -179,7 +184,10 @@ export class TextProcessor {
             lines = lines.slice(0, maxLines);
 
             // Handle ellipsis overflow
-            if (options.overflow === TextOverflow.Ellipsis && lines.length > 0) {
+            if (
+                options.overflow === TextOverflow.Ellipsis &&
+                lines.length > 0
+            ) {
                 const lastLine = lines[lines.length - 1];
                 if (!lastLine) {
                     return this.createEmptyResult();
@@ -189,20 +197,29 @@ export class TextProcessor {
 
                 // Truncate last line to fit ellipsis
                 let truncatedText = lastLine.text;
-                while (this.measureText(truncatedText + ellipsis, options).width > maxWidth && truncatedText.length > 0) {
+                while (
+                    this.measureText(truncatedText + ellipsis, options).width >
+                        maxWidth &&
+                    truncatedText.length > 0
+                ) {
                     truncatedText = truncatedText.slice(0, -1);
                 }
 
                 lines[lines.length - 1] = {
                     ...lastLine,
                     text: truncatedText + ellipsis,
-                    width: this.measureText(truncatedText + ellipsis, options).width,
+                    width: this.measureText(truncatedText + ellipsis, options)
+                        .width,
                 };
             }
         }
 
         // Apply alignment
-        lines = this.applyAlignment(lines, maxWidth, options.align ?? TextAlign.Left);
+        lines = this.applyAlignment(
+            lines,
+            maxWidth,
+            options.align ?? TextAlign.Left
+        );
 
         // Calculate total dimensions
         const totalWidth = Math.max(...lines.map(line => line.width));
@@ -221,7 +238,11 @@ export class TextProcessor {
     /**
      * Break text into lines with simple word wrapping
      */
-    private breakIntoLines(text: string, maxWidth: number, options: TextMeasurementOptions): TextLine[] {
+    private breakIntoLines(
+        text: string,
+        maxWidth: number,
+        options: TextMeasurementOptions
+    ): TextLine[] {
         const words = text.split(/\s+/).filter(word => word.length > 0);
         const lines: TextLine[] = [];
         const lineHeight = options.fontSize * (options.lineHeight ?? 1.2);
@@ -235,7 +256,10 @@ export class TextProcessor {
             const spaceWidth = this.measureText(' ', options).width;
             const additionalWidth = currentLine.length > 0 ? spaceWidth : 0;
 
-            if (currentWidth + additionalWidth + wordWidth <= maxWidth || currentLine.length === 0) {
+            if (
+                currentWidth + additionalWidth + wordWidth <= maxWidth ||
+                currentLine.length === 0
+            ) {
                 // Word fits on current line
                 currentLine.push(word);
                 currentWidth += additionalWidth + wordWidth;
@@ -277,7 +301,11 @@ export class TextProcessor {
     /**
      * Apply text alignment to lines
      */
-    private applyAlignment(lines: TextLine[], maxWidth: number, align: TextAlign): TextLine[] {
+    private applyAlignment(
+        lines: TextLine[],
+        maxWidth: number,
+        align: TextAlign
+    ): TextLine[] {
         return lines.map((line, index) => {
             let offsetX = 0;
 
@@ -344,9 +372,16 @@ export class TextProcessor {
         while (low <= high) {
             const mid = Math.floor((low + high) / 2);
             const testOptions = { ...options, fontSize: mid };
-            const measurement = this.measureTextBlock(text, bounds.width, testOptions);
+            const measurement = this.measureTextBlock(
+                text,
+                bounds.width,
+                testOptions
+            );
 
-            if (measurement.width <= bounds.width && measurement.height <= bounds.height) {
+            if (
+                measurement.width <= bounds.width &&
+                measurement.height <= bounds.height
+            ) {
                 optimalSize = mid;
                 low = mid + 1;
             } else {
@@ -379,15 +414,18 @@ export const TextUtils = {
     /**
      * Quick line height calculation
      */
-    calculateLineHeight: (fontSize: number, lineHeightMultiplier = 1.2): number => {
-        return Math.round((fontSize * lineHeightMultiplier) * 10) / 10;
+    calculateLineHeight: (
+        fontSize: number,
+        lineHeightMultiplier = 1.2
+    ): number => {
+        return Math.round(fontSize * lineHeightMultiplier * 10) / 10;
     },
 
     /**
      * Estimate height utility for tests
      */
     estimateHeight: (fontSize: number, lineHeight = 1.2): number => {
-        return Math.round((fontSize * lineHeight) * 10) / 10;
+        return Math.round(fontSize * lineHeight * 10) / 10;
     },
 
     /**
@@ -401,13 +439,20 @@ export const TextUtils = {
      * Simple word count
      */
     countWords: (text: string): number => {
-        return text.trim().split(/\s+/).filter(word => word.length > 0).length;
+        return text
+            .trim()
+            .split(/\s+/)
+            .filter(word => word.length > 0).length;
     },
 
     /**
      * Truncate text to fit width with ellipsis
      */
-    truncateText: (text: string, maxWidth: number, fontSize: number): string => {
+    truncateText: (
+        text: string,
+        maxWidth: number,
+        fontSize: number
+    ): string => {
         const ellipsis = '…';
 
         if (TextUtils.measureWidth(text, fontSize) <= maxWidth) {
@@ -415,7 +460,10 @@ export const TextUtils = {
         }
 
         let truncated = text;
-        while (TextUtils.measureWidth(truncated + ellipsis, fontSize) > maxWidth && truncated.length > 0) {
+        while (
+            TextUtils.measureWidth(truncated + ellipsis, fontSize) > maxWidth &&
+            truncated.length > 0
+        ) {
             truncated = truncated.slice(0, -1);
         }
 
@@ -432,7 +480,10 @@ export const TextUtils = {
 
         for (const word of words) {
             const testLine = [...currentLine, word].join(' ');
-            if (TextUtils.measureWidth(testLine, fontSize) <= maxWidth || currentLine.length === 0) {
+            if (
+                TextUtils.measureWidth(testLine, fontSize) <= maxWidth ||
+                currentLine.length === 0
+            ) {
                 currentLine.push(word);
             } else {
                 if (currentLine.length > 0) {
@@ -459,10 +510,14 @@ export const TextUtils = {
         lineHeight = 1.2
     ): Geometry.Size => {
         const lines = TextUtils.wrapText(text, maxWidth, fontSize);
-        const width = Math.min(maxWidth, Math.max(...lines.map(line =>
-            TextUtils.measureWidth(line, fontSize)
-        )));
-        const height = lines.length * TextUtils.calculateLineHeight(fontSize, lineHeight);
+        const width = Math.min(
+            maxWidth,
+            Math.max(
+                ...lines.map(line => TextUtils.measureWidth(line, fontSize))
+            )
+        );
+        const height =
+            lines.length * TextUtils.calculateLineHeight(fontSize, lineHeight);
 
         return { width, height };
     },

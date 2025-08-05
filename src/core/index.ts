@@ -1,14 +1,14 @@
 /**
  * Consolidated Core System - Main Exports
- * 
+ *
  * Unified exports for the streamlined core system:
  * - Document and Page management (document.ts)
  * - Font system with fallbacks (fonts.ts)
  * - Text processing utilities (text-utils.ts)
  * - PDF font engine (pdf/font-engine.ts)
- * 
+ *
  * Replaces 15+ fragmented core files with 4 focused modules
- * 
+ *
  * @packageDocumentation
  */
 
@@ -72,7 +72,7 @@ export {
     tableLogger,
     themeLogger,
     fontLogger,
-    pdfLogger
+    pdfLogger,
 } from './logger.js';
 
 // Re-export types for convenience

@@ -1,6 +1,6 @@
 /**
  * Container Alignment Test - Reproduce Centering Issue
- * 
+ *
  * This test reproduces and validates the Container widget alignment system,
  * specifically focusing on the Center alignment bug where child widgets
  * are not properly centered within their Container parents.
@@ -39,12 +39,14 @@ describe('Container Alignment System', () => {
         expect(centerPosition.x).toBe(75);
         expect(centerPosition.y).toBe(35);
 
-        console.log(`Center calculation: container=${JSON.stringify(containerSize)}, child=${JSON.stringify(childSize)}, result=${JSON.stringify(centerPosition)}`);
+        console.log(
+            `Center calculation: container=${JSON.stringify(containerSize)}, child=${JSON.stringify(childSize)}, result=${JSON.stringify(centerPosition)}`
+        );
     });
 
     test('Container with center alignment layouts correctly', () => {
         const textWidget = new TextWidget('CENTERED', {
-            style: { fontSize: 16, color: '#000000' }
+            style: { fontSize: 16, color: '#000000' },
         });
 
         const container = new Container({
@@ -53,9 +55,9 @@ describe('Container Alignment System', () => {
             alignment: Layout.Alignment.Center,
             decoration: {
                 color: '#f0f0f0',
-                border: { width: 1, color: '#000000' }
+                border: { width: 1, color: '#000000' },
             },
-            child: textWidget
+            child: textWidget,
         });
 
         const context: Layout.LayoutContext = {
@@ -76,18 +78,23 @@ describe('Container Alignment System', () => {
 
     test('Container centers text widget correctly in paint phase', () => {
         const textWidget = new TextWidget('TEST', {
-            style: { fontSize: 12, color: '#000000' }
+            style: { fontSize: 12, color: '#000000' },
         });
 
         const container = new Container({
             width: 100,
             height: 60,
             alignment: Layout.Alignment.Center,
-            child: textWidget
+            child: textWidget,
         });
 
         const layoutContext: Layout.LayoutContext = {
-            constraints: { minWidth: 0, maxWidth: 100, minHeight: 0, maxHeight: 60 },
+            constraints: {
+                minWidth: 0,
+                maxWidth: 100,
+                minHeight: 0,
+                maxHeight: 60,
+            },
             textDirection: 'ltr',
             theme: mockTheme,
         };
@@ -104,7 +111,9 @@ describe('Container Alignment System', () => {
         // This should not throw and should log correct positioning
         expect(() => container.paint(paintContext)).not.toThrow();
 
-        console.log('Paint test completed - check console logs for positioning');
+        console.log(
+            'Paint test completed - check console logs for positioning'
+        );
     });
 
     test('All alignment positions calculate correctly', () => {
@@ -113,14 +122,32 @@ describe('Container Alignment System', () => {
 
         const alignmentTests = [
             { alignment: Layout.Alignment.TopLeft, expected: { x: 0, y: 0 } },
-            { alignment: Layout.Alignment.TopCenter, expected: { x: 40, y: 0 } },
+            {
+                alignment: Layout.Alignment.TopCenter,
+                expected: { x: 40, y: 0 },
+            },
             { alignment: Layout.Alignment.TopRight, expected: { x: 80, y: 0 } },
-            { alignment: Layout.Alignment.CenterLeft, expected: { x: 0, y: 25 } },
+            {
+                alignment: Layout.Alignment.CenterLeft,
+                expected: { x: 0, y: 25 },
+            },
             { alignment: Layout.Alignment.Center, expected: { x: 40, y: 25 } },
-            { alignment: Layout.Alignment.CenterRight, expected: { x: 80, y: 25 } },
-            { alignment: Layout.Alignment.BottomLeft, expected: { x: 0, y: 50 } },
-            { alignment: Layout.Alignment.BottomCenter, expected: { x: 40, y: 50 } },
-            { alignment: Layout.Alignment.BottomRight, expected: { x: 80, y: 50 } },
+            {
+                alignment: Layout.Alignment.CenterRight,
+                expected: { x: 80, y: 25 },
+            },
+            {
+                alignment: Layout.Alignment.BottomLeft,
+                expected: { x: 0, y: 50 },
+            },
+            {
+                alignment: Layout.Alignment.BottomCenter,
+                expected: { x: 40, y: 50 },
+            },
+            {
+                alignment: Layout.Alignment.BottomRight,
+                expected: { x: 80, y: 50 },
+            },
         ];
 
         alignmentTests.forEach(({ alignment, expected }) => {
@@ -133,7 +160,9 @@ describe('Container Alignment System', () => {
             expect(position.x).toBe(expected.x);
             expect(position.y).toBe(expected.y);
 
-            console.log(`${alignment}: expected=${JSON.stringify(expected)}, actual=${JSON.stringify(position)}`);
+            console.log(
+                `${alignment}: expected=${JSON.stringify(expected)}, actual=${JSON.stringify(position)}`
+            );
         });
     });
 });
@@ -148,7 +177,7 @@ describe('Container Alignment Visual Test', () => {
             height: 300,
             decoration: {
                 color: '#ffffff',
-                border: { width: 2, color: '#000000' }
+                border: { width: 2, color: '#000000' },
             },
             child: new Container({
                 width: 200,
@@ -156,16 +185,16 @@ describe('Container Alignment Visual Test', () => {
                 alignment: Layout.Alignment.Center,
                 decoration: {
                     color: '#e0e0e0',
-                    border: { width: 1, color: '#666666' }
+                    border: { width: 1, color: '#666666' },
                 },
                 child: new TextWidget('SHOULD BE CENTERED', {
-                    style: { fontSize: 14, color: '#000000' }
-                })
-            })
+                    style: { fontSize: 14, color: '#000000' },
+                }),
+            }),
         });
 
         doc.addPage({
-            build: () => alignmentShowcase
+            build: () => alignmentShowcase,
         });
 
         const pdfBytes = doc.save();
@@ -173,6 +202,8 @@ describe('Container Alignment Visual Test', () => {
         expect(pdfBytes.length).toBeGreaterThan(0);
 
         console.log(`Generated alignment test PDF: ${pdfBytes.length} bytes`);
-        console.log('Check if "SHOULD BE CENTERED" appears in the center of the gray box');
+        console.log(
+            'Check if "SHOULD BE CENTERED" appears in the center of the gray box'
+        );
     });
 });

@@ -1,13 +1,13 @@
 # typescript-pdf
 
-[![Version](https://img.shields.io/badge/version-0.5.1-blue.svg)](https://www.npmjs.com/package/typescript-pdf)
+[![Version](https://img.shields.io/badge/version-0.6.0-blue.svg)](https://www.npmjs.com/package/typescript-pdf)
 [![CI](https://github.com/nick-we/typescript-pdf/workflows/CI/badge.svg)](https://github.com/nick-we/typescript-pdf/actions)
 [![TypeScript](https://img.shields.io/badge/TypeScript-100%25-blue.svg)](https://github.com/nick-we/typescript-pdf)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 A TypeScript library for programmatic PDF generation with a declarative, widget-based API inspired by Flutter. Build complex PDF documents with type safety.
 
-**typescript-pdf v0.5.1** represents a mature PDF generation library:
+**typescript-pdf v0.6.0** represents a mature PDF generation library:
 
 - ✅ **Production Stability** - Comprehensive error handling and edge case coverage
 - ✅ **Advanced Features** - MultiPage documents, table text overflow, data visualization

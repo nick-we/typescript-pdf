@@ -1,9 +1,9 @@
 /**
  * Accurate Text Measurement Validation Tests
- * 
+ *
  * Tests to validate that the new accurate font-based measurement system
  * provides significantly better results than the old avgCharWidth approximations.
- * 
+ *
  * @packageDocumentation
  */
 
@@ -19,8 +19,8 @@ import { TextWidget, TextUtils } from '../widgets/text.js';
 const mockPdfDocument = {
     genSerial: () => Math.floor(Math.random() * 1000),
     objects: {
-        add: () => { }
-    }
+        add: () => {},
+    },
 };
 
 describe('AccurateTextMeasurement', () => {
@@ -53,11 +53,17 @@ describe('AccurateTextMeasurement', () => {
             console.log(`Helvetica ${fontSize}pt "${testText}"`);
             console.log(`  Approximate: ${approximateWidth.toFixed(1)}pt`);
             console.log(`  Accurate: ${accurateWidth.toFixed(1)}pt`);
-            console.log(`  Difference: ${(Math.abs(accurateWidth - approximateWidth)).toFixed(1)}pt`);
-            console.log(`  Improvement: ${((Math.abs(accurateWidth - approximateWidth) / approximateWidth) * 100).toFixed(1)}%`);
+            console.log(
+                `  Difference: ${Math.abs(accurateWidth - approximateWidth).toFixed(1)}pt`
+            );
+            console.log(
+                `  Improvement: ${((Math.abs(accurateWidth - approximateWidth) / approximateWidth) * 100).toFixed(1)}%`
+            );
 
             // Accurate measurement should be different from approximation
-            expect(Math.abs(accurateWidth - approximateWidth)).toBeGreaterThan(1);
+            expect(Math.abs(accurateWidth - approximateWidth)).toBeGreaterThan(
+                1
+            );
 
             // Accurate measurement should be reasonable (not negative, not extremely large)
             expect(accurateWidth).toBeGreaterThan(0);
@@ -79,14 +85,23 @@ describe('AccurateTextMeasurement', () => {
             console.log(`Times ${fontSize}pt "${testText}"`);
             console.log(`  Approximate: ${approximateWidth.toFixed(1)}pt`);
             console.log(`  Accurate: ${accurateWidth.toFixed(1)}pt`);
-            console.log(`  Difference: ${(Math.abs(accurateWidth - approximateWidth)).toFixed(1)}pt`);
-            console.log(`  Improvement: ${((Math.abs(accurateWidth - approximateWidth) / approximateWidth) * 100).toFixed(1)}%`);
+            console.log(
+                `  Difference: ${Math.abs(accurateWidth - approximateWidth).toFixed(1)}pt`
+            );
+            console.log(
+                `  Improvement: ${((Math.abs(accurateWidth - approximateWidth) / approximateWidth) * 100).toFixed(1)}%`
+            );
 
             // Times should be different from Helvetica
             const helveticaWidth = textMeasurement.measureTextWidth(
-                testText, fontSize, 'Helvetica', FontWeight.Normal
+                testText,
+                fontSize,
+                'Helvetica',
+                FontWeight.Normal
             );
-            expect(Math.abs(accurateWidth - helveticaWidth)).toBeGreaterThan(0.1);
+            expect(Math.abs(accurateWidth - helveticaWidth)).toBeGreaterThan(
+                0.1
+            );
         });
 
         it('should provide more accurate measurements than avgCharWidth for Courier', () => {
@@ -104,7 +119,9 @@ describe('AccurateTextMeasurement', () => {
             console.log(`Courier ${fontSize}pt "${testText}"`);
             console.log(`  Approximate: ${approximateWidth.toFixed(1)}pt`);
             console.log(`  Accurate: ${accurateWidth.toFixed(1)}pt`);
-            console.log(`  Difference: ${(Math.abs(accurateWidth - approximateWidth)).toFixed(1)}pt`);
+            console.log(
+                `  Difference: ${Math.abs(accurateWidth - approximateWidth).toFixed(1)}pt`
+            );
 
             // Courier is monospace, so it should be more predictable
             expect(accurateWidth).toBeGreaterThan(0);
@@ -113,31 +130,48 @@ describe('AccurateTextMeasurement', () => {
     });
 
     describe('Text Wrapping Accuracy', () => {
-        const longText = 'This is a longer text that should wrap across multiple lines when constrained to a specific width.';
+        const longText =
+            'This is a longer text that should wrap across multiple lines when constrained to a specific width.';
         const maxWidth = 200;
         const fontSize = 12;
 
         it('should wrap text more accurately than character-count-based wrapping', () => {
             // Old approximation method
-            const approximateLines = TextUtils.wrap(longText, maxWidth, fontSize);
+            const approximateLines = TextUtils.wrap(
+                longText,
+                maxWidth,
+                fontSize
+            );
 
             // New accurate method
-            const accurateLines = textMeasurement.wrapTextAccurate(longText, maxWidth, {
-                fontSize,
-                fontFamily: 'Helvetica'
-            });
+            const accurateLines = textMeasurement.wrapTextAccurate(
+                longText,
+                maxWidth,
+                {
+                    fontSize,
+                    fontFamily: 'Helvetica',
+                }
+            );
 
             console.log(`Text wrapping comparison for width ${maxWidth}pt:`);
             console.log(`  Approximate lines: ${approximateLines.length}`);
             console.log(`  Accurate lines: ${accurateLines.length}`);
 
             approximateLines.forEach((line, i) => {
-                console.log(`    Approx Line ${i + 1}: "${line}" (${line.length} chars)`);
+                console.log(
+                    `    Approx Line ${i + 1}: "${line}" (${line.length} chars)`
+                );
             });
 
             accurateLines.forEach((line, i) => {
-                const actualWidth = textMeasurement.measureTextWidth(line, fontSize, 'Helvetica');
-                console.log(`    Accurate Line ${i + 1}: "${line}" (${actualWidth.toFixed(1)}pt)`);
+                const actualWidth = textMeasurement.measureTextWidth(
+                    line,
+                    fontSize,
+                    'Helvetica'
+                );
+                console.log(
+                    `    Accurate Line ${i + 1}: "${line}" (${actualWidth.toFixed(1)}pt)`
+                );
 
                 // Each line should fit within the maxWidth
                 expect(actualWidth).toBeLessThanOrEqual(maxWidth + 1); // Allow 1pt tolerance
@@ -149,15 +183,23 @@ describe('AccurateTextMeasurement', () => {
         });
 
         it('should handle different font families differently in wrapping', () => {
-            const helveticaLines = textMeasurement.wrapTextAccurate(longText, maxWidth, {
-                fontSize,
-                fontFamily: 'Helvetica'
-            });
+            const helveticaLines = textMeasurement.wrapTextAccurate(
+                longText,
+                maxWidth,
+                {
+                    fontSize,
+                    fontFamily: 'Helvetica',
+                }
+            );
 
-            const timesLines = textMeasurement.wrapTextAccurate(longText, maxWidth, {
-                fontSize,
-                fontFamily: 'Times'
-            });
+            const timesLines = textMeasurement.wrapTextAccurate(
+                longText,
+                maxWidth,
+                {
+                    fontSize,
+                    fontFamily: 'Times',
+                }
+            );
 
             console.log(`Font family wrapping comparison:`);
             console.log(`  Helvetica: ${helveticaLines.length} lines`);
@@ -171,26 +213,44 @@ describe('AccurateTextMeasurement', () => {
     });
 
     describe('Text Truncation Accuracy', () => {
-        const longText = 'This is a very long text that definitely needs to be truncated';
+        const longText =
+            'This is a very long text that definitely needs to be truncated';
         const maxWidth = 100;
         const fontSize = 12;
 
         it('should truncate text more accurately than character-count-based truncation', () => {
             // Old approximation method
-            const approximateTruncated = TextUtils.truncate(longText, maxWidth, fontSize);
-            const approximateWidth = approximateTruncated.length * fontSize * 0.55;
+            const approximateTruncated = TextUtils.truncate(
+                longText,
+                maxWidth,
+                fontSize
+            );
+            const approximateWidth =
+                approximateTruncated.length * fontSize * 0.55;
 
             // New accurate method
-            const accurateTruncated = textMeasurement.truncateTextAccurate(longText, maxWidth, {
+            const accurateTruncated = textMeasurement.truncateTextAccurate(
+                longText,
+                maxWidth,
+                {
+                    fontSize,
+                    fontFamily: 'Helvetica',
+                }
+            );
+            const accurateWidth = textMeasurement.measureTextWidth(
+                accurateTruncated,
                 fontSize,
-                fontFamily: 'Helvetica'
-            });
-            const accurateWidth = textMeasurement.measureTextWidth(accurateTruncated, fontSize, 'Helvetica');
+                'Helvetica'
+            );
 
             console.log(`Text truncation comparison for width ${maxWidth}pt:`);
             console.log(`  Original: "${longText}"`);
-            console.log(`  Approximate: "${approximateTruncated}" (est. ${approximateWidth.toFixed(1)}pt)`);
-            console.log(`  Accurate: "${accurateTruncated}" (${accurateWidth.toFixed(1)}pt)`);
+            console.log(
+                `  Approximate: "${approximateTruncated}" (est. ${approximateWidth.toFixed(1)}pt)`
+            );
+            console.log(
+                `  Accurate: "${accurateTruncated}" (${accurateWidth.toFixed(1)}pt)`
+            );
 
             // Accurate truncation should fit within maxWidth
             expect(accurateWidth).toBeLessThanOrEqual(maxWidth + 1); // Allow 1pt tolerance
@@ -209,7 +269,10 @@ describe('AccurateTextMeasurement', () => {
             const fonts = ['Helvetica', 'Times', 'Courier'];
 
             fonts.forEach(fontFamily => {
-                const metrics = textMeasurement.getFontMetrics(fontSize, fontFamily);
+                const metrics = textMeasurement.getFontMetrics(
+                    fontSize,
+                    fontFamily
+                );
 
                 console.log(`${fontFamily} ${fontSize}pt metrics:`);
                 console.log(`  Height: ${metrics.height.toFixed(1)}pt`);
@@ -232,28 +295,30 @@ describe('AccurateTextMeasurement', () => {
             const textWidget = new TextWidget(textContent, {
                 style: {
                     fontSize: 14,
-                    fontFamily: 'Helvetica'
-                }
+                    fontFamily: 'Helvetica',
+                },
             });
 
             const constraints: Layout.BoxConstraints = {
                 minWidth: 0,
                 maxWidth: 300,
                 minHeight: 0,
-                maxHeight: 100
+                maxHeight: 100,
             };
 
             const context: Layout.LayoutContext = {
                 constraints,
                 textDirection: 'ltr',
                 theme,
-                textMeasurement
+                textMeasurement,
             };
 
             const result = textWidget.layout(context);
 
             console.log(`Text widget layout result:`);
-            console.log(`  Size: ${result.size.width.toFixed(1)} × ${result.size.height.toFixed(1)}pt`);
+            console.log(
+                `  Size: ${result.size.width.toFixed(1)} × ${result.size.height.toFixed(1)}pt`
+            );
             console.log(`  Baseline: ${result.baseline?.toFixed(1)}pt`);
 
             // Should have reasonable dimensions
@@ -264,34 +329,39 @@ describe('AccurateTextMeasurement', () => {
         });
 
         it('should handle text wrapping in constrained containers', () => {
-            const longText = 'This is a longer text that should wrap across multiple lines in a constrained container';
+            const longText =
+                'This is a longer text that should wrap across multiple lines in a constrained container';
             const textWidget = new TextWidget(longText, {
                 style: {
                     fontSize: 12,
-                    fontFamily: 'Helvetica'
+                    fontFamily: 'Helvetica',
                 },
-                softWrap: true
+                softWrap: true,
             });
 
             const constraints: Layout.BoxConstraints = {
                 minWidth: 0,
                 maxWidth: 150, // Narrow width to force wrapping
                 minHeight: 0,
-                maxHeight: 200
+                maxHeight: 200,
             };
 
             const context: Layout.LayoutContext = {
                 constraints,
                 textDirection: 'ltr',
                 theme,
-                textMeasurement
+                textMeasurement,
             };
 
             const result = textWidget.layout(context);
 
             console.log(`Wrapped text layout result:`);
-            console.log(`  Size: ${result.size.width.toFixed(1)} × ${result.size.height.toFixed(1)}pt`);
-            console.log(`  Expected multiple lines due to width constraint of ${constraints.maxWidth}pt`);
+            console.log(
+                `  Size: ${result.size.width.toFixed(1)} × ${result.size.height.toFixed(1)}pt`
+            );
+            console.log(
+                `  Expected multiple lines due to width constraint of ${constraints.maxWidth}pt`
+            );
 
             // Should use most of the available width
             expect(result.size.width).toBeGreaterThan(100);
@@ -310,17 +380,29 @@ describe('AccurateTextMeasurement', () => {
 
             // First measurement
             const start1 = performance.now();
-            const width1 = textMeasurement.measureTextWidth(text, fontSize, fontFamily);
+            const width1 = textMeasurement.measureTextWidth(
+                text,
+                fontSize,
+                fontFamily
+            );
             const time1 = performance.now() - start1;
 
             // Second measurement (should be cached)
             const start2 = performance.now();
-            const width2 = textMeasurement.measureTextWidth(text, fontSize, fontFamily);
+            const width2 = textMeasurement.measureTextWidth(
+                text,
+                fontSize,
+                fontFamily
+            );
             const time2 = performance.now() - start2;
 
             console.log(`Performance test:`);
-            console.log(`  First measurement: ${width1.toFixed(1)}pt in ${time1.toFixed(2)}ms`);
-            console.log(`  Second measurement: ${width2.toFixed(1)}pt in ${time2.toFixed(2)}ms`);
+            console.log(
+                `  First measurement: ${width1.toFixed(1)}pt in ${time1.toFixed(2)}ms`
+            );
+            console.log(
+                `  Second measurement: ${width2.toFixed(1)}pt in ${time2.toFixed(2)}ms`
+            );
 
             // Results should be identical
             expect(width1).toBe(width2);
@@ -330,7 +412,9 @@ describe('AccurateTextMeasurement', () => {
 
             // Check cache stats
             const stats = textMeasurement.getCacheStats();
-            console.log(`  Cache stats: ${stats.measurementCache} measurements, ${stats.fontMetricsCache} font metrics`);
+            console.log(
+                `  Cache stats: ${stats.measurementCache} measurements, ${stats.fontMetricsCache} font metrics`
+            );
             expect(stats.measurementCache).toBeGreaterThan(0);
         });
     });
@@ -363,17 +447,25 @@ describe('Accuracy Improvement Demonstration', () => {
             const approximateWidth = text.length * fontSize * 0.55;
 
             // New method
-            const accurateWidth = textMeasurement.measureTextWidth(text, fontSize, font);
+            const accurateWidth = textMeasurement.measureTextWidth(
+                text,
+                fontSize,
+                font
+            );
 
             const difference = Math.abs(accurateWidth - approximateWidth);
             const improvementPercent = (difference / approximateWidth) * 100;
 
             console.log(`Test Case ${index + 1}: ${font} ${fontSize}pt`);
             console.log(`  Text: "${text}"`);
-            console.log(`  Approximate Width: ${approximateWidth.toFixed(1)}pt`);
+            console.log(
+                `  Approximate Width: ${approximateWidth.toFixed(1)}pt`
+            );
             console.log(`  Accurate Width: ${accurateWidth.toFixed(1)}pt`);
             console.log(`  Difference: ${difference.toFixed(1)}pt`);
-            console.log(`  Accuracy Improvement: ${improvementPercent.toFixed(1)}%`);
+            console.log(
+                `  Accuracy Improvement: ${improvementPercent.toFixed(1)}%`
+            );
             console.log('');
 
             // Verify that accurate measurement is reasonable

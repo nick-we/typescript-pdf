@@ -1,9 +1,9 @@
 /**
  * PDF Graphics Context - Simplified Graphics Operations
- * 
+ *
  * Provides essential PDF drawing operations for the consolidated
  * typescript-pdf system.
- * 
+ *
  * @packageDocumentation
  */
 
@@ -57,10 +57,7 @@ export class Matrix4 {
 
     constructor(elements?: number[]) {
         this.elements = elements ?? [
-            1, 0, 0, 0,
-            0, 1, 0, 0,
-            0, 0, 1, 0,
-            0, 0, 0, 1
+            1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1,
         ];
     }
 
@@ -69,12 +66,7 @@ export class Matrix4 {
     }
 
     static translation(x: number, y: number, z: number = 0): Matrix4 {
-        return new Matrix4([
-            1, 0, 0, x,
-            0, 1, 0, y,
-            0, 0, 1, z,
-            0, 0, 0, 1
-        ]);
+        return new Matrix4([1, 0, 0, x, 0, 1, 0, y, 0, 0, 1, z, 0, 0, 0, 1]);
     }
 
     multiply(other: Matrix4): Matrix4 {
@@ -194,16 +186,29 @@ export class PdfGraphics {
     setTransform(matrix: Matrix4): void {
         const m = matrix.elements;
         this.transform(
-            m[0] ?? 1, m[1] ?? 0, m[4] ?? 0,
-            m[5] ?? 1, m[12] ?? 0, m[13] ?? 0
+            m[0] ?? 1,
+            m[1] ?? 0,
+            m[4] ?? 0,
+            m[5] ?? 1,
+            m[12] ?? 0,
+            m[13] ?? 0
         );
     }
 
     /**
      * Curve to point (cubic Bezier curve)
      */
-    curveTo(cp1x: number, cp1y: number, cp2x: number, cp2y: number, x: number, y: number): void {
-        this.contentStream.write(`${cp1x} ${cp1y} ${cp2x} ${cp2y} ${x} ${y} c\n`);
+    curveTo(
+        cp1x: number,
+        cp1y: number,
+        cp2x: number,
+        cp2y: number,
+        x: number,
+        y: number
+    ): void {
+        this.contentStream.write(
+            `${cp1x} ${cp1y} ${cp2x} ${cp2y} ${x} ${y} c\n`
+        );
         this.currentPoint = { x, y };
     }
 
@@ -219,7 +224,9 @@ export class PdfGraphics {
      */
     setFillColor(color: PdfColor): void {
         this.context.fillColor = color;
-        this.contentStream.write(`${color.red} ${color.green} ${color.blue} rg\n`);
+        this.contentStream.write(
+            `${color.red} ${color.green} ${color.blue} rg\n`
+        );
     }
 
     /**
@@ -227,7 +234,9 @@ export class PdfGraphics {
      */
     setStrokeColor(color: PdfColor): void {
         this.context.strokeColor = color;
-        this.contentStream.write(`${color.red} ${color.green} ${color.blue} RG\n`);
+        this.contentStream.write(
+            `${color.red} ${color.green} ${color.blue} RG\n`
+        );
     }
 
     /**
@@ -321,9 +330,12 @@ export class PdfGraphics {
         this.lineTo(x + width - topRight, y);
         if (topRight > 0) {
             this.curveTo(
-                x + width - topRight * 0.552, y,
-                x + width, y + topRight * 0.552,
-                x + width, y + topRight
+                x + width - topRight * 0.552,
+                y,
+                x + width,
+                y + topRight * 0.552,
+                x + width,
+                y + topRight
             );
         }
 
@@ -331,9 +343,12 @@ export class PdfGraphics {
         this.lineTo(x + width, y + height - bottomRight);
         if (bottomRight > 0) {
             this.curveTo(
-                x + width, y + height - bottomRight * 0.552,
-                x + width - bottomRight * 0.552, y + height,
-                x + width - bottomRight, y + height
+                x + width,
+                y + height - bottomRight * 0.552,
+                x + width - bottomRight * 0.552,
+                y + height,
+                x + width - bottomRight,
+                y + height
             );
         }
 
@@ -341,9 +356,12 @@ export class PdfGraphics {
         this.lineTo(x + bottomLeft, y + height);
         if (bottomLeft > 0) {
             this.curveTo(
-                x + bottomLeft * 0.552, y + height,
-                x, y + height - bottomLeft * 0.552,
-                x, y + height - bottomLeft
+                x + bottomLeft * 0.552,
+                y + height,
+                x,
+                y + height - bottomLeft * 0.552,
+                x,
+                y + height - bottomLeft
             );
         }
 
@@ -351,9 +369,12 @@ export class PdfGraphics {
         this.lineTo(x, y + topLeft);
         if (topLeft > 0) {
             this.curveTo(
-                x, y + topLeft * 0.552,
-                x + topLeft * 0.552, y,
-                x + topLeft, y
+                x,
+                y + topLeft * 0.552,
+                x + topLeft * 0.552,
+                y,
+                x + topLeft,
+                y
             );
         }
 
@@ -392,7 +413,13 @@ export class PdfGraphics {
     /**
      * Draw string with font
      */
-    drawString(font: PdfFont, fontSize: number, text: string, x: number, y: number): void {
+    drawString(
+        font: PdfFont,
+        fontSize: number,
+        text: string,
+        x: number,
+        y: number
+    ): void {
         this.context.font = font;
         this.context.fontSize = fontSize;
         this.currentFont = font;
@@ -418,7 +445,14 @@ export class PdfGraphics {
     /**
      * Transform matrix
      */
-    transform(a: number, b: number, c: number, d: number, e: number, f: number): void {
+    transform(
+        a: number,
+        b: number,
+        c: number,
+        d: number,
+        e: number,
+        f: number
+    ): void {
         this.contentStream.write(`${a} ${b} ${c} ${d} ${e} ${f} cm\n`);
     }
 

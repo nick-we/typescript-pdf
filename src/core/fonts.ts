@@ -1,18 +1,17 @@
 /**
  * Consolidated Font System
- * 
+ *
  * Complete font management system combining all font functionality:
  * - High-level font management API
- * - Font fallback and resolution system  
+ * - Font fallback and resolution system
  * - Unified registry for standard and custom fonts
  * - Font loading, caching, and metrics
  * - Text layout and measurement
- * 
+ *
  * Replaces 9+ fragmented font files with single unified system.
- * 
+ *
  * @packageDocumentation
  */
-
 
 import type { PdfDocument } from './pdf/font-engine.js';
 import { PdfStandardFont, PdfFont } from './pdf/font-engine.js';
@@ -205,40 +204,41 @@ class StandardFontAdapter implements UniversalFont {
 
 /**
  * Font Fallback System
- * 
+ *
  * Provides intelligent font fallback when requested fonts are unavailable
  */
 class FontFallbackSystem {
     private readonly fallbackRules: FontFallbackRule[] = [];
-    private readonly genericFallbacks: Record<FontCategory, PdfStandardFont[]> = {
-        [FontCategory.Serif]: [
-            PdfStandardFont.TimesRoman,
-            PdfStandardFont.TimesBold,
-            PdfStandardFont.TimesItalic,
-            PdfStandardFont.TimesBoldItalic,
-        ],
-        [FontCategory.SansSerif]: [
-            PdfStandardFont.Helvetica,
-            PdfStandardFont.HelveticaBold,
-            PdfStandardFont.HelveticaOblique,
-            PdfStandardFont.HelveticaBoldOblique,
-        ],
-        [FontCategory.Monospace]: [
-            PdfStandardFont.Courier,
-            PdfStandardFont.CourierBold,
-            PdfStandardFont.CourierOblique,
-            PdfStandardFont.CourierBoldOblique,
-        ],
-        [FontCategory.Cursive]: [
-            PdfStandardFont.TimesItalic,
-            PdfStandardFont.HelveticaOblique,
-        ],
-        [FontCategory.Fantasy]: [
-            PdfStandardFont.Symbol,
-            PdfStandardFont.ZapfDingbats,
-            PdfStandardFont.Helvetica,
-        ],
-    };
+    private readonly genericFallbacks: Record<FontCategory, PdfStandardFont[]> =
+        {
+            [FontCategory.Serif]: [
+                PdfStandardFont.TimesRoman,
+                PdfStandardFont.TimesBold,
+                PdfStandardFont.TimesItalic,
+                PdfStandardFont.TimesBoldItalic,
+            ],
+            [FontCategory.SansSerif]: [
+                PdfStandardFont.Helvetica,
+                PdfStandardFont.HelveticaBold,
+                PdfStandardFont.HelveticaOblique,
+                PdfStandardFont.HelveticaBoldOblique,
+            ],
+            [FontCategory.Monospace]: [
+                PdfStandardFont.Courier,
+                PdfStandardFont.CourierBold,
+                PdfStandardFont.CourierOblique,
+                PdfStandardFont.CourierBoldOblique,
+            ],
+            [FontCategory.Cursive]: [
+                PdfStandardFont.TimesItalic,
+                PdfStandardFont.HelveticaOblique,
+            ],
+            [FontCategory.Fantasy]: [
+                PdfStandardFont.Symbol,
+                PdfStandardFont.ZapfDingbats,
+                PdfStandardFont.Helvetica,
+            ],
+        };
 
     constructor() {
         this.initializeDefaultRules();
@@ -280,7 +280,8 @@ class FontFallbackSystem {
 
         // System font mappings
         this.addFallbackRule({
-            pattern: /^(-apple-system|BlinkMacSystemFont|Segoe UI|Roboto|sans-serif)/i,
+            pattern:
+                /^(-apple-system|BlinkMacSystemFont|Segoe UI|Roboto|sans-serif)/i,
             fallbacks: this.genericFallbacks[FontCategory.SansSerif],
         });
     }
@@ -296,13 +297,19 @@ class FontFallbackSystem {
         for (const rule of this.fallbackRules) {
             let matches = false;
             if (typeof rule.pattern === 'string') {
-                matches = family.toLowerCase().includes(rule.pattern.toLowerCase());
+                matches = family
+                    .toLowerCase()
+                    .includes(rule.pattern.toLowerCase());
             } else {
                 matches = rule.pattern.test(family);
             }
 
             if (matches) {
-                return this.selectBestFontFromFallbacks(rule.fallbacks, weight, style);
+                return this.selectBestFontFromFallbacks(
+                    rule.fallbacks,
+                    weight,
+                    style
+                );
             }
         }
 
@@ -315,16 +322,27 @@ class FontFallbackSystem {
     private categorizeFont(family: string): FontCategory {
         const lowerFamily = family.toLowerCase();
 
-        if (lowerFamily.includes('mono') || lowerFamily.includes('courier') || lowerFamily.includes('console')) {
+        if (
+            lowerFamily.includes('mono') ||
+            lowerFamily.includes('courier') ||
+            lowerFamily.includes('console')
+        ) {
             return FontCategory.Monospace;
         }
 
-        if ((lowerFamily.includes('serif') && !lowerFamily.includes('sans')) ||
-            lowerFamily.includes('times') || lowerFamily.includes('georgia')) {
+        if (
+            (lowerFamily.includes('serif') && !lowerFamily.includes('sans')) ||
+            lowerFamily.includes('times') ||
+            lowerFamily.includes('georgia')
+        ) {
             return FontCategory.Serif;
         }
 
-        if (lowerFamily.includes('sans') || lowerFamily.includes('arial') || lowerFamily.includes('helvetica')) {
+        if (
+            lowerFamily.includes('sans') ||
+            lowerFamily.includes('arial') ||
+            lowerFamily.includes('helvetica')
+        ) {
             return FontCategory.SansSerif;
         }
 
@@ -337,7 +355,8 @@ class FontFallbackSystem {
         style?: FontStyle
     ): PdfStandardFont {
         const normalizedWeight = weight === FontWeight.Bold ? 'bold' : 'normal';
-        const normalizedStyle = style === FontStyle.Italic ? 'italic' : 'normal';
+        const normalizedStyle =
+            style === FontStyle.Italic ? 'italic' : 'normal';
 
         // Score each fallback font
         const scoredFonts = fallbacks.map(font => ({
@@ -350,18 +369,28 @@ class FontFallbackSystem {
         return scoredFonts[0]?.font ?? PdfStandardFont.Helvetica;
     }
 
-    private scoreFontMatch(font: PdfStandardFont, targetWeight: string, targetStyle: string): number {
+    private scoreFontMatch(
+        font: PdfStandardFont,
+        targetWeight: string,
+        targetStyle: string
+    ): number {
         let score = 10; // Base score
 
         // Weight matching
         const isBold = font.includes('Bold');
-        if ((targetWeight === 'bold' && isBold) || (targetWeight === 'normal' && !isBold)) {
+        if (
+            (targetWeight === 'bold' && isBold) ||
+            (targetWeight === 'normal' && !isBold)
+        ) {
             score += 5;
         }
 
         // Style matching
         const isItalic = font.includes('Italic') || font.includes('Oblique');
-        if ((targetStyle === 'italic' && isItalic) || (targetStyle === 'normal' && !isItalic)) {
+        if (
+            (targetStyle === 'italic' && isItalic) ||
+            (targetStyle === 'normal' && !isItalic)
+        ) {
             score += 5;
         }
 
@@ -369,7 +398,11 @@ class FontFallbackSystem {
     }
 
     getFallbackChain(family: string): PdfStandardFont[] {
-        const descriptor: FontDescriptor = { family, weight: FontWeight.Normal, style: FontStyle.Normal };
+        const descriptor: FontDescriptor = {
+            family,
+            weight: FontWeight.Normal,
+            style: FontStyle.Normal,
+        };
         const primaryFont = this.resolveFontDescriptor(descriptor);
         const category = this.categorizeFont(family);
         const categoryFallbacks = this.genericFallbacks[category];
@@ -389,7 +422,9 @@ class FontFallbackSystem {
     }
 
     isNativelySupported(family: string): boolean {
-        return Object.values(PdfStandardFont).includes(family as PdfStandardFont);
+        return Object.values(PdfStandardFont).includes(
+            family as PdfStandardFont
+        );
     }
 }
 
@@ -401,7 +436,10 @@ class FontLoader {
     private static loadCount = 0;
     private static hitCount = 0;
 
-    static async loadFont(source: FontSource, options: FontLoadOptions = {}): Promise<unknown> {
+    static async loadFont(
+        source: FontSource,
+        options: FontLoadOptions = {}
+    ): Promise<unknown> {
         this.loadCount++;
 
         const cacheKey = this.generateCacheKey(source, options);
@@ -450,8 +488,10 @@ class FontLoader {
     }
 
     static getStats(): FontLoadStats {
-        const cacheSize = Array.from(this.cache.values())
-            .reduce((total, font) => total + font.data.byteLength, 0);
+        const cacheSize = Array.from(this.cache.values()).reduce(
+            (total, font) => total + font.data.byteLength,
+            0
+        );
 
         return {
             fontsLoaded: this.loadCount,
@@ -461,18 +501,27 @@ class FontLoader {
         };
     }
 
-    private static async loadFontData(source: FontSource): Promise<ArrayBuffer> {
-        if (source instanceof ArrayBuffer) { return source; }
+    private static async loadFontData(
+        source: FontSource
+    ): Promise<ArrayBuffer> {
+        if (source instanceof ArrayBuffer) {
+            return source;
+        }
 
         if (source instanceof Uint8Array) {
-            return (source.buffer as ArrayBuffer).slice(source.byteOffset, source.byteOffset + source.byteLength);
+            return (source.buffer as ArrayBuffer).slice(
+                source.byteOffset,
+                source.byteOffset + source.byteLength
+            );
         }
 
         if (typeof source === 'string') {
             if (source.startsWith('http://') || source.startsWith('https://')) {
                 const response = await fetch(source);
                 if (!response.ok) {
-                    throw new Error(`Failed to load font: ${response.statusText}`);
+                    throw new Error(
+                        `Failed to load font: ${response.statusText}`
+                    );
                 }
                 return response.arrayBuffer();
             }
@@ -480,24 +529,32 @@ class FontLoader {
             if (typeof window !== 'undefined') {
                 throw new Error('File loading not supported in browser');
             }
-            const fs = await import('fs');
-            const data = await fs.promises.readFile(source);
-            return (data.buffer as ArrayBuffer).slice(data.byteOffset, data.byteOffset + data.byteLength);
-
+            throw new Error(`Unsupported font loading from file not yet implemented`);
         }
 
         throw new Error('Unsupported font source type');
     }
 
-    private static generateCacheKey(source: FontSource, options: FontLoadOptions): string {
+    private static generateCacheKey(
+        source: FontSource,
+        options: FontLoadOptions
+    ): string {
         let sourceKey: string;
 
         if (source instanceof ArrayBuffer) {
-            const bytes = new Uint8Array(source, 0, Math.min(32, source.byteLength));
-            sourceKey = Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
+            const bytes = new Uint8Array(
+                source,
+                0,
+                Math.min(32, source.byteLength)
+            );
+            sourceKey = Array.from(bytes)
+                .map(b => b.toString(16).padStart(2, '0'))
+                .join('');
         } else if (source instanceof Uint8Array) {
             const bytes = source.slice(0, Math.min(32, source.length));
-            sourceKey = Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
+            sourceKey = Array.from(bytes)
+                .map(b => b.toString(16).padStart(2, '0'))
+                .join('');
         } else {
             sourceKey = source;
         }
@@ -514,7 +571,7 @@ class FontLoader {
 
 /**
  * Unified Font System - Main API
- * 
+ *
  * Combines all font functionality into a single, easy-to-use system
  */
 export class FontSystem {
@@ -532,11 +589,16 @@ export class FontSystem {
     /**
      * Register a standard PDF font
      */
-    registerStandardFont(fontName: PdfStandardFont, name?: string): UniversalFont {
+    registerStandardFont(
+        fontName: PdfStandardFont,
+        name?: string
+    ): UniversalFont {
         const registrationName = name ?? fontName;
 
         const font = this.unifiedFonts.get(registrationName);
-        if (font) { return font; }
+        if (font) {
+            return font;
+        }
 
         // Create PDF font through engine
         const pdfFont = new PdfFont(this.document, fontName, name);
@@ -552,9 +614,15 @@ export class FontSystem {
     /**
      * Register a custom TTF font
      */
-    async registerCustomFont(name: string, source: FontSource, options: FontLoadOptions = {}): Promise<UniversalFont> {
+    async registerCustomFont(
+        name: string,
+        source: FontSource,
+        options: FontLoadOptions = {}
+    ): Promise<UniversalFont> {
         const font = this.unifiedFonts.get(name);
-        if (font) { return font; }
+        if (font) {
+            return font;
+        }
 
         // Load TTF font
         const parser = await FontLoader.loadFont(source, options);
@@ -571,13 +639,18 @@ export class FontSystem {
                 return (fontUnits * fontSize) / typedParser.unitsPerEm;
             },
             getFontHeight: (fontSize: number) => {
-                return ((typedParser.ascent - typedParser.descent) * fontSize) / typedParser.unitsPerEm;
+                return (
+                    ((typedParser.ascent - typedParser.descent) * fontSize) /
+                    typedParser.unitsPerEm
+                );
             },
             getAscender: (fontSize: number) => {
                 return (typedParser.ascent * fontSize) / typedParser.unitsPerEm;
             },
             getDescender: (fontSize: number) => {
-                return (typedParser.descent * fontSize) / typedParser.unitsPerEm;
+                return (
+                    (typedParser.descent * fontSize) / typedParser.unitsPerEm
+                );
             },
             getUnderlyingFont: () => parser as FontParser,
         };
@@ -589,16 +662,28 @@ export class FontSystem {
     /**
      * Get font with intelligent fallback
      */
-    getFont(fontNameOrFamily: string | PdfStandardFont, name?: string): UniversalFont {
+    getFont(
+        fontNameOrFamily: string | PdfStandardFont,
+        name?: string
+    ): UniversalFont {
         // Check if it's a standard PDF font
-        if (Object.values(PdfStandardFont).includes(fontNameOrFamily as PdfStandardFont)) {
-            return this.registerStandardFont(fontNameOrFamily as PdfStandardFont, name);
+        if (
+            Object.values(PdfStandardFont).includes(
+                fontNameOrFamily as PdfStandardFont
+            )
+        ) {
+            return this.registerStandardFont(
+                fontNameOrFamily as PdfStandardFont,
+                name
+            );
         }
 
         // Check unified fonts
         const fontName = name ?? fontNameOrFamily;
         const font = this.unifiedFonts.get(fontName);
-        if (font) { return font; }
+        if (font) {
+            return font;
+        }
 
         // Use fallback system
         const fallbackFont = this.fallbackSystem.resolveFontDescriptor({
@@ -624,7 +709,9 @@ export class FontSystem {
         for (const fam of families) {
             const fontKey = `${fam}-${weight}-${style}`;
             let font = this.unifiedFonts.get(fontKey);
-            if (font) { return font; }
+            if (font) {
+                return font;
+            }
 
             // Try to resolve with fallback
             const fallbackFont = this.fallbackSystem.resolveFontDescriptor({
@@ -644,7 +731,10 @@ export class FontSystem {
     /**
      * Measure text with font
      */
-    measureText(text: string, style: TextStyleConfig): { width: number; height: number } {
+    measureText(
+        text: string,
+        style: TextStyleConfig
+    ): { width: number; height: number } {
         const font = this.getFontWithStyle(
             style.fontFamily ?? 'sans-serif',
             style.fontWeight ?? FontWeight.Normal,
@@ -661,15 +751,19 @@ export class FontSystem {
     /**
      * Get font metrics
      */
-    getFontMetrics(family: string, weight = FontWeight.Normal, style = FontStyle.Normal): FontMetrics | undefined {
+    getFontMetrics(
+        family: string,
+        weight = FontWeight.Normal,
+        style = FontStyle.Normal
+    ): FontMetrics | undefined {
         const font = this.getFontWithStyle(family, weight, style);
         const fontSize = 12; // Base size for metrics
 
         return {
             family,
             unitsPerEm: 1000,
-            ascender: font.getAscender(fontSize) / fontSize * 1000,
-            descender: font.getDescender(fontSize) / fontSize * 1000,
+            ascender: (font.getAscender(fontSize) / fontSize) * 1000,
+            descender: (font.getDescender(fontSize) / fontSize) * 1000,
             lineGap: 0,
             boundingBox: { xMin: 0, yMin: -200, xMax: 1000, yMax: 800 },
             glyphCount: 256,
@@ -722,19 +816,32 @@ export const FontUtils = {
      */
     parseFontWeight(weight: string | number): FontWeight {
         if (typeof weight === 'number') {
-            return Math.round(weight / 100) * 100 as FontWeight;
+            return (Math.round(weight / 100) * 100) as FontWeight;
         }
 
         switch (weight.toLowerCase()) {
-            case 'thin': return FontWeight.Thin;
-            case 'light': return FontWeight.Light;
-            case 'normal': case 'regular': return FontWeight.Normal;
-            case 'medium': return FontWeight.Medium;
-            case 'semi-bold': case 'semibold': return FontWeight.SemiBold;
-            case 'bold': return FontWeight.Bold;
-            case 'extra-bold': case 'ultrabold': return FontWeight.ExtraBold;
-            case 'black': case 'heavy': return FontWeight.Black;
-            default: return FontWeight.Normal;
+            case 'thin':
+                return FontWeight.Thin;
+            case 'light':
+                return FontWeight.Light;
+            case 'normal':
+            case 'regular':
+                return FontWeight.Normal;
+            case 'medium':
+                return FontWeight.Medium;
+            case 'semi-bold':
+            case 'semibold':
+                return FontWeight.SemiBold;
+            case 'bold':
+                return FontWeight.Bold;
+            case 'extra-bold':
+            case 'ultrabold':
+                return FontWeight.ExtraBold;
+            case 'black':
+            case 'heavy':
+                return FontWeight.Black;
+            default:
+                return FontWeight.Normal;
         }
     },
 
@@ -743,9 +850,13 @@ export const FontUtils = {
      */
     parseFontStyle(style: string): FontStyle {
         switch (style.toLowerCase()) {
-            case 'italic': return FontStyle.Italic;
-            case 'oblique': return FontStyle.Oblique;
-            case 'normal': default: return FontStyle.Normal;
+            case 'italic':
+                return FontStyle.Italic;
+            case 'oblique':
+                return FontStyle.Oblique;
+            case 'normal':
+            default:
+                return FontStyle.Normal;
         }
     },
 
@@ -774,7 +885,11 @@ export const FontUtils = {
      */
     resolveFontStack(fontStack: string[]): PdfStandardFont {
         for (const family of fontStack) {
-            if (Object.values(PdfStandardFont).includes(family as PdfStandardFont)) {
+            if (
+                Object.values(PdfStandardFont).includes(
+                    family as PdfStandardFont
+                )
+            ) {
                 return family as PdfStandardFont;
             }
         }
@@ -799,9 +914,22 @@ export const FontCollections = {
      * System font stacks
      */
     SYSTEM: {
-        ui: ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+        ui: [
+            '-apple-system',
+            'BlinkMacSystemFont',
+            'Segoe UI',
+            'Roboto',
+            'sans-serif',
+        ],
         serif: ['Georgia', 'Cambria', 'Times New Roman', 'Times', 'serif'],
-        mono: ['SFMono-Regular', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', 'monospace'],
+        mono: [
+            'SFMono-Regular',
+            'Monaco',
+            'Consolas',
+            'Liberation Mono',
+            'Courier New',
+            'monospace',
+        ],
     },
 };
 

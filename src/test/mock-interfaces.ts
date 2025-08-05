@@ -5,7 +5,14 @@
  * while maintaining flexibility for test scenarios.
  */
 
-import type { ITextMeasurementService, IGraphicsContext, IFontSystem, ITextMeasurementOptions, FontWeight, FontStyle } from '../types/core-interfaces.js';
+import type {
+    ITextMeasurementService,
+    IGraphicsContext,
+    IFontSystem,
+    ITextMeasurementOptions,
+    FontWeight,
+    FontStyle,
+} from '../types/core-interfaces.js';
 import type { Geometry } from '../types.js';
 import { Layout, Theme } from '../types.js';
 
@@ -14,16 +21,50 @@ import { Layout, Theme } from '../types.js';
  * Compatible with ITextMeasurementService but simplified for testing
  */
 export interface MockTextMeasurementService {
-    measureTextWidth: (text: string, fontSize: number, fontFamily?: string) => number;
-    measureCharWidth: (char: string, fontSize: number, fontFamily?: string) => number;
-    wrapTextAccurate: (text: string, maxWidth: number, options: ITextMeasurementOptions) => string[];
-    truncateTextAccurate: (text: string, maxWidth: number, options: ITextMeasurementOptions, suffix?: string) => string;
+    measureTextWidth: (
+        text: string,
+        fontSize: number,
+        fontFamily?: string
+    ) => number;
+    measureCharWidth: (
+        char: string,
+        fontSize: number,
+        fontFamily?: string
+    ) => number;
+    wrapTextAccurate: (
+        text: string,
+        maxWidth: number,
+        options: ITextMeasurementOptions
+    ) => string[];
+    truncateTextAccurate: (
+        text: string,
+        maxWidth: number,
+        options: ITextMeasurementOptions,
+        suffix?: string
+    ) => string;
     getFontMetrics: (fontSize: number, fontFamily?: string) => FontMetrics;
     // Required methods from ITextMeasurementService
-    measureTextWithWrapping: (text: string, maxWidth: number, options: ITextMeasurementOptions) => { width: number; height: number; baseline: number; lineCount: number; actualLines?: string[] };
-    getTextBounds: (text: string, maxWidth: number, options: ITextMeasurementOptions) => Geometry.Size;
+    measureTextWithWrapping: (
+        text: string,
+        maxWidth: number,
+        options: ITextMeasurementOptions
+    ) => {
+        width: number;
+        height: number;
+        baseline: number;
+        lineCount: number;
+        actualLines?: string[];
+    };
+    getTextBounds: (
+        text: string,
+        maxWidth: number,
+        options: ITextMeasurementOptions
+    ) => Geometry.Size;
     clearCache?: () => void;
-    getCacheStats?: () => { measurementCache: number; fontMetricsCache: number };
+    getCacheStats?: () => {
+        measurementCache: number;
+        fontMetricsCache: number;
+    };
 }
 
 /**
@@ -49,25 +90,50 @@ export interface MockGraphicsContext {
 
     // Colors
     setFillColor: (color: { red: number; green: number; blue: number }) => void;
-    setStrokeColor: (color: { red: number; green: number; blue: number }) => void;
+    setStrokeColor: (color: {
+        red: number;
+        green: number;
+        blue: number;
+    }) => void;
 
     // Line properties
     setLineWidth: (width: number) => void;
     setLineDash: (dashArray: number[], dashPhase?: number) => void;
 
     // Clipping
-    setClippingRect: (x: number, y: number, width: number, height: number) => void;
+    setClippingRect: (
+        x: number,
+        y: number,
+        width: number,
+        height: number
+    ) => void;
     clearClipping: () => void;
 
     // Path operations
     moveTo: (x: number, y: number) => void;
     lineTo: (x: number, y: number) => void;
-    curveTo: (cp1x: number, cp1y: number, cp2x: number, cp2y: number, x: number, y: number) => void;
+    curveTo: (
+        cp1x: number,
+        cp1y: number,
+        cp2x: number,
+        cp2y: number,
+        x: number,
+        y: number
+    ) => void;
     closePath: () => void;
 
     // Drawing operations
     drawRect: (x: number, y: number, width: number, height: number) => void;
-    drawRoundedRect: (x: number, y: number, width: number, height: number, topLeft?: number, topRight?: number, bottomRight?: number, bottomLeft?: number) => void;
+    drawRoundedRect: (
+        x: number,
+        y: number,
+        width: number,
+        height: number,
+        topLeft?: number,
+        topRight?: number,
+        bottomRight?: number,
+        bottomLeft?: number
+    ) => void;
 
     // Path rendering
     fillPath: () => void;
@@ -75,11 +141,24 @@ export interface MockGraphicsContext {
     fillAndStrokePath: () => void;
 
     // Text rendering
-    drawString: (font: unknown, fontSize: number, text: string, x: number, y: number) => void;
+    drawString: (
+        font: unknown,
+        fontSize: number,
+        text: string,
+        x: number,
+        y: number
+    ) => void;
     setFont: (font: unknown, fontSize: number) => void;
 
     // Transformations
-    transform: (a: number, b: number, c: number, d: number, e: number, f: number) => void;
+    transform: (
+        a: number,
+        b: number,
+        c: number,
+        d: number,
+        e: number,
+        f: number
+    ) => void;
     translate: (x: number, y: number) => void;
     scale: (sx: number, sy: number) => void;
     rotate: (angle: number) => void;
@@ -136,11 +215,20 @@ export interface PageOptions {
  */
 export interface MockFontSystem {
     getFont: (fontNameOrFamily: string, name?: string) => MockFont;
-    getFontWithStyle: (family: string | string[], weight?: FontWeight, style?: FontStyle) => MockFont;
+    getFontWithStyle: (
+        family: string | string[],
+        weight?: FontWeight,
+        style?: FontStyle
+    ) => MockFont;
     registerFont: (fontFamily: string, fontData: Uint8Array) => void;
     getDefaultFont: () => MockFont;
     getFontNames: () => string[];
-    getStats: () => { standardFonts: number; customFonts: number; totalFonts: number; fontLoader: unknown };
+    getStats: () => {
+        standardFonts: number;
+        customFonts: number;
+        totalFonts: number;
+        fontLoader: unknown;
+    };
 }
 
 /**
@@ -152,7 +240,10 @@ export interface MockFont {
     type: 'standard' | 'ttf';
     fontWeight?: string;
     fontStyle?: string;
-    measureText?: (text: string, fontSize: number) => { width: number; height: number };
+    measureText?: (
+        text: string,
+        fontSize: number
+    ) => { width: number; height: number };
     measureTextWidth: (text: string, fontSize: number) => number;
     getFontHeight: (fontSize: number) => number;
     getAscender: (fontSize: number) => number;
@@ -163,7 +254,9 @@ export interface MockFont {
 /**
  * Mock Layout Context Factory
  */
-export function createMockLayoutContext(overrides: Partial<Layout.LayoutContext> = {}): Layout.LayoutContext {
+export function createMockLayoutContext(
+    overrides: Partial<Layout.LayoutContext> = {}
+): Layout.LayoutContext {
     return {
         constraints: {
             minWidth: 0,
@@ -178,19 +271,22 @@ export function createMockLayoutContext(overrides: Partial<Layout.LayoutContext>
             defaultTextStyle: {
                 fontSize: 12,
                 fontFamily: 'Helvetica',
-                color: '#000000'
+                color: '#000000',
             },
-            cornerRadius: { none: 0, small: 4, medium: 8, large: 16 }
+            cornerRadius: { none: 0, small: 4, medium: 8, large: 16 },
         } as Theme.ThemeData,
-        textMeasurement: createMockTextMeasurementService() as unknown as ITextMeasurementService,
-        ...overrides
+        textMeasurement:
+            createMockTextMeasurementService() as unknown as ITextMeasurementService,
+        ...overrides,
     };
 }
 
 /**
  * Mock Paint Context Factory
  */
-export function createMockPaintContext(overrides: Partial<Layout.PaintContext> = {}): Layout.PaintContext {
+export function createMockPaintContext(
+    overrides: Partial<Layout.PaintContext> = {}
+): Layout.PaintContext {
     return {
         size: { width: 600, height: 800 },
         graphics: createMockGraphicsContext() as IGraphicsContext,
@@ -201,19 +297,22 @@ export function createMockPaintContext(overrides: Partial<Layout.PaintContext> =
             defaultTextStyle: {
                 fontSize: 12,
                 fontFamily: 'Helvetica',
-                color: '#000000'
+                color: '#000000',
             },
-            cornerRadius: { none: 0, small: 4, medium: 8, large: 16 }
+            cornerRadius: { none: 0, small: 4, medium: 8, large: 16 },
         } as Theme.ThemeData,
-        textMeasurement: createMockTextMeasurementService() as unknown as ITextMeasurementService,
-        ...overrides
+        textMeasurement:
+            createMockTextMeasurementService() as unknown as ITextMeasurementService,
+        ...overrides,
     };
 }
 
 /**
  * Mock Text Measurement Service Factory
  */
-export function createMockTextMeasurementService(options: Partial<MockTextMeasurementService> = {}): MockTextMeasurementService {
+export function createMockTextMeasurementService(
+    options: Partial<MockTextMeasurementService> = {}
+): MockTextMeasurementService {
     return {
         measureTextWidth: (text: string, fontSize: number) => {
             return text.length * fontSize * 0.6; // More accurate than default 0.55
@@ -223,7 +322,11 @@ export function createMockTextMeasurementService(options: Partial<MockTextMeasur
             return fontSize * 0.6;
         },
 
-        wrapTextAccurate: (text: string, maxWidth: number, options: ITextMeasurementOptions) => {
+        wrapTextAccurate: (
+            text: string,
+            maxWidth: number,
+            options: ITextMeasurementOptions
+        ) => {
             const charWidth = options.fontSize * 0.6;
             const charsPerLine = Math.floor(maxWidth / charWidth);
             const words = text.split(' ');
@@ -235,39 +338,60 @@ export function createMockTextMeasurementService(options: Partial<MockTextMeasur
                 if (testLine.length <= charsPerLine) {
                     currentLine = testLine;
                 } else {
-                    if (currentLine) { lines.push(currentLine); }
+                    if (currentLine) {
+                        lines.push(currentLine);
+                    }
                     currentLine = word;
                 }
             }
-            if (currentLine) { lines.push(currentLine); }
+            if (currentLine) {
+                lines.push(currentLine);
+            }
             return lines;
         },
 
-        truncateTextAccurate: (text: string, maxWidth: number, options: ITextMeasurementOptions, suffix = '...') => {
+        truncateTextAccurate: (
+            text: string,
+            maxWidth: number,
+            options: ITextMeasurementOptions,
+            suffix = '...'
+        ) => {
             const charWidth = options.fontSize * 0.6;
             const maxChars = Math.floor(maxWidth / charWidth) - suffix.length;
-            return text.length > maxChars ? text.substring(0, maxChars) + suffix : text;
+            return text.length > maxChars
+                ? text.substring(0, maxChars) + suffix
+                : text;
         },
 
         getFontMetrics: (fontSize: number) => ({
             height: fontSize * 1.2,
             baseline: fontSize * 0.8,
             ascender: fontSize * 0.8,
-            descender: fontSize * 0.2
+            descender: fontSize * 0.2,
         }),
 
         // Required methods from ITextMeasurementService
-        measureTextWithWrapping: (text: string, maxWidth: number, options: ITextMeasurementOptions) => ({
+        measureTextWithWrapping: (
+            text: string,
+            maxWidth: number,
+            options: ITextMeasurementOptions
+        ) => ({
             width: Math.min(text.length * options.fontSize * 0.6, maxWidth),
             height: options.fontSize * 1.2,
             baseline: options.fontSize * 0.8,
-            lineCount: Math.ceil((text.length * options.fontSize * 0.6) / maxWidth) || 1,
-            actualLines: [text] // Simplified for mock
+            lineCount:
+                Math.ceil((text.length * options.fontSize * 0.6) / maxWidth) ||
+                1,
+            actualLines: [text], // Simplified for mock
         }),
 
-        getTextBounds: (text: string, maxWidth: number, options: ITextMeasurementOptions) => ({
+        getTextBounds: (
+            text: string,
+            maxWidth: number,
+            options: ITextMeasurementOptions
+        ) => ({
             width: Math.min(text.length * options.fontSize * 0.6, maxWidth),
-            height: options.fontSize * 1.2
+            height: options.fontSize * 1.2,
         }),
 
         clearCache: () => {
@@ -276,64 +400,160 @@ export function createMockTextMeasurementService(options: Partial<MockTextMeasur
 
         getCacheStats: () => ({
             measurementCache: 0,
-            fontMetricsCache: 0
+            fontMetricsCache: 0,
         }),
 
-        ...options
+        ...options,
     };
 }
 
 /**
  * Mock Graphics Context Factory
  */
-export function createMockGraphicsContext(options: Partial<MockGraphicsContext> = {}): MockGraphicsContext {
+export function createMockGraphicsContext(
+    options: Partial<MockGraphicsContext> = {}
+): MockGraphicsContext {
     return {
         // State management
-        save: () => { /* Mock implementation */ },
-        restore: () => { /* Mock implementation */ },
-        saveContext: () => { /* Mock implementation */ },
-        restoreContext: () => { /* Mock implementation */ },
+        save: () => {
+            /* Mock implementation */
+        },
+        restore: () => {
+            /* Mock implementation */
+        },
+        saveContext: () => {
+            /* Mock implementation */
+        },
+        restoreContext: () => {
+            /* Mock implementation */
+        },
 
         // Colors
-        setFillColor: (_color: { red: number; green: number; blue: number }) => { /* Mock implementation */ },
-        setStrokeColor: (_color: { red: number; green: number; blue: number }) => { /* Mock implementation */ },
+        setFillColor: (_color: {
+            red: number;
+            green: number;
+            blue: number;
+        }) => {
+            /* Mock implementation */
+        },
+        setStrokeColor: (_color: {
+            red: number;
+            green: number;
+            blue: number;
+        }) => {
+            /* Mock implementation */
+        },
 
         // Line properties
-        setLineWidth: (_width: number) => { /* Mock implementation */ },
-        setLineDash: (_dashArray: number[], _dashPhase?: number) => { /* Mock implementation */ },
+        setLineWidth: (_width: number) => {
+            /* Mock implementation */
+        },
+        setLineDash: (_dashArray: number[], _dashPhase?: number) => {
+            /* Mock implementation */
+        },
 
         // Clipping
-        setClippingRect: (_x: number, _y: number, _width: number, _height: number) => { /* Mock implementation */ },
-        clearClipping: () => { /* Mock implementation */ },
+        setClippingRect: (
+            _x: number,
+            _y: number,
+            _width: number,
+            _height: number
+        ) => {
+            /* Mock implementation */
+        },
+        clearClipping: () => {
+            /* Mock implementation */
+        },
 
         // Path operations
-        moveTo: (_x: number, _y: number) => { /* Mock implementation */ },
-        lineTo: (_x: number, _y: number) => { /* Mock implementation */ },
-        curveTo: (_cp1x: number, _cp1y: number, _cp2x: number, _cp2y: number, _x: number, _y: number) => { /* Mock implementation */ },
-        closePath: () => { /* Mock implementation */ },
+        moveTo: (_x: number, _y: number) => {
+            /* Mock implementation */
+        },
+        lineTo: (_x: number, _y: number) => {
+            /* Mock implementation */
+        },
+        curveTo: (
+            _cp1x: number,
+            _cp1y: number,
+            _cp2x: number,
+            _cp2y: number,
+            _x: number,
+            _y: number
+        ) => {
+            /* Mock implementation */
+        },
+        closePath: () => {
+            /* Mock implementation */
+        },
 
         // Drawing operations
-        drawRect: (_x: number, _y: number, _width: number, _height: number) => { /* Mock implementation */ },
-        drawRoundedRect: (_x: number, _y: number, _width: number, _height: number, _topLeft?: number, _topRight?: number, _bottomRight?: number, _bottomLeft?: number) => { /* Mock implementation */ },
+        drawRect: (_x: number, _y: number, _width: number, _height: number) => {
+            /* Mock implementation */
+        },
+        drawRoundedRect: (
+            _x: number,
+            _y: number,
+            _width: number,
+            _height: number,
+            _topLeft?: number,
+            _topRight?: number,
+            _bottomRight?: number,
+            _bottomLeft?: number
+        ) => {
+            /* Mock implementation */
+        },
 
         // Path rendering
-        fillPath: () => { /* Mock implementation */ },
-        strokePath: () => { /* Mock implementation */ },
-        fillAndStrokePath: () => { /* Mock implementation */ },
+        fillPath: () => {
+            /* Mock implementation */
+        },
+        strokePath: () => {
+            /* Mock implementation */
+        },
+        fillAndStrokePath: () => {
+            /* Mock implementation */
+        },
 
         // Text rendering
-        drawString: (_font: unknown, _fontSize: number, _text: string, _x: number, _y: number) => { /* Mock implementation */ },
-        setFont: (_font: unknown, _fontSize: number) => { /* Mock implementation */ },
+        drawString: (
+            _font: unknown,
+            _fontSize: number,
+            _text: string,
+            _x: number,
+            _y: number
+        ) => {
+            /* Mock implementation */
+        },
+        setFont: (_font: unknown, _fontSize: number) => {
+            /* Mock implementation */
+        },
 
         // Transformations
-        transform: (_a: number, _b: number, _c: number, _d: number, _e: number, _f: number) => { /* Mock implementation */ },
-        translate: (_x: number, _y: number) => { /* Mock implementation */ },
-        scale: (_sx: number, _sy: number) => { /* Mock implementation */ },
-        rotate: (_angle: number) => { /* Mock implementation */ },
+        transform: (
+            _a: number,
+            _b: number,
+            _c: number,
+            _d: number,
+            _e: number,
+            _f: number
+        ) => {
+            /* Mock implementation */
+        },
+        translate: (_x: number, _y: number) => {
+            /* Mock implementation */
+        },
+        scale: (_sx: number, _sy: number) => {
+            /* Mock implementation */
+        },
+        rotate: (_angle: number) => {
+            /* Mock implementation */
+        },
 
         // Content management
         getContent: () => 'mock content',
-        clear: () => { /* Mock implementation */ },
+        clear: () => {
+            /* Mock implementation */
+        },
 
         // Extended properties for compatibility
         currentPoint: { x: 0, y: 0 },
@@ -341,17 +561,23 @@ export function createMockGraphicsContext(options: Partial<MockGraphicsContext> 
         fontRegistry: undefined,
 
         // Legacy compatibility methods
-        setColor: (_color: string | { r: number; g: number; b: number }) => { /* Mock implementation */ },
-        drawLine: (_x1: number, _y1: number, _x2: number, _y2: number) => { /* Mock implementation */ },
+        setColor: (_color: string | { r: number; g: number; b: number }) => {
+            /* Mock implementation */
+        },
+        drawLine: (_x1: number, _y1: number, _x2: number, _y2: number) => {
+            /* Mock implementation */
+        },
 
-        ...options
+        ...options,
     };
 }
 
 /**
  * Mock Document Factory
  */
-export function createMockDocument(options: Partial<MockDocument> = {}): MockDocument {
+export function createMockDocument(
+    options: Partial<MockDocument> = {}
+): MockDocument {
     const pages: MockPage[] = [];
 
     return {
@@ -360,7 +586,7 @@ export function createMockDocument(options: Partial<MockDocument> = {}): MockDoc
                 size: pageOptions?.size ?? { width: 595, height: 842 }, // A4 default
                 margins: pageOptions?.margins ?? Layout.EdgeInsets.all(20),
                 format: pageOptions?.format ?? undefined,
-                orientation: pageOptions?.orientation ?? undefined
+                orientation: pageOptions?.orientation ?? undefined,
             };
             pages.push(page);
             return page;
@@ -370,54 +596,68 @@ export function createMockDocument(options: Partial<MockDocument> = {}): MockDoc
         getStats: () => ({ pageCount: pages.length, fontStats: {} }),
         save: () => new Uint8Array(0),
         getPages: () => [...pages],
-        ...options
+        ...options,
     };
 }
 
 /**
  * Mock Font System Factory
  */
-export function createMockFontSystem(options: Partial<MockFontSystem> = {}): MockFontSystem {
+export function createMockFontSystem(
+    options: Partial<MockFontSystem> = {}
+): MockFontSystem {
     const fonts = new Map<string, MockFont>();
 
     return {
         getFont: (fontNameOrFamily: string, _name?: string) => {
-            return fonts.get(fontNameOrFamily) ?? {
-                name: fontNameOrFamily,
-                fontFamily: fontNameOrFamily,
-                type: 'standard' as const,
-                measureText: (text: string, fontSize: number) => ({
-                    width: text.length * fontSize * 0.6,
-                    height: fontSize * 1.2
-                }),
-                measureTextWidth: (text: string, fontSize: number) => text.length * fontSize * 0.6,
-                getFontHeight: (fontSize: number) => fontSize * 1.2,
-                getAscender: (fontSize: number) => fontSize * 0.8,
-                getDescender: (fontSize: number) => fontSize * 0.2,
-                getUnderlyingFont: () => ({})
-            };
+            return (
+                fonts.get(fontNameOrFamily) ?? {
+                    name: fontNameOrFamily,
+                    fontFamily: fontNameOrFamily,
+                    type: 'standard' as const,
+                    measureText: (text: string, fontSize: number) => ({
+                        width: text.length * fontSize * 0.6,
+                        height: fontSize * 1.2,
+                    }),
+                    measureTextWidth: (text: string, fontSize: number) =>
+                        text.length * fontSize * 0.6,
+                    getFontHeight: (fontSize: number) => fontSize * 1.2,
+                    getAscender: (fontSize: number) => fontSize * 0.8,
+                    getDescender: (fontSize: number) => fontSize * 0.2,
+                    getUnderlyingFont: () => ({}),
+                }
+            );
         },
-        getFontWithStyle: (family: string | string[], weight?: FontWeight, style?: FontStyle) => {
-            const fontFamily = Array.isArray(family) ? (family[0] ?? 'Helvetica') : family;
+        getFontWithStyle: (
+            family: string | string[],
+            weight?: FontWeight,
+            style?: FontStyle
+        ) => {
+            const fontFamily = Array.isArray(family)
+                ? (family[0] ?? 'Helvetica')
+                : family;
             const weightStr = weight ? weight.toString() : 'normal';
             const styleStr = style ?? 'normal';
             const key = `${fontFamily}-${weightStr}-${styleStr}`;
-            return fonts.get(key) ?? {
-                name: `${fontFamily}-${weightStr}-${styleStr}`,
-                fontFamily: fontFamily,
-                type: 'standard' as const,
-                fontWeight: weightStr,
-                fontStyle: styleStr,
-                measureText: (text: string, fontSize: number) => ({
-                    width: text.length * fontSize * 0.6,
-                    height: fontSize * 1.2
-                }),
-                measureTextWidth: (text: string, fontSize: number) => text.length * fontSize * 0.6,
-                getFontHeight: (fontSize: number) => fontSize * 1.2,
-                getAscender: (fontSize: number) => fontSize * 0.8,
-                getDescender: (fontSize: number) => fontSize * 0.2,
-                getUnderlyingFont: () => ({})
-            };
+            return (
+                fonts.get(key) ?? {
+                    name: `${fontFamily}-${weightStr}-${styleStr}`,
+                    fontFamily: fontFamily,
+                    type: 'standard' as const,
+                    fontWeight: weightStr,
+                    fontStyle: styleStr,
+                    measureText: (text: string, fontSize: number) => ({
+                        width: text.length * fontSize * 0.6,
+                        height: fontSize * 1.2,
+                    }),
+                    measureTextWidth: (text: string, fontSize: number) =>
+                        text.length * fontSize * 0.6,
+                    getFontHeight: (fontSize: number) => fontSize * 1.2,
+                    getAscender: (fontSize: number) => fontSize * 0.8,
+                    getDescender: (fontSize: number) => fontSize * 0.2,
+                    getUnderlyingFont: () => ({}),
+                }
+            );
         },
         registerFont: (fontFamily: string, _fontData: Uint8Array) => {
             fonts.set(fontFamily, {
@@ -426,13 +666,14 @@ export function createMockFontSystem(options: Partial<MockFontSystem> = {}): Moc
                 type: 'ttf' as const,
                 measureText: (text: string, fontSize: number) => ({
                     width: text.length * fontSize * 0.6,
-                    height: fontSize * 1.2
+                    height: fontSize * 1.2,
                 }),
-                measureTextWidth: (text: string, fontSize: number) => text.length * fontSize * 0.6,
+                measureTextWidth: (text: string, fontSize: number) =>
+                    text.length * fontSize * 0.6,
                 getFontHeight: (fontSize: number) => fontSize * 1.2,
                 getAscender: (fontSize: number) => fontSize * 0.8,
                 getDescender: (fontSize: number) => fontSize * 0.2,
-                getUnderlyingFont: () => ({})
+                getUnderlyingFont: () => ({}),
             });
         },
         getDefaultFont: () => ({
@@ -441,22 +682,23 @@ export function createMockFontSystem(options: Partial<MockFontSystem> = {}): Moc
             type: 'standard' as const,
             measureText: (text: string, fontSize: number) => ({
                 width: text.length * fontSize * 0.6,
-                height: fontSize * 1.2
+                height: fontSize * 1.2,
             }),
-            measureTextWidth: (text: string, fontSize: number) => text.length * fontSize * 0.6,
+            measureTextWidth: (text: string, fontSize: number) =>
+                text.length * fontSize * 0.6,
             getFontHeight: (fontSize: number) => fontSize * 1.2,
             getAscender: (fontSize: number) => fontSize * 0.8,
             getDescender: (fontSize: number) => fontSize * 0.2,
-            getUnderlyingFont: () => ({})
+            getUnderlyingFont: () => ({}),
         }),
         getFontNames: () => ['Helvetica', 'Times-Roman', 'Courier'],
         getStats: () => ({
             standardFonts: 3,
             customFonts: fonts.size,
             totalFonts: 3 + fonts.size,
-            fontLoader: {}
+            fontLoader: {},
         }),
-        ...options
+        ...options,
     };
 }
 
@@ -493,15 +735,15 @@ export function setupDOMMocks(): void {
         const mockDocument = {
             createElement: () => ({
                 getContext: () => ({
-                    fillText: () => { },
+                    fillText: () => {},
                     measureText: () => ({ width: 100 }),
-                    beginPath: () => { },
-                    moveTo: () => { },
-                    lineTo: () => { },
-                    stroke: () => { },
-                    fill: () => { }
-                })
-            })
+                    beginPath: () => {},
+                    moveTo: () => {},
+                    lineTo: () => {},
+                    stroke: () => {},
+                    fill: () => {},
+                }),
+            }),
         };
 
         // Use Record<string, unknown> for global assignment with proper typing

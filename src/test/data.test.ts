@@ -1,9 +1,9 @@
 /**
  * Data Visualization Test Suite - Consolidated
- * 
+ *
  * Tests all data visualization functionality from the consolidated widget system.
  * Consolidates: table.test.ts, chart.test.ts, table-*.test.ts, chart-*.test.ts
- * 
+ *
  * @vitest-environment happy-dom
  */
 
@@ -12,11 +12,17 @@ import { describe, it, expect, beforeEach } from 'vitest';
 // Import consolidated widget system
 import type { Layout } from '../types.js';
 import {
-    Table, TableRow, Chart, BarChart, LineChart, DataUtils,
-    TextWidget, Container,
+    Table,
+    TableRow,
+    Chart,
+    BarChart,
+    LineChart,
+    DataUtils,
+    TextWidget,
+    Container,
     BarOrientation,
     LineMarker,
-    TableColumnWidthType
+    TableColumnWidthType,
 } from '../widgets/index.js';
 
 describe('Data Visualization Systems', () => {
@@ -36,15 +42,15 @@ describe('Data Visualization Systems', () => {
                 error: '#d32f2f',
                 success: '#388e3c',
                 warning: '#f57c00',
-                info: '#1976d2'
+                info: '#1976d2',
             },
             spacing: { xs: 2, sm: 4, md: 8, lg: 16, xl: 24, xxl: 32 },
             defaultTextStyle: {
                 fontSize: 12,
                 fontFamily: 'Helvetica',
-                color: '#000000'
+                color: '#000000',
             },
-            cornerRadius: { none: 0, small: 4, medium: 8, large: 16 }
+            cornerRadius: { none: 0, small: 4, medium: 8, large: 16 },
         };
 
         mockLayoutContext = {
@@ -65,7 +71,7 @@ describe('Data Visualization Systems', () => {
                 ['Name', 'Age', 'City'],
                 ['Alice', '25', 'New York'],
                 ['Bob', '30', 'London'],
-                ['Charlie', '35', 'Paris']
+                ['Charlie', '35', 'Paris'],
             ];
 
             const table = new Table({ data: tableData });
@@ -79,7 +85,7 @@ describe('Data Visualization Systems', () => {
             const tableData = [
                 ['Product', 'Price', 'Stock'],
                 ['Widget A', '$10.99', '150'],
-                ['Widget B', '$15.49', '75']
+                ['Widget B', '$15.49', '75'],
             ];
 
             const table = new Table({
@@ -87,8 +93,8 @@ describe('Data Visualization Systems', () => {
                 columnWidths: [
                     { type: TableColumnWidthType.Fixed, value: 120 },
                     { type: TableColumnWidthType.Flex, value: 1 },
-                    { type: TableColumnWidthType.Fixed, value: 80 }
-                ]
+                    { type: TableColumnWidthType.Fixed, value: 80 },
+                ],
             });
 
             const layout = table.layout(mockLayoutContext);
@@ -96,7 +102,10 @@ describe('Data Visualization Systems', () => {
         });
 
         it('should create table with borders', () => {
-            const simpleData = [['A', 'B'], ['1', '2']];
+            const simpleData = [
+                ['A', 'B'],
+                ['1', '2'],
+            ];
 
             const table = new Table({
                 data: simpleData,
@@ -104,8 +113,8 @@ describe('Data Visualization Systems', () => {
                     top: { width: 1, color: '#000000' },
                     right: { width: 1, color: '#000000' },
                     bottom: { width: 1, color: '#000000' },
-                    left: { width: 1, color: '#000000' }
-                }
+                    left: { width: 1, color: '#000000' },
+                },
             });
 
             const layout = table.layout(mockLayoutContext);
@@ -116,11 +125,11 @@ describe('Data Visualization Systems', () => {
         it('should handle table with cell alignment', () => {
             const tableData = [
                 ['Left', 'Center', 'Right'],
-                ['Data 1', 'Data 2', 'Data 3']
+                ['Data 1', 'Data 2', 'Data 3'],
             ];
 
             const table = new Table({
-                data: tableData
+                data: tableData,
             });
 
             const layout = table.layout(mockLayoutContext);
@@ -132,8 +141,8 @@ describe('Data Visualization Systems', () => {
                 children: [
                     new TextWidget('Cell 1'),
                     new TextWidget('Cell 2'),
-                    new TextWidget('Cell 3')
-                ]
+                    new TextWidget('Cell 3'),
+                ],
             });
 
             const layout = row.layout(mockLayoutContext);
@@ -153,7 +162,7 @@ describe('Data Visualization Systems', () => {
             const unevenData = [
                 ['Header 1', 'Header 2', 'Header 3'],
                 ['Row 1 Col 1', 'Row 1 Col 2'], // Missing third column
-                ['Row 2 Col 1', 'Row 2 Col 2', 'Row 2 Col 3', 'Extra Col'] // Extra column
+                ['Row 2 Col 1', 'Row 2 Col 2', 'Row 2 Col 3', 'Extra Col'], // Extra column
             ];
 
             const table = new Table({ data: unevenData });
@@ -173,16 +182,16 @@ describe('Data Visualization Systems', () => {
                         { x: 'Q1', y: 100 },
                         { x: 'Q2', y: 150 },
                         { x: 'Q3', y: 120 },
-                        { x: 'Q4', y: 180 }
-                    ]
-                }
+                        { x: 'Q4', y: 180 },
+                    ],
+                },
             ];
 
             const chart = new Chart({
                 title: 'Quarterly Sales',
                 series,
                 width: 400,
-                height: 300
+                height: 300,
             });
 
             const layout = chart.layout(mockLayoutContext);
@@ -197,9 +206,9 @@ describe('Data Visualization Systems', () => {
                     data: [
                         { x: 'Jan', y: 1000 },
                         { x: 'Feb', y: 1200 },
-                        { x: 'Mar', y: 1100 }
-                    ]
-                }
+                        { x: 'Mar', y: 1100 },
+                    ],
+                },
             ];
 
             const barChart = new BarChart({
@@ -220,9 +229,9 @@ describe('Data Visualization Systems', () => {
                     data: [
                         { x: 'Mobile', y: 450 },
                         { x: 'Desktop', y: 320 },
-                        { x: 'Tablet', y: 180 }
-                    ]
-                }
+                        { x: 'Tablet', y: 180 },
+                    ],
+                },
             ];
 
             const barChart = new BarChart({
@@ -245,16 +254,16 @@ describe('Data Visualization Systems', () => {
                         { x: 2, y: 15 },
                         { x: 3, y: 12 },
                         { x: 4, y: 18 },
-                        { x: 5, y: 22 }
-                    ]
-                }
+                        { x: 5, y: 22 },
+                    ],
+                },
             ];
 
             const lineChart = new LineChart({
                 title: 'Growth Trend',
                 series,
                 marker: LineMarker.Circle,
-                fill: false
+                fill: false,
             });
 
             const layout = lineChart.layout(mockLayoutContext);
@@ -270,16 +279,16 @@ describe('Data Visualization Systems', () => {
                         { x: '6am', y: 15 },
                         { x: '12pm', y: 25 },
                         { x: '6pm', y: 22 },
-                        { x: '12am', y: 18 }
-                    ]
-                }
+                        { x: '12am', y: 18 },
+                    ],
+                },
             ];
 
             const lineChart = new LineChart({
                 title: 'Daily Temperature',
                 series,
                 fill: true,
-                marker: LineMarker.Square
+                marker: LineMarker.Square,
             });
 
             const layout = lineChart.layout(mockLayoutContext);
@@ -291,21 +300,30 @@ describe('Data Visualization Systems', () => {
             const series = [
                 {
                     name: 'Series 1',
-                    data: [{ x: 1, y: 10 }, { x: 2, y: 20 }]
+                    data: [
+                        { x: 1, y: 10 },
+                        { x: 2, y: 20 },
+                    ],
                 },
                 {
                     name: 'Series 2',
-                    data: [{ x: 1, y: 15 }, { x: 2, y: 25 }]
+                    data: [
+                        { x: 1, y: 15 },
+                        { x: 2, y: 25 },
+                    ],
                 },
                 {
                     name: 'Series 3',
-                    data: [{ x: 1, y: 8 }, { x: 2, y: 18 }]
-                }
+                    data: [
+                        { x: 1, y: 8 },
+                        { x: 2, y: 18 },
+                    ],
+                },
             ];
 
             const chart = new Chart({
                 title: 'Multi-Series Chart',
-                series
+                series,
             });
 
             const layout = chart.layout(mockLayoutContext);
@@ -316,7 +334,7 @@ describe('Data Visualization Systems', () => {
         it('should handle empty chart data', () => {
             const chart = new Chart({
                 title: 'Empty Chart',
-                series: []
+                series: [],
             });
 
             const layout = chart.layout(mockLayoutContext);
@@ -342,7 +360,7 @@ describe('Data Visualization Systems', () => {
             const dataPoints = [
                 { x: 'A', y: 100 },
                 { x: 'B', y: 150 },
-                { x: 'C', y: 120 }
+                { x: 'C', y: 120 },
             ];
 
             const series = DataUtils.createSeries('Object Series', dataPoints);
@@ -389,7 +407,10 @@ describe('Data Visualization Systems', () => {
 
             // Test basic formatting concepts
             const formattedNumber = numericData.toFixed(2);
-            const formattedString = stringData.length > 10 ? stringData.slice(0, 10) + '...' : stringData;
+            const formattedString =
+                stringData.length > 10
+                    ? stringData.slice(0, 10) + '...'
+                    : stringData;
             const formattedDate = dateData.getFullYear().toString();
 
             expect(formattedNumber).toBe('1234.57');
@@ -400,24 +421,34 @@ describe('Data Visualization Systems', () => {
         it('should validate data series', () => {
             const validSeries = {
                 name: 'Valid',
-                data: [{ x: 1, y: 10 }, { x: 2, y: 20 }]
+                data: [
+                    { x: 1, y: 10 },
+                    { x: 2, y: 20 },
+                ],
             };
 
             const invalidSeries = {
                 name: '',
-                data: []
+                data: [],
             };
 
             // Test basic validation concepts
-            const isValidSeriesValid = validSeries.name.length > 0 && validSeries.data.length > 0;
-            const isInvalidSeriesValid = invalidSeries.name.length > 0 && invalidSeries.data.length > 0;
+            const isValidSeriesValid =
+                validSeries.name.length > 0 && validSeries.data.length > 0;
+            const isInvalidSeriesValid =
+                invalidSeries.name.length > 0 && invalidSeries.data.length > 0;
 
             expect(isValidSeriesValid).toBe(true);
             expect(isInvalidSeriesValid).toBe(false);
         });
 
         it('should calculate data statistics', () => {
-            const data = [{ x: 1, y: 10 }, { x: 2, y: 20 }, { x: 3, y: 15 }, { x: 4, y: 25 }];
+            const data = [
+                { x: 1, y: 10 },
+                { x: 2, y: 20 },
+                { x: 3, y: 15 },
+                { x: 4, y: 25 },
+            ];
             const values = data.map(d => d.y);
 
             // Calculate stats manually for testing
@@ -435,17 +466,19 @@ describe('Data Visualization Systems', () => {
 
     describe('Data Integration', () => {
         it('should create table-chart combination', () => {
-
-            const chartData = DataUtils.arrayToSeries('Revenue', [10000, 12000, 11000]);
+            const chartData = DataUtils.arrayToSeries(
+                'Revenue',
+                [10000, 12000, 11000]
+            );
 
             const combinedWidget = new Container({
                 child: new Container({
                     child: new Chart({
                         title: 'Monthly Revenue',
                         series: [chartData],
-                        height: 200
-                    })
-                })
+                        height: 200,
+                    }),
+                }),
             });
 
             const layout = combinedWidget.layout(mockLayoutContext);
@@ -457,22 +490,30 @@ describe('Data Visualization Systems', () => {
             const data = [
                 ['Product', 'Q1', 'Q2', 'Q3', 'Q4'],
                 ['Widget A', '100', '120', '110', '140'],
-                ['Widget B', '80', '90', '95', '105']
+                ['Widget B', '80', '90', '95', '105'],
             ];
 
             // Create both table and chart from same data
             const table = new Table({ data });
             const chartSeries = [
                 DataUtils.arrayToSeries('Widget A', [100, 120, 110, 140]),
-                DataUtils.arrayToSeries('Widget B', [80, 90, 95, 105])
+                DataUtils.arrayToSeries('Widget B', [80, 90, 95, 105]),
             ];
-            const chart = new BarChart({ title: 'Product Performance', series: chartSeries });
+            const chart = new BarChart({
+                title: 'Product Performance',
+                series: chartSeries,
+            });
 
             // Test different constraint scenarios
             const constraintScenarios = [
                 { minWidth: 0, maxWidth: 400, minHeight: 0, maxHeight: 300 },
                 { minWidth: 0, maxWidth: 800, minHeight: 0, maxHeight: 600 },
-                { minWidth: 200, maxWidth: 600, minHeight: 150, maxHeight: 400 }
+                {
+                    minWidth: 200,
+                    maxWidth: 600,
+                    minHeight: 150,
+                    maxHeight: 400,
+                },
             ];
 
             constraintScenarios.forEach(constraints => {
@@ -481,10 +522,18 @@ describe('Data Visualization Systems', () => {
                 const tableLayout = table.layout(context);
                 const chartLayout = chart.layout(context);
 
-                expect(tableLayout.size.width).toBeLessThanOrEqual(constraints.maxWidth);
-                expect(tableLayout.size.height).toBeLessThanOrEqual(constraints.maxHeight);
-                expect(chartLayout.size.width).toBeLessThanOrEqual(constraints.maxWidth);
-                expect(chartLayout.size.height).toBeLessThanOrEqual(constraints.maxHeight);
+                expect(tableLayout.size.width).toBeLessThanOrEqual(
+                    constraints.maxWidth
+                );
+                expect(tableLayout.size.height).toBeLessThanOrEqual(
+                    constraints.maxHeight
+                );
+                expect(chartLayout.size.width).toBeLessThanOrEqual(
+                    constraints.maxWidth
+                );
+                expect(chartLayout.size.height).toBeLessThanOrEqual(
+                    constraints.maxHeight
+                );
             });
         });
 
@@ -492,22 +541,26 @@ describe('Data Visualization Systems', () => {
             const sourceData = [
                 { label: 'A', value: 100 },
                 { label: 'B', value: 200 },
-                { label: 'C', value: 150 }
+                { label: 'C', value: 150 },
             ];
 
             // Create table data
             const tableData = [
                 ['Label', 'Value'],
-                ...sourceData.map(item => [item.label, item.value.toString()])
+                ...sourceData.map(item => [item.label, item.value.toString()]),
             ];
 
             // Create chart data
-            const chartSeries = DataUtils.createSeries('Values',
+            const chartSeries = DataUtils.createSeries(
+                'Values',
                 sourceData.map((item, index) => ({ x: index, y: item.value }))
             );
 
             const table = new Table({ data: tableData });
-            const chart = new Chart({ title: 'Data Chart', series: [chartSeries] });
+            const chart = new Chart({
+                title: 'Data Chart',
+                series: [chartSeries],
+            });
 
             const tableLayout = table.layout(mockLayoutContext);
             const chartLayout = chart.layout(mockLayoutContext);

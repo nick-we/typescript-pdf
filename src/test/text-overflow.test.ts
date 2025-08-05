@@ -1,7 +1,7 @@
 /**
  * Text Overflow Test - Reproduce Text Wrapping and Truncation Issues
- * 
- * This test reproduces the issue where text that exceeds the length of its 
+ *
+ * This test reproduces the issue where text that exceeds the length of its
  * parent constraints doesn't get wrapped (line break) or truncated properly.
  */
 
@@ -16,7 +16,8 @@ describe('Text Overflow Issues - Reproduction', () => {
     const mockTheme = defaultTheme;
 
     test('Long text should wrap within container constraints', () => {
-        const longText = "This is a very long text that should definitely wrap when placed inside a narrow container but currently doesn't wrap properly.";
+        const longText =
+            "This is a very long text that should definitely wrap when placed inside a narrow container but currently doesn't wrap properly.";
 
         const narrowContainer = new Container({
             width: 150, // Narrow container
@@ -24,19 +25,24 @@ describe('Text Overflow Issues - Reproduction', () => {
             alignment: Layout.Alignment.TopLeft,
             decoration: {
                 color: '#f0f0f0',
-                border: { width: 1, color: '#000000' }
+                border: { width: 1, color: '#000000' },
             },
             child: new TextWidget(longText, {
                 style: { fontSize: 12, color: '#000000' },
                 softWrap: true, // Should wrap but probably doesn't
-                overflow: TextOverflow.Clip
-            })
+                overflow: TextOverflow.Clip,
+            }),
         });
 
         const layoutContext = {
-            constraints: { minWidth: 0, maxWidth: 150, minHeight: 0, maxHeight: 100 },
+            constraints: {
+                minWidth: 0,
+                maxWidth: 150,
+                minHeight: 0,
+                maxHeight: 100,
+            },
             textDirection: 'ltr' as const,
-            theme: mockTheme
+            theme: mockTheme,
         };
 
         const result = narrowContainer.layout(layoutContext);
@@ -49,43 +55,56 @@ describe('Text Overflow Issues - Reproduction', () => {
     });
 
     test('Text with ellipsis overflow should truncate properly', () => {
-        const longText = "This text is too long and should be truncated with ellipsis";
+        const longText =
+            'This text is too long and should be truncated with ellipsis';
 
         const text = new TextWidget(longText, {
             style: { fontSize: 14, color: '#000000' },
             overflow: TextOverflow.Ellipsis, // Should add ... but probably doesn't
             softWrap: false,
-            maxLines: 1
+            maxLines: 1,
         });
 
         const layoutContext = {
-            constraints: { minWidth: 0, maxWidth: 100, minHeight: 0, maxHeight: 20 },
+            constraints: {
+                minWidth: 0,
+                maxWidth: 100,
+                minHeight: 0,
+                maxHeight: 20,
+            },
             textDirection: 'ltr' as const,
-            theme: mockTheme
+            theme: mockTheme,
         };
 
         const result = text.layout(layoutContext);
 
-        console.log(`Text size for ellipsis test: ${JSON.stringify(result.size)}`);
+        console.log(
+            `Text size for ellipsis test: ${JSON.stringify(result.size)}`
+        );
 
         // Current issue: Text probably sizes to full content width instead of constraining
         expect(result.size.width).toBeLessThanOrEqual(100); // Should constrain to max width
     });
 
     test('Multi-line text with maxLines should respect line limits', () => {
-        const multiLineText = "Line 1\nLine 2\nLine 3\nLine 4\nLine 5";
+        const multiLineText = 'Line 1\nLine 2\nLine 3\nLine 4\nLine 5';
 
         const text = new TextWidget(multiLineText, {
             style: { fontSize: 12, color: '#000000' },
             maxLines: 3, // Should only show 3 lines
             overflow: TextOverflow.Ellipsis,
-            softWrap: true
+            softWrap: true,
         });
 
         const layoutContext = {
-            constraints: { minWidth: 0, maxWidth: 200, minHeight: 0, maxHeight: 200 },
+            constraints: {
+                minWidth: 0,
+                maxWidth: 200,
+                minHeight: 0,
+                maxHeight: 200,
+            },
             textDirection: 'ltr' as const,
-            theme: mockTheme
+            theme: mockTheme,
         };
 
         const result = text.layout(layoutContext);
@@ -106,7 +125,7 @@ describe('Text Overflow Issues - Reproduction', () => {
             height: 500,
             decoration: {
                 color: '#ffffff',
-                border: { width: 2, color: '#000000' }
+                border: { width: 2, color: '#000000' },
             },
             child: new Container({
                 width: 360,
@@ -123,7 +142,7 @@ describe('Text Overflow Issues - Reproduction', () => {
                             height: 380,
                             decoration: {
                                 color: '#f8f9fa',
-                                border: { width: 1, color: '#cccccc' }
+                                border: { width: 1, color: '#cccccc' },
                             },
                             child: new Container({
                                 width: 150, // Narrow container
@@ -131,32 +150,37 @@ describe('Text Overflow Issues - Reproduction', () => {
                                 alignment: Layout.Alignment.TopLeft,
                                 decoration: {
                                     color: '#ffe6e6',
-                                    border: { width: 1, color: '#ff0000' }
+                                    border: { width: 1, color: '#ff0000' },
                                 },
                                 child: new TextWidget(
-                                    "This is a very long text that should wrap within the red container but currently overflows because wrapping is not implemented properly.",
+                                    'This is a very long text that should wrap within the red container but currently overflows because wrapping is not implemented properly.',
                                     {
-                                        style: { fontSize: 10, color: '#333333' },
+                                        style: {
+                                            fontSize: 10,
+                                            color: '#333333',
+                                        },
                                         softWrap: true,
-                                        overflow: TextOverflow.Clip
+                                        overflow: TextOverflow.Clip,
                                     }
-                                )
-                            })
+                                ),
+                            }),
                         });
-                    })()
-                })
-            })
+                    })(),
+                }),
+            }),
         });
 
         doc.addPage({
-            build: () => textOverflowShowcase
+            build: () => textOverflowShowcase,
         });
 
         const pdfBytes = doc.save();
         expect(pdfBytes).toBeInstanceOf(Uint8Array);
         expect(pdfBytes.length).toBeGreaterThan(0);
 
-        console.log(`✅ Generated text overflow demonstration PDF: ${pdfBytes.length} bytes`);
+        console.log(
+            `✅ Generated text overflow demonstration PDF: ${pdfBytes.length} bytes`
+        );
         console.log('📋 Text overflow issues demonstrated:');
         console.log('   - Long text overflowing narrow red container');
         console.log('   - No text wrapping despite softWrap: true');
@@ -165,7 +189,8 @@ describe('Text Overflow Issues - Reproduction', () => {
     });
 
     test('Current TextUtils functions work correctly', () => {
-        const longText = "This is a long text that should be wrapped or truncated";
+        const longText =
+            'This is a long text that should be wrapped or truncated';
 
         // Test TextUtils.wrap function
         const wrappedLines = TextUtils.wrap(longText, 100, 12);

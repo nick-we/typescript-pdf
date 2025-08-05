@@ -1,13 +1,13 @@
 /**
  * PDF Font Engine
- * 
+ *
  * Simplified PDF font system providing:
  * - Standard PDF fonts with accurate metrics
  * - Font measurement and rendering capabilities
  * - Clean interface without complex PDF object dependencies
- * 
+ *
  * Consolidates essential font functionality from multiple files.
- * 
+ *
  * @packageDocumentation
  */
 
@@ -56,7 +56,10 @@ interface FontMetrics {
 /**
  * Create character width array with actual character widths
  */
-function createCharacterWidths(baseWidths: Record<number, number>, defaultWidth: number): number[] {
+function createCharacterWidths(
+    baseWidths: Record<number, number>,
+    defaultWidth: number
+): number[] {
     const widths: number[] = new Array<number>(256).fill(defaultWidth);
     for (const [charCode, width] of Object.entries(baseWidths)) {
         widths[parseInt(charCode, 10)] = width;
@@ -67,37 +70,147 @@ function createCharacterWidths(baseWidths: Record<number, number>, defaultWidth:
 /**
  * Helvetica character widths (in font units per 1000 em)
  */
-const HELVETICA_WIDTHS = createCharacterWidths({
-    32: 278, // space
-    33: 278, // !
-    48: 556, // 0-9
-    49: 556, 50: 556, 51: 556, 52: 556, 53: 556, 54: 556, 55: 556, 56: 556, 57: 556,
-    65: 667, // A-Z
-    66: 667, 67: 722, 68: 722, 69: 667, 70: 611, 71: 778, 72: 722, 73: 278, 74: 500,
-    75: 667, 76: 556, 77: 833, 78: 722, 79: 778, 80: 667, 81: 778, 82: 722, 83: 667,
-    84: 611, 85: 722, 86: 667, 87: 944, 88: 667, 89: 667, 90: 611,
-    97: 556, // a-z
-    98: 556, 99: 500, 100: 556, 101: 556, 102: 278, 103: 556, 104: 556, 105: 222,
-    106: 222, 107: 500, 108: 222, 109: 833, 110: 556, 111: 556, 112: 556, 113: 556,
-    114: 333, 115: 500, 116: 278, 117: 556, 118: 500, 119: 722, 120: 500, 121: 500, 122: 500,
-}, 500);
+const HELVETICA_WIDTHS = createCharacterWidths(
+    {
+        32: 278, // space
+        33: 278, // !
+        48: 556, // 0-9
+        49: 556,
+        50: 556,
+        51: 556,
+        52: 556,
+        53: 556,
+        54: 556,
+        55: 556,
+        56: 556,
+        57: 556,
+        65: 667, // A-Z
+        66: 667,
+        67: 722,
+        68: 722,
+        69: 667,
+        70: 611,
+        71: 778,
+        72: 722,
+        73: 278,
+        74: 500,
+        75: 667,
+        76: 556,
+        77: 833,
+        78: 722,
+        79: 778,
+        80: 667,
+        81: 778,
+        82: 722,
+        83: 667,
+        84: 611,
+        85: 722,
+        86: 667,
+        87: 944,
+        88: 667,
+        89: 667,
+        90: 611,
+        97: 556, // a-z
+        98: 556,
+        99: 500,
+        100: 556,
+        101: 556,
+        102: 278,
+        103: 556,
+        104: 556,
+        105: 222,
+        106: 222,
+        107: 500,
+        108: 222,
+        109: 833,
+        110: 556,
+        111: 556,
+        112: 556,
+        113: 556,
+        114: 333,
+        115: 500,
+        116: 278,
+        117: 556,
+        118: 500,
+        119: 722,
+        120: 500,
+        121: 500,
+        122: 500,
+    },
+    500
+);
 
 /**
  * Times Roman character widths
  */
-const TIMES_WIDTHS = createCharacterWidths({
-    32: 250, // space
-    48: 500, // 0-9
-    49: 500, 50: 500, 51: 500, 52: 500, 53: 500, 54: 500, 55: 500, 56: 500, 57: 500,
-    65: 722, // A-Z
-    66: 667, 67: 667, 68: 722, 69: 611, 70: 556, 71: 722, 72: 722, 73: 333, 74: 389,
-    75: 722, 76: 611, 77: 889, 78: 722, 79: 722, 80: 556, 81: 722, 82: 667, 83: 556,
-    84: 611, 85: 722, 86: 722, 87: 944, 88: 722, 89: 722, 90: 611,
-    97: 444, // a-z
-    98: 500, 99: 444, 100: 500, 101: 444, 102: 333, 103: 500, 104: 500, 105: 278,
-    106: 278, 107: 500, 108: 278, 109: 778, 110: 500, 111: 500, 112: 500, 113: 500,
-    114: 333, 115: 389, 116: 278, 117: 500, 118: 500, 119: 722, 120: 500, 121: 500, 122: 444,
-}, 480);
+const TIMES_WIDTHS = createCharacterWidths(
+    {
+        32: 250, // space
+        48: 500, // 0-9
+        49: 500,
+        50: 500,
+        51: 500,
+        52: 500,
+        53: 500,
+        54: 500,
+        55: 500,
+        56: 500,
+        57: 500,
+        65: 722, // A-Z
+        66: 667,
+        67: 667,
+        68: 722,
+        69: 611,
+        70: 556,
+        71: 722,
+        72: 722,
+        73: 333,
+        74: 389,
+        75: 722,
+        76: 611,
+        77: 889,
+        78: 722,
+        79: 722,
+        80: 556,
+        81: 722,
+        82: 667,
+        83: 556,
+        84: 611,
+        85: 722,
+        86: 722,
+        87: 944,
+        88: 722,
+        89: 722,
+        90: 611,
+        97: 444, // a-z
+        98: 500,
+        99: 444,
+        100: 500,
+        101: 444,
+        102: 333,
+        103: 500,
+        104: 500,
+        105: 278,
+        106: 278,
+        107: 500,
+        108: 278,
+        109: 778,
+        110: 500,
+        111: 500,
+        112: 500,
+        113: 500,
+        114: 333,
+        115: 389,
+        116: 278,
+        117: 500,
+        118: 500,
+        119: 722,
+        120: 500,
+        121: 500,
+        122: 444,
+    },
+    480
+);
 
 /**
  * Font metrics with accurate character widths
@@ -112,11 +225,42 @@ const FONT_METRICS: Record<PdfStandardFont, FontMetrics> = {
         unitsPerEm: 1000,
     },
     [PdfStandardFont.HelveticaBold]: {
-        widths: createCharacterWidths({
-            32: 278, 48: 556, 49: 556, 50: 556, 51: 556, 52: 556, 53: 556, 54: 556, 55: 556, 56: 556, 57: 556,
-            65: 722, 66: 722, 67: 722, 68: 722, 69: 667, 70: 611, 71: 778, 72: 722, 73: 278, 74: 556,
-            97: 556, 98: 611, 99: 556, 100: 611, 101: 556, 102: 333, 103: 611, 104: 611, 105: 278, 106: 278,
-        }, 550),
+        widths: createCharacterWidths(
+            {
+                32: 278,
+                48: 556,
+                49: 556,
+                50: 556,
+                51: 556,
+                52: 556,
+                53: 556,
+                54: 556,
+                55: 556,
+                56: 556,
+                57: 556,
+                65: 722,
+                66: 722,
+                67: 722,
+                68: 722,
+                69: 667,
+                70: 611,
+                71: 778,
+                72: 722,
+                73: 278,
+                74: 556,
+                97: 556,
+                98: 611,
+                99: 556,
+                100: 611,
+                101: 556,
+                102: 333,
+                103: 611,
+                104: 611,
+                105: 278,
+                106: 278,
+            },
+            550
+        ),
         ascender: 718,
         descender: -207,
         capHeight: 718,
@@ -132,11 +276,42 @@ const FONT_METRICS: Record<PdfStandardFont, FontMetrics> = {
         unitsPerEm: 1000,
     },
     [PdfStandardFont.HelveticaBoldOblique]: {
-        widths: createCharacterWidths({
-            32: 278, 48: 556, 49: 556, 50: 556, 51: 556, 52: 556, 53: 556, 54: 556, 55: 556, 56: 556, 57: 556,
-            65: 722, 66: 722, 67: 722, 68: 722, 69: 667, 70: 611, 71: 778, 72: 722, 73: 278, 74: 556,
-            97: 556, 98: 611, 99: 556, 100: 611, 101: 556, 102: 333, 103: 611, 104: 611, 105: 278, 106: 278,
-        }, 550),
+        widths: createCharacterWidths(
+            {
+                32: 278,
+                48: 556,
+                49: 556,
+                50: 556,
+                51: 556,
+                52: 556,
+                53: 556,
+                54: 556,
+                55: 556,
+                56: 556,
+                57: 556,
+                65: 722,
+                66: 722,
+                67: 722,
+                68: 722,
+                69: 667,
+                70: 611,
+                71: 778,
+                72: 722,
+                73: 278,
+                74: 556,
+                97: 556,
+                98: 611,
+                99: 556,
+                100: 611,
+                101: 556,
+                102: 333,
+                103: 611,
+                104: 611,
+                105: 278,
+                106: 278,
+            },
+            550
+        ),
         ascender: 718,
         descender: -207,
         capHeight: 718,
@@ -152,11 +327,42 @@ const FONT_METRICS: Record<PdfStandardFont, FontMetrics> = {
         unitsPerEm: 1000,
     },
     [PdfStandardFont.TimesBold]: {
-        widths: createCharacterWidths({
-            32: 250, 48: 500, 49: 500, 50: 500, 51: 500, 52: 500, 53: 500, 54: 500, 55: 500, 56: 500, 57: 500,
-            65: 722, 66: 667, 67: 722, 68: 722, 69: 667, 70: 611, 71: 778, 72: 778, 73: 389, 74: 500,
-            97: 500, 98: 556, 99: 444, 100: 556, 101: 444, 102: 333, 103: 500, 104: 556, 105: 278, 106: 333,
-        }, 520),
+        widths: createCharacterWidths(
+            {
+                32: 250,
+                48: 500,
+                49: 500,
+                50: 500,
+                51: 500,
+                52: 500,
+                53: 500,
+                54: 500,
+                55: 500,
+                56: 500,
+                57: 500,
+                65: 722,
+                66: 667,
+                67: 722,
+                68: 722,
+                69: 667,
+                70: 611,
+                71: 778,
+                72: 778,
+                73: 389,
+                74: 500,
+                97: 500,
+                98: 556,
+                99: 444,
+                100: 556,
+                101: 444,
+                102: 333,
+                103: 500,
+                104: 556,
+                105: 278,
+                106: 333,
+            },
+            520
+        ),
         ascender: 683,
         descender: -217,
         capHeight: 676,
@@ -172,11 +378,42 @@ const FONT_METRICS: Record<PdfStandardFont, FontMetrics> = {
         unitsPerEm: 1000,
     },
     [PdfStandardFont.TimesBoldItalic]: {
-        widths: createCharacterWidths({
-            32: 250, 48: 500, 49: 500, 50: 500, 51: 500, 52: 500, 53: 500, 54: 500, 55: 500, 56: 500, 57: 500,
-            65: 722, 66: 667, 67: 722, 68: 722, 69: 667, 70: 611, 71: 778, 72: 778, 73: 389, 74: 500,
-            97: 500, 98: 556, 99: 444, 100: 556, 101: 444, 102: 333, 103: 500, 104: 556, 105: 278, 106: 333,
-        }, 520),
+        widths: createCharacterWidths(
+            {
+                32: 250,
+                48: 500,
+                49: 500,
+                50: 500,
+                51: 500,
+                52: 500,
+                53: 500,
+                54: 500,
+                55: 500,
+                56: 500,
+                57: 500,
+                65: 722,
+                66: 667,
+                67: 722,
+                68: 722,
+                69: 667,
+                70: 611,
+                71: 778,
+                72: 778,
+                73: 389,
+                74: 500,
+                97: 500,
+                98: 556,
+                99: 444,
+                100: 556,
+                101: 444,
+                102: 333,
+                103: 500,
+                104: 556,
+                105: 278,
+                106: 333,
+            },
+            520
+        ),
         ascender: 683,
         descender: -217,
         capHeight: 669,
@@ -242,11 +479,16 @@ export class PdfFont {
     private readonly metrics: FontMetrics;
     private readonly id: number;
 
-    constructor(document: PdfDocument, fontName: PdfStandardFont, name?: string) {
+    constructor(
+        document: PdfDocument,
+        fontName: PdfStandardFont,
+        name?: string
+    ) {
         this.fontName = fontName;
         // Use standard PDF font names instead of generated names
         this.name = name ?? this.getStandardPdfName(fontName);
-        this.metrics = FONT_METRICS[fontName] ?? FONT_METRICS[PdfStandardFont.Helvetica];
+        this.metrics =
+            FONT_METRICS[fontName] ?? FONT_METRICS[PdfStandardFont.Helvetica];
         this.id = document.genSerial();
 
         // Register with document if provided
@@ -316,7 +558,10 @@ export class PdfFont {
      * Get font height in points for given font size
      */
     getFontHeight(fontSize: number): number {
-        return ((this.metrics.ascender - this.metrics.descender) * fontSize) / this.metrics.unitsPerEm;
+        return (
+            ((this.metrics.ascender - this.metrics.descender) * fontSize) /
+            this.metrics.unitsPerEm
+        );
     }
 
     /**
@@ -381,25 +626,26 @@ export class FontRegistry {
     getFont(fontFamily: string): PdfFont {
         // Map common font family names to PDF standard fonts
         const fontMapping: Record<string, PdfStandardFont> = {
-            'Helvetica': PdfStandardFont.Helvetica,
+            Helvetica: PdfStandardFont.Helvetica,
             'Helvetica-Bold': PdfStandardFont.HelveticaBold,
             'Helvetica-Oblique': PdfStandardFont.HelveticaOblique,
             'Helvetica-BoldOblique': PdfStandardFont.HelveticaBoldOblique,
-            'Times': PdfStandardFont.TimesRoman,
+            Times: PdfStandardFont.TimesRoman,
             'Times-Roman': PdfStandardFont.TimesRoman,
             'Times-Bold': PdfStandardFont.TimesBold,
             'Times-Italic': PdfStandardFont.TimesItalic,
             'Times-BoldItalic': PdfStandardFont.TimesBoldItalic,
-            'Courier': PdfStandardFont.Courier,
+            Courier: PdfStandardFont.Courier,
             'Courier-Bold': PdfStandardFont.CourierBold,
             'Courier-Oblique': PdfStandardFont.CourierOblique,
             'Courier-BoldOblique': PdfStandardFont.CourierBoldOblique,
-            'Symbol': PdfStandardFont.Symbol,
-            'ZapfDingbats': PdfStandardFont.ZapfDingbats,
+            Symbol: PdfStandardFont.Symbol,
+            ZapfDingbats: PdfStandardFont.ZapfDingbats,
         };
 
         // Default to Helvetica for unknown fonts
-        const pdfStandardFont = fontMapping[fontFamily] ?? PdfStandardFont.Helvetica;
+        const pdfStandardFont =
+            fontMapping[fontFamily] ?? PdfStandardFont.Helvetica;
 
         if (!this.fonts.has(fontFamily)) {
             const font = new PdfFont(this.document, pdfStandardFont);
@@ -452,7 +698,8 @@ export class FontRegistry {
         const resources: Record<string, string> = {};
 
         for (const font of this.fonts.values()) {
-            resources[font.name] = `<< /Type /Font /Subtype /Type1 /BaseFont /${font.fontName} >>`;
+            resources[font.name] =
+                `<< /Type /Font /Subtype /Type1 /BaseFont /${font.fontName} >>`;
         }
 
         return resources;
