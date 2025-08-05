@@ -1,3 +1,10 @@
+## [1.0.2](https://github.com/nick-we/typescript-pdf/compare/v1.0.1...v1.0.2) (2025-08-05)
+
+
+### Bug Fixes
+
+* disable github pages temporarily in release.yml ([d74dab2](https://github.com/nick-we/typescript-pdf/commit/d74dab2133d08bdcabcda0e1d0fcf9faf7277441))
+
 ## [1.0.1](https://github.com/nick-we/typescript-pdf/compare/v1.0.0...v1.0.1) (2025-08-05)
 
 
