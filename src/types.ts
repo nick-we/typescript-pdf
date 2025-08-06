@@ -12,6 +12,7 @@ import type {
     IGraphicsContext,
     IFontSystem,
 } from '@/types/core-interfaces.js';
+import type { ChartMetadata, StyleMetadata } from '@/types/pdf-types';
 
 //===========================================
 // NAMESPACE: Core
@@ -756,7 +757,7 @@ export namespace Internal {
         | {
             value: string | number | boolean | null | undefined;
             displayValue?: string;
-            metadata?: Record<string, unknown>;
+            metadata?: ChartMetadata;
         };
 
     /**
@@ -777,7 +778,7 @@ export namespace Internal {
         y: number;
         label?: string;
         color?: string;
-        metadata?: Record<string, unknown>;
+        metadata?: ChartMetadata;
     }
 
     /**
@@ -787,7 +788,7 @@ export namespace Internal {
         name: string;
         data: ChartDataPoint[];
         color?: string;
-        style?: Record<string, unknown>;
+        style?: StyleMetadata;
     }
 
     /**
@@ -829,7 +830,7 @@ export namespace Internal {
             return result;
         },
 
-        hashObject: (obj: unknown): string => {
+        hashObject: (obj: object): string => {
             const objAsRecord = obj as Record<string, unknown>;
             return JSON.stringify(obj, Object.keys(objAsRecord).sort())
                 .split('')

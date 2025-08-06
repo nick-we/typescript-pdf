@@ -97,7 +97,7 @@ export class PdfDocument {
             version: options.version ?? '1.4',
         };
 
-        this.fontRegistry = new FontRegistry(this as PdfDocument);
+        this.fontRegistry = new FontRegistry(this);
     }
 
     /**

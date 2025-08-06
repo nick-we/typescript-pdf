@@ -108,7 +108,7 @@ export class PdfGraphics {
     public currentPoint = { x: 0, y: 0 };
     public path: Array<{ type: string; points: number[] }> = [];
     public matrix = [1, 0, 0, 1, 0, 0]; // Identity matrix
-    public clipPath: unknown = null;
+    public clipPath: Path2D | undefined = undefined;
     public textMatrix = [1, 0, 0, 1, 0, 0];
     public charSpacing = 0;
     public wordSpacing = 0;
@@ -210,13 +210,6 @@ export class PdfGraphics {
             `${cp1x} ${cp1y} ${cp2x} ${cp2y} ${x} ${y} c\n`
         );
         this.currentPoint = { x, y };
-    }
-
-    /**
-     * Font registry (placeholder for compatibility)
-     */
-    get fontRegistry(): unknown {
-        return null; // Will be implemented when needed
     }
 
     /**

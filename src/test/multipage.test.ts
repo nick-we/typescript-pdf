@@ -14,11 +14,11 @@
 
 import { describe, it, expect, beforeEach } from 'vitest';
 
-import { Document } from '../core/document.js';
-import type { IDocument } from '../types/core-interfaces.js';
-import { Layout, Theme } from '../types.js';
-import { Column, Row } from '../widgets/flex.js';
-import { Container } from '../widgets/layout.js';
+import { Document } from '@/core/document.js';
+import type { IDocument, IPageOptions } from '@/types/core-interfaces.js';
+import { Layout, Theme } from '@/types.js';
+import { Column, Row } from '@/widgets/flex.js';
+import { Container } from '@/widgets/layout.js';
 import {
     MultiPage,
     PageBreakBehavior,
@@ -26,7 +26,8 @@ import {
 } from '../widgets/multipage.js';
 import { TextWidget } from '../widgets/text.js';
 
-import { createMockDocument } from './mock-interfaces.js';
+import { createMockDocument, createMockPdfPage } from './mock-interfaces.js';
+import type { IPage } from '@/types/pdf-types.js';
 
 describe('MultiPage Widget', () => {
     let mockLayoutContext: Layout.LayoutContext;
@@ -203,9 +204,9 @@ describe('MultiPage Widget', () => {
             let pageCount = 0;
             const mockDocument: IDocument = {
                 ...createMockDocument(),
-                addPage: () => {
+                addPage: (_options?: IPageOptions) => {
                     pageCount++;
-                    return { renderWidget: () => {} } as any;
+                    return createMockPdfPage();
                 },
             };
 
@@ -244,7 +245,7 @@ describe('MultiPage Widget', () => {
                 ...createMockDocument(),
                 addPage: () => {
                     additionalPagesCreated++;
-                    return { renderWidget: () => {} } as any;
+                    return createMockPdfPage(); // Mock page creation
                 },
             };
 
@@ -281,7 +282,7 @@ describe('MultiPage Widget', () => {
                 ...createMockDocument(),
                 addPage: () => {
                     additionalPagesCreated++;
-                    return { renderWidget: () => {} } as any;
+                    return { renderWidget: () => { } } as any;
                 },
             };
 
@@ -344,7 +345,7 @@ describe('MultiPage Widget', () => {
                 layout: () => {
                     throw new Error('Measurement failed');
                 },
-                paint: () => {},
+                paint: () => { },
             };
 
             const multipage = new MultiPage({
@@ -448,14 +449,14 @@ describe('MultiPage Widget', () => {
             let pagesCreated = 0;
             const mockDocument: IDocument = {
                 ...createMockDocument(),
-                addPage: (options?: any) => {
+                addPage: (options?: IPageOptions) => {
                     pagesCreated++;
                     if (options) {
                         expect(options.width).toBe(400);
                         expect(options.height).toBe(400);
                         expect(options.build).toBeDefined();
                     }
-                    return { renderWidget: () => {} } as any;
+                    return { renderWidget: () => { } } as any;
                 },
             };
 
@@ -540,7 +541,7 @@ describe('MultiPage Widget', () => {
                 layout: () => {
                     throw new Error('Widget layout failed');
                 },
-                paint: () => {},
+                paint: () => { },
             };
 
             const multipage = new MultiPage({

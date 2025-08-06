@@ -303,7 +303,7 @@ describe('PDF Visual Validation Tests', () => {
         });
 
         page.renderWidget(content);
-        const pdfBytes = await doc.save();
+        const pdfBytes = doc.save();
 
         const outputPath = join(TEST_OUTPUT_DIR, 'visual-typography.pdf');
         writeFileSync(outputPath, pdfBytes);

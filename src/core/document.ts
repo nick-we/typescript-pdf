@@ -12,14 +12,14 @@
  * @packageDocumentation
  */
 
-import type { Core, Geometry, Layout } from '../types.js';
-import type { Widget } from '../widgets/base.js';
+import type { Core, Geometry, Layout } from '@/types.js';
+import type { Widget } from '@/widgets/base.js';
 
-import { FontSystem, PdfStandardFont } from './fonts.js';
-import { PdfColor } from './pdf/color.js';
-import type { PdfPage } from './pdf/document.js';
-import { PdfDocument } from './pdf/document.js';
-import type { PdfGraphics } from './pdf/graphics.js';
+import { FontSystem, PdfStandardFont } from '@/core/fonts.js';
+import { PdfColor } from '@/core/pdf/color.js';
+import type { PdfPage } from '@/core/pdf/document.js';
+import { PdfDocument } from '@/core/pdf/document.js';
+import type { PdfGraphics } from '@/core/pdf/graphics.js';
 
 // Text direction enum for simplified usage
 export enum TextDirection {
@@ -64,8 +64,8 @@ export interface DocumentOptions {
 export class Page {
     private readonly pdfPage: PdfPage;
     private readonly document: Document;
-    private readonly size: Geometry.Size;
-    private readonly margins: Layout.EdgeInsets;
+    public readonly size: Geometry.Size;
+    public readonly margins: Layout.EdgeInsets;
 
     constructor(
         pdfPage: PdfPage,
@@ -99,6 +99,13 @@ export class Page {
      */
     getGraphics(): PdfGraphics {
         return this.pdfPage.getGraphics();
+    }
+
+    /**
+     * Get graphics context (IPage interface compatibility)
+     */
+    getGraphicsContext(): PdfGraphics {
+        return this.getGraphics();
     }
 
     /**
@@ -147,10 +154,10 @@ export class Page {
         );
         const color = options.color
             ? new PdfColor(
-                  options.color.red,
-                  options.color.green,
-                  options.color.blue
-              )
+                options.color.red,
+                options.color.green,
+                options.color.blue
+            )
             : PdfColor.black;
 
         graphics.setFillColor(color);
@@ -160,7 +167,7 @@ export class Page {
             typeof underlyingFont === 'object' &&
             'name' in underlyingFont
         ) {
-            graphics.drawString(underlyingFont, fontSize, text, x, y);
+            graphics.drawString(underlyingFont as any, fontSize, text, x, y);
         }
     }
 
@@ -182,10 +189,10 @@ export class Page {
         const graphics = this.getGraphics();
         const color = options.color
             ? new PdfColor(
-                  options.color.red,
-                  options.color.green,
-                  options.color.blue
-              )
+                options.color.red,
+                options.color.green,
+                options.color.blue
+            )
             : PdfColor.black;
 
         graphics.setFillColor(color);

@@ -11,6 +11,7 @@ import { describe, it, expect } from 'vitest';
 
 import { Document } from '@/core/document.js';
 import { createMockPaintContext } from '@/test/mock-interfaces.js';
+import type { IPdfFont } from '@/types/pdf-types';
 import type { Layout } from '@/types.js';
 import { Table, TableRow, TextOverflow, DataUtils } from '@/widgets/data.js';
 import { TextWidget } from '@/widgets/text.js';
@@ -122,7 +123,7 @@ describe('Table Text Overflow System', () => {
             // Track ellipsis usage
             const originalDrawString = context.graphics!.drawString;
             context.graphics!.drawString = (
-                font: unknown,
+                font: IPdfFont,
                 fontSize: number,
                 text: string,
                 x: number,

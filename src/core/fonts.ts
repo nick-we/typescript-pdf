@@ -15,6 +15,7 @@
 
 import type { PdfDocument } from '@/core/pdf/font-engine.js';
 import { PdfStandardFont, PdfFont } from '@/core/pdf/font-engine.js';
+import type { IFontSystem } from '@/types/core-interfaces.js';
 import type { IPdfFont } from '@/types/pdf-types.js';
 
 /**
@@ -585,7 +586,7 @@ class FontLoader {
  *
  * Combines all font functionality into a single, easy-to-use system
  */
-export class FontSystem {
+export class FontSystem implements IFontSystem {
     private readonly document: PdfDocument;
     private readonly fallbackSystem: FontFallbackSystem;
     private readonly standardFonts = new Map<string, PdfFont>();

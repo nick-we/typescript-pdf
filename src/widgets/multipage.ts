@@ -348,15 +348,15 @@ export class MultiPage extends BaseWidget {
         // CRITICAL FIX: Use actual page size if available (from paint context), otherwise fallback to provided or default
         const pageSize = this.actualPageSize ??
             this.pageSize ?? {
-                width:
-                    context.constraints.maxWidth === Number.POSITIVE_INFINITY
-                        ? 612 // Changed from A4 to Letter default to match Document default
-                        : context.constraints.maxWidth,
-                height:
-                    context.constraints.maxHeight === Number.POSITIVE_INFINITY
-                        ? 792 // Changed from A4 to Letter default to match Document default
-                        : context.constraints.maxHeight,
-            };
+            width:
+                context.constraints.maxWidth === Number.POSITIVE_INFINITY
+                    ? 612 // Changed from A4 to Letter default to match Document default
+                    : context.constraints.maxWidth,
+            height:
+                context.constraints.maxHeight === Number.POSITIVE_INFINITY
+                    ? 792 // Changed from A4 to Letter default to match Document default
+                    : context.constraints.maxHeight,
+        };
 
         widgetLogger.debug(
             `MultiPage: Page size ${pageSize.width}x${pageSize.height} (actual: ${!!this.actualPageSize})`
@@ -807,43 +807,48 @@ export class MultiPage extends BaseWidget {
         };
 
         // HEADER FIX: Create layout context and layout the widget
+        const defaultTextMeasurement: Layout.LayoutContext['textMeasurement'] = {
+            measureTextWidth: (text: string, fontSize: number) =>
+                text.length * fontSize * 0.6,
+            wrapTextAccurate: (text: string, _maxWidth: number) => [
+                text,
+            ],
+            truncateTextAccurate: (text: string, _maxWidth: number) =>
+                text,
+            getFontMetrics: (fontSize: number) => ({
+                height: fontSize * 1.2,
+                baseline: fontSize * 0.8,
+                ascender: fontSize * 0.8,
+                descender: fontSize * 0.2,
+            }),
+            measureCharWidth: (char: string, fontSize: number) =>
+                fontSize * 0.6,
+            measureTextWithWrapping: (
+                text: string,
+                _maxWidth: number,
+                options: { fontSize: number }
+            ) => ({
+                width: text.length * options.fontSize * 0.6,
+                height: options.fontSize * 1.2,
+                baseline: options.fontSize * 0.8,
+                lineCount: 1,
+                actualLines: [text],
+            }),
+            getTextBounds: (text: string, _maxWidth: number, options: { fontSize: number }) => ({
+                width: text.length * options.fontSize * 0.6,
+                height: options.fontSize * 1.2,
+            }),
+            clearCache: () => {
+                /* no-op */
+            },
+            getCacheStats: () => ({ measurementCache: 0, fontMetricsCache: 0 }),
+        };
+
         const layoutContext: Layout.LayoutContext = {
             constraints: layoutConstraints,
             textDirection: TextDirection.LeftToRight,
             theme: context.theme || Theme.Utils.light(),
-            textMeasurement:
-                context.textMeasurement ??
-                ({
-                    measureTextWidth: (text: string, fontSize: number) =>
-                        text.length * fontSize * 0.6,
-                    wrapTextAccurate: (text: string, _maxWidth: number) => [
-                        text,
-                    ],
-                    truncateTextAccurate: (text: string, _maxWidth: number) =>
-                        text,
-                    getFontMetrics: (fontSize: number) => ({
-                        height: fontSize * 1.2,
-                        baseline: fontSize * 0.8,
-                        ascender: fontSize * 0.8,
-                        descender: fontSize * 0.2,
-                    }),
-                    measureCharWidth: (char: string, fontSize: number) =>
-                        fontSize * 0.6,
-                    measureTextWithWrapping: (
-                        text: string,
-                        _maxWidth: number
-                    ) => ({ lines: [text], height: 12 }),
-                    getTextBounds: (text: string, fontSize: number) => ({
-                        width: text.length * fontSize * 0.6,
-                        height: fontSize * 1.2,
-                    }),
-                    clearCache: () => {
-                        /* no-op */
-                    },
-                    getCacheStats: () => ({ size: 0, hits: 0, misses: 0 }),
-                } as unknown as NonNullable<
-                    Layout.LayoutContext['textMeasurement']
-                >),
+            textMeasurement: context.textMeasurement ?? defaultTextMeasurement,
         };
 
         try {

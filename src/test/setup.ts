@@ -4,7 +4,7 @@
  * This file is automatically loaded by Vitest to set up the test environment.
  */
 
-import { setupTestDOM } from './test-utils.js';
+import { setupTestDOM } from '@/test/test-utils.js';
 
 // Global test setup
 globalThis.performance = globalThis.performance || {

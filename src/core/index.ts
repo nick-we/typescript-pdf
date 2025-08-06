@@ -22,7 +22,7 @@ export {
     type DocumentOptions,
     type PageOptions,
     TextDirection,
-} from './document.js';
+} from '@/core/document.js';
 
 // Font System
 export {
@@ -39,7 +39,7 @@ export {
     type FontMetrics,
     type UniversalFont,
     type FontLoadStats,
-} from './fonts.js';
+} from '@/core/fonts.js';
 
 // Text Processing
 export {
@@ -52,7 +52,7 @@ export {
     type TextLine,
     type TextLayoutResult,
     type TextMeasurement,
-} from './text-utils.js';
+} from '@/core/text-utils.js';
 
 // PDF Font Engine
 export {
@@ -60,7 +60,7 @@ export {
     PdfFont,
     FontRegistry,
     type PdfDocument,
-} from './pdf/font-engine.js';
+} from '@/core/pdf/font-engine.js';
 
 // Logging System
 export {
@@ -73,7 +73,7 @@ export {
     themeLogger,
     fontLogger,
     pdfLogger,
-} from './logger.js';
+} from '@/core/logger.js';
 
 // Re-export types for convenience
-export type { Core, Geometry, Layout } from '../types.js';
+export type { Core, Geometry, Layout } from '@/types.js';

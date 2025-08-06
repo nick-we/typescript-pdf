@@ -60,9 +60,13 @@ export interface IPdfObject {
 
 /**
  * Font loader interface for type-safe font loading
+ * Matches FontLoadStats from fonts.ts
  */
 export interface IFontLoader {
-    readonly loadCount: number;
+    readonly fontsLoaded: number;
+    readonly fontsCached: number;
+    readonly cacheSize: number;
+    readonly hitRate: number;
     loadFont?(fontData: Uint8Array): Promise<IPdfFont>;
     registerFont?(fontFamily: string, fontData: Uint8Array): void;
 }
