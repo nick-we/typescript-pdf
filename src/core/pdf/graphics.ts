@@ -9,6 +9,7 @@
 
 import { PdfColor } from '@/core/pdf/color.js';
 import type { PdfFont } from '@/core/pdf/font-engine.js';
+import type { IPdfFont } from '@/types/pdf-types';
 
 /**
  * PDF content stream for graphics operations
@@ -45,7 +46,7 @@ interface GraphicsState {
     fillColor: PdfColor;
     strokeColor: PdfColor;
     lineWidth: number;
-    font: PdfFont | undefined;
+    font: IPdfFont | undefined;
     fontSize: number;
 }
 
@@ -116,7 +117,7 @@ export class PdfGraphics {
     public leading = 0;
     public textRenderingMode = 0;
     public textRise = 0;
-    public currentFont?: PdfFont;
+    public currentFont?: IPdfFont;
     public currentFontSize = 12;
     public dashArray: number[] = [];
     public dashPhase = 0;
@@ -407,7 +408,7 @@ export class PdfGraphics {
      * Draw string with font
      */
     drawString(
-        font: PdfFont,
+        font: IPdfFont,
         fontSize: number,
         text: string,
         x: number,

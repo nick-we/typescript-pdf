@@ -12,14 +12,14 @@
  * @packageDocumentation
  */
 
-import type { Core, Geometry, Layout } from '@/types.js';
-import type { Widget } from '@/widgets/base.js';
 
 import { FontSystem, PdfStandardFont } from '@/core/fonts.js';
 import { PdfColor } from '@/core/pdf/color.js';
 import type { PdfPage } from '@/core/pdf/document.js';
 import { PdfDocument } from '@/core/pdf/document.js';
 import type { PdfGraphics } from '@/core/pdf/graphics.js';
+import type { Core, Geometry, Layout } from '@/types.js';
+import type { Widget } from '@/widgets/base.js';
 
 // Text direction enum for simplified usage
 export enum TextDirection {
@@ -167,7 +167,7 @@ export class Page {
             typeof underlyingFont === 'object' &&
             'name' in underlyingFont
         ) {
-            graphics.drawString(underlyingFont as any, fontSize, text, x, y);
+            graphics.drawString(underlyingFont, fontSize, text, x, y);
         }
     }
 

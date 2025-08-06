@@ -13,8 +13,6 @@ import { join } from 'path';
 import { describe, it, expect } from 'vitest';
 
 // Import our restructured system
-import { Document } from '@/core/index.js';
-import { Flex, Layout, Theme as ThemeTypes } from '@/types.js';
 import {
     Container,
     TextWidget,
@@ -32,6 +30,9 @@ import {
     TextAlign,
     BarOrientation,
 } from '../widgets/index.js';
+
+import { Document } from '@/core/index.js';
+import { Flex, Layout, Theme as ThemeTypes } from '@/types.js';
 
 // Test output directory
 const TEST_OUTPUT_DIR = join(process.cwd(), 'test-output');

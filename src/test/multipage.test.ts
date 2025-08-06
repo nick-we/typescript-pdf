@@ -14,11 +14,6 @@
 
 import { describe, it, expect, beforeEach } from 'vitest';
 
-import { Document } from '@/core/document.js';
-import type { IDocument, IPageOptions } from '@/types/core-interfaces.js';
-import { Layout, Theme } from '@/types.js';
-import { Column, Row } from '@/widgets/flex.js';
-import { Container } from '@/widgets/layout.js';
 import {
     MultiPage,
     PageBreakBehavior,
@@ -27,7 +22,14 @@ import {
 import { TextWidget } from '../widgets/text.js';
 
 import { createMockDocument, createMockPdfPage } from './mock-interfaces.js';
-import type { IPage } from '@/types/pdf-types.js';
+
+import { Document } from '@/core/document.js';
+import type { IDocument, IPageOptions } from '@/types/core-interfaces.js';
+import { Layout, Theme } from '@/types.js';
+import { Column, Row } from '@/widgets/flex.js';
+import { Container } from '@/widgets/layout.js';
+
+
 
 describe('MultiPage Widget', () => {
     let mockLayoutContext: Layout.LayoutContext;
