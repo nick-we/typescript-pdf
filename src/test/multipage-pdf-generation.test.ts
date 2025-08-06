@@ -10,17 +10,18 @@ import * as path from 'path';
 
 import { describe, test, expect, beforeAll } from 'vitest';
 
-import { Document } from '../core/document.js';
-import { Layout, Flex } from '../types.js';
-import { Table, TableColumnWidthType } from '../widgets/data.js';
-import { Column, Row } from '../widgets/flex.js';
-import { Container } from '../widgets/layout.js';
 import {
     MultiPage,
     PageBreakBehavior,
     MultiPageUtils,
 } from '../widgets/multipage.js';
 import { TextWidget } from '../widgets/text.js';
+
+import { Document } from '@/core/document.js';
+import { Layout, Flex } from '@/types.js';
+import { Table, TableColumnWidthType } from '@/widgets/data.js';
+import { Column, Row } from '@/widgets/flex.js';
+import { Container } from '@/widgets/layout.js';
 
 const TEST_OUTPUT_DIR = 'test-output/multipage-pdf-generation';
 
@@ -51,10 +52,10 @@ describe('MultiPage PDF Generation', () => {
                             }),
                             new TextWidget(
                                 `This is content for section ${i + 1}. ` +
-                                    `Lorem ipsum dolor sit amet, consectetur adipiscing elit. ` +
-                                    `Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. ` +
-                                    `Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris ` +
-                                    `nisi ut aliquip ex ea commodo consequat.`,
+                                `Lorem ipsum dolor sit amet, consectetur adipiscing elit. ` +
+                                `Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. ` +
+                                `Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris ` +
+                                `nisi ut aliquip ex ea commodo consequat.`,
                                 {
                                     style: { fontSize: 12, lineSpacing: 1.4 },
                                 }
@@ -101,9 +102,9 @@ describe('MultiPage PDF Generation', () => {
                 new Container({
                     child: new TextWidget(
                         `Page content item ${i + 1}. This content demonstrates how headers ` +
-                            `and footers are rendered consistently across all pages of a multi-page document. ` +
-                            `The MultiPage widget automatically handles the positioning and rendering ` +
-                            `of headers and footers while managing content overflow.`,
+                        `and footers are rendered consistently across all pages of a multi-page document. ` +
+                        `The MultiPage widget automatically handles the positioning and rendering ` +
+                        `of headers and footers while managing content overflow.`,
                         {
                             style: { fontSize: 11, lineSpacing: 1.3 },
                         }
@@ -233,8 +234,8 @@ describe('MultiPage PDF Generation', () => {
                                 }),
                                 new TextWidget(
                                     `This chapter demonstrates the MultiPage widget's ability to handle ` +
-                                        `mixed content types across page boundaries. Content flows naturally ` +
-                                        `from one page to the next, maintaining proper spacing and formatting.`,
+                                    `mixed content types across page boundaries. Content flows naturally ` +
+                                    `from one page to the next, maintaining proper spacing and formatting.`,
                                     {
                                         style: {
                                             fontSize: 12,
@@ -302,8 +303,8 @@ describe('MultiPage PDF Generation', () => {
                     new Container({
                         child: new TextWidget(
                             `Additional content section ${i + 1}. This section tests page break ` +
-                                `behavior with mixed content types. The MultiPage widget should handle ` +
-                                `the transition between different types of content seamlessly.`,
+                            `behavior with mixed content types. The MultiPage widget should handle ` +
+                            `the transition between different types of content seamlessly.`,
                             {
                                 style: { fontSize: 11, lineSpacing: 1.4 },
                             }
@@ -380,8 +381,8 @@ describe('MultiPage PDF Generation', () => {
                         }),
                         new TextWidget(
                             'This report demonstrates the MultiPageUtils.forReport functionality. ' +
-                                'It showcases automated report generation with proper headers, page numbers, ' +
-                                'and professional formatting across multiple pages.',
+                            'It showcases automated report generation with proper headers, page numbers, ' +
+                            'and professional formatting across multiple pages.',
                             {
                                 style: { fontSize: 12, lineSpacing: 1.6 },
                             }
@@ -415,8 +416,8 @@ describe('MultiPage PDF Generation', () => {
                                 ),
                                 new TextWidget(
                                     `Detailed analysis for section ${i + 1}. This section covers ` +
-                                        `important findings and recommendations. The MultiPageUtils.forReport ` +
-                                        `function automatically handles page layout, headers, and numbering.`,
+                                    `important findings and recommendations. The MultiPageUtils.forReport ` +
+                                    `function automatically handles page layout, headers, and numbering.`,
                                     {
                                         style: {
                                             fontSize: 11,
@@ -465,8 +466,8 @@ describe('MultiPage PDF Generation', () => {
                                                     i % 3 === 0
                                                         ? '#e74c3c'
                                                         : i % 3 === 1
-                                                          ? '#f39c12'
-                                                          : '#95a5a6',
+                                                            ? '#f39c12'
+                                                            : '#95a5a6',
                                             },
                                             margin: Layout.EdgeInsets.only({
                                                 left: 8,
@@ -533,9 +534,9 @@ describe('MultiPage PDF Generation', () => {
                             }),
                             new TextWidget(
                                 `This is performance test content item ${i + 1}. It contains sufficient text ` +
-                                    `to test the MultiPage widget's performance with large amounts of content. ` +
-                                    `The system should efficiently handle content measurement, page splitting, ` +
-                                    `and rendering while maintaining good performance characteristics.`,
+                                `to test the MultiPage widget's performance with large amounts of content. ` +
+                                `The system should efficiently handle content measurement, page splitting, ` +
+                                `and rendering while maintaining good performance characteristics.`,
                                 {
                                     style: { fontSize: 11, lineSpacing: 1.3 },
                                 }
@@ -543,41 +544,41 @@ describe('MultiPage PDF Generation', () => {
                             // Add a table every 10th item
                             ...(i % 10 === 0
                                 ? [
-                                      new Table({
-                                          data: [
-                                              ['Metric', 'Value', 'Unit'],
-                                              [
-                                                  'Processing Time',
-                                                  `${(i * 0.1).toFixed(1)}`,
-                                                  'ms',
-                                              ],
-                                              [
-                                                  'Memory Usage',
-                                                  `${(45 + i * 0.5).toFixed(1)}`,
-                                                  'MB',
-                                              ],
-                                              [
-                                                  'Items Processed',
-                                                  `${i + 1}`,
-                                                  'count',
-                                              ],
-                                          ],
-                                          columnWidths: [
-                                              {
-                                                  type: TableColumnWidthType.Flex,
-                                                  value: 2,
-                                              },
-                                              {
-                                                  type: TableColumnWidthType.Flex,
-                                                  value: 1,
-                                              },
-                                              {
-                                                  type: TableColumnWidthType.Flex,
-                                                  value: 1,
-                                              },
-                                          ],
-                                      }),
-                                  ]
+                                    new Table({
+                                        data: [
+                                            ['Metric', 'Value', 'Unit'],
+                                            [
+                                                'Processing Time',
+                                                `${(i * 0.1).toFixed(1)}`,
+                                                'ms',
+                                            ],
+                                            [
+                                                'Memory Usage',
+                                                `${(45 + i * 0.5).toFixed(1)}`,
+                                                'MB',
+                                            ],
+                                            [
+                                                'Items Processed',
+                                                `${i + 1}`,
+                                                'count',
+                                            ],
+                                        ],
+                                        columnWidths: [
+                                            {
+                                                type: TableColumnWidthType.Flex,
+                                                value: 2,
+                                            },
+                                            {
+                                                type: TableColumnWidthType.Flex,
+                                                value: 1,
+                                            },
+                                            {
+                                                type: TableColumnWidthType.Flex,
+                                                value: 1,
+                                            },
+                                        ],
+                                    }),
+                                ]
                                 : []),
                         ],
                     }),

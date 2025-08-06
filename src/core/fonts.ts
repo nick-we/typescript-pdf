@@ -13,8 +13,9 @@
  * @packageDocumentation
  */
 
-import type { PdfDocument } from './pdf/font-engine.js';
-import { PdfStandardFont, PdfFont } from './pdf/font-engine.js';
+import type { PdfDocument } from '@/core/pdf/font-engine.js';
+import { PdfStandardFont, PdfFont } from '@/core/pdf/font-engine.js';
+import type { IPdfFont } from '@/types/pdf-types.js';
 
 /**
  * Font weight enumeration
@@ -121,7 +122,7 @@ export interface UniversalFont {
     getFontHeight(fontSize: number): number;
     getAscender(fontSize: number): number;
     getDescender(fontSize: number): number;
-    getUnderlyingFont(): PdfFont | FontParser;
+    getUnderlyingFont(): IPdfFont;
 }
 
 /**
@@ -145,8 +146,7 @@ export interface FontLoadStats {
 /**
  * Cached font entry
  */
-interface FontParser {
-    fontName?: string;
+interface FontParser extends IPdfFont {
     unitsPerEm: number;
     ascent: number;
     descent: number;
@@ -154,7 +154,7 @@ interface FontParser {
 }
 
 interface CachedFont {
-    parser: FontParser;
+    parser: IPdfFont;
     family: string;
     weight: string;
     style: string;
@@ -197,7 +197,7 @@ class StandardFontAdapter implements UniversalFont {
         return this.pdfFont.getDescender(fontSize);
     }
 
-    getUnderlyingFont(): PdfFont {
+    getUnderlyingFont(): IPdfFont {
         return this.pdfFont;
     }
 }
@@ -439,7 +439,7 @@ class FontLoader {
     static async loadFont(
         source: FontSource,
         options: FontLoadOptions = {}
-    ): Promise<unknown> {
+    ): Promise<IPdfFont> {
         this.loadCount++;
 
         const cacheKey = this.generateCacheKey(source, options);
@@ -457,13 +457,22 @@ class FontLoader {
         const fontData = await this.loadFontData(source);
 
         // For now, create a mock parser since TTF parsing is complex
-        const parser = {
+        const parser: FontParser = {
+            name: options.family ?? 'CustomFont',
             fontName: options.family ?? 'CustomFont',
+            type: 'ttf',
+            measureTextWidth: (text: string, fontSize: number) => (text.length * 500 * fontSize) / 1000,
+            getFontHeight: (fontSize: number) => (1000 * fontSize) / 1000,
+            getAscender: (fontSize: number) => (800 * fontSize) / 1000,
+            getDescender: (fontSize: number) => (-200 * fontSize) / 1000,
+            getPdfFontName: () => options.family ?? 'CustomFont',
+            ref: () => '0 0 R',
+            getId: () => 0,
+            // Additional FontParser properties
             unitsPerEm: 1000,
             ascent: 800,
             descent: -200,
             measureText: (text: string) => text.length * 500,
-            isCharSupported: () => true,
         };
 
         // Cache if enabled
@@ -580,7 +589,7 @@ export class FontSystem {
     private readonly document: PdfDocument;
     private readonly fallbackSystem: FontFallbackSystem;
     private readonly standardFonts = new Map<string, PdfFont>();
-    private readonly customFonts = new Map<string, unknown>();
+    private readonly customFonts = new Map<string, IPdfFont>();
     private readonly unifiedFonts = new Map<string, UniversalFont>();
 
     constructor(document: PdfDocument) {

@@ -11,13 +11,15 @@
  * @packageDocumentation
  */
 
+import type { IPdfObject } from '@/types/pdf-types.js';
+
 /**
  * PDF Document interface (simplified)
  */
 export interface PdfDocument {
     genSerial(): number;
     objects: {
-        add(obj: unknown): void;
+        add(obj: IPdfObject | object): void;
     };
 }
 
@@ -473,11 +475,12 @@ const FONT_METRICS: Record<PdfStandardFont, FontMetrics> = {
 /**
  * PDF Font object (simplified)
  */
-export class PdfFont {
+export class PdfFont implements IPdfObject {
     public readonly fontName: PdfStandardFont;
     public readonly name: string;
     private readonly metrics: FontMetrics;
     private readonly id: number;
+    readonly type: 'standard' | 'ttf' = 'standard';
 
     constructor(
         document: PdfDocument,

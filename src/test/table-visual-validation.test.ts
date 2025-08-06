@@ -17,9 +17,8 @@ import { join } from 'path';
 import { describe, it, expect, beforeEach } from 'vitest';
 
 // Import required modules
-import { Document } from '../core/document.js';
-import type { Internal } from '../types.js';
-import { Layout, Theme } from '../types.js';
+import { Document } from '@/core/document.js';
+import { Layout, Theme, type Internal } from '@/types.js';
 import {
     Table,
     DataUtils,
@@ -27,7 +26,7 @@ import {
     Container,
     Column,
     TableCellVerticalAlignment,
-} from '../widgets/index.js';
+} from '@/widgets/index.js';
 
 describe('Table Visual Validation', () => {
     let outputDir: string;
@@ -602,12 +601,12 @@ describe('Table Visual Validation', () => {
                 `Employee ${i}`,
                 `employee${i}@company.com`,
                 ['Engineering', 'Marketing', 'Finance', 'HR', 'Operations'][
-                    i % 5
+                i % 5
                 ] ?? 'Engineering',
                 `$${(50000 + Math.random() * 50000).toFixed(0)}`,
                 `2024-${String(Math.floor(Math.random() * 12) + 1).padStart(2, '0')}-${String(Math.floor(Math.random() * 28) + 1).padStart(2, '0')}`,
                 ['Active', 'On Leave', 'Terminated'][
-                    Math.floor(Math.random() * 3)
+                Math.floor(Math.random() * 3)
                 ] ?? 'Active',
             ]);
         }

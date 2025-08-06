@@ -8,10 +8,9 @@
  * @packageDocumentation
  */
 
-import type { Geometry } from '../types.js';
+import { FontWeight, FontStyle, type FontSystem } from '@/core/fonts.js';
+import type { Geometry } from '@/types.js';
 
-import type { FontSystem } from './fonts.js';
-import { FontWeight, FontStyle } from './fonts.js';
 
 /**
  * Font height and baseline metrics

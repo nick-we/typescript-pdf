@@ -7,7 +7,10 @@
  * @packageDocumentation
  */
 
-import type { Geometry } from '../types.js';
+import type { Geometry, Layout } from '../types.js';
+import type { Widget } from '../widgets/base.js';
+
+import type { IPdfFont, IFontLoader, IPage, IFontStats } from './pdf-types.js';
 
 /**
  * Font weight enumeration (duplicated from fonts.ts to avoid circular import)
@@ -134,7 +137,7 @@ export interface IUniversalFont {
     getFontHeight(fontSize: number): number;
     getAscender(fontSize: number): number;
     getDescender(fontSize: number): number;
-    getUnderlyingFont(): unknown;
+    getUnderlyingFont(): IPdfFont;
 }
 
 /**
@@ -154,7 +157,7 @@ export interface IFontSystem {
         standardFonts: number;
         customFonts: number;
         totalFonts: number;
-        fontLoader: unknown;
+        fontLoader: IFontLoader;
     };
 }
 
@@ -224,13 +227,13 @@ export interface IGraphicsContext {
 
     // Text rendering
     drawString(
-        font: unknown,
+        font: IPdfFont,
         fontSize: number,
         text: string,
         x: number,
         y: number
     ): void;
-    setFont(font: unknown, fontSize: number): void;
+    setFont(font: IPdfFont, fontSize: number): void;
 
     // Transformations
     transform(
@@ -268,7 +271,7 @@ export interface IPageOptions {
         bottom: number;
         left: number;
     };
-    build?: () => unknown; // Widget
+    build?: () => Widget;
 }
 
 /**
@@ -277,13 +280,13 @@ export interface IPageOptions {
  */
 export interface IDocument {
     readonly fontSystem: IFontSystem;
-    addPage(options?: IPageOptions): unknown; // Page
-    getPages(): readonly unknown[]; // Page[]
+    addPage(options?: IPageOptions): IPage;
+    getPages(): readonly IPage[];
     getPageCount(): number;
     save(): Uint8Array;
     getStats(): {
         pageCount: number;
-        fontStats: unknown;
+        fontStats: IFontStats;
     };
 }
 
@@ -291,12 +294,12 @@ export interface IDocument {
  * Widget interface (minimal definition to avoid circular import)
  */
 export interface IWidget {
-    layout?(context: unknown): {
+    layout?(context: Layout.LayoutContext): {
         size: Geometry.Size;
         needsRepaint?: boolean;
         baseline?: number;
     };
-    paint?(context: unknown): void;
+    paint?(context: Layout.PaintContext): void;
 }
 
 /**

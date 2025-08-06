@@ -10,7 +10,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 
 // Import consolidated widget system
-import { Layout, Theme as ThemeTypes, Flex as FlexTypes } from '../types.js';
+import { Layout, Theme as ThemeTypes, Flex as FlexTypes } from '@/types.js';
 import {
     // Base widgets
     EmptyWidget,
@@ -49,7 +49,7 @@ import {
     DefaultTextStyle,
     ThemeUtils,
     PrebuiltThemes,
-} from '../widgets/index.js';
+} from '@/widgets/index.js';
 
 describe('Widget Systems', () => {
     let mockTheme: ThemeTypes.ThemeData;

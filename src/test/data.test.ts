@@ -10,7 +10,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 
 // Import consolidated widget system
-import type { Layout } from '../types.js';
 import {
     Table,
     TableRow,
@@ -24,6 +23,8 @@ import {
     LineMarker,
     TableColumnWidthType,
 } from '../widgets/index.js';
+
+import type { Layout } from '@/types.js';
 
 describe('Data Visualization Systems', () => {
     let mockLayoutContext: Layout.LayoutContext;

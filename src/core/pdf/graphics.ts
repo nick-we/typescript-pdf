@@ -7,8 +7,8 @@
  * @packageDocumentation
  */
 
-import { PdfColor } from './color.js';
-import type { PdfFont } from './font-engine.js';
+import { PdfColor } from '@/core/pdf/color.js';
+import type { PdfFont } from '@/core/pdf/font-engine.js';
 
 /**
  * PDF content stream for graphics operations

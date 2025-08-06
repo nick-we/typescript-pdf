@@ -11,7 +11,7 @@ import type {
     IDocument,
     IGraphicsContext,
     IFontSystem,
-} from './types/core-interfaces.js';
+} from '@/types/core-interfaces.js';
 
 //===========================================
 // NAMESPACE: Core
@@ -754,10 +754,10 @@ export namespace Internal {
         | null
         | undefined
         | {
-              value: string | number | boolean | null | undefined;
-              displayValue?: string;
-              metadata?: Record<string, unknown>;
-          };
+            value: string | number | boolean | null | undefined;
+            displayValue?: string;
+            metadata?: Record<string, unknown>;
+        };
 
     /**
      * Table row data

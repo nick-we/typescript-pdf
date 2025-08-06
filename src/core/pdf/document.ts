@@ -7,8 +7,8 @@
  * @packageDocumentation
  */
 
-import { FontRegistry } from './font-engine.js';
-import { PdfGraphics } from './graphics.js';
+import { FontRegistry } from '@/core/pdf/font-engine.js';
+import { PdfGraphics } from '@/core/pdf/graphics.js';
 
 /**
  * PDF object interface for type safety

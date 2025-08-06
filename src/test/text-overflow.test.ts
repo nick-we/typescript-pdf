@@ -7,10 +7,10 @@
 
 import { describe, test, expect } from 'vitest';
 
-import { Document } from '../core/document.js';
-import { Layout, defaultTheme } from '../types.js';
-import { Container } from '../widgets/layout.js';
-import { TextWidget, TextOverflow, TextUtils } from '../widgets/text.js';
+import { Document } from '@/core/document.js';
+import { Layout, defaultTheme } from '@/types.js';
+import { Container } from '@/widgets/layout.js';
+import { TextWidget, TextOverflow, TextUtils } from '@/widgets/text.js';
 
 describe('Text Overflow Issues - Reproduction', () => {
     const mockTheme = defaultTheme;

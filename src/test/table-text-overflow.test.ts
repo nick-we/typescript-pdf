@@ -9,12 +9,12 @@
 
 import { describe, it, expect } from 'vitest';
 
-import { Document } from '../core/document.js';
-import type { Layout } from '../types.js';
-import { Table, TableRow, TextOverflow, DataUtils } from '../widgets/data.js';
-import { TextWidget } from '../widgets/text.js';
+import { Document } from '@/core/document.js';
+import { createMockPaintContext } from '@/test/mock-interfaces.js';
+import type { Layout } from '@/types.js';
+import { Table, TableRow, TextOverflow, DataUtils } from '@/widgets/data.js';
+import { TextWidget } from '@/widgets/text.js';
 
-import { createMockPaintContext } from './mock-interfaces.js';
 
 describe('Table Text Overflow System', () => {
     // Use the proper mock paint context factory

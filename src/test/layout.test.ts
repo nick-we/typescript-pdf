@@ -12,7 +12,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 
 // Import consolidated systems
-import { Layout, Geometry, Flex as FlexTypes } from '../types.js';
 import {
     Container,
     Stack,
@@ -23,6 +22,8 @@ import {
     Expanded,
     TextWidget,
 } from '../widgets/index.js';
+
+import { Layout, Geometry, Flex as FlexTypes } from '@/types.js';
 
 describe('Layout Systems', () => {
     let mockLayoutContext: Layout.LayoutContext;

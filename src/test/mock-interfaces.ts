@@ -12,9 +12,8 @@ import type {
     ITextMeasurementOptions,
     FontWeight,
     FontStyle,
-} from '../types/core-interfaces.js';
-import type { Geometry } from '../types.js';
-import { Layout, Theme } from '../types.js';
+} from '@/types/core-interfaces.js';
+import { Layout, Theme, type Geometry } from '@/types.js';
 
 /**
  * Mock Text Measurement Service Interface
@@ -735,13 +734,13 @@ export function setupDOMMocks(): void {
         const mockDocument = {
             createElement: () => ({
                 getContext: () => ({
-                    fillText: () => {},
+                    fillText: () => { },
                     measureText: () => ({ width: 100 }),
-                    beginPath: () => {},
-                    moveTo: () => {},
-                    lineTo: () => {},
-                    stroke: () => {},
-                    fill: () => {},
+                    beginPath: () => { },
+                    moveTo: () => { },
+                    lineTo: () => { },
+                    stroke: () => { },
+                    fill: () => { },
                 }),
             }),
         };
