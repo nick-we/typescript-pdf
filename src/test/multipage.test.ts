@@ -14,22 +14,21 @@
 
 import { describe, it, expect, beforeEach } from 'vitest';
 
-import {
-    MultiPage,
-    PageBreakBehavior,
-    MultiPageUtils,
-} from '../widgets/multipage.js';
-import { TextWidget } from '../widgets/text.js';
-
-import { createMockDocument, createMockPdfPage } from './mock-interfaces.js';
-
 import { Document } from '@/core/document.js';
+import {
+    createMockDocument,
+    createMockPdfPage,
+} from '@/test/mock-interfaces.js';
 import type { IDocument, IPageOptions } from '@/types/core-interfaces.js';
 import { Layout, Theme } from '@/types.js';
 import { Column, Row } from '@/widgets/flex.js';
 import { Container } from '@/widgets/layout.js';
-
-
+import {
+    MultiPage,
+    PageBreakBehavior,
+    MultiPageUtils,
+} from '@/widgets/multipage.js';
+import { TextWidget } from '@/widgets/text.js';
 
 describe('MultiPage Widget', () => {
     let mockLayoutContext: Layout.LayoutContext;
@@ -284,7 +283,7 @@ describe('MultiPage Widget', () => {
                 ...createMockDocument(),
                 addPage: () => {
                     additionalPagesCreated++;
-                    return { renderWidget: () => { } } as any;
+                    return { renderWidget: () => {} } as any;
                 },
             };
 
@@ -347,7 +346,7 @@ describe('MultiPage Widget', () => {
                 layout: () => {
                     throw new Error('Measurement failed');
                 },
-                paint: () => { },
+                paint: () => {},
             };
 
             const multipage = new MultiPage({
@@ -458,7 +457,7 @@ describe('MultiPage Widget', () => {
                         expect(options.height).toBe(400);
                         expect(options.build).toBeDefined();
                     }
-                    return { renderWidget: () => { } } as any;
+                    return { renderWidget: () => {} } as any;
                 },
             };
 
@@ -543,7 +542,7 @@ describe('MultiPage Widget', () => {
                 layout: () => {
                     throw new Error('Widget layout failed');
                 },
-                paint: () => { },
+                paint: () => {},
             };
 
             const multipage = new MultiPage({

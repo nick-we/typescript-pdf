@@ -503,7 +503,13 @@ export class TextWidget extends BaseWidget {
 
                 // Draw the line
                 const underlyingFont = font.getUnderlyingFont();
-                context.graphics?.drawString(underlyingFont, fontSize, line, x, y);
+                context.graphics?.drawString(
+                    underlyingFont,
+                    fontSize,
+                    line,
+                    x,
+                    y
+                );
             });
 
             // Restore graphics state
@@ -714,9 +720,9 @@ export class RichText extends BaseWidget {
         const firstSpanStyle = this.spans[0]?.style;
         const effectiveStyle = firstSpanStyle
             ? Theme.Utils.mergeTextStyles(
-                theme.defaultTextStyle,
-                firstSpanStyle
-            )
+                  theme.defaultTextStyle,
+                  firstSpanStyle
+              )
             : theme.defaultTextStyle;
 
         const fontSize = effectiveStyle.fontSize ?? 12;

@@ -3,8 +3,8 @@
  * Replaces all unknown types with proper interfaces
  */
 
-import type { Geometry, Layout } from '../types.js';
-import type { Widget } from '../widgets/base.js';
+import type { Geometry, Layout } from '@/types.js';
+import type { Widget } from '@/widgets/base.js';
 
 /**
  * PDF Font interface for type-safe font operations
@@ -77,7 +77,14 @@ export interface IFontLoader {
 export interface IGraphicsPath {
     moveTo(x: number, y: number): void;
     lineTo(x: number, y: number): void;
-    curveTo(cp1x: number, cp1y: number, cp2x: number, cp2y: number, x: number, y: number): void;
+    curveTo(
+        cp1x: number,
+        cp1y: number,
+        cp2x: number,
+        cp2y: number,
+        x: number,
+        y: number
+    ): void;
     closePath(): void;
 }
 
@@ -179,7 +186,13 @@ export interface IGraphicsContext {
     // Will be properly defined in core-interfaces.ts
     save(): void;
     restore(): void;
-    drawString(font: IPdfFont, fontSize: number, text: string, x: number, y: number): void;
+    drawString(
+        font: IPdfFont,
+        fontSize: number,
+        text: string,
+        x: number,
+        y: number
+    ): void;
     setFont(font: IPdfFont, fontSize: number): void;
 }
 
@@ -193,9 +206,9 @@ export function isPdfFont(obj: unknown): obj is IPdfFont {
         obj !== null &&
         'name' in obj &&
         'measureTextWidth' in obj &&
-        typeof (obj).measureTextWidth === 'function' &&
+        typeof obj.measureTextWidth === 'function' &&
         'getFontHeight' in obj &&
-        typeof (obj).getFontHeight === 'function'
+        typeof obj.getFontHeight === 'function'
     );
 }
 
@@ -206,7 +219,7 @@ export function isPage(obj: unknown): obj is IPage {
         'size' in obj &&
         'margins' in obj &&
         'renderWidget' in obj &&
-        typeof (obj).renderWidget === 'function'
+        typeof obj.renderWidget === 'function'
     );
 }
 
@@ -216,8 +229,8 @@ export function isWidget(obj: unknown): obj is Widget {
         obj !== null &&
         'layout' in obj &&
         'paint' in obj &&
-        typeof (obj).layout === 'function' &&
-        typeof (obj).paint === 'function'
+        typeof obj.layout === 'function' &&
+        typeof obj.paint === 'function'
     );
 }
 
@@ -227,8 +240,8 @@ export function isPdfObject(obj: unknown): obj is IPdfObject {
         obj !== null &&
         'getId' in obj &&
         'ref' in obj &&
-        typeof (obj).getId === 'function' &&
-        typeof (obj).ref === 'function'
+        typeof obj.getId === 'function' &&
+        typeof obj.ref === 'function'
     );
 }
 
@@ -244,7 +257,10 @@ export function isCellData(obj: unknown): obj is ICellData {
  * Type assertion helpers
  * Provides runtime type checking with error messages
  */
-export function assertPdfFont(obj: unknown, context?: string): asserts obj is IPdfFont {
+export function assertPdfFont(
+    obj: unknown,
+    context?: string
+): asserts obj is IPdfFont {
     if (!isPdfFont(obj)) {
         throw new TypeError(
             `Expected PDF font object${context ? ` in ${context}` : ''}, got ${typeof obj}`
@@ -252,7 +268,10 @@ export function assertPdfFont(obj: unknown, context?: string): asserts obj is IP
     }
 }
 
-export function assertWidget(obj: unknown, context?: string): asserts obj is Widget {
+export function assertWidget(
+    obj: unknown,
+    context?: string
+): asserts obj is Widget {
     if (!isWidget(obj)) {
         throw new TypeError(
             `Expected Widget object${context ? ` in ${context}` : ''}, got ${typeof obj}`
@@ -260,7 +279,10 @@ export function assertWidget(obj: unknown, context?: string): asserts obj is Wid
     }
 }
 
-export function assertPage(obj: unknown, context?: string): asserts obj is IPage {
+export function assertPage(
+    obj: unknown,
+    context?: string
+): asserts obj is IPage {
     if (!isPage(obj)) {
         throw new TypeError(
             `Expected Page object${context ? ` in ${context}` : ''}, got ${typeof obj}`
@@ -271,7 +293,13 @@ export function assertPage(obj: unknown, context?: string): asserts obj is IPage
 /**
  * Utility types for common patterns
  */
-export type MetadataMap<T extends ChartMetadata | TableCellMetadata | DocumentMetadata | StyleMetadata> = Map<string, T>;
+export type MetadataMap<
+    T extends
+        | ChartMetadata
+        | TableCellMetadata
+        | DocumentMetadata
+        | StyleMetadata,
+> = Map<string, T>;
 
 export type FontMap = Map<string, IPdfFont>;
 

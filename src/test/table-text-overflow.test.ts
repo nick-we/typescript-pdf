@@ -16,7 +16,6 @@ import type { Layout } from '@/types.js';
 import { Table, TableRow, TextOverflow, DataUtils } from '@/widgets/data.js';
 import { TextWidget } from '@/widgets/text.js';
 
-
 describe('Table Text Overflow System', () => {
     // Use the proper mock paint context factory
     const createTestPaintContext = () =>

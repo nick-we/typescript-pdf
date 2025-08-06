@@ -9,6 +9,12 @@
 
 import { describe, it, expect, beforeEach } from 'vitest';
 
+import { Document } from '@/core/index.js';
+import {
+    createTestLayoutContext,
+    type TestPageFormat,
+} from '@/test/test-utils.js';
+import { Layout, Theme as ThemeTypes, Flex as FlexTypes } from '@/types.js';
 import {
     TextWidget,
     Container,
@@ -28,13 +34,7 @@ import {
     DataUtils,
     ThemeUtils,
     PrebuiltThemes,
-} from '../widgets/index.js';
-
-import { createTestLayoutContext, type TestPageFormat } from './test-utils.js';
-
-import { Document } from '@/core/index.js';
-import { Layout, Theme as ThemeTypes, Flex as FlexTypes } from '@/types.js';
-
+} from '@/widgets/index.js';
 
 describe('System Integration', () => {
     let document: Document;

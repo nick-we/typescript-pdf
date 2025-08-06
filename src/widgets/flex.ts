@@ -7,11 +7,9 @@
  * @packageDocumentation
  */
 
-import { widgetLogger } from '../core/logger.js';
-import type { Geometry } from '../types.js';
-import { Layout, Flex as FlexTypes } from '../types.js';
-
-import { BaseWidget, type Widget, type WidgetProps } from './base.js';
+import { widgetLogger } from '@/core/logger.js';
+import { Layout, Flex as FlexTypes, type Geometry } from '@/types.js';
+import { BaseWidget, type Widget, type WidgetProps } from '@/widgets/base.js';
 
 /**
  * Properties for the Flex widget

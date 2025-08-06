@@ -15,13 +15,13 @@ import { describe, it, beforeEach } from 'vitest';
 import {
     AccurateTextMeasurementService,
     initializeGlobalTextMeasurement,
-} from '../core/accurate-text-measurement.js';
-import { Document } from '../core/document.js';
-import { FontSystem } from '../core/fonts.js';
-import { Theme, Core, Layout, Flex } from '../types.js';
-import { Column } from '../widgets/flex.js';
-import { Container } from '../widgets/layout.js';
-import { TextWidget, TextOverflow } from '../widgets/text.js';
+} from '@/core/accurate-text-measurement.js';
+import { Document } from '@/core/document.js';
+import { FontSystem } from '@/core/fonts.js';
+import { Theme, Core, Layout, Flex } from '@/types.js';
+import { Column } from '@/widgets/flex.js';
+import { Container } from '@/widgets/layout.js';
+import { TextWidget, TextOverflow } from '@/widgets/text.js';
 
 // Mock PdfDocument for FontSystem
 const mockPdfDocument = {

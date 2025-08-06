@@ -27,4 +27,4 @@ export {
     type TestStackFit,
     type TestChartMarker,
     type TestColumnWidthType,
-} from './test-utils.js';
+} from '@/test/test-utils.js';

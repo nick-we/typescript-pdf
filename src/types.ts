@@ -755,10 +755,10 @@ export namespace Internal {
         | null
         | undefined
         | {
-            value: string | number | boolean | null | undefined;
-            displayValue?: string;
-            metadata?: ChartMetadata;
-        };
+              value: string | number | boolean | null | undefined;
+              displayValue?: string;
+              metadata?: ChartMetadata;
+          };
 
     /**
      * Table row data

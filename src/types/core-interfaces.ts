@@ -7,10 +7,14 @@
  * @packageDocumentation
  */
 
-import type { Geometry, Layout } from '../types.js';
-import type { Widget } from '../widgets/base.js';
-
-import type { IPdfFont, IFontLoader, IPage, IFontStats } from './pdf-types.js';
+import type {
+    IPdfFont,
+    IFontLoader,
+    IPage,
+    IFontStats,
+} from '@/types/pdf-types.js';
+import type { Geometry, Layout } from '@/types.js';
+import type { Widget } from '@/widgets/base.js';
 
 /**
  * Font weight enumeration (duplicated from fonts.ts to avoid circular import)

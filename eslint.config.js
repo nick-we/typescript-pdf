@@ -138,6 +138,14 @@ export default [
                         order: 'asc',
                         caseInsensitive: true,
                     },
+                    pathGroups: [
+                        {
+                            pattern: '@/**',
+                            group: 'internal',
+                            position: 'before',
+                        },
+                    ],
+                    pathGroupsExcludedImportTypes: ['builtin'],
                 },
             ],
             'import/no-duplicates': 'error',
@@ -145,6 +153,27 @@ export default [
             'import/named': 'off',
             'import/default': 'off',
             'import/namespace': 'off',
+            // Enforce absolute imports for internal modules
+            'import/no-relative-parent-imports': 'error',
+            // Enforce no relative imports within the src directory
+            'no-restricted-imports': [
+                'error',
+                {
+                    patterns: [
+                        {
+                            group: ['../*', './*'],
+                            message: 'Relative imports are not allowed. Use absolute imports with @/ prefix instead.',
+                        },
+                    ],
+                },
+            ],
+            // Custom rule to enforce @/ imports for internal modules
+            'import/no-useless-path-segments': [
+                'error',
+                {
+                    noUselessIndex: false,
+                },
+            ],
         },
     },
 

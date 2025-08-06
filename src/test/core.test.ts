@@ -17,8 +17,8 @@ import {
     TextProcessor,
     PdfStandardFont,
     TextAlign,
-} from '../core/index.js';
-import { Layout, Geometry, Theme, Internal } from '../types.js';
+} from '@/core/index.js';
+import { Layout, Geometry, Theme, Internal } from '@/types.js';
 
 describe('Core Systems', () => {
     describe('Document Management', () => {

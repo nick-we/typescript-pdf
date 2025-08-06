@@ -8,14 +8,18 @@
  */
 
 // Core PDF classes
-export { PdfDocument, PdfPage } from './document.js';
-export { PdfGraphics, PdfContentStream, Matrix4 } from './graphics.js';
-export { PdfColor } from './color.js';
-export { PdfFont, PdfStandardFont, FontRegistry } from './font-engine.js';
+export { PdfDocument, PdfPage } from '@/core/pdf/document.js';
+export { PdfGraphics, PdfContentStream, Matrix4 } from '@/core/pdf/graphics.js';
+export { PdfColor } from '@/core/pdf/color.js';
+export {
+    PdfFont,
+    PdfStandardFont,
+    FontRegistry,
+} from '@/core/pdf/font-engine.js';
 
 // Type exports
 export type {
     PageSize,
     PdfPageOptions,
     PdfDocumentOptions,
-} from './document.js';
+} from '@/core/pdf/document.js';

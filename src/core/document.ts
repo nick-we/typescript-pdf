@@ -12,7 +12,6 @@
  * @packageDocumentation
  */
 
-
 import { FontSystem, PdfStandardFont } from '@/core/fonts.js';
 import { PdfColor } from '@/core/pdf/color.js';
 import type { PdfPage } from '@/core/pdf/document.js';
@@ -154,10 +153,10 @@ export class Page {
         );
         const color = options.color
             ? new PdfColor(
-                options.color.red,
-                options.color.green,
-                options.color.blue
-            )
+                  options.color.red,
+                  options.color.green,
+                  options.color.blue
+              )
             : PdfColor.black;
 
         graphics.setFillColor(color);
@@ -189,10 +188,10 @@ export class Page {
         const graphics = this.getGraphics();
         const color = options.color
             ? new PdfColor(
-                options.color.red,
-                options.color.green,
-                options.color.blue
-            )
+                  options.color.red,
+                  options.color.green,
+                  options.color.blue
+              )
             : PdfColor.black;
 
         graphics.setFillColor(color);

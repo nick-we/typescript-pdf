@@ -11,7 +11,6 @@
 import { FontWeight, FontStyle, type FontSystem } from '@/core/fonts.js';
 import type { Geometry } from '@/types.js';
 
-
 /**
  * Font height and baseline metrics
  */

@@ -7,9 +7,9 @@
  * @packageDocumentation
  */
 
-import { widgetLogger } from '../core/logger.js';
-import type { Geometry } from '../types.js';
-import { Layout } from '../types.js';
+import { widgetLogger } from '@/core/logger.js';
+import type { Geometry } from '@/types.js';
+import { Layout } from '@/types.js';
 
 /**
  * Base Widget interface

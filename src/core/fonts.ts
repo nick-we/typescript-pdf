@@ -462,7 +462,8 @@ class FontLoader {
             name: options.family ?? 'CustomFont',
             fontName: options.family ?? 'CustomFont',
             type: 'ttf',
-            measureTextWidth: (text: string, fontSize: number) => (text.length * 500 * fontSize) / 1000,
+            measureTextWidth: (text: string, fontSize: number) =>
+                (text.length * 500 * fontSize) / 1000,
             getFontHeight: (fontSize: number) => (1000 * fontSize) / 1000,
             getAscender: (fontSize: number) => (800 * fontSize) / 1000,
             getDescender: (fontSize: number) => (-200 * fontSize) / 1000,
@@ -946,4 +947,4 @@ export const FontCollections = {
 };
 
 // Export for backward compatibility during transition
-export { PdfStandardFont } from './pdf/font-engine.js';
+export { PdfStandardFont } from '@/core/pdf/font-engine.js';

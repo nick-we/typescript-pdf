@@ -9,11 +9,10 @@
  * @packageDocumentation
  */
 
-import { BaseWidget, type Widget, type WidgetProps } from './base.js';
-
 import { widgetLogger } from '@/core/logger.js';
 import type { IPdfColor } from '@/types/core-interfaces.js';
 import { type Geometry, Layout } from '@/types.js';
+import { BaseWidget, type Widget, type WidgetProps } from '@/widgets/base.js';
 
 /**
  * Border style options

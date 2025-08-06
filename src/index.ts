@@ -32,7 +32,7 @@ export {
     PdfStandardFont,
     PdfFont,
     FontRegistry,
-} from './core/index.js';
+} from '@/core/index.js';
 
 // Widget exports - Consolidated System
 export {
@@ -109,7 +109,7 @@ export {
     PrebuiltThemes,
     createTheme,
     createDefaultTextStyle,
-} from './widgets/index.js';
+} from '@/widgets/index.js';
 
 // Widget type exports - Consolidated System
 export type {
@@ -142,7 +142,7 @@ export type {
     ContentChunk,
     ThemeProps,
     DefaultTextStyleProps,
-} from './widgets/index.js';
+} from '@/widgets/index.js';
 
 // Core type exports - Consolidated System
 export type {
@@ -151,10 +151,10 @@ export type {
     Geometry,
     Internal,
     Flex as FlexNamespace,
-} from './types.js';
+} from '@/types.js';
 
 // Convenience exports for common usage patterns
-import { Layout as LayoutTypes, Theme as ThemeTypes } from './types.js';
+import { Layout as LayoutTypes, Theme as ThemeTypes } from '@/types.js';
 
 // Export Layout namespace for Layout.EdgeInsets usage
 export const Layout = LayoutTypes;

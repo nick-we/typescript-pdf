@@ -13,7 +13,12 @@ import type {
     FontWeight,
     FontStyle,
 } from '@/types/core-interfaces.js';
-import type { IFontLoader, IFontStats, IPage, IPdfFont } from '@/types/pdf-types';
+import type {
+    IFontLoader,
+    IFontStats,
+    IPage,
+    IPdfFont,
+} from '@/types/pdf-types';
 import { Layout, Theme, type Geometry } from '@/types.js';
 import type { Widget } from '@/widgets';
 
@@ -242,7 +247,8 @@ function createMockPdfFont(name: string, _fontFamily: string): IPdfFont {
         name,
         fontName: name,
         type: 'standard' as const,
-        measureTextWidth: (text: string, fontSize: number) => text.length * fontSize * 0.6,
+        measureTextWidth: (text: string, fontSize: number) =>
+            text.length * fontSize * 0.6,
         getFontHeight: (fontSize: number) => fontSize * 1.2,
         getAscender: (fontSize: number) => fontSize * 0.8,
         getDescender: (fontSize: number) => fontSize * 0.2,
@@ -304,16 +310,15 @@ export function createMockLayoutContext(
 /**
  * Mock PDF Page Factory
  */
-export function createMockPdfPage(
-    options: Partial<MockPage> = {}
-): MockPage {
+export function createMockPdfPage(options: Partial<MockPage> = {}): MockPage {
     return {
         size: { width: 600, height: 800 },
         margins: Layout.EdgeInsets.all(20),
         renderWidget: (_widget: Widget) => {
             /* Mock implementation */
         },
-        getGraphicsContext: () => createMockGraphicsContext() as IGraphicsContext,
+        getGraphicsContext: () =>
+            createMockGraphicsContext() as IGraphicsContext,
         ...options,
     };
 }
@@ -623,11 +628,14 @@ export function createMockDocument(
                 size: pageOptions?.size ?? { width: 595, height: 842 }, // A4 default
                 margins: pageOptions?.margins ?? Layout.EdgeInsets.all(20),
                 ...(pageOptions?.format && { format: pageOptions.format }),
-                ...(pageOptions?.orientation && { orientation: pageOptions.orientation }),
+                ...(pageOptions?.orientation && {
+                    orientation: pageOptions.orientation,
+                }),
                 renderWidget: (_widget: Widget) => {
                     /* Mock implementation */
                 },
-                getGraphicsContext: () => createMockGraphicsContext() as IGraphicsContext,
+                getGraphicsContext: () =>
+                    createMockGraphicsContext() as IGraphicsContext,
             };
             pages.push(page);
             return page;
@@ -644,9 +652,9 @@ export function createMockDocument(
                     fontsLoaded: 0,
                     fontsCached: 0,
                     cacheSize: 0,
-                    hitRate: 0
-                }
-            } as IFontStats
+                    hitRate: 0,
+                },
+            } as IFontStats,
         }),
         save: () => new Uint8Array(0),
         getPages: () => [...pages],
@@ -678,7 +686,8 @@ export function createMockFontSystem(
                     getFontHeight: (fontSize: number) => fontSize * 1.2,
                     getAscender: (fontSize: number) => fontSize * 0.8,
                     getDescender: (fontSize: number) => fontSize * 0.2,
-                    getUnderlyingFont: () => createMockPdfFont(fontNameOrFamily, fontNameOrFamily),
+                    getUnderlyingFont: () =>
+                        createMockPdfFont(fontNameOrFamily, fontNameOrFamily),
                 }
             );
         },
@@ -709,7 +718,8 @@ export function createMockFontSystem(
                     getFontHeight: (fontSize: number) => fontSize * 1.2,
                     getAscender: (fontSize: number) => fontSize * 0.8,
                     getDescender: (fontSize: number) => fontSize * 0.2,
-                    getUnderlyingFont: () => createMockPdfFont(fontFamily, fontFamily),
+                    getUnderlyingFont: () =>
+                        createMockPdfFont(fontFamily, fontFamily),
                 }
             );
         },
@@ -727,7 +737,8 @@ export function createMockFontSystem(
                 getFontHeight: (fontSize: number) => fontSize * 1.2,
                 getAscender: (fontSize: number) => fontSize * 0.8,
                 getDescender: (fontSize: number) => fontSize * 0.2,
-                getUnderlyingFont: () => createMockPdfFont(fontFamily, fontFamily),
+                getUnderlyingFont: () =>
+                    createMockPdfFont(fontFamily, fontFamily),
             });
         },
         getDefaultFont: () => ({
@@ -743,7 +754,8 @@ export function createMockFontSystem(
             getFontHeight: (fontSize: number) => fontSize * 1.2,
             getAscender: (fontSize: number) => fontSize * 0.8,
             getDescender: (fontSize: number) => fontSize * 0.2,
-            getUnderlyingFont: () => createMockPdfFont('Helvetica', 'Helvetica'),
+            getUnderlyingFont: () =>
+                createMockPdfFont('Helvetica', 'Helvetica'),
         }),
         getFontNames: () => ['Helvetica', 'Times-Roman', 'Courier'],
         getStats: () => ({
@@ -754,7 +766,7 @@ export function createMockFontSystem(
                 fontsLoaded: 0,
                 fontsCached: 0,
                 cacheSize: 0,
-                hitRate: 0
+                hitRate: 0,
             },
         }),
         ...options,
@@ -794,13 +806,13 @@ export function setupDOMMocks(): void {
         const mockDocument = {
             createElement: () => ({
                 getContext: () => ({
-                    fillText: () => { },
+                    fillText: () => {},
                     measureText: () => ({ width: 100 }),
-                    beginPath: () => { },
-                    moveTo: () => { },
-                    lineTo: () => { },
-                    stroke: () => { },
-                    fill: () => { },
+                    beginPath: () => {},
+                    moveTo: () => {},
+                    lineTo: () => {},
+                    stroke: () => {},
+                    fill: () => {},
                 }),
             }),
         };

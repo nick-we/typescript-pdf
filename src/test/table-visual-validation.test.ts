@@ -601,12 +601,12 @@ describe('Table Visual Validation', () => {
                 `Employee ${i}`,
                 `employee${i}@company.com`,
                 ['Engineering', 'Marketing', 'Finance', 'HR', 'Operations'][
-                i % 5
+                    i % 5
                 ] ?? 'Engineering',
                 `$${(50000 + Math.random() * 50000).toFixed(0)}`,
                 `2024-${String(Math.floor(Math.random() * 12) + 1).padStart(2, '0')}-${String(Math.floor(Math.random() * 28) + 1).padStart(2, '0')}`,
                 ['Active', 'On Leave', 'Terminated'][
-                Math.floor(Math.random() * 3)
+                    Math.floor(Math.random() * 3)
                 ] ?? 'Active',
             ]);
         }
