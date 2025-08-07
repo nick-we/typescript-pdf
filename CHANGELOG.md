@@ -1,3 +1,16 @@
+# [1.1.0](https://github.com/nick-we/typescript-pdf/compare/v1.0.2...v1.1.0) (2025-08-07)
+
+
+### Bug Fixes
+
+* complete migration to full functioning PdfColor class ([e9310e5](https://github.com/nick-we/typescript-pdf/commit/e9310e540641a2d1b90f3da6554b1b44cb0c0ffe))
+* linting ([ac49e8c](https://github.com/nick-we/typescript-pdf/commit/ac49e8c3fe5702abdc1cd62ce5c195534f683df8))
+
+
+### Features
+
+* bump version to 0.6.1 ([a10e23d](https://github.com/nick-we/typescript-pdf/commit/a10e23dd310d8c87eaed6c5adcc1a9a9664711bf))
+
 ## [1.0.2](https://github.com/nick-we/typescript-pdf/compare/v1.0.1...v1.0.2) (2025-08-05)
 
 
