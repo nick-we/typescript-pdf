@@ -79,19 +79,19 @@ Automatic page breaks with headers, footers, and consistent formatting:
 
 ```typescript
 import { writeFile } from 'fs/promises';
-import { Document, Txt, Container, Layout } from 'typescript-pdf';
+import { Document, Txt, Container, Layout, PdfColor } from 'typescript-pdf';
 
 const doc = new Document();
 doc.addPage({
     build: () => new Container({
         decoration: {
-            color: '#f0f0f0ff',
-            border: { width: 1, color: '#000000' },
+            color: PdfColor.fromHex('#f0f0f0ff'),
+            border: { width: 1, color: PdfColor.black },
             borderRadius: BorderRadiusUtils.circular(4),
         },
         padding: Layout.EdgeInsets.all(20),
         child: new Txt('Hello World!', {
-            style: { fontSize: 24, color: '#1976d2' }
+            style: { fontSize: 24, color: PdfColor.fromHex('#1976d2') }
         })
     })
 });
@@ -131,8 +131,8 @@ doc.addPage({
             DataUtils.columnWidths.flex(1),
             DataUtils.columnWidths.flex(1)
         ],
-        borders: DataUtils.borders.all({ width: 1, color: '#333333' }),
-        headerStyle: { fontSize: 14, fontWeight: Theme.FontWeight.Bold, color: '#ffffff' }
+        borders: DataUtils.borders.all({ width: 1, color: PdfColor.fromHex('#333333') }),
+        headerStyle: { fontSize: 14, fontWeight: Theme.FontWeight.Bold, color: PdfColor.white }
       })
     ]
   })
@@ -168,7 +168,7 @@ doc.addPage({
         series: [salesData],
         width: 400,
         height: 200,
-        marker: LineMarker.Circle
+        marker: LineMarker.Rectangle
       })
     ]
   })
