@@ -1,6 +1,6 @@
 {
     "name": "typescript-pdf",
-    "version": "1.0.0",
+    "version": "0.6.1",
     "description": "A modern TypeScript library for programmatic PDF generation with a declarative API",
     "keywords": [
         "pdf",
