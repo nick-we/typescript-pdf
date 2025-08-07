@@ -519,12 +519,12 @@ export class Stack extends BaseWidget {
                 stackSize = {
                     width:
                         context.constraints.maxWidth ===
-                        Number.POSITIVE_INFINITY
+                            Number.POSITIVE_INFINITY
                             ? maxWidth
                             : context.constraints.maxWidth,
                     height:
                         context.constraints.maxHeight ===
-                        Number.POSITIVE_INFINITY
+                            Number.POSITIVE_INFINITY
                             ? maxHeight
                             : context.constraints.maxHeight,
                 };
@@ -809,7 +809,7 @@ export const DecorationStyles = {
                 offsetX: 0,
                 offsetY: 2,
                 blurRadius: 4,
-                color: PdfColor.fromHex('#0000020'),
+                color: PdfColor.fromHex('#000020'),
             },
         ],
     } as BoxDecoration,
@@ -833,7 +833,7 @@ export const DecorationStyles = {
                 offsetX: 0,
                 offsetY: 4,
                 blurRadius: 8,
-                color: PdfColor.fromHex('#0000030'),
+                color: PdfColor.fromHex('#000030'),
             },
         ],
     } as BoxDecoration,
