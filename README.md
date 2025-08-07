@@ -1,17 +1,32 @@
 # typescript-pdf
 
-[![Version](https://img.shields.io/badge/version-0.6.0-blue.svg)](https://www.npmjs.com/package/typescript-pdf)
+[![Version](https://img.shields.io/badge/version-0.6.1-blue.svg)](https://www.npmjs.com/package/typescript-pdf)
 [![CI](https://github.com/nick-we/typescript-pdf/workflows/CI/badge.svg)](https://github.com/nick-we/typescript-pdf/actions)
 [![TypeScript](https://img.shields.io/badge/TypeScript-100%25-blue.svg)](https://github.com/nick-we/typescript-pdf)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 A TypeScript library for programmatic PDF generation with a declarative, widget-based API inspired by Flutter. Build complex PDF documents with type safety.
 
-**typescript-pdf v0.6.0** represents a mature PDF generation library:
+**typescript-pdf v0.6.1** represents a mature PDF generation library:
 
 - ✅ **Production Stability** - Comprehensive error handling and edge case coverage
 - ✅ **Advanced Features** - MultiPage documents, table text overflow, data visualization
 - ✅ **Cross-Platform** - Universal Node.js and browser compatibility
+
+## 🎯 Use Cases
+
+### **Business Applications**
+- **Financial Reports**: Multi-page reports with tables and charts
+- **Invoices & Receipts**: Professional document generation
+- **Certificates**: Styled certificates with custom layouts
+- **Analytics Dashboards**: Data visualization with charts and metrics
+
+### **Integration Scenarios**
+- **Web Applications**: Client-side PDF generation in browsers
+- **Node.js APIs**: Server-side document generation services
+- **React/Vue Apps**: Component-based PDF creation
+- **Express.js Routes**: PDF endpoints for web applications
+- **Automated Reporting**: Scheduled report generation systems
 
 ## 🚀 Key Features
 
@@ -310,21 +325,6 @@ We welcome contributions! typescript-pdf has achieved production stability with 
 - **Documentation**: Update relevant docs and examples
 - **Performance**: Consider impact on layout and rendering performance
 
-## 🎯 Use Cases
-
-### **Business Applications**
-- **Financial Reports**: Multi-page reports with tables and charts
-- **Invoices & Receipts**: Professional document generation
-- **Certificates**: Styled certificates with custom layouts
-- **Analytics Dashboards**: Data visualization with charts and metrics
-
-### **Integration Scenarios**
-- **Web Applications**: Client-side PDF generation in browsers
-- **Node.js APIs**: Server-side document generation services
-- **React/Vue Apps**: Component-based PDF creation
-- **Express.js Routes**: PDF endpoints for web applications
-- **Automated Reporting**: Scheduled report generation systems
-
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
@@ -346,4 +346,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **Made by [Nick Westendorf](https://github.com/nick-we)**
 
-*typescript-pdf v0.5.0 -PDF Generation for TypeScript*
+*typescript-pdf v0.6.1 - PDF Generation for TypeScript*
