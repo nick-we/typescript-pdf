@@ -519,12 +519,12 @@ export class Stack extends BaseWidget {
                 stackSize = {
                     width:
                         context.constraints.maxWidth ===
-                            Number.POSITIVE_INFINITY
+                        Number.POSITIVE_INFINITY
                             ? maxWidth
                             : context.constraints.maxWidth,
                     height:
                         context.constraints.maxHeight ===
-                            Number.POSITIVE_INFINITY
+                        Number.POSITIVE_INFINITY
                             ? maxHeight
                             : context.constraints.maxHeight,
                 };

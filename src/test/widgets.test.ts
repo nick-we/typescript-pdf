@@ -10,6 +10,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 
 // Import consolidated widget system
+import { PdfColor } from '@/core/pdf';
 import { Layout, Theme as ThemeTypes, Flex as FlexTypes } from '@/types.js';
 import {
     // Base widgets
@@ -50,7 +51,6 @@ import {
     ThemeUtils,
     PrebuiltThemes,
 } from '@/widgets/index.js';
-import { PdfColor } from '@/core/pdf';
 
 describe('Widget Systems', () => {
     let mockTheme: ThemeTypes.ThemeData;
@@ -546,9 +546,15 @@ describe('Widget Systems', () => {
             const corporate = PrebuiltThemes.corporate();
             const modern = PrebuiltThemes.modern();
 
-            expect(minimal.colorScheme.primary).toStrictEqual(PdfColor.fromHex('#2c3e50'));
-            expect(corporate.colorScheme.primary).toStrictEqual(PdfColor.fromHex('#1f4e79'));
-            expect(modern.colorScheme.primary).toStrictEqual(PdfColor.fromHex('#6c5ce7'));
+            expect(minimal.colorScheme.primary).toStrictEqual(
+                PdfColor.fromHex('#2c3e50')
+            );
+            expect(corporate.colorScheme.primary).toStrictEqual(
+                PdfColor.fromHex('#1f4e79')
+            );
+            expect(modern.colorScheme.primary).toStrictEqual(
+                PdfColor.fromHex('#6c5ce7')
+            );
         });
 
         it('should merge text styles properly', () => {
