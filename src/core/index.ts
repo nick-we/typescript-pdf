@@ -12,6 +12,8 @@
  * @packageDocumentation
  */
 
+export { PdfColor } from '@/core/pdf/color.js';
+
 // Document and Page Management
 export {
     Document,

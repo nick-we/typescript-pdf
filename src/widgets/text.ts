@@ -11,7 +11,7 @@ import type { AccurateTextMeasurementService } from '@/core/accurate-text-measur
 import { getGlobalTextMeasurement } from '@/core/accurate-text-measurement.js';
 import { FontWeight, FontStyle } from '@/core/fonts.js';
 import { widgetLogger } from '@/core/logger.js';
-import type { IPdfColor } from '@/types/core-interfaces.js';
+import { PdfColor } from '@/core/pdf';
 import { Theme, type Layout, type Geometry } from '@/types.js';
 import { BaseWidget, type WidgetProps } from '@/widgets/base.js';
 
@@ -96,7 +96,7 @@ interface TextMeasurement {
 /**
  * Text widget for rendering styled text
  */
-export class TextWidget extends BaseWidget {
+export class Txt extends BaseWidget {
     private readonly content: string;
     private readonly style?: Theme.TextStyle;
     private readonly textAlign: TextAlign;
@@ -444,13 +444,13 @@ export class TextWidget extends BaseWidget {
 
         // Only do actual graphics operations if graphics context is available
         if (context.graphics && context.fontRegistry) {
-            const color = this.parseColor(effectiveStyle.color ?? '#000000');
-
             // Get font from registry
             const font = context.fontRegistry.getFont(fontFamily);
 
             // Set text color
-            context.graphics.setFillColor(color);
+            context.graphics.setFillColor(
+                effectiveStyle.color ?? PdfColor.black
+            );
 
             // Save graphics state for text transformation
             context.graphics.save();
@@ -660,22 +660,6 @@ export class TextWidget extends BaseWidget {
 
         return finalLines;
     }
-
-    /**
-     * Parse color string to color object
-     */
-    private parseColor(colorStr: string): IPdfColor {
-        // Simple hex color parser
-        if (colorStr.startsWith('#')) {
-            const hex = colorStr.slice(1);
-            const r = parseInt(hex.slice(0, 2), 16) / 255;
-            const g = parseInt(hex.slice(2, 4), 16) / 255;
-            const b = parseInt(hex.slice(4, 6), 16) / 255;
-            return { red: r, green: g, blue: b };
-        }
-        // Default to black
-        return { red: 0, green: 0, blue: 0 };
-    }
 }
 
 /**
@@ -792,8 +776,8 @@ export class RichText extends BaseWidget {
 export function createText(
     content: string,
     props: Omit<TextProps, 'content'> = {}
-): TextWidget {
-    return new TextWidget(content, props);
+): Txt {
+    return new Txt(content, props);
 }
 
 /**
@@ -928,7 +912,7 @@ export const TextStyles = {
         fontSize: 10,
         fontWeight: Theme.FontWeight.Normal,
         fontFamily: 'Helvetica',
-        color: '#666666',
+        color: PdfColor.fromHex('#666666'),
     } as Theme.TextStyle,
 
     /** Code text style */
@@ -936,6 +920,6 @@ export const TextStyles = {
         fontSize: 11,
         fontWeight: Theme.FontWeight.Normal,
         fontFamily: 'Courier',
-        color: '#333333',
+        color: PdfColor.fromHex('#333333'),
     } as Theme.TextStyle,
 };

@@ -14,11 +14,11 @@ import { describe, it, expect } from 'vitest';
 
 // Import our restructured system
 
-import { Document } from '@/core/index.js';
+import { Document, PdfColor } from '@/core/index.js';
 import { Flex, Layout, Theme as ThemeTypes } from '@/types.js';
 import {
     Container,
-    TextWidget,
+    Txt,
     Row,
     Column,
     Stack,
@@ -59,8 +59,8 @@ describe('PDF Generation Visual Validation', () => {
                 width: 500,
                 height: 600,
                 decoration: {
-                    color: '#f0f0f0', // Light gray background
-                    border: { width: 2, color: '#333333' },
+                    color: PdfColor.fromHex('#f0f0f0'), // Light gray background
+                    border: { width: 2, color: PdfColor.fromHex('#333333') },
                 },
                 padding: Layout.EdgeInsets.all(20),
                 child: new Column({
@@ -71,7 +71,7 @@ describe('PDF Generation Visual Validation', () => {
                             width: 460,
                             height: 120,
                             decoration: {
-                                color: '#ff6b6b', // Red
+                                color: PdfColor.fromHex('#ff6b6b'), // Red
                                 borderRadius: {
                                     topLeft: 10,
                                     topRight: 10,
@@ -80,16 +80,13 @@ describe('PDF Generation Visual Validation', () => {
                                 },
                             },
                             alignment: Layout.Alignment.Center,
-                            child: new TextWidget(
-                                'Red Container - Centered Text',
-                                {
-                                    style: {
-                                        fontSize: 18,
-                                        fontWeight: ThemeTypes.FontWeight.Bold,
-                                        color: '#ffffff',
-                                    },
-                                }
-                            ),
+                            child: new Txt('Red Container - Centered Text', {
+                                style: {
+                                    fontSize: 18,
+                                    fontWeight: ThemeTypes.FontWeight.Bold,
+                                    color: PdfColor.fromHex('#ffffff'),
+                                },
+                            }),
                         }),
 
                         // Blue container with padding
@@ -97,7 +94,7 @@ describe('PDF Generation Visual Validation', () => {
                             width: 460,
                             height: 120,
                             decoration: {
-                                color: '#4dabf7', // Blue
+                                color: PdfColor.fromHex('#4dabf7'), // Blue
                                 borderRadius: {
                                     topLeft: 15,
                                     topRight: 15,
@@ -106,12 +103,12 @@ describe('PDF Generation Visual Validation', () => {
                                 },
                             },
                             padding: Layout.EdgeInsets.all(15),
-                            child: new TextWidget(
+                            child: new Txt(
                                 'Blue Container with Padding\nMultiple lines of text\nto test layout',
                                 {
                                     style: {
                                         fontSize: 14,
-                                        color: '#ffffff',
+                                        color: PdfColor.fromHex('#ffffff'),
                                         lineSpacing: 1.4,
                                     },
                                     textAlign: TextAlign.Center,
@@ -124,7 +121,7 @@ describe('PDF Generation Visual Validation', () => {
                             width: 460,
                             height: 120,
                             decoration: {
-                                color: '#51cf66', // Green
+                                color: PdfColor.fromHex('#51cf66'), // Green
                                 borderRadius: {
                                     topLeft: 8,
                                     topRight: 8,
@@ -142,19 +139,19 @@ describe('PDF Generation Visual Validation', () => {
                                 crossAxisAlignment:
                                     Flex.CrossAxisAlignment.Center,
                                 children: [
-                                    new TextWidget('Left', {
+                                    new Txt('Left', {
                                         style: {
                                             fontSize: 16,
                                             fontWeight:
                                                 ThemeTypes.FontWeight.Bold,
-                                            color: '#ffffff',
+                                            color: PdfColor.fromHex('#ffffff'),
                                         },
                                     }),
                                     new Container({
                                         width: 60,
                                         height: 60,
                                         decoration: {
-                                            color: '#ffffff',
+                                            color: PdfColor.fromHex('#ffffff'),
                                             borderRadius: {
                                                 topLeft: 30,
                                                 topRight: 30,
@@ -163,19 +160,21 @@ describe('PDF Generation Visual Validation', () => {
                                             },
                                         },
                                         alignment: Layout.Alignment.Center,
-                                        child: new TextWidget('•', {
+                                        child: new Txt('•', {
                                             style: {
                                                 fontSize: 24,
-                                                color: '#51cf66',
+                                                color: PdfColor.fromHex(
+                                                    '#51cf66'
+                                                ),
                                             },
                                         }),
                                     }),
-                                    new TextWidget('Right', {
+                                    new Txt('Right', {
                                         style: {
                                             fontSize: 16,
                                             fontWeight:
                                                 ThemeTypes.FontWeight.Bold,
-                                            color: '#ffffff',
+                                            color: PdfColor.fromHex('#ffffff'),
                                         },
                                     }),
                                 ],
@@ -187,7 +186,7 @@ describe('PDF Generation Visual Validation', () => {
                             width: 460,
                             height: 120,
                             decoration: {
-                                color: '#9775fa', // Purple
+                                color: PdfColor.fromHex('#9775fa'), // Purple
                                 borderRadius: {
                                     topLeft: 12,
                                     topRight: 12,
@@ -200,10 +199,12 @@ describe('PDF Generation Visual Validation', () => {
                                     // Background text
                                     new Container({
                                         alignment: Layout.Alignment.Center,
-                                        child: new TextWidget('Stack Layout', {
+                                        child: new Txt('Stack Layout', {
                                             style: {
                                                 fontSize: 24,
-                                                color: '#ffffff',
+                                                color: PdfColor.fromHex(
+                                                    '#ffffff'
+                                                ),
                                                 fontWeight:
                                                     ThemeTypes.FontWeight.Bold,
                                             },
@@ -217,7 +218,9 @@ describe('PDF Generation Visual Validation', () => {
                                             width: 30,
                                             height: 30,
                                             decoration: {
-                                                color: '#f03e3e',
+                                                color: PdfColor.fromHex(
+                                                    '#f03e3e'
+                                                ),
                                                 borderRadius: {
                                                     topLeft: 15,
                                                     topRight: 15,
@@ -226,10 +229,12 @@ describe('PDF Generation Visual Validation', () => {
                                                 },
                                             },
                                             alignment: Layout.Alignment.Center,
-                                            child: new TextWidget('!', {
+                                            child: new Txt('!', {
                                                 style: {
                                                     fontSize: 18,
-                                                    color: '#ffffff',
+                                                    color: PdfColor.fromHex(
+                                                        '#ffffff'
+                                                    ),
                                                     fontWeight:
                                                         ThemeTypes.FontWeight
                                                             .Bold,
@@ -295,11 +300,11 @@ describe('PDF Generation Visual Validation', () => {
                         // Title
                         new Container({
                             alignment: Layout.Alignment.Center,
-                            child: new TextWidget('Sales Dashboard', {
+                            child: new Txt('Sales Dashboard', {
                                 style: {
                                     fontSize: 26,
                                     fontWeight: ThemeTypes.FontWeight.Bold,
-                                    color: '#2c3e50',
+                                    color: PdfColor.fromHex('#2c3e50'),
                                 },
                             }),
                         }),
@@ -312,7 +317,9 @@ describe('PDF Generation Visual Validation', () => {
                                         new Container({
                                             padding: Layout.EdgeInsets.all(10),
                                             decoration: {
-                                                color: '#f8f9fa',
+                                                color: PdfColor.fromHex(
+                                                    '#f8f9fa'
+                                                ),
                                                 borderRadius: {
                                                     topLeft: 8,
                                                     topRight: 8,
@@ -321,39 +328,46 @@ describe('PDF Generation Visual Validation', () => {
                                                 },
                                                 border: {
                                                     width: 1,
-                                                    color: '#dee2e6',
+                                                    color: PdfColor.fromHex(
+                                                        '#dee2e6'
+                                                    ),
                                                 },
                                             },
                                             child: new Column({
                                                 children: [
-                                                    new TextWidget(
-                                                        'Sales Data',
-                                                        {
-                                                            style: {
-                                                                fontSize: 16,
-                                                                fontWeight:
-                                                                    ThemeTypes
-                                                                        .FontWeight
-                                                                        .Bold,
-                                                                color: '#495057',
-                                                            },
-                                                        }
-                                                    ),
+                                                    new Txt('Sales Data', {
+                                                        style: {
+                                                            fontSize: 16,
+                                                            fontWeight:
+                                                                ThemeTypes
+                                                                    .FontWeight
+                                                                    .Bold,
+                                                            color: PdfColor.fromHex(
+                                                                '#495057'
+                                                            ),
+                                                        },
+                                                    }),
                                                     LayoutUtils.padded(
                                                         new Table({
                                                             data: salesData,
                                                             borders: {
                                                                 top: {
                                                                     width: 1,
-                                                                    color: '#dee2e6',
+                                                                    color: PdfColor.fromHex(
+                                                                        '#dee2e6'
+                                                                    ),
                                                                 },
                                                                 bottom: {
                                                                     width: 1,
-                                                                    color: '#dee2e6',
+                                                                    color: PdfColor.fromHex(
+                                                                        '#dee2e6'
+                                                                    ),
                                                                 },
                                                                 horizontal: {
                                                                     width: 0.5,
-                                                                    color: '#e9ecef',
+                                                                    color: PdfColor.fromHex(
+                                                                        '#e9ecef'
+                                                                    ),
                                                                 },
                                                             },
                                                             columnWidths: [
@@ -386,7 +400,9 @@ describe('PDF Generation Visual Validation', () => {
                                                 padding:
                                                     Layout.EdgeInsets.all(10),
                                                 decoration: {
-                                                    color: '#f8f9fa',
+                                                    color: PdfColor.fromHex(
+                                                        '#f8f9fa'
+                                                    ),
                                                     borderRadius: {
                                                         topLeft: 8,
                                                         topRight: 8,
@@ -395,12 +411,14 @@ describe('PDF Generation Visual Validation', () => {
                                                     },
                                                     border: {
                                                         width: 1,
-                                                        color: '#dee2e6',
+                                                        color: PdfColor.fromHex(
+                                                            '#dee2e6'
+                                                        ),
                                                     },
                                                 },
                                                 child: new Column({
                                                     children: [
-                                                        new TextWidget(
+                                                        new Txt(
                                                             'Revenue Trend',
                                                             {
                                                                 style: {
@@ -409,7 +427,9 @@ describe('PDF Generation Visual Validation', () => {
                                                                         ThemeTypes
                                                                             .FontWeight
                                                                             .Bold,
-                                                                    color: '#495057',
+                                                                    color: PdfColor.fromHex(
+                                                                        '#495057'
+                                                                    ),
                                                                 },
                                                             }
                                                         ),
@@ -440,14 +460,17 @@ describe('PDF Generation Visual Validation', () => {
                         new Container({
                             padding: Layout.EdgeInsets.all(20),
                             decoration: {
-                                color: '#e3f2fd',
+                                color: PdfColor.fromHex('#e3f2fd'),
                                 borderRadius: {
                                     topLeft: 10,
                                     topRight: 10,
                                     bottomLeft: 10,
                                     bottomRight: 10,
                                 },
-                                border: { width: 1, color: '#bbdefb' },
+                                border: {
+                                    width: 1,
+                                    color: PdfColor.fromHex('#bbdefb'),
+                                },
                             },
                             child: new Row({
                                 mainAxisAlignment:
@@ -457,19 +480,23 @@ describe('PDF Generation Visual Validation', () => {
                                         crossAxisAlignment:
                                             Flex.CrossAxisAlignment.Center,
                                         children: [
-                                            new TextWidget('Total Revenue', {
+                                            new Txt('Total Revenue', {
                                                 style: {
                                                     fontSize: 12,
-                                                    color: '#666',
+                                                    color: PdfColor.fromHex(
+                                                        '#666'
+                                                    ),
                                                 },
                                             }),
-                                            new TextWidget('$334,800', {
+                                            new Txt('$334,800', {
                                                 style: {
                                                     fontSize: 20,
                                                     fontWeight:
                                                         ThemeTypes.FontWeight
                                                             .Bold,
-                                                    color: '#1976d2',
+                                                    color: PdfColor.fromHex(
+                                                        '#1976d2'
+                                                    ),
                                                 },
                                             }),
                                         ],
@@ -478,19 +505,23 @@ describe('PDF Generation Visual Validation', () => {
                                         crossAxisAlignment:
                                             Flex.CrossAxisAlignment.Center,
                                         children: [
-                                            new TextWidget('Total Orders', {
+                                            new Txt('Total Orders', {
                                                 style: {
                                                     fontSize: 12,
-                                                    color: '#666',
+                                                    color: PdfColor.fromHex(
+                                                        '#666'
+                                                    ),
                                                 },
                                             }),
-                                            new TextWidget('1,707', {
+                                            new Txt('1,707', {
                                                 style: {
                                                     fontSize: 20,
                                                     fontWeight:
                                                         ThemeTypes.FontWeight
                                                             .Bold,
-                                                    color: '#388e3c',
+                                                    color: PdfColor.fromHex(
+                                                        '#388e3c'
+                                                    ),
                                                 },
                                             }),
                                         ],
@@ -499,19 +530,23 @@ describe('PDF Generation Visual Validation', () => {
                                         crossAxisAlignment:
                                             Flex.CrossAxisAlignment.Center,
                                         children: [
-                                            new TextWidget('Avg Growth', {
+                                            new Txt('Avg Growth', {
                                                 style: {
                                                     fontSize: 12,
-                                                    color: '#666',
+                                                    color: PdfColor.fromHex(
+                                                        '#666'
+                                                    ),
                                                 },
                                             }),
-                                            new TextWidget('+11.5%', {
+                                            new Txt('+11.5%', {
                                                 style: {
                                                     fontSize: 20,
                                                     fontWeight:
                                                         ThemeTypes.FontWeight
                                                             .Bold,
-                                                    color: '#f57c00',
+                                                    color: PdfColor.fromHex(
+                                                        '#f57c00'
+                                                    ),
                                                 },
                                             }),
                                         ],
@@ -546,8 +581,11 @@ describe('PDF Generation Visual Validation', () => {
                 child: new Container({
                     padding: Layout.EdgeInsets.all(30),
                     decoration: {
-                        color: '#ffffff',
-                        border: { width: 2, color: '#6c5ce7' },
+                        color: PdfColor.fromHex('#ffffff'),
+                        border: {
+                            width: 2,
+                            color: PdfColor.fromHex('#6c5ce7'),
+                        },
                     },
                     child: new Column({
                         crossAxisAlignment: Flex.CrossAxisAlignment.Stretch,
@@ -556,7 +594,7 @@ describe('PDF Generation Visual Validation', () => {
                             new Container({
                                 height: 80,
                                 decoration: {
-                                    color: '#6c5ce7', // Modern purple
+                                    color: PdfColor.fromHex('#6c5ce7'), // Modern purple
                                     borderRadius: {
                                         topLeft: 12,
                                         topRight: 12,
@@ -568,7 +606,7 @@ describe('PDF Generation Visual Validation', () => {
                                     children: [
                                         new Container({
                                             alignment: Layout.Alignment.Center,
-                                            child: new TextWidget(
+                                            child: new Txt(
                                                 'Modern Theme Showcase',
                                                 {
                                                     style: {
@@ -577,7 +615,9 @@ describe('PDF Generation Visual Validation', () => {
                                                             ThemeTypes
                                                                 .FontWeight
                                                                 .Bold,
-                                                        color: '#ffffff',
+                                                        color: PdfColor.fromHex(
+                                                            '#ffffff'
+                                                        ),
                                                     },
                                                 }
                                             ),
@@ -589,7 +629,9 @@ describe('PDF Generation Visual Validation', () => {
                                                 width: 50,
                                                 height: 50,
                                                 decoration: {
-                                                    color: '#a29bfe',
+                                                    color: PdfColor.fromHex(
+                                                        '#a29bfe'
+                                                    ),
                                                     borderRadius: {
                                                         topLeft: 25,
                                                         topRight: 25,
@@ -599,10 +641,12 @@ describe('PDF Generation Visual Validation', () => {
                                                 },
                                                 alignment:
                                                     Layout.Alignment.Center,
-                                                child: new TextWidget('✓', {
+                                                child: new Txt('✓', {
                                                     style: {
                                                         fontSize: 20,
-                                                        color: '#ffffff',
+                                                        color: PdfColor.fromHex(
+                                                            '#ffffff'
+                                                        ),
                                                         fontWeight:
                                                             ThemeTypes
                                                                 .FontWeight
@@ -624,7 +668,9 @@ describe('PDF Generation Visual Validation', () => {
                                                 padding:
                                                     Layout.EdgeInsets.all(20),
                                                 decoration: {
-                                                    color: '#f8f9ff',
+                                                    color: PdfColor.fromHex(
+                                                        '#f8f9ff'
+                                                    ),
                                                     borderRadius: {
                                                         topLeft: 8,
                                                         topRight: 8,
@@ -633,7 +679,9 @@ describe('PDF Generation Visual Validation', () => {
                                                     },
                                                     border: {
                                                         width: 1,
-                                                        color: '#e0e0ff',
+                                                        color: PdfColor.fromHex(
+                                                            '#e0e0ff'
+                                                        ),
                                                     },
                                                 },
                                                 child: new Column({
@@ -641,19 +689,18 @@ describe('PDF Generation Visual Validation', () => {
                                                         Flex.CrossAxisAlignment
                                                             .Start,
                                                     children: [
-                                                        new TextWidget(
-                                                            'Features',
-                                                            {
-                                                                style: {
-                                                                    fontSize: 18,
-                                                                    fontWeight:
-                                                                        ThemeTypes
-                                                                            .FontWeight
-                                                                            .Bold,
-                                                                    color: '#6c5ce7',
-                                                                },
-                                                            }
-                                                        ),
+                                                        new Txt('Features', {
+                                                            style: {
+                                                                fontSize: 18,
+                                                                fontWeight:
+                                                                    ThemeTypes
+                                                                        .FontWeight
+                                                                        .Bold,
+                                                                color: PdfColor.fromHex(
+                                                                    '#6c5ce7'
+                                                                ),
+                                                            },
+                                                        }),
                                                         LayoutUtils.padded(
                                                             new Column({
                                                                 crossAxisAlignment:
@@ -661,39 +708,47 @@ describe('PDF Generation Visual Validation', () => {
                                                                         .CrossAxisAlignment
                                                                         .Start,
                                                                 children: [
-                                                                    new TextWidget(
+                                                                    new Txt(
                                                                         '• Modern color palette',
                                                                         {
                                                                             style: {
                                                                                 fontSize: 12,
-                                                                                color: '#2d3436',
+                                                                                color: PdfColor.fromHex(
+                                                                                    '#2d3436'
+                                                                                ),
                                                                             },
                                                                         }
                                                                     ),
-                                                                    new TextWidget(
+                                                                    new Txt(
                                                                         '• Rounded corners',
                                                                         {
                                                                             style: {
                                                                                 fontSize: 12,
-                                                                                color: '#2d3436',
+                                                                                color: PdfColor.fromHex(
+                                                                                    '#2d3436'
+                                                                                ),
                                                                             },
                                                                         }
                                                                     ),
-                                                                    new TextWidget(
+                                                                    new Txt(
                                                                         '• Clean typography',
                                                                         {
                                                                             style: {
                                                                                 fontSize: 12,
-                                                                                color: '#2d3436',
+                                                                                color: PdfColor.fromHex(
+                                                                                    '#2d3436'
+                                                                                ),
                                                                             },
                                                                         }
                                                                     ),
-                                                                    new TextWidget(
+                                                                    new Txt(
                                                                         '• Professional layout',
                                                                         {
                                                                             style: {
                                                                                 fontSize: 12,
-                                                                                color: '#2d3436',
+                                                                                color: PdfColor.fromHex(
+                                                                                    '#2d3436'
+                                                                                ),
                                                                             },
                                                                         }
                                                                     ),
@@ -716,7 +771,9 @@ describe('PDF Generation Visual Validation', () => {
                                                             20
                                                         ),
                                                     decoration: {
-                                                        color: '#fff5f5',
+                                                        color: PdfColor.fromHex(
+                                                            '#fff5f5'
+                                                        ),
                                                         borderRadius: {
                                                             topLeft: 8,
                                                             topRight: 8,
@@ -725,7 +782,9 @@ describe('PDF Generation Visual Validation', () => {
                                                         },
                                                         border: {
                                                             width: 1,
-                                                            color: '#ffebee',
+                                                            color: PdfColor.fromHex(
+                                                                '#ffebee'
+                                                            ),
                                                         },
                                                     },
                                                     child: new Column({
@@ -734,7 +793,7 @@ describe('PDF Generation Visual Validation', () => {
                                                                 .CrossAxisAlignment
                                                                 .Start,
                                                         children: [
-                                                            new TextWidget(
+                                                            new Txt(
                                                                 'Statistics',
                                                                 {
                                                                     style: {
@@ -743,7 +802,9 @@ describe('PDF Generation Visual Validation', () => {
                                                                             ThemeTypes
                                                                                 .FontWeight
                                                                                 .Bold,
-                                                                        color: '#e17055',
+                                                                        color: PdfColor.fromHex(
+                                                                            '#e17055'
+                                                                        ),
                                                                     },
                                                                 }
                                                             ),
@@ -758,16 +819,18 @@ describe('PDF Generation Visual Validation', () => {
                                                                                         .SpaceBetween,
                                                                                 children:
                                                                                     [
-                                                                                        new TextWidget(
+                                                                                        new Txt(
                                                                                             'Users:',
                                                                                             {
                                                                                                 style: {
                                                                                                     fontSize: 12,
-                                                                                                    color: '#2d3436',
+                                                                                                    color: PdfColor.fromHex(
+                                                                                                        '#2d3436'
+                                                                                                    ),
                                                                                                 },
                                                                                             }
                                                                                         ),
-                                                                                        new TextWidget(
+                                                                                        new Txt(
                                                                                             '12,547',
                                                                                             {
                                                                                                 style: {
@@ -776,7 +839,9 @@ describe('PDF Generation Visual Validation', () => {
                                                                                                         ThemeTypes
                                                                                                             .FontWeight
                                                                                                             .Bold,
-                                                                                                    color: '#00b894',
+                                                                                                    color: PdfColor.fromHex(
+                                                                                                        '#00b894'
+                                                                                                    ),
                                                                                                 },
                                                                                             }
                                                                                         ),
@@ -791,16 +856,18 @@ describe('PDF Generation Visual Validation', () => {
                                                                                         .SpaceBetween,
                                                                                 children:
                                                                                     [
-                                                                                        new TextWidget(
+                                                                                        new Txt(
                                                                                             'Revenue:',
                                                                                             {
                                                                                                 style: {
                                                                                                     fontSize: 12,
-                                                                                                    color: '#2d3436',
+                                                                                                    color: PdfColor.fromHex(
+                                                                                                        '#2d3436'
+                                                                                                    ),
                                                                                                 },
                                                                                             }
                                                                                         ),
-                                                                                        new TextWidget(
+                                                                                        new Txt(
                                                                                             '$89,432',
                                                                                             {
                                                                                                 style: {
@@ -809,7 +876,9 @@ describe('PDF Generation Visual Validation', () => {
                                                                                                         ThemeTypes
                                                                                                             .FontWeight
                                                                                                             .Bold,
-                                                                                                    color: '#00b894',
+                                                                                                    color: PdfColor.fromHex(
+                                                                                                        '#00b894'
+                                                                                                    ),
                                                                                                 },
                                                                                             }
                                                                                         ),
@@ -824,16 +893,18 @@ describe('PDF Generation Visual Validation', () => {
                                                                                         .SpaceBetween,
                                                                                 children:
                                                                                     [
-                                                                                        new TextWidget(
+                                                                                        new Txt(
                                                                                             'Growth:',
                                                                                             {
                                                                                                 style: {
                                                                                                     fontSize: 12,
-                                                                                                    color: '#2d3436',
+                                                                                                    color: PdfColor.fromHex(
+                                                                                                        '#2d3436'
+                                                                                                    ),
                                                                                                 },
                                                                                             }
                                                                                         ),
-                                                                                        new TextWidget(
+                                                                                        new Txt(
                                                                                             '+24%',
                                                                                             {
                                                                                                 style: {
@@ -842,7 +913,9 @@ describe('PDF Generation Visual Validation', () => {
                                                                                                         ThemeTypes
                                                                                                             .FontWeight
                                                                                                             .Bold,
-                                                                                                    color: '#00b894',
+                                                                                                    color: PdfColor.fromHex(
+                                                                                                        '#00b894'
+                                                                                                    ),
                                                                                                 },
                                                                                             }
                                                                                         ),
@@ -875,7 +948,7 @@ describe('PDF Generation Visual Validation', () => {
                                         width: 120,
                                         height: 40,
                                         decoration: {
-                                            color: '#6c5ce7',
+                                            color: PdfColor.fromHex('#6c5ce7'),
                                             borderRadius: {
                                                 topLeft: 20,
                                                 topRight: 20,
@@ -884,12 +957,14 @@ describe('PDF Generation Visual Validation', () => {
                                             },
                                         },
                                         alignment: Layout.Alignment.Center,
-                                        child: new TextWidget('Primary', {
+                                        child: new Txt('Primary', {
                                             style: {
                                                 fontSize: 14,
                                                 fontWeight:
                                                     ThemeTypes.FontWeight.Bold,
-                                                color: '#ffffff',
+                                                color: PdfColor.fromHex(
+                                                    '#ffffff'
+                                                ),
                                             },
                                         }),
                                     }),
@@ -897,7 +972,7 @@ describe('PDF Generation Visual Validation', () => {
                                         width: 120,
                                         height: 40,
                                         decoration: {
-                                            color: '#ffffff',
+                                            color: PdfColor.fromHex('#ffffff'),
                                             borderRadius: {
                                                 topLeft: 20,
                                                 topRight: 20,
@@ -906,16 +981,20 @@ describe('PDF Generation Visual Validation', () => {
                                             },
                                             border: {
                                                 width: 2,
-                                                color: '#6c5ce7',
+                                                color: PdfColor.fromHex(
+                                                    '#6c5ce7'
+                                                ),
                                             },
                                         },
                                         alignment: Layout.Alignment.Center,
-                                        child: new TextWidget('Secondary', {
+                                        child: new Txt('Secondary', {
                                             style: {
                                                 fontSize: 14,
                                                 fontWeight:
                                                     ThemeTypes.FontWeight.Bold,
-                                                color: '#6c5ce7',
+                                                color: PdfColor.fromHex(
+                                                    '#6c5ce7'
+                                                ),
                                             },
                                         }),
                                     }),
@@ -923,7 +1002,7 @@ describe('PDF Generation Visual Validation', () => {
                                         width: 120,
                                         height: 40,
                                         decoration: {
-                                            color: '#ddd6fe',
+                                            color: PdfColor.fromHex('#ddd6fe'),
                                             borderRadius: {
                                                 topLeft: 20,
                                                 topRight: 20,
@@ -932,10 +1011,12 @@ describe('PDF Generation Visual Validation', () => {
                                             },
                                         },
                                         alignment: Layout.Alignment.Center,
-                                        child: new TextWidget('Disabled', {
+                                        child: new Txt('Disabled', {
                                             style: {
                                                 fontSize: 14,
-                                                color: '#a78bfa',
+                                                color: PdfColor.fromHex(
+                                                    '#a78bfa'
+                                                ),
                                             },
                                         }),
                                     }),

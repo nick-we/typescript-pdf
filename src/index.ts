@@ -14,6 +14,7 @@ export {
     Page,
     DocumentFactory,
     PageFactory,
+    PdfColor,
     PAGE_FORMATS,
     TextDirection,
 
@@ -44,7 +45,7 @@ export {
     PageDefaults,
 
     // Text widgets (note: TextAlign, TextOverflow, TextUtils from widgets take precedence)
-    TextWidget,
+    Txt,
     RichText,
     TextAlign,
     TextOverflow,

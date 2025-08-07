@@ -18,11 +18,12 @@ import { describe, it, expect, beforeEach } from 'vitest';
 
 // Import required modules
 import { Document } from '@/core/document.js';
+import { PdfColor } from '@/core/pdf';
 import { Layout, Theme, type Internal } from '@/types.js';
 import {
     Table,
     DataUtils,
-    TextWidget,
+    Txt,
     Container,
     Column,
     TableCellVerticalAlignment,
@@ -67,12 +68,12 @@ describe('Table Visual Validation', () => {
             headerStyle: {
                 fontSize: 14,
                 fontWeight: Theme.FontWeight.Bold,
-                color: '#ffffff',
+                color: PdfColor.fromHex('#ffffff'),
             },
             cellPadding: Layout.EdgeInsets.all(12),
             borders: DataUtils.borders.all({
                 width: 1,
-                color: '#333333',
+                color: PdfColor.fromHex('#333333'),
                 style: 'solid',
             }),
         });
@@ -81,16 +82,13 @@ describe('Table Visual Validation', () => {
             build: () =>
                 new Column({
                     children: [
-                        new TextWidget(
-                            'Table Visual Validation - Basic Table',
-                            {
-                                style: {
-                                    fontSize: 18,
-                                    fontWeight: Theme.FontWeight.Bold,
-                                    color: '#2c3e50',
-                                },
-                            }
-                        ),
+                        new Txt('Table Visual Validation - Basic Table', {
+                            style: {
+                                fontSize: 18,
+                                fontWeight: Theme.FontWeight.Bold,
+                                color: PdfColor.fromHex('#2c3e50'),
+                            },
+                        }),
                         new Container({
                             margin: Layout.EdgeInsets.only({ top: 20 }),
                             child: table,
@@ -155,7 +153,7 @@ describe('Table Visual Validation', () => {
             headerStyle: {
                 fontSize: 12,
                 fontWeight: Theme.FontWeight.Bold,
-                color: '#ffffff',
+                color: PdfColor.fromHex('#ffffff'),
             },
             cellPadding: Layout.EdgeInsets.symmetric({
                 horizontal: 8,
@@ -163,7 +161,7 @@ describe('Table Visual Validation', () => {
             }),
             borders: DataUtils.borders.all({
                 width: 1,
-                color: '#666666',
+                color: PdfColor.fromHex('#666666'),
                 style: 'solid',
             }),
             defaultVerticalAlignment: TableCellVerticalAlignment.Top,
@@ -173,19 +171,19 @@ describe('Table Visual Validation', () => {
             build: () =>
                 new Column({
                     children: [
-                        new TextWidget('Column Width Types Demonstration', {
+                        new Txt('Column Width Types Demonstration', {
                             style: {
                                 fontSize: 18,
                                 fontWeight: Theme.FontWeight.Bold,
-                                color: '#2c3e50',
+                                color: PdfColor.fromHex('#2c3e50'),
                             },
                         }),
-                        new TextWidget(
+                        new Txt(
                             'Fixed (100px) | Flex (weight 2) | Fraction (30%) | Intrinsic (auto)',
                             {
                                 style: {
                                     fontSize: 12,
-                                    color: '#7f8c8d',
+                                    color: PdfColor.fromHex('#7f8c8d'),
                                     lineSpacing: 1.4,
                                 },
                             }
@@ -226,7 +224,7 @@ describe('Table Visual Validation', () => {
             data: baseData,
             borders: DataUtils.borders.all({
                 width: 2,
-                color: '#2c3e50',
+                color: PdfColor.fromHex('#2c3e50'),
                 style: 'solid',
             }),
             cellPadding: Layout.EdgeInsets.all(10),
@@ -238,7 +236,7 @@ describe('Table Visual Validation', () => {
             ),
             borders: DataUtils.borders.all({
                 width: 2,
-                color: '#e74c3c',
+                color: PdfColor.fromHex('#e74c3c'),
                 style: 'dashed',
             }),
             cellPadding: Layout.EdgeInsets.all(10),
@@ -250,7 +248,7 @@ describe('Table Visual Validation', () => {
             ),
             borders: DataUtils.borders.all({
                 width: 2,
-                color: '#9b59b6',
+                color: PdfColor.fromHex('#9b59b6'),
                 style: 'dotted',
             }),
             cellPadding: Layout.EdgeInsets.all(10),
@@ -260,19 +258,19 @@ describe('Table Visual Validation', () => {
             build: () =>
                 new Column({
                     children: [
-                        new TextWidget('Border Styles Demonstration', {
+                        new Txt('Border Styles Demonstration', {
                             style: {
                                 fontSize: 18,
                                 fontWeight: Theme.FontWeight.Bold,
-                                color: '#2c3e50',
+                                color: PdfColor.fromHex('#2c3e50'),
                             },
                         }),
 
-                        new TextWidget('Solid Borders:', {
+                        new Txt('Solid Borders:', {
                             style: {
                                 fontSize: 14,
                                 fontWeight: Theme.FontWeight.Bold,
-                                color: '#2c3e50',
+                                color: PdfColor.fromHex('#2c3e50'),
                             },
                         }),
                         new Container({
@@ -283,11 +281,11 @@ describe('Table Visual Validation', () => {
                             child: solidBorderTable,
                         }),
 
-                        new TextWidget('Dashed Borders:', {
+                        new Txt('Dashed Borders:', {
                             style: {
                                 fontSize: 14,
                                 fontWeight: Theme.FontWeight.Bold,
-                                color: '#e74c3c',
+                                color: PdfColor.fromHex('#e74c3c'),
                             },
                         }),
                         new Container({
@@ -298,11 +296,11 @@ describe('Table Visual Validation', () => {
                             child: dashedBorderTable,
                         }),
 
-                        new TextWidget('Dotted Borders:', {
+                        new Txt('Dotted Borders:', {
                             style: {
                                 fontSize: 14,
                                 fontWeight: Theme.FontWeight.Bold,
-                                color: '#9b59b6',
+                                color: PdfColor.fromHex('#9b59b6'),
                             },
                         }),
                         new Container({
@@ -380,19 +378,43 @@ describe('Table Visual Validation', () => {
             headerStyle: {
                 fontSize: 12,
                 fontWeight: Theme.FontWeight.Bold,
-                color: '#ffffff',
+                color: PdfColor.fromHex('#ffffff'),
             },
             cellPadding: Layout.EdgeInsets.symmetric({
                 horizontal: 6,
                 vertical: 8,
             }),
             borders: {
-                top: { width: 2, color: '#34495e', style: 'solid' },
-                bottom: { width: 2, color: '#34495e', style: 'solid' },
-                left: { width: 1, color: '#bdc3c7', style: 'solid' },
-                right: { width: 1, color: '#bdc3c7', style: 'solid' },
-                horizontal: { width: 1, color: '#ecf0f1', style: 'solid' },
-                vertical: { width: 1, color: '#ecf0f1', style: 'solid' },
+                top: {
+                    width: 2,
+                    color: PdfColor.fromHex('#34495e'),
+                    style: 'solid',
+                },
+                bottom: {
+                    width: 2,
+                    color: PdfColor.fromHex('#34495e'),
+                    style: 'solid',
+                },
+                left: {
+                    width: 1,
+                    color: PdfColor.fromHex('#bdc3c7'),
+                    style: 'solid',
+                },
+                right: {
+                    width: 1,
+                    color: PdfColor.fromHex('#bdc3c7'),
+                    style: 'solid',
+                },
+                horizontal: {
+                    width: 1,
+                    color: PdfColor.fromHex('#ecf0f1'),
+                    style: 'solid',
+                },
+                vertical: {
+                    width: 1,
+                    color: PdfColor.fromHex('#ecf0f1'),
+                    style: 'solid',
+                },
             },
             defaultVerticalAlignment: TableCellVerticalAlignment.Top,
         });
@@ -401,19 +423,19 @@ describe('Table Visual Validation', () => {
             build: () =>
                 new Column({
                     children: [
-                        new TextWidget('Complex Table Content & Alignment', {
+                        new Txt('Complex Table Content & Alignment', {
                             style: {
                                 fontSize: 18,
                                 fontWeight: Theme.FontWeight.Bold,
-                                color: '#2c3e50',
+                                color: PdfColor.fromHex('#2c3e50'),
                             },
                         }),
-                        new TextWidget(
+                        new Txt(
                             'Employee data with mixed column widths and content wrapping',
                             {
                                 style: {
                                     fontSize: 12,
-                                    color: '#7f8c8d',
+                                    color: PdfColor.fromHex('#7f8c8d'),
                                     lineSpacing: 1.4,
                                 },
                             }
@@ -487,12 +509,12 @@ describe('Table Visual Validation', () => {
             headerStyle: {
                 fontSize: 14,
                 fontWeight: Theme.FontWeight.Bold,
-                color: '#ffffff',
+                color: PdfColor.fromHex('#ffffff'),
             },
             cellPadding: Layout.EdgeInsets.all(10),
             borders: DataUtils.borders.all({
                 width: 1,
-                color: '#3498db',
+                color: PdfColor.fromHex('#3498db'),
                 style: 'solid',
             }),
             defaultVerticalAlignment: TableCellVerticalAlignment.Middle,
@@ -502,22 +524,19 @@ describe('Table Visual Validation', () => {
             build: () =>
                 new Column({
                     children: [
-                        new TextWidget(
-                            'Accurate Text Measurement Integration',
-                            {
-                                style: {
-                                    fontSize: 18,
-                                    fontWeight: Theme.FontWeight.Bold,
-                                    color: '#2c3e50',
-                                },
-                            }
-                        ),
-                        new TextWidget(
+                        new Txt('Accurate Text Measurement Integration', {
+                            style: {
+                                fontSize: 18,
+                                fontWeight: Theme.FontWeight.Bold,
+                                color: PdfColor.fromHex('#2c3e50'),
+                            },
+                        }),
+                        new Txt(
                             'Demonstrates integration with AccurateTextMeasurementService for precise column sizing',
                             {
                                 style: {
                                     fontSize: 12,
-                                    color: '#7f8c8d',
+                                    color: PdfColor.fromHex('#7f8c8d'),
                                     lineSpacing: 1.4,
                                 },
                             }
@@ -526,32 +545,32 @@ describe('Table Visual Validation', () => {
                             margin: Layout.EdgeInsets.only({ top: 16 }),
                             child: table,
                         }),
-                        new TextWidget(
+                        new Txt(
                             '✓ Intrinsic columns sized based on actual font metrics',
                             {
                                 style: {
                                     fontSize: 10,
-                                    color: '#27ae60',
+                                    color: PdfColor.fromHex('#27ae60'),
                                     lineSpacing: 1.4,
                                 },
                             }
                         ),
-                        new TextWidget(
+                        new Txt(
                             '✓ Text wrapping uses precise character widths',
                             {
                                 style: {
                                     fontSize: 10,
-                                    color: '#27ae60',
+                                    color: PdfColor.fromHex('#27ae60'),
                                     lineSpacing: 1.4,
                                 },
                             }
                         ),
-                        new TextWidget(
+                        new Txt(
                             '✓ Cell height calculation based on actual text dimensions',
                             {
                                 style: {
                                     fontSize: 10,
-                                    color: '#27ae60',
+                                    color: PdfColor.fromHex('#27ae60'),
                                     lineSpacing: 1.4,
                                 },
                             }
@@ -560,7 +579,7 @@ describe('Table Visual Validation', () => {
                 }),
         });
 
-        const pdfBytes = await document.save();
+        const pdfBytes = document.save();
         expect(pdfBytes).toBeInstanceOf(Uint8Array);
 
         const filename = join(
@@ -627,7 +646,7 @@ describe('Table Visual Validation', () => {
             headerStyle: {
                 fontSize: 11,
                 fontWeight: Theme.FontWeight.Bold,
-                color: '#ffffff',
+                color: PdfColor.fromHex('#ffffff'),
             },
             cellPadding: Layout.EdgeInsets.symmetric({
                 horizontal: 4,
@@ -635,7 +654,7 @@ describe('Table Visual Validation', () => {
             }),
             borders: DataUtils.borders.outline({
                 width: 1,
-                color: '#95a5a6',
+                color: PdfColor.fromHex('#95a5a6'),
                 style: 'solid',
             }),
         });
@@ -644,11 +663,11 @@ describe('Table Visual Validation', () => {
             build: () =>
                 new Column({
                     children: [
-                        new TextWidget('Table Performance Test - 50 Rows', {
+                        new Txt('Table Performance Test - 50 Rows', {
                             style: {
                                 fontSize: 16,
                                 fontWeight: Theme.FontWeight.Bold,
-                                color: '#2c3e50',
+                                color: PdfColor.fromHex('#2c3e50'),
                             },
                         }),
                         new Container({
@@ -659,7 +678,7 @@ describe('Table Visual Validation', () => {
                 }),
         });
 
-        const pdfBytes = await document.save();
+        const pdfBytes = document.save();
         const endTime = performance.now();
 
         expect(pdfBytes).toBeInstanceOf(Uint8Array);
@@ -732,12 +751,12 @@ describe('Table Visual Validation', () => {
             headerStyle: {
                 fontSize: 12,
                 fontWeight: Theme.FontWeight.Bold,
-                color: '#ffffff',
+                color: PdfColor.fromHex('#ffffff'),
             },
             cellPadding: Layout.EdgeInsets.all(8),
             borders: DataUtils.borders.all({
                 width: 1,
-                color: '#2c3e50',
+                color: PdfColor.fromHex('#2c3e50'),
                 style: 'solid',
             }),
             defaultVerticalAlignment: TableCellVerticalAlignment.Middle,
@@ -747,19 +766,19 @@ describe('Table Visual Validation', () => {
             build: () =>
                 new Column({
                     children: [
-                        new TextWidget('Table Widget Improvements Summary', {
+                        new Txt('Table Widget Improvements Summary', {
                             style: {
                                 fontSize: 20,
                                 fontWeight: Theme.FontWeight.Bold,
-                                color: '#2c3e50',
+                                color: PdfColor.fromHex('#2c3e50'),
                             },
                         }),
-                        new TextWidget(
+                        new Txt(
                             'Complete overhaul of table rendering system with proper PDF output',
                             {
                                 style: {
                                     fontSize: 14,
-                                    color: '#7f8c8d',
+                                    color: PdfColor.fromHex('#7f8c8d'),
                                     lineSpacing: 1.4,
                                 },
                             }
@@ -768,69 +787,69 @@ describe('Table Visual Validation', () => {
                             margin: Layout.EdgeInsets.only({ top: 20 }),
                             child: summaryTable,
                         }),
-                        new TextWidget('Key Achievements:', {
+                        new Txt('Key Achievements:', {
                             style: {
                                 fontSize: 14,
                                 fontWeight: Theme.FontWeight.Bold,
-                                color: '#2c3e50',
+                                color: PdfColor.fromHex('#2c3e50'),
                             },
                         }),
-                        new TextWidget(
+                        new Txt(
                             '• Replaced console.log placeholders with actual PDF graphics operations',
                             {
                                 style: {
                                     fontSize: 12,
-                                    color: '#27ae60',
+                                    color: PdfColor.fromHex('#27ae60'),
                                     lineSpacing: 1.6,
                                 },
                             }
                         ),
-                        new TextWidget(
+                        new Txt(
                             '• Integrated AccurateTextMeasurementService for precise text sizing',
                             {
                                 style: {
                                     fontSize: 12,
-                                    color: '#27ae60',
+                                    color: PdfColor.fromHex('#27ae60'),
                                     lineSpacing: 1.6,
                                 },
                             }
                         ),
-                        new TextWidget(
+                        new Txt(
                             '• Implemented content-based intrinsic column width calculation',
                             {
                                 style: {
                                     fontSize: 12,
-                                    color: '#27ae60',
+                                    color: PdfColor.fromHex('#27ae60'),
                                     lineSpacing: 1.6,
                                 },
                             }
                         ),
-                        new TextWidget(
+                        new Txt(
                             '• Added dynamic row height calculation based on cell content',
                             {
                                 style: {
                                     fontSize: 12,
-                                    color: '#27ae60',
+                                    color: PdfColor.fromHex('#27ae60'),
                                     lineSpacing: 1.6,
                                 },
                             }
                         ),
-                        new TextWidget(
+                        new Txt(
                             '• Complete border rendering with multiple styles (solid, dashed, dotted)',
                             {
                                 style: {
                                     fontSize: 12,
-                                    color: '#27ae60',
+                                    color: PdfColor.fromHex('#27ae60'),
                                     lineSpacing: 1.6,
                                 },
                             }
                         ),
-                        new TextWidget(
+                        new Txt(
                             '• Enhanced cell content rendering with text wrapping and alignment',
                             {
                                 style: {
                                     fontSize: 12,
-                                    color: '#27ae60',
+                                    color: PdfColor.fromHex('#27ae60'),
                                     lineSpacing: 1.6,
                                 },
                             }

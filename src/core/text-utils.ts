@@ -14,8 +14,8 @@
  */
 
 import { getGlobalTextMeasurement } from '@/core/accurate-text-measurement.js';
-import type { FontSystem } from '@/core/fonts.js';
-import { FontWeight, FontStyle } from '@/core/fonts.js';
+import { type FontSystem, FontWeight, FontStyle } from '@/core/fonts.js';
+import type { PdfColor } from '@/core/pdf/color';
 import type { Geometry } from '@/types.js';
 
 /**
@@ -55,7 +55,7 @@ export interface TextStyle {
     fontStyle?: FontStyle;
     lineHeight?: number;
     letterSpacing?: number;
-    color?: string;
+    color?: PdfColor;
 }
 
 /**

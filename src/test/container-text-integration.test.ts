@@ -11,7 +11,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { createTestLayoutContext } from '@/test/test-utils.js';
 import { Layout } from '@/types.js';
 import { Container } from '@/widgets/layout.js';
-import { TextWidget, TextOverflow } from '@/widgets/text.js';
+import { Txt, TextOverflow } from '@/widgets/text.js';
 
 describe('Container-Text Layout Integration', () => {
     let mockContext: Layout.LayoutContext;
@@ -34,7 +34,7 @@ describe('Container-Text Layout Integration', () => {
             const longText =
                 "This is a very long text that should wrap properly within the container's available space and not use the arbitrary 1000px default width";
 
-            const text = new TextWidget(longText, { softWrap: true });
+            const text = new Txt(longText, { softWrap: true });
             const container = new Container({ child: text });
 
             // Container with infinite maxWidth constraint
@@ -64,7 +64,7 @@ describe('Container-Text Layout Integration', () => {
             const longText =
                 "This text should wrap within the container's specified width";
 
-            const text = new TextWidget(longText, { softWrap: true });
+            const text = new Txt(longText, { softWrap: true });
             const container = new Container({
                 child: text,
                 width: 200,
@@ -81,7 +81,7 @@ describe('Container-Text Layout Integration', () => {
         });
 
         it('should handle very narrow containers correctly', () => {
-            const text = new TextWidget('Long text content', {
+            const text = new Txt('Long text content', {
                 softWrap: true,
             });
             const container = new Container({
@@ -102,7 +102,7 @@ describe('Container-Text Layout Integration', () => {
 
     describe('Text Measurement Service Integration', () => {
         it('should use AccurateTextMeasurementService when available', () => {
-            const text = new TextWidget('Test text for measurement', {
+            const text = new Txt('Test text for measurement', {
                 softWrap: true,
             });
             const container = new Container({
@@ -137,7 +137,7 @@ describe('Container-Text Layout Integration', () => {
         });
 
         it('should handle fallback when measurement service unavailable', () => {
-            const text = new TextWidget('Test text fallback', {
+            const text = new Txt('Test text fallback', {
                 softWrap: true,
             });
             const container = new Container({
@@ -160,10 +160,10 @@ describe('Container-Text Layout Integration', () => {
         it('should maintain consistent behavior with and without service', () => {
             const textContent = 'Consistent measurement test';
 
-            const textWithService = new TextWidget(textContent, {
+            const textWithService = new Txt(textContent, {
                 softWrap: true,
             });
-            const textWithoutService = new TextWidget(textContent, {
+            const textWithoutService = new Txt(textContent, {
                 softWrap: true,
             });
 
@@ -195,7 +195,7 @@ describe('Container-Text Layout Integration', () => {
 
     describe('Size Negotiation and Reporting', () => {
         it('should properly report text size back to container', () => {
-            const text = new TextWidget('Size reporting test', {
+            const text = new Txt('Size reporting test', {
                 softWrap: false,
             });
             const container = new Container({
@@ -216,7 +216,7 @@ describe('Container-Text Layout Integration', () => {
         });
 
         it('should handle baseline calculation correctly', () => {
-            const text = new TextWidget('Baseline test', { softWrap: false });
+            const text = new Txt('Baseline test', { softWrap: false });
             const container = new Container({
                 child: text,
                 padding: Layout.EdgeInsets.only({ top: 10, bottom: 5 }),
@@ -236,7 +236,7 @@ describe('Container-Text Layout Integration', () => {
     describe('Text Overflow Integration', () => {
         it('should handle clip overflow in containers', () => {
             const longText = 'This text is too long and should be clipped';
-            const text = new TextWidget(longText, {
+            const text = new Txt(longText, {
                 softWrap: false,
                 overflow: TextOverflow.Clip,
             });
@@ -258,7 +258,7 @@ describe('Container-Text Layout Integration', () => {
 
         it('should handle ellipsis overflow in containers', () => {
             const longText = 'This text is too long and should show ellipsis';
-            const text = new TextWidget(longText, {
+            const text = new Txt(longText, {
                 softWrap: false,
                 overflow: TextOverflow.Ellipsis,
             });
@@ -281,7 +281,7 @@ describe('Container-Text Layout Integration', () => {
 
     describe('Edge Cases and Complex Scenarios', () => {
         it('should handle nested containers with text', () => {
-            const text = new TextWidget('Nested container text', {
+            const text = new Txt('Nested container text', {
                 softWrap: true,
             });
             const innerContainer = new Container({
@@ -302,7 +302,7 @@ describe('Container-Text Layout Integration', () => {
         });
 
         it('should handle empty text in containers', () => {
-            const text = new TextWidget('', { softWrap: true });
+            const text = new Txt('', { softWrap: true });
             const container = new Container({
                 child: text,
                 padding: Layout.EdgeInsets.all(10),
@@ -321,7 +321,7 @@ describe('Container-Text Layout Integration', () => {
 
         it('should handle very long single word', () => {
             const longWord = 'Supercalifragilisticexpialidocious';
-            const text = new TextWidget(longWord, { softWrap: true });
+            const text = new Txt(longWord, { softWrap: true });
             const container = new Container({
                 child: text,
                 width: 50,

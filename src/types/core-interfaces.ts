@@ -7,6 +7,7 @@
  * @packageDocumentation
  */
 
+import type { PdfColor } from '@/core/pdf';
 import type {
     IPdfFont,
     IFontLoader,
@@ -166,16 +167,6 @@ export interface IFontSystem {
 }
 
 /**
- * PDF Color interface
- */
-export interface IPdfColor {
-    red: number;
-    green: number;
-    blue: number;
-    alpha?: number;
-}
-
-/**
  * Graphics context interface
  * Abstracts PdfGraphics without circular import
  */
@@ -187,8 +178,8 @@ export interface IGraphicsContext {
     restoreContext(): void;
 
     // Colors
-    setFillColor(color: IPdfColor): void;
-    setStrokeColor(color: IPdfColor): void;
+    setFillColor(color: PdfColor): void;
+    setStrokeColor(color: PdfColor): void;
 
     // Line properties
     setLineWidth(width: number): void;
@@ -304,23 +295,4 @@ export interface IWidget {
         baseline?: number;
     };
     paint?(context: Layout.PaintContext): void;
-}
-
-/**
- * Color value types for type-safe color operations
- */
-export type ColorValue =
-    | string // Hex colors: "#ff0000", "#f00", "red"
-    | IPdfColor // RGB object: { red: 1, green: 0, blue: 0 }
-    | [number, number, number] // RGB array: [255, 0, 0]
-    | [number, number, number, number] // RGBA array: [255, 0, 0, 1]
-    | number; // Grayscale: 0-255 or 0-1
-
-/**
- * Parsed color result interface
- */
-export interface IParsedColor extends IPdfColor {
-    hex: string;
-    rgba: string;
-    isValid: boolean;
 }

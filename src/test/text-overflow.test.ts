@@ -8,9 +8,10 @@
 import { describe, test, expect } from 'vitest';
 
 import { Document } from '@/core/document.js';
+import { PdfColor } from '@/core/pdf';
 import { Layout, defaultTheme } from '@/types.js';
 import { Container } from '@/widgets/layout.js';
-import { TextWidget, TextOverflow, TextUtils } from '@/widgets/text.js';
+import { Txt, TextOverflow, TextUtils } from '@/widgets/text.js';
 
 describe('Text Overflow Issues - Reproduction', () => {
     const mockTheme = defaultTheme;
@@ -24,11 +25,11 @@ describe('Text Overflow Issues - Reproduction', () => {
             height: 100,
             alignment: Layout.Alignment.TopLeft,
             decoration: {
-                color: '#f0f0f0',
-                border: { width: 1, color: '#000000' },
+                color: PdfColor.fromHex('#f0f0f0'),
+                border: { width: 1, color: PdfColor.fromHex('#000000') },
             },
-            child: new TextWidget(longText, {
-                style: { fontSize: 12, color: '#000000' },
+            child: new Txt(longText, {
+                style: { fontSize: 12, color: PdfColor.black },
                 softWrap: true, // Should wrap but probably doesn't
                 overflow: TextOverflow.Clip,
             }),
@@ -58,8 +59,8 @@ describe('Text Overflow Issues - Reproduction', () => {
         const longText =
             'This text is too long and should be truncated with ellipsis';
 
-        const text = new TextWidget(longText, {
-            style: { fontSize: 14, color: '#000000' },
+        const text = new Txt(longText, {
+            style: { fontSize: 14, color: PdfColor.black },
             overflow: TextOverflow.Ellipsis, // Should add ... but probably doesn't
             softWrap: false,
             maxLines: 1,
@@ -89,8 +90,8 @@ describe('Text Overflow Issues - Reproduction', () => {
     test('Multi-line text with maxLines should respect line limits', () => {
         const multiLineText = 'Line 1\nLine 2\nLine 3\nLine 4\nLine 5';
 
-        const text = new TextWidget(multiLineText, {
-            style: { fontSize: 12, color: '#000000' },
+        const text = new Txt(multiLineText, {
+            style: { fontSize: 12, color: PdfColor.black },
             maxLines: 3, // Should only show 3 lines
             overflow: TextOverflow.Ellipsis,
             softWrap: true,
@@ -124,8 +125,8 @@ describe('Text Overflow Issues - Reproduction', () => {
             width: 400,
             height: 500,
             decoration: {
-                color: '#ffffff',
-                border: { width: 2, color: '#000000' },
+                color: PdfColor.fromHex('#ffffff'),
+                border: { width: 2, color: PdfColor.fromHex('#000000') },
             },
             child: new Container({
                 width: 360,
@@ -141,23 +142,29 @@ describe('Text Overflow Issues - Reproduction', () => {
                             width: 280,
                             height: 380,
                             decoration: {
-                                color: '#f8f9fa',
-                                border: { width: 1, color: '#cccccc' },
+                                color: PdfColor.fromHex('#f8f9fa'),
+                                border: {
+                                    width: 1,
+                                    color: PdfColor.fromHex('#cccccc'),
+                                },
                             },
                             child: new Container({
                                 width: 150, // Narrow container
                                 height: 100,
                                 alignment: Layout.Alignment.TopLeft,
                                 decoration: {
-                                    color: '#ffe6e6',
-                                    border: { width: 1, color: '#ff0000' },
+                                    color: PdfColor.fromHex('#ffe6e6'),
+                                    border: {
+                                        width: 1,
+                                        color: PdfColor.fromHex('#ff0000'),
+                                    },
                                 },
-                                child: new TextWidget(
+                                child: new Txt(
                                     'This is a very long text that should wrap within the red container but currently overflows because wrapping is not implemented properly.',
                                     {
                                         style: {
                                             fontSize: 10,
-                                            color: '#333333',
+                                            color: PdfColor.fromHex('#333333'),
                                         },
                                         softWrap: true,
                                         overflow: TextOverflow.Clip,

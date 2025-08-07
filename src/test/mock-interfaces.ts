@@ -5,6 +5,7 @@
  * while maintaining flexibility for test scenarios.
  */
 
+import { PdfColor } from '@/core/pdf';
 import type {
     ITextMeasurementService,
     IGraphicsContext,
@@ -179,7 +180,7 @@ export interface MockGraphicsContext {
     readonly fontRegistry: IFontSystem | undefined;
 
     // Legacy compatibility methods
-    setColor?: (color: string | { r: number; g: number; b: number }) => void;
+    setColor?: (color: PdfColor) => void;
     drawLine?: (x1: number, y1: number, x2: number, y2: number) => void;
 }
 
@@ -298,7 +299,7 @@ export function createMockLayoutContext(
             defaultTextStyle: {
                 fontSize: 12,
                 fontFamily: 'Helvetica',
-                color: '#000000',
+                color: PdfColor.fromHex('#000000'),
             },
             cornerRadius: { none: 0, small: 4, medium: 8, large: 16 },
         } as Theme.ThemeData,
@@ -339,7 +340,7 @@ export function createMockPaintContext(
             defaultTextStyle: {
                 fontSize: 12,
                 fontFamily: 'Helvetica',
-                color: '#000000',
+                color: PdfColor.fromHex('#000000'),
             },
             cornerRadius: { none: 0, small: 4, medium: 8, large: 16 },
         } as Theme.ThemeData,
@@ -603,7 +604,7 @@ export function createMockGraphicsContext(
         fontRegistry: undefined as IFontSystem | undefined,
 
         // Legacy compatibility methods
-        setColor: (_color: string | { r: number; g: number; b: number }) => {
+        setColor: (_color: PdfColor) => {
             /* Mock implementation */
         },
         drawLine: (_x1: number, _y1: number, _x2: number, _y2: number) => {

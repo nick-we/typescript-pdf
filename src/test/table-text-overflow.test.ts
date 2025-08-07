@@ -10,11 +10,12 @@
 import { describe, it, expect } from 'vitest';
 
 import { Document } from '@/core/document.js';
+import { PdfColor } from '@/core/pdf';
 import { createMockPaintContext } from '@/test/mock-interfaces.js';
 import type { IPdfFont } from '@/types/pdf-types';
 import type { Layout } from '@/types.js';
 import { Table, TableRow, TextOverflow, DataUtils } from '@/widgets/data.js';
-import { TextWidget } from '@/widgets/text.js';
+import { Txt } from '@/widgets/text.js';
 
 describe('Table Text Overflow System', () => {
     // Use the proper mock paint context factory
@@ -44,7 +45,10 @@ describe('Table Text Overflow System', () => {
                     DataUtils.columnWidths.fixed(100),
                 ],
                 textOverflow: TextOverflow.Clip,
-                borders: DataUtils.borders.all({ width: 1, color: '#cccccc' }),
+                borders: DataUtils.borders.all({
+                    width: 1,
+                    color: PdfColor.fromHex('#cccccc'),
+                }),
             });
 
             const context = createTestPaintContext();
@@ -224,15 +228,15 @@ describe('Table Text Overflow System', () => {
                 columnWidths: [DataUtils.columnWidths.fixed(40)], // Very narrow to force overflow
                 children: [
                     new TableRow({
-                        children: [new TextWidget(longText)],
+                        children: [new Txt(longText)],
                         textOverflow: TextOverflow.Ellipsis, // Override to ellipsis
                     }),
                     new TableRow({
-                        children: [new TextWidget(longText)],
+                        children: [new Txt(longText)],
                         textOverflow: TextOverflow.Visible, // Override to visible
                     }),
                     new TableRow({
-                        children: [new TextWidget(longText)],
+                        children: [new Txt(longText)],
                         // Use table default (Clip)
                     }),
                 ],
@@ -271,11 +275,11 @@ describe('Table Text Overflow System', () => {
                 columnWidths: [DataUtils.columnWidths.fixed(100)],
                 children: [
                     new TableRow({
-                        children: [new TextWidget(veryLongText)],
+                        children: [new Txt(veryLongText)],
                         maxLines: 3, // Override to 3 lines
                     }),
                     new TableRow({
-                        children: [new TextWidget(veryLongText)],
+                        children: [new Txt(veryLongText)],
                         // Use table default (1 line)
                     }),
                 ],
@@ -507,13 +511,13 @@ describe('Text Overflow PDF Generation Integration', () => {
                     ],
                     borders: DataUtils.borders.all({
                         width: 1,
-                        color: '#000000',
+                        color: PdfColor.fromHex('#000000'),
                     }),
                     textOverflow: TextOverflow.Ellipsis,
                     headerStyle: {
                         fontSize: 12,
                         fontWeight: 700,
-                        color: '#ffffff',
+                        color: PdfColor.fromHex('#ffffff'),
                     },
                 }),
         });

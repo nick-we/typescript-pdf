@@ -18,10 +18,11 @@ import {
 } from '@/core/accurate-text-measurement.js';
 import { Document } from '@/core/document.js';
 import { FontSystem } from '@/core/fonts.js';
+import { PdfColor } from '@/core/pdf';
 import { Theme, Core, Layout, Flex } from '@/types.js';
 import { Column } from '@/widgets/flex.js';
 import { Container } from '@/widgets/layout.js';
-import { TextWidget, TextOverflow } from '@/widgets/text.js';
+import { Txt, TextOverflow } from '@/widgets/text.js';
 
 // Mock PdfDocument for FontSystem
 const mockPdfDocument = {
@@ -78,27 +79,24 @@ describe('Visual Text Measurement Validation', () => {
         const headerWidget = new Container({
             padding: Layout.EdgeInsets.all(20),
             decoration: {
-                color: '#f0f0f0',
+                color: PdfColor.fromHex('#f0f0f0'),
             },
             child: new Column({
                 crossAxisAlignment: Flex.CrossAxisAlignment.Start,
                 children: [
-                    new TextWidget(
-                        'Accurate Text Measurement Visual Validation',
-                        {
-                            style: {
-                                fontSize: 18,
-                                fontWeight: Theme.FontWeight.Bold,
-                                color: '#2c3e50',
-                            },
-                        }
-                    ),
-                    new TextWidget(
+                    new Txt('Accurate Text Measurement Visual Validation', {
+                        style: {
+                            fontSize: 18,
+                            fontWeight: Theme.FontWeight.Bold,
+                            color: PdfColor.fromHex('#2c3e50'),
+                        },
+                    }),
+                    new Txt(
                         'Comparison of avgCharWidth approximations vs actual font metrics',
                         {
                             style: {
                                 fontSize: 12,
-                                color: '#7f8c8d',
+                                color: PdfColor.fromHex('#7f8c8d'),
                                 lineSpacing: 1.4,
                             },
                         }
@@ -118,11 +116,11 @@ describe('Visual Text Measurement Validation', () => {
                     vertical: 15,
                     horizontal: 20,
                 }),
-                child: new TextWidget(`${index + 1}. ${testCase.title}`, {
+                child: new Txt(`${index + 1}. ${testCase.title}`, {
                     style: {
                         fontSize: 14,
                         fontWeight: Theme.FontWeight.Bold,
-                        color: '#2c3e50',
+                        color: PdfColor.fromHex('#2c3e50'),
                     },
                 }),
             });
@@ -136,13 +134,13 @@ describe('Visual Text Measurement Validation', () => {
                         top: 10,
                         bottom: 5,
                     }),
-                    child: new TextWidget(
+                    child: new Txt(
                         `Font: ${fontFamily} ${testCase.fontSize}pt`,
                         {
                             style: {
                                 fontSize: 12,
                                 fontWeight: Theme.FontWeight.Bold,
-                                color: '#34495e',
+                                color: PdfColor.fromHex('#34495e'),
                             },
                         }
                     ),
@@ -171,12 +169,12 @@ describe('Visual Text Measurement Validation', () => {
                         crossAxisAlignment: Flex.CrossAxisAlignment.Start,
                         children: [
                             // Stats
-                            new TextWidget(
+                            new Txt(
                                 `Container Width: ${testCase.containerWidth}pt | Approx: ${approximateWidth.toFixed(1)}pt | Accurate: ${accurateWidth.toFixed(1)}pt | Diff: ${Math.abs(accurateWidth - approximateWidth).toFixed(1)}pt`,
                                 {
                                     style: {
                                         fontSize: 9,
-                                        color: '#7f8c8d',
+                                        color: PdfColor.fromHex('#7f8c8d'),
                                         fontFamily: 'Courier',
                                     },
                                 }
@@ -197,7 +195,9 @@ describe('Visual Text Measurement Validation', () => {
                                         padding: Layout.EdgeInsets.all(8),
                                         decoration: {
                                             border: {
-                                                color: '#e74c3c',
+                                                color: PdfColor.fromHex(
+                                                    '#e74c3c'
+                                                ),
                                                 width: 1,
                                             },
                                         },
@@ -205,19 +205,18 @@ describe('Visual Text Measurement Validation', () => {
                                             crossAxisAlignment:
                                                 Flex.CrossAxisAlignment.Start,
                                             children: [
-                                                new TextWidget(
-                                                    'OLD (avgCharWidth)',
-                                                    {
-                                                        style: {
-                                                            fontSize: 8,
-                                                            color: '#e74c3c',
-                                                            fontWeight:
-                                                                Theme.FontWeight
-                                                                    .Bold,
-                                                        },
-                                                    }
-                                                ),
-                                                new TextWidget(testCase.text, {
+                                                new Txt('OLD (avgCharWidth)', {
+                                                    style: {
+                                                        fontSize: 8,
+                                                        color: PdfColor.fromHex(
+                                                            '#e74c3c'
+                                                        ),
+                                                        fontWeight:
+                                                            Theme.FontWeight
+                                                                .Bold,
+                                                    },
+                                                }),
+                                                new Txt(testCase.text, {
                                                     style: {
                                                         fontSize:
                                                             testCase.fontSize,
@@ -239,7 +238,9 @@ describe('Visual Text Measurement Validation', () => {
                                         padding: Layout.EdgeInsets.all(8),
                                         decoration: {
                                             border: {
-                                                color: '#27ae60',
+                                                color: PdfColor.fromHex(
+                                                    '#27ae60'
+                                                ),
                                                 width: 1,
                                             },
                                         },
@@ -247,19 +248,18 @@ describe('Visual Text Measurement Validation', () => {
                                             crossAxisAlignment:
                                                 Flex.CrossAxisAlignment.Start,
                                             children: [
-                                                new TextWidget(
-                                                    'NEW (Accurate)',
-                                                    {
-                                                        style: {
-                                                            fontSize: 8,
-                                                            color: '#27ae60',
-                                                            fontWeight:
-                                                                Theme.FontWeight
-                                                                    .Bold,
-                                                        },
-                                                    }
-                                                ),
-                                                new TextWidget(testCase.text, {
+                                                new Txt('NEW (Accurate)', {
+                                                    style: {
+                                                        fontSize: 8,
+                                                        color: PdfColor.fromHex(
+                                                            '#27ae60'
+                                                        ),
+                                                        fontWeight:
+                                                            Theme.FontWeight
+                                                                .Bold,
+                                                    },
+                                                }),
+                                                new Txt(testCase.text, {
                                                     style: {
                                                         fontSize:
                                                             testCase.fontSize,
@@ -285,58 +285,58 @@ describe('Visual Text Measurement Validation', () => {
             padding: Layout.EdgeInsets.all(20),
             margin: Layout.EdgeInsets.only({ top: 20 }),
             decoration: {
-                color: '#f8f9fa',
+                color: PdfColor.fromHex('#f8f9fa'),
                 border: {
-                    color: '#dee2e6',
+                    color: PdfColor.fromHex('#dee2e6'),
                     width: 1,
                 },
             },
             child: new Column({
                 crossAxisAlignment: Flex.CrossAxisAlignment.Start,
                 children: [
-                    new TextWidget('Summary of Improvements', {
+                    new Txt('Summary of Improvements', {
                         style: {
                             fontSize: 14,
                             fontWeight: Theme.FontWeight.Bold,
-                            color: '#2c3e50',
+                            color: PdfColor.fromHex('#2c3e50'),
                         },
                     }),
-                    new TextWidget(
+                    new Txt(
                         '• Red boxes show OLD method using avgCharWidth = fontSize × 0.55 approximation',
                         {
                             style: {
                                 fontSize: 10,
-                                color: '#e74c3c',
+                                color: PdfColor.fromHex('#e74c3c'),
                                 lineSpacing: 1.6,
                             },
                         }
                     ),
-                    new TextWidget(
+                    new Txt(
                         '• Green boxes show NEW method using actual font character width metrics',
                         {
                             style: {
                                 fontSize: 10,
-                                color: '#27ae60',
+                                color: PdfColor.fromHex('#27ae60'),
                                 lineSpacing: 1.6,
                             },
                         }
                     ),
-                    new TextWidget(
+                    new Txt(
                         '• Accurate measurements provide better text wrapping and ellipsis positioning',
                         {
                             style: {
                                 fontSize: 10,
-                                color: '#2c3e50',
+                                color: PdfColor.fromHex('#2c3e50'),
                                 lineSpacing: 1.6,
                             },
                         }
                     ),
-                    new TextWidget(
+                    new Txt(
                         '• Different fonts now render with correct proportional spacing',
                         {
                             style: {
                                 fontSize: 10,
-                                color: '#2c3e50',
+                                color: PdfColor.fromHex('#2c3e50'),
                                 lineSpacing: 1.6,
                             },
                         }

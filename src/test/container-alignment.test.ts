@@ -8,10 +8,11 @@
 
 import { describe, test, expect } from 'vitest';
 
+import { PdfColor } from '@/core';
 import { Document } from '@/core/document.js';
 import { Layout, defaultTheme } from '@/types.js';
 import { Container } from '@/widgets/layout.js';
-import { TextWidget } from '@/widgets/text.js';
+import { Txt } from '@/widgets/text.js';
 
 describe('Container Alignment System', () => {
     const mockTheme = defaultTheme;
@@ -45,8 +46,8 @@ describe('Container Alignment System', () => {
     });
 
     test('Container with center alignment layouts correctly', () => {
-        const textWidget = new TextWidget('CENTERED', {
-            style: { fontSize: 16, color: '#000000' },
+        const txt = new Txt('CENTERED', {
+            style: { fontSize: 16, color: PdfColor.fromHex('#000000') },
         });
 
         const container = new Container({
@@ -54,10 +55,10 @@ describe('Container Alignment System', () => {
             height: 100,
             alignment: Layout.Alignment.Center,
             decoration: {
-                color: '#f0f0f0',
-                border: { width: 1, color: '#000000' },
+                color: PdfColor.fromHex('#f0f0f0'),
+                border: { width: 1, color: PdfColor.fromHex('#000000') },
             },
-            child: textWidget,
+            child: txt,
         });
 
         const context: Layout.LayoutContext = {
@@ -77,15 +78,15 @@ describe('Container Alignment System', () => {
     });
 
     test('Container centers text widget correctly in paint phase', () => {
-        const textWidget = new TextWidget('TEST', {
-            style: { fontSize: 12, color: '#000000' },
+        const txt = new Txt('TEST', {
+            style: { fontSize: 12, color: PdfColor.fromHex('#000000') },
         });
 
         const container = new Container({
             width: 100,
             height: 60,
             alignment: Layout.Alignment.Center,
-            child: textWidget,
+            child: txt,
         });
 
         const layoutContext: Layout.LayoutContext = {
@@ -176,19 +177,19 @@ describe('Container Alignment Visual Test', () => {
             width: 400,
             height: 300,
             decoration: {
-                color: '#ffffff',
-                border: { width: 2, color: '#000000' },
+                color: PdfColor.fromHex('#ffffff'),
+                border: { width: 2, color: PdfColor.fromHex('#000000') },
             },
             child: new Container({
                 width: 200,
                 height: 100,
                 alignment: Layout.Alignment.Center,
                 decoration: {
-                    color: '#e0e0e0',
-                    border: { width: 1, color: '#666666' },
+                    color: PdfColor.fromHex('#e0e0e0'),
+                    border: { width: 1, color: PdfColor.fromHex('#666666') },
                 },
-                child: new TextWidget('SHOULD BE CENTERED', {
-                    style: { fontSize: 14, color: '#000000' },
+                child: new Txt('SHOULD BE CENTERED', {
+                    style: { fontSize: 14, color: PdfColor.fromHex('#000000') },
                 }),
             }),
         });

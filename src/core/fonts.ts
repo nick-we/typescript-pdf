@@ -13,6 +13,7 @@
  * @packageDocumentation
  */
 
+import type { PdfColor } from '@/core/pdf';
 import type { PdfDocument } from '@/core/pdf/font-engine.js';
 import { PdfStandardFont, PdfFont } from '@/core/pdf/font-engine.js';
 import type { IFontSystem } from '@/types/core-interfaces.js';
@@ -91,7 +92,7 @@ export interface TextStyleConfig {
     lineHeight?: number;
     letterSpacing?: number;
     wordSpacing?: number;
-    color?: string;
+    color?: PdfColor;
 }
 
 /**

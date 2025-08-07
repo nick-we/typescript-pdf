@@ -10,7 +10,7 @@
  */
 
 import { widgetLogger } from '@/core/logger.js';
-import type { IPdfColor } from '@/types/core-interfaces.js';
+import { PdfColor } from '@/core/pdf';
 import { type Geometry, Layout } from '@/types.js';
 import { BaseWidget, type Widget, type WidgetProps } from '@/widgets/base.js';
 
@@ -51,7 +51,7 @@ export interface BorderRadius {
  */
 export interface Border {
     readonly width?: number;
-    readonly color?: string;
+    readonly color?: PdfColor;
     readonly style?: BorderStyle;
 }
 
@@ -63,14 +63,14 @@ export interface BoxShadow {
     readonly offsetY: number;
     readonly blurRadius?: number;
     readonly spreadRadius?: number;
-    readonly color?: string;
+    readonly color?: PdfColor;
 }
 
 /**
  * Box decoration configuration
  */
 export interface BoxDecoration {
-    readonly color?: string;
+    readonly color?: PdfColor;
     readonly border?: Border;
     readonly borderRadius?: BorderRadius;
     readonly boxShadow?: BoxShadow[];
@@ -360,8 +360,7 @@ export class Container extends BaseWidget {
 
                 // Draw background color
                 if (this.decoration.color) {
-                    const color = this.parseColor(this.decoration.color);
-                    graphics.setFillColor(color);
+                    graphics.setFillColor(this.decoration.color);
 
                     if (hasRadius && this.decoration.borderRadius) {
                         graphics.drawRoundedRect(
@@ -387,10 +386,9 @@ export class Container extends BaseWidget {
 
                 // Draw border
                 if (this.decoration.border) {
-                    const color = this.parseColor(
-                        this.decoration.border.color ?? '#000000'
+                    graphics.setStrokeColor(
+                        this.decoration.border.color ?? PdfColor.black
                     );
-                    graphics.setStrokeColor(color);
                     graphics.setLineWidth(this.decoration.border.width ?? 1);
 
                     if (hasRadius && this.decoration.borderRadius) {
@@ -469,22 +467,6 @@ export class Container extends BaseWidget {
             // Restore graphics state
             graphics.restore();
         }
-    }
-
-    /**
-     * Parse color string to PdfColor
-     */
-    private parseColor(colorStr: string): IPdfColor {
-        // Simple hex color parser
-        if (colorStr.startsWith('#')) {
-            const hex = colorStr.slice(1);
-            const r = parseInt(hex.slice(0, 2), 16) / 255;
-            const g = parseInt(hex.slice(2, 4), 16) / 255;
-            const b = parseInt(hex.slice(4, 6), 16) / 255;
-            return { red: r, green: g, blue: b };
-        }
-        // Default to black
-        return { red: 0, green: 0, blue: 0 };
     }
 }
 
@@ -820,14 +802,14 @@ export const BorderRadiusUtils = {
 export const DecorationStyles = {
     /** Card-like decoration with subtle shadow */
     card: {
-        color: '#ffffff',
+        color: PdfColor.fromHex('#ffffff'),
         borderRadius: BorderRadiusUtils.all(8),
         boxShadow: [
             {
                 offsetX: 0,
                 offsetY: 2,
                 blurRadius: 4,
-                color: '#00000020',
+                color: PdfColor.fromHex('#0000020'),
             },
         ],
     } as BoxDecoration,
@@ -836,7 +818,7 @@ export const DecorationStyles = {
     outlined: {
         border: {
             width: 1,
-            color: '#e0e0e0',
+            color: PdfColor.fromHex('#e0e0e0'),
             style: BorderStyle.Solid,
         },
         borderRadius: BorderRadiusUtils.all(4),
@@ -844,14 +826,14 @@ export const DecorationStyles = {
 
     /** Elevated container with shadow */
     elevated: {
-        color: '#ffffff',
+        color: PdfColor.fromHex('#ffffff'),
         borderRadius: BorderRadiusUtils.all(4),
         boxShadow: [
             {
                 offsetX: 0,
                 offsetY: 4,
                 blurRadius: 8,
-                color: '#00000030',
+                color: PdfColor.fromHex('#0000030'),
             },
         ],
     } as BoxDecoration,

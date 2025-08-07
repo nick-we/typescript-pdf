@@ -23,7 +23,7 @@ export {
     type TextProps,
     type RichTextProps,
     type TextSpan,
-    TextWidget,
+    Txt,
     RichText,
     TextAlign,
     TextOverflow,

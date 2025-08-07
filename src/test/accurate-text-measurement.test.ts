@@ -13,7 +13,7 @@ import { AccurateTextMeasurementService } from '@/core/accurate-text-measurement
 import { FontSystem, FontWeight } from '@/core/fonts.js';
 import type { Layout } from '@/types.js';
 import { Theme } from '@/types.js';
-import { TextWidget, TextUtils } from '@/widgets/text.js';
+import { Txt, TextUtils } from '@/widgets/text.js';
 
 // Mock PdfDocument for FontSystem
 const mockPdfDocument = {
@@ -292,7 +292,7 @@ describe('AccurateTextMeasurement', () => {
     describe('Text Widget Integration', () => {
         it('should use accurate measurements in Text widget layout', () => {
             const textContent = 'Hello World Test';
-            const textWidget = new TextWidget(textContent, {
+            const txt = new Txt(textContent, {
                 style: {
                     fontSize: 14,
                     fontFamily: 'Helvetica',
@@ -313,7 +313,7 @@ describe('AccurateTextMeasurement', () => {
                 textMeasurement,
             };
 
-            const result = textWidget.layout(context);
+            const result = txt.layout(context);
 
             console.log(`Text widget layout result:`);
             console.log(
@@ -331,7 +331,7 @@ describe('AccurateTextMeasurement', () => {
         it('should handle text wrapping in constrained containers', () => {
             const longText =
                 'This is a longer text that should wrap across multiple lines in a constrained container';
-            const textWidget = new TextWidget(longText, {
+            const txt = new Txt(longText, {
                 style: {
                     fontSize: 12,
                     fontFamily: 'Helvetica',
@@ -353,7 +353,7 @@ describe('AccurateTextMeasurement', () => {
                 textMeasurement,
             };
 
-            const result = textWidget.layout(context);
+            const result = txt.layout(context);
 
             console.log(`Wrapped text layout result:`);
             console.log(

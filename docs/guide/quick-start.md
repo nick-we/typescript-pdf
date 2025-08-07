@@ -7,12 +7,12 @@ This guide will help you create your first PDF document with TypeScript PDF in j
 Let's start with a simple "Hello World" document:
 
 ```typescript
-import { Document, TextWidget } from 'typescript-pdf';
+import { Document, Txt } from 'typescript-pdf';
 
 const doc = new Document();
 
 doc.addPage({
-  build: () => new TextWidget('Hello, TypeScript PDF!')
+  build: () => new Txt('Hello, TypeScript PDF!')
 });
 
 const pdfBytes = await doc.save();
@@ -35,14 +35,14 @@ a.click();
 Let's make it more visually appealing with styling:
 
 ```typescript
-import { Document, TextWidget, Container } from 'typescript-pdf';
+import { Document, Txt, Container } from 'typescript-pdf';
 
 const doc = new Document();
 
 doc.addPage({
   build: () => new Container({
     padding: { all: 20 },
-    child: new TextWidget('Hello, TypeScript PDF!', {
+    child: new Txt('Hello, TypeScript PDF!', {
       fontSize: 24,
       fontWeight: 'bold',
       color: '#2563eb'
@@ -60,7 +60,7 @@ Create more complex layouts using containers and flex layouts:
 ```typescript
 import { 
   Document, 
-  TextWidget, 
+  Txt, 
   Container, 
   Column,
   Row 
@@ -74,13 +74,13 @@ doc.addPage({
     child: new Column({
       crossAxisAlignment: 'start',
       children: [
-        new TextWidget('TypeScript PDF', {
+        new Txt('TypeScript PDF', {
           fontSize: 28,
           fontWeight: 'bold',
           color: '#1f2937'
         }),
         
-        new TextWidget('Modern PDF Generation', {
+        new Txt('Modern PDF Generation', {
           fontSize: 16,
           color: '#6b7280',
           marginTop: 8
@@ -93,7 +93,7 @@ doc.addPage({
             color: '#f3f4f6',
             border: { width: 1, color: '#d1d5db' }
           },
-          child: new TextWidget(
+          child: new Txt(
             'This PDF was generated using TypeScript PDF, a modern library for programmatic PDF creation.',
             { fontSize: 14 }
           )
@@ -111,7 +111,7 @@ const pdfBytes = await doc.save();
 Create data tables easily:
 
 ```typescript
-import { Document, Table, TableRow, TextWidget } from 'typescript-pdf';
+import { Document, Table, TableRow, Txt } from 'typescript-pdf';
 
 const doc = new Document();
 
@@ -120,19 +120,19 @@ doc.addPage({
     columnWidths: ['flex', 'flex', '100pt'],
     children: [
       new TableRow([
-        new TextWidget('Product', { fontWeight: 'bold' }),
-        new TextWidget('Price', { fontWeight: 'bold' }),
-        new TextWidget('Qty', { fontWeight: 'bold' })
+        new Txt('Product', { fontWeight: 'bold' }),
+        new Txt('Price', { fontWeight: 'bold' }),
+        new Txt('Qty', { fontWeight: 'bold' })
       ]),
       new TableRow([
-        new TextWidget('Widget A'),
-        new TextWidget('$29.99'),
-        new TextWidget('2')
+        new Txt('Widget A'),
+        new Txt('$29.99'),
+        new Txt('2')
       ]),
       new TableRow([
-        new TextWidget('Widget B'),
-        new TextWidget('$19.99'),
-        new TextWidget('1')
+        new Txt('Widget B'),
+        new Txt('$19.99'),
+        new Txt('1')
       ])
     ]
   })
@@ -170,9 +170,9 @@ const responsiveLayout = new Container({
 ```typescript
 const conditionalContent = new Column({
   children: [
-    new TextWidget('Always visible'),
+    new Txt('Always visible'),
     ...(showOptional ? [
-      new TextWidget('Conditionally visible')
+      new Txt('Conditionally visible')
     ] : [])
   ]
 });
@@ -187,7 +187,7 @@ function createHeader(title: string) {
     decoration: {
       border: { bottom: { width: 2, color: '#2563eb' } }
     },
-    child: new TextWidget(title, {
+    child: new Txt(title, {
       fontSize: 20,
       fontWeight: 'bold'
     })

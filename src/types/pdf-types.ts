@@ -3,6 +3,7 @@
  * Replaces all unknown types with proper interfaces
  */
 
+import type { PdfColor } from '@/core/pdf';
 import type { Geometry, Layout } from '@/types.js';
 import type { Widget } from '@/widgets/base.js';
 
@@ -104,7 +105,7 @@ export interface ISoftMask {
 export interface ChartMetadata {
     label?: string;
     value?: number;
-    color?: string;
+    color?: PdfColor;
     category?: string;
     series?: string;
     tooltip?: string;
@@ -115,8 +116,8 @@ export interface TableCellMetadata {
     colSpan?: number;
     alignment?: 'left' | 'center' | 'right';
     verticalAlignment?: 'top' | 'middle' | 'bottom';
-    backgroundColor?: string;
-    textColor?: string;
+    backgroundcolor?: PdfColor;
+    textcolor?: PdfColor;
 }
 
 export interface DocumentMetadata {
@@ -136,10 +137,10 @@ export interface StyleMetadata {
     fontFamily?: string;
     fontWeight?: number;
     fontStyle?: string;
-    color?: string;
-    backgroundColor?: string;
+    color?: PdfColor;
+    backgroundcolor?: PdfColor;
     borderWidth?: number;
-    borderColor?: string;
+    bordercolor?: PdfColor;
     borderStyle?: 'solid' | 'dashed' | 'dotted';
     padding?: number;
     margin?: number;

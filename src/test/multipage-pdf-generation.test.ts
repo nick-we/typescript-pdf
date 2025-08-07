@@ -11,6 +11,7 @@ import * as path from 'path';
 import { describe, test, expect, beforeAll } from 'vitest';
 
 import { Document } from '@/core/document.js';
+import { PdfColor } from '@/core/pdf';
 import { Layout, Flex } from '@/types.js';
 import { Table, TableColumnWidthType } from '@/widgets/data.js';
 import { Column, Row } from '@/widgets/flex.js';
@@ -20,7 +21,7 @@ import {
     PageBreakBehavior,
     MultiPageUtils,
 } from '@/widgets/multipage.js';
-import { TextWidget } from '@/widgets/text.js';
+import { Txt } from '@/widgets/text.js';
 
 const TEST_OUTPUT_DIR = 'test-output/multipage-pdf-generation';
 
@@ -42,14 +43,14 @@ describe('MultiPage PDF Generation', () => {
                 new Container({
                     child: new Column({
                         children: [
-                            new TextWidget(`Section ${i + 1}`, {
+                            new Txt(`Section ${i + 1}`, {
                                 style: {
                                     fontSize: 16,
                                     fontWeight: 700,
-                                    color: '#2c3e50',
+                                    color: PdfColor.fromHex('#2c3e50'),
                                 },
                             }),
-                            new TextWidget(
+                            new Txt(
                                 `This is content for section ${i + 1}. ` +
                                     `Lorem ipsum dolor sit amet, consectetur adipiscing elit. ` +
                                     `Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. ` +
@@ -64,8 +65,11 @@ describe('MultiPage PDF Generation', () => {
                     padding: Layout.EdgeInsets.all(16),
                     margin: Layout.EdgeInsets.only({ bottom: 20 }),
                     decoration: {
-                        border: { width: 1, color: '#e0e0e0' },
-                        color: '#f8f9fa',
+                        border: {
+                            width: 1,
+                            color: PdfColor.fromHex('#e0e0e0'),
+                        },
+                        color: PdfColor.fromHex('#f8f9fa'),
                     },
                 })
         );
@@ -99,7 +103,7 @@ describe('MultiPage PDF Generation', () => {
             { length: 20 },
             (_, i) =>
                 new Container({
-                    child: new TextWidget(
+                    child: new Txt(
                         `Page content item ${i + 1}. This content demonstrates how headers ` +
                             `and footers are rendered consistently across all pages of a multi-page document. ` +
                             `The MultiPage widget automatically handles the positioning and rendering ` +
@@ -111,8 +115,11 @@ describe('MultiPage PDF Generation', () => {
                     padding: Layout.EdgeInsets.all(12),
                     margin: Layout.EdgeInsets.only({ bottom: 16 }),
                     decoration: {
-                        border: { width: 1, color: '#dee2e6' },
-                        color: '#ffffff',
+                        border: {
+                            width: 1,
+                            color: PdfColor.fromHex('#dee2e6'),
+                        },
+                        color: PdfColor.fromHex('#ffffff'),
                     },
                 })
         );
@@ -123,15 +130,18 @@ describe('MultiPage PDF Generation', () => {
                 child: new Row({
                     mainAxisAlignment: Flex.MainAxisAlignment.SpaceBetween,
                     children: [
-                        new TextWidget('MultiPage Test Document', {
+                        new Txt('MultiPage Test Document', {
                             style: {
                                 fontSize: 14,
                                 fontWeight: 700,
-                                color: '#003e50',
+                                color: PdfColor.fromHex('#003e50'),
                             },
                         }),
-                        new TextWidget(`Page ${pageNum} of ${totalPages}`, {
-                            style: { fontSize: 12, color: '#00008d' },
+                        new Txt(`Page ${pageNum} of ${totalPages}`, {
+                            style: {
+                                fontSize: 12,
+                                color: PdfColor.fromHex('#00008d'),
+                            },
                         }),
                     ],
                 }),
@@ -140,22 +150,19 @@ describe('MultiPage PDF Generation', () => {
                     vertical: 10,
                 }),
                 decoration: {
-                    border: { width: 1, color: '#bdc3c7' },
-                    color: '#ecf0f1',
+                    border: { width: 1, color: PdfColor.fromHex('#bdc3c7') },
+                    color: PdfColor.fromHex('#ecf0f1'),
                 },
             });
 
         // Static footer
         const footer = new Container({
-            child: new TextWidget(
-                '© 2024 TypeScript PDF - MultiPage Widget Test',
-                {
-                    style: { fontSize: 10, color: '#95a5a6' },
-                }
-            ),
+            child: new Txt('© 2024 TypeScript PDF - MultiPage Widget Test', {
+                style: { fontSize: 10, color: PdfColor.fromHex('#95a5a6') },
+            }),
             padding: Layout.EdgeInsets.all(8),
             decoration: {
-                border: { width: 1, color: '#bdc3c7' },
+                border: { width: 1, color: PdfColor.fromHex('#bdc3c7') },
             },
             alignment: Layout.Alignment.Center,
         });
@@ -194,17 +201,20 @@ describe('MultiPage PDF Generation', () => {
             new Container({
                 child: new Column({
                     children: [
-                        new TextWidget('Mixed Content Report', {
+                        new Txt('Mixed Content Report', {
                             style: {
                                 fontSize: 24,
                                 fontWeight: 700,
-                                color: '#2c3e50',
+                                color: PdfColor.fromHex('#2c3e50'),
                             },
                         }),
-                        new TextWidget(
+                        new Txt(
                             'Demonstrating various widget types across pages',
                             {
-                                style: { fontSize: 14, color: '#7f8c8d' },
+                                style: {
+                                    fontSize: 14,
+                                    color: PdfColor.fromHex('#7f8c8d'),
+                                },
                             }
                         ),
                     ],
@@ -212,8 +222,8 @@ describe('MultiPage PDF Generation', () => {
                 padding: Layout.EdgeInsets.all(24),
                 margin: Layout.EdgeInsets.only({ bottom: 32 }),
                 decoration: {
-                    color: '#f8f9fa',
-                    border: { width: 2, color: '#3498db' },
+                    color: PdfColor.fromHex('#f8f9fa'),
+                    border: { width: 2, color: PdfColor.fromHex('#3498db') },
                 },
             }),
 
@@ -224,14 +234,14 @@ describe('MultiPage PDF Generation', () => {
                     new Container({
                         child: new Column({
                             children: [
-                                new TextWidget(`Chapter ${i + 1}`, {
+                                new Txt(`Chapter ${i + 1}`, {
                                     style: {
                                         fontSize: 18,
                                         fontWeight: 700,
-                                        color: '#2c3e50',
+                                        color: PdfColor.fromHex('#2c3e50'),
                                     },
                                 }),
-                                new TextWidget(
+                                new Txt(
                                     `This chapter demonstrates the MultiPage widget's ability to handle ` +
                                         `mixed content types across page boundaries. Content flows naturally ` +
                                         `from one page to the next, maintaining proper spacing and formatting.`,
@@ -253,11 +263,11 @@ describe('MultiPage PDF Generation', () => {
             new Container({
                 child: new Column({
                     children: [
-                        new TextWidget('Performance Metrics', {
+                        new Txt('Performance Metrics', {
                             style: {
                                 fontSize: 16,
                                 fontWeight: 700,
-                                color: '#2c3e50',
+                                color: PdfColor.fromHex('#2c3e50'),
                             },
                         }),
                         new Table({
@@ -282,12 +292,30 @@ describe('MultiPage PDF Generation', () => {
                                 { type: TableColumnWidthType.Flex, value: 1 },
                             ],
                             borders: {
-                                horizontal: { width: 1, color: '#bdc3c7' },
-                                vertical: { width: 1, color: '#bdc3c7' },
-                                top: { width: 2, color: '#34495e' },
-                                bottom: { width: 2, color: '#34495e' },
-                                left: { width: 2, color: '#34495e' },
-                                right: { width: 2, color: '#34495e' },
+                                horizontal: {
+                                    width: 1,
+                                    color: PdfColor.fromHex('#bdc3c7'),
+                                },
+                                vertical: {
+                                    width: 1,
+                                    color: PdfColor.fromHex('#bdc3c7'),
+                                },
+                                top: {
+                                    width: 2,
+                                    color: PdfColor.fromHex('#34495e'),
+                                },
+                                bottom: {
+                                    width: 2,
+                                    color: PdfColor.fromHex('#34495e'),
+                                },
+                                left: {
+                                    width: 2,
+                                    color: PdfColor.fromHex('#34495e'),
+                                },
+                                right: {
+                                    width: 2,
+                                    color: PdfColor.fromHex('#34495e'),
+                                },
                             },
                         }),
                     ],
@@ -300,7 +328,7 @@ describe('MultiPage PDF Generation', () => {
                 { length: 15 },
                 (_, i) =>
                     new Container({
-                        child: new TextWidget(
+                        child: new Txt(
                             `Additional content section ${i + 1}. This section tests page break ` +
                                 `behavior with mixed content types. The MultiPage widget should handle ` +
                                 `the transition between different types of content seamlessly.`,
@@ -311,8 +339,11 @@ describe('MultiPage PDF Generation', () => {
                         padding: Layout.EdgeInsets.all(12),
                         margin: Layout.EdgeInsets.only({ bottom: 16 }),
                         decoration: {
-                            color: '#f8f9fa',
-                            border: { width: 1, color: '#dee2e6' },
+                            color: PdfColor.fromHex('#f8f9fa'),
+                            border: {
+                                width: 1,
+                                color: PdfColor.fromHex('#dee2e6'),
+                            },
                         },
                     })
             ),
@@ -321,23 +352,20 @@ describe('MultiPage PDF Generation', () => {
         const multiPageWidget = new MultiPage({
             children: mixedContent,
             header: (pageNum, totalPages) =>
-                new TextWidget(
+                new Txt(
                     `Mixed Content Report - Page ${pageNum}/${totalPages}`,
                     {
                         style: {
                             fontSize: 12,
                             fontWeight: 700,
-                            color: '#6c757d',
+                            color: PdfColor.fromHex('#6c757d'),
                         },
                     }
                 ),
             footer: new Container({
-                child: new TextWidget(
-                    'Generated with MultiPage Widget System',
-                    {
-                        style: { fontSize: 10, color: '#adb5bd' },
-                    }
-                ),
+                child: new Txt('Generated with MultiPage Widget System', {
+                    style: { fontSize: 10, color: PdfColor.fromHex('#adb5bd') },
+                }),
                 alignment: Layout.Alignment.Center,
             }),
             pageBreakBehavior: PageBreakBehavior.Auto,
@@ -371,14 +399,14 @@ describe('MultiPage PDF Generation', () => {
             new Container({
                 child: new Column({
                     children: [
-                        new TextWidget('EXECUTIVE SUMMARY', {
+                        new Txt('EXECUTIVE SUMMARY', {
                             style: {
                                 fontSize: 20,
                                 fontWeight: 700,
-                                color: '#2c3e50',
+                                color: PdfColor.fromHex('#2c3e50'),
                             },
                         }),
-                        new TextWidget(
+                        new Txt(
                             'This report demonstrates the MultiPageUtils.forReport functionality. ' +
                                 'It showcases automated report generation with proper headers, page numbers, ' +
                                 'and professional formatting across multiple pages.',
@@ -391,8 +419,8 @@ describe('MultiPage PDF Generation', () => {
                 padding: Layout.EdgeInsets.all(20),
                 margin: Layout.EdgeInsets.only({ bottom: 30 }),
                 decoration: {
-                    color: '#e8f4fd',
-                    border: { width: 2, color: '#3498db' },
+                    color: PdfColor.fromHex('#e8f4fd'),
+                    border: { width: 2, color: PdfColor.fromHex('#3498db') },
                 },
             }),
 
@@ -403,17 +431,14 @@ describe('MultiPage PDF Generation', () => {
                     new Container({
                         child: new Column({
                             children: [
-                                new TextWidget(
-                                    `Section ${i + 1}: Analysis Report`,
-                                    {
-                                        style: {
-                                            fontSize: 14,
-                                            fontWeight: 700,
-                                            color: '#34495e',
-                                        },
-                                    }
-                                ),
-                                new TextWidget(
+                                new Txt(`Section ${i + 1}: Analysis Report`, {
+                                    style: {
+                                        fontSize: 14,
+                                        fontWeight: 700,
+                                        color: PdfColor.fromHex('#34495e'),
+                                    },
+                                }),
+                                new Txt(
                                     `Detailed analysis for section ${i + 1}. This section covers ` +
                                         `important findings and recommendations. The MultiPageUtils.forReport ` +
                                         `function automatically handles page layout, headers, and numbering.`,
@@ -427,30 +452,35 @@ describe('MultiPage PDF Generation', () => {
                                 new Row({
                                     children: [
                                         new Container({
-                                            child: new TextWidget(
-                                                'Status: Complete',
-                                                {
-                                                    style: {
-                                                        fontSize: 10,
-                                                        color: '#ffffff',
-                                                        fontWeight: 700,
-                                                    },
-                                                }
-                                            ),
+                                            child: new Txt('Status: Complete', {
+                                                style: {
+                                                    fontSize: 10,
+                                                    color: PdfColor.fromHex(
+                                                        '#ffffff'
+                                                    ),
+                                                    fontWeight: 700,
+                                                },
+                                            }),
                                             padding:
                                                 Layout.EdgeInsets.symmetric({
                                                     horizontal: 8,
                                                     vertical: 4,
                                                 }),
-                                            decoration: { color: '#27ae60' },
+                                            decoration: {
+                                                color: PdfColor.fromHex(
+                                                    '#27ae60'
+                                                ),
+                                            },
                                         }),
                                         new Container({
-                                            child: new TextWidget(
+                                            child: new Txt(
                                                 `Priority: ${i % 3 === 0 ? 'High' : i % 3 === 1 ? 'Medium' : 'Low'}`,
                                                 {
                                                     style: {
                                                         fontSize: 10,
-                                                        color: '#ffffff',
+                                                        color: PdfColor.fromHex(
+                                                            '#ffffff'
+                                                        ),
                                                         fontWeight: 700,
                                                     },
                                                 }
@@ -463,10 +493,16 @@ describe('MultiPage PDF Generation', () => {
                                             decoration: {
                                                 color:
                                                     i % 3 === 0
-                                                        ? '#e74c3c'
+                                                        ? PdfColor.fromHex(
+                                                              '#e74c3c'
+                                                          )
                                                         : i % 3 === 1
-                                                          ? '#f39c12'
-                                                          : '#95a5a6',
+                                                          ? PdfColor.fromHex(
+                                                                '#f39c12'
+                                                            )
+                                                          : PdfColor.fromHex(
+                                                                '#95a5a6'
+                                                            ),
                                             },
                                             margin: Layout.EdgeInsets.only({
                                                 left: 8,
@@ -479,8 +515,11 @@ describe('MultiPage PDF Generation', () => {
                         padding: Layout.EdgeInsets.all(16),
                         margin: Layout.EdgeInsets.only({ bottom: 20 }),
                         decoration: {
-                            border: { width: 1, color: '#e9ecef' },
-                            color: '#f8f9fa',
+                            border: {
+                                width: 1,
+                                color: PdfColor.fromHex('#e9ecef'),
+                            },
+                            color: PdfColor.fromHex('#f8f9fa'),
                         },
                     })
             ),
@@ -524,14 +563,14 @@ describe('MultiPage PDF Generation', () => {
                 new Container({
                     child: new Column({
                         children: [
-                            new TextWidget(`Performance Test Item ${i + 1}`, {
+                            new Txt(`Performance Test Item ${i + 1}`, {
                                 style: {
                                     fontSize: 14,
                                     fontWeight: 700,
-                                    color: '#2c3e50',
+                                    color: PdfColor.fromHex('#2c3e50'),
                                 },
                             }),
-                            new TextWidget(
+                            new Txt(
                                 `This is performance test content item ${i + 1}. It contains sufficient text ` +
                                     `to test the MultiPage widget's performance with large amounts of content. ` +
                                     `The system should efficiently handle content measurement, page splitting, ` +
@@ -584,8 +623,14 @@ describe('MultiPage PDF Generation', () => {
                     padding: Layout.EdgeInsets.all(12),
                     margin: Layout.EdgeInsets.only({ bottom: 16 }),
                     decoration: {
-                        border: { width: 1, color: '#dee2e6' },
-                        color: i % 10 === 0 ? '#e3f2fd' : '#ffffff',
+                        border: {
+                            width: 1,
+                            color: PdfColor.fromHex('#dee2e6'),
+                        },
+                        color:
+                            i % 10 === 0
+                                ? PdfColor.fromHex('#e3f2fd')
+                                : PdfColor.fromHex('#ffffff'),
                     },
                 })
         );
@@ -597,19 +642,22 @@ describe('MultiPage PDF Generation', () => {
                     child: new Row({
                         mainAxisAlignment: Flex.MainAxisAlignment.SpaceBetween,
                         children: [
-                            new TextWidget('Performance Test Document', {
+                            new Txt('Performance Test Document', {
                                 style: { fontSize: 12, fontWeight: 700 },
                             }),
-                            new TextWidget(
+                            new Txt(
                                 `${pageNum}/${totalPages} (${largeContent.length} items)`,
                                 {
-                                    style: { fontSize: 10, color: '#6c757d' },
+                                    style: {
+                                        fontSize: 10,
+                                        color: PdfColor.fromHex('#6c757d'),
+                                    },
                                 }
                             ),
                         ],
                     }),
                     padding: Layout.EdgeInsets.all(8),
-                    decoration: { color: '#f8f9fa' },
+                    decoration: { color: PdfColor.fromHex('#f8f9fa') },
                 }),
             pageBreakBehavior: PageBreakBehavior.Auto,
             maxPages: 25, // Reasonable limit for test

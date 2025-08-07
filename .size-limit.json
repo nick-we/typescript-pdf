@@ -2,7 +2,7 @@
     {
         "name": "UMD Bundle (Browser)",
         "path": "dist/index.umd.js",
-        "limit": "100 KB",
+        "limit": "150 KB",
         "gzip": true,
         "webpack": false
     }

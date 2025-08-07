@@ -4,6 +4,7 @@
  * Simple typed utilities for testing without complex mock interfaces
  */
 
+import { PdfColor } from '@/core/pdf';
 import { TextDirection } from '@/core/text-utils.js';
 import type { Layout } from '@/types.js';
 import { Theme } from '@/types.js';
@@ -120,7 +121,7 @@ export function createTestLayoutContext(
             defaultTextStyle: {
                 fontSize: 12,
                 fontFamily: 'Helvetica',
-                color: '#000000',
+                color: PdfColor.fromHex('#000000'),
             },
             cornerRadius: { none: 0, small: 4, medium: 8, large: 16 },
         } as Theme.ThemeData,
@@ -221,7 +222,7 @@ export function createTestPaintContext(
             defaultTextStyle: {
                 fontSize: 12,
                 fontFamily: 'Helvetica',
-                color: '#000000',
+                color: PdfColor.fromHex('#000000'),
             },
             cornerRadius: { none: 0, small: 4, medium: 8, large: 16 },
         } as Theme.ThemeData,

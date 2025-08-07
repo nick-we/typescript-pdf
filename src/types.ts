@@ -6,6 +6,7 @@
  * @packageDocumentation
  */
 
+import { PdfColor } from '@/core/pdf';
 import type {
     ITextMeasurementService,
     IDocument,
@@ -44,7 +45,7 @@ export namespace Core {
         height?: number;
         orientation?: PageOrientation;
         margin?: Layout.EdgeInsets;
-        backgroundColor?: string;
+        backgroundColor?: PdfColor;
         clip?: boolean;
     }
 
@@ -571,7 +572,7 @@ export namespace Theme {
      */
     export interface TextStyle {
         inherit?: boolean;
-        color?: string;
+        color?: PdfColor;
         fontFamily?: string;
         fontSize?: number;
         fontWeight?: FontWeight;
@@ -583,7 +584,7 @@ export namespace Theme {
             underline?: boolean;
             overline?: boolean;
             strikethrough?: boolean;
-            color?: string;
+            color?: PdfColor;
             style?: TextDecorationStyle;
         };
     }
@@ -592,18 +593,18 @@ export namespace Theme {
      * Color palette for consistent theming
      */
     export interface ColorScheme {
-        readonly primary: string;
-        readonly secondary: string;
-        readonly background: string;
-        readonly surface: string;
-        readonly onBackground: string;
-        readonly onSurface: string;
-        readonly onPrimary: string;
-        readonly onSecondary: string;
-        readonly error: string;
-        readonly success: string;
-        readonly warning: string;
-        readonly info: string;
+        readonly primary: PdfColor;
+        readonly secondary: PdfColor;
+        readonly background: PdfColor;
+        readonly surface: PdfColor;
+        readonly onBackground: PdfColor;
+        readonly onSurface: PdfColor;
+        readonly onPrimary: PdfColor;
+        readonly onSecondary: PdfColor;
+        readonly error: PdfColor;
+        readonly success: PdfColor;
+        readonly warning: PdfColor;
+        readonly info: PdfColor;
     }
 
     /**
@@ -638,33 +639,33 @@ export namespace Theme {
      */
     export const ColorSchemes = {
         light: {
-            primary: '#1976d2',
-            secondary: '#dc004e',
-            background: '#ffffff',
-            surface: '#f5f5f5',
-            onBackground: '#000000',
-            onSurface: '#000000',
-            onPrimary: '#ffffff',
-            onSecondary: '#ffffff',
-            error: '#d32f2f',
-            success: '#388e3c',
-            warning: '#f57c00',
-            info: '#1976d2',
+            primary: PdfColor.fromHex('#1976d2'),
+            secondary: PdfColor.fromHex('#dc004e'),
+            background: PdfColor.fromHex('#ffffff'),
+            surface: PdfColor.fromHex('#f5f5f5'),
+            onBackground: PdfColor.fromHex('#000000'),
+            onSurface: PdfColor.fromHex('#000000'),
+            onPrimary: PdfColor.fromHex('#ffffff'),
+            onSecondary: PdfColor.fromHex('#ffffff'),
+            error: PdfColor.fromHex('#d32f2f'),
+            success: PdfColor.fromHex('#388e3c'),
+            warning: PdfColor.fromHex('#f57c00'),
+            info: PdfColor.fromHex('#1976d2'),
         } as ColorScheme,
 
         professional: {
-            primary: '#2c3e50',
-            secondary: '#34495e',
-            background: '#ffffff',
-            surface: '#f8f9fa',
-            onBackground: '#2c3e50',
-            onSurface: '#2c3e50',
-            onPrimary: '#ffffff',
-            onSecondary: '#ffffff',
-            error: '#e74c3c',
-            success: '#27ae60',
-            warning: '#f39c12',
-            info: '#3498db',
+            primary: PdfColor.fromHex('#2c3e50'),
+            secondary: PdfColor.fromHex('#34495e'),
+            background: PdfColor.fromHex('#ffffff'),
+            surface: PdfColor.fromHex('#f8f9fa'),
+            onBackground: PdfColor.fromHex('#2c3e50'),
+            onSurface: PdfColor.fromHex('#2c3e50'),
+            onPrimary: PdfColor.fromHex('#ffffff'),
+            onSecondary: PdfColor.fromHex('#ffffff'),
+            error: PdfColor.fromHex('#e74c3c'),
+            success: PdfColor.fromHex('#27ae60'),
+            warning: PdfColor.fromHex('#f39c12'),
+            info: PdfColor.fromHex('#3498db'),
         } as ColorScheme,
     };
 
@@ -777,7 +778,7 @@ export namespace Internal {
         x: number | string;
         y: number;
         label?: string;
-        color?: string;
+        color?: PdfColor;
         metadata?: ChartMetadata;
     }
 
@@ -787,7 +788,7 @@ export namespace Internal {
     export interface ChartSeries {
         name: string;
         data: ChartDataPoint[];
-        color?: string;
+        color?: PdfColor;
         style?: StyleMetadata;
     }
 

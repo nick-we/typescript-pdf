@@ -7,9 +7,9 @@
  * @packageDocumentation
  */
 
+import { PdfColor } from '@/core/pdf';
 import { TextUtils } from '@/core/text-utils.js';
 import type {
-    IPdfColor,
     IGraphicsContext,
     IUniversalFont,
 } from '@/types/core-interfaces.js';
@@ -87,7 +87,7 @@ export interface TableColumnWidth {
  */
 export interface TableBorder {
     readonly width?: number;
-    readonly color?: string;
+    readonly color?: PdfColor;
     readonly style?: 'solid' | 'dashed' | 'dotted';
 }
 
@@ -135,7 +135,7 @@ export interface TableRowProps extends WidgetProps {
     children: Widget[];
     /** Row decoration */
     decoration?: {
-        color?: string;
+        color?: PdfColor;
         border?: TableBorder;
     };
     /** Vertical alignment for this row */
@@ -153,7 +153,7 @@ export interface ChartDataPoint {
     readonly x: number | string;
     readonly y: number;
     readonly label?: string;
-    readonly color?: string;
+    readonly color?: PdfColor;
 }
 
 /**
@@ -162,7 +162,7 @@ export interface ChartDataPoint {
 export interface ChartDataSeries {
     readonly name: string;
     readonly data: ChartDataPoint[];
-    readonly color?: string;
+    readonly color?: PdfColor;
     readonly style?: {
         readonly lineWidth?: number;
         readonly marker?: LineMarker;
@@ -205,7 +205,7 @@ export interface ChartProps extends WidgetProps {
     /** Legend configuration */
     legend?: ChartLegend;
     /** Chart colors */
-    colors?: string[];
+    colors?: PdfColor[];
     /** Chart width */
     width?: number;
     /** Chart height */
@@ -635,22 +635,6 @@ export class Table extends BaseWidget {
     }
 
     /**
-     * Parse color string to PDF color object
-     */
-    private parseColor(colorStr: string): IPdfColor {
-        // Simple hex color parser
-        if (colorStr.startsWith('#')) {
-            const hex = colorStr.slice(1);
-            const r = parseInt(hex.slice(0, 2), 16) / 255;
-            const g = parseInt(hex.slice(2, 4), 16) / 255;
-            const b = parseInt(hex.slice(4, 6), 16) / 255;
-            return { red: r, green: g, blue: b };
-        }
-        // Default to black
-        return { red: 0, green: 0, blue: 0 };
-    }
-
-    /**
      * Paint individual cell content with text overflow handling
      */
     private paintCellContent(
@@ -685,7 +669,9 @@ export class Table extends BaseWidget {
         const fontFamily = textStyle.fontFamily ?? 'Helvetica';
         const textColor =
             textStyle.color ??
-            (isHeader ? '#ffffff' : context.theme.colorScheme.onSurface);
+            (isHeader
+                ? PdfColor.fromHex('#ffffff')
+                : context.theme.colorScheme.onSurface);
 
         // Get font
         const font = fontRegistry.getFont(fontFamily);
@@ -694,7 +680,7 @@ export class Table extends BaseWidget {
         }
 
         // Set text color
-        graphics.setFillColor(this.parseColor(textColor));
+        graphics.setFillColor(textColor);
 
         // Calculate text positioning based on vertical alignment
         const verticalAlignment = this.defaultVerticalAlignment;
@@ -1161,9 +1147,9 @@ export class Table extends BaseWidget {
         graphics: IGraphicsContext
     ): void {
         const width = border.width ?? 1;
-        const color = border.color ?? '#000000';
+        const color = border.color ?? PdfColor.black;
 
-        graphics.setStrokeColor(this.parseColor(color));
+        graphics.setStrokeColor(color);
         graphics.setLineWidth(width);
 
         // Handle different border styles
@@ -1275,9 +1261,7 @@ export class Table extends BaseWidget {
             context.theme.colorScheme.surface !==
             context.theme.colorScheme.background
         ) {
-            graphics.setFillColor(
-                this.parseColor(context.theme.colorScheme.surface)
-            );
+            graphics.setFillColor(context.theme.colorScheme.surface);
             graphics.drawRect(0, 0, context.size.width, context.size.height);
             graphics.fillPath();
         }
@@ -1291,9 +1275,7 @@ export class Table extends BaseWidget {
 
             // Draw row background if it's a header row and has header style
             if (rowIndex === 0 && this.headerStyle) {
-                graphics.setFillColor(
-                    this.parseColor(context.theme.colorScheme.primary)
-                );
+                graphics.setFillColor(context.theme.colorScheme.primary);
                 graphics.drawRect(0, currentY, context.size.width, rowHeight);
                 graphics.fillPath();
             }
@@ -1377,7 +1359,7 @@ export class Table extends BaseWidget {
 export class TableRow extends BaseWidget {
     readonly children: Widget[];
     private readonly decoration?: {
-        color?: string;
+        color?: PdfColor;
         border?: TableBorder;
     };
     private readonly verticalAlignment: TableCellVerticalAlignment;
@@ -1447,7 +1429,7 @@ export class TableRow extends BaseWidget {
         // Draw row decoration if specified
         if (this.decoration) {
             if (this.decoration.color) {
-                graphics.setFillColor(this.parseColor(this.decoration.color));
+                graphics.setFillColor(this.decoration.color);
                 graphics.drawRect(
                     0,
                     0,
@@ -1471,22 +1453,6 @@ export class TableRow extends BaseWidget {
     }
 
     /**
-     * Parse color string to PDF color object
-     */
-    private parseColor(colorStr: string): IPdfColor {
-        // Simple hex color parser
-        if (colorStr.startsWith('#')) {
-            const hex = colorStr.slice(1);
-            const r = parseInt(hex.slice(0, 2), 16) / 255;
-            const g = parseInt(hex.slice(2, 4), 16) / 255;
-            const b = parseInt(hex.slice(4, 6), 16) / 255;
-            return { red: r, green: g, blue: b };
-        }
-        // Default to black
-        return { red: 0, green: 0, blue: 0 };
-    }
-
-    /**
      * Draw row border decoration
      */
     private drawRowBorder(
@@ -1499,9 +1465,9 @@ export class TableRow extends BaseWidget {
 
         const { graphics } = context;
         const width = border.width ?? 1;
-        const color = border.color ?? '#000000';
+        const color = border.color ?? PdfColor.black;
 
-        graphics.setStrokeColor(this.parseColor(color));
+        graphics.setStrokeColor(color);
         graphics.setLineWidth(width);
 
         // Handle different border styles
@@ -1532,7 +1498,7 @@ export class Chart extends BaseWidget {
     protected readonly xAxis?: ChartAxis;
     protected readonly yAxis?: ChartAxis;
     protected readonly legend?: ChartLegend;
-    protected readonly colors: string[];
+    protected readonly colors: PdfColor[];
     protected readonly width?: number;
     protected readonly height?: number;
 
@@ -1553,11 +1519,11 @@ export class Chart extends BaseWidget {
             this.legend = props.legend;
         }
         this.colors = props.colors ?? [
-            '#1f77b4',
-            '#ff7f0e',
-            '#2ca02c',
-            '#d62728',
-            '#9467bd',
+            PdfColor.fromHex('#1f77b4'),
+            PdfColor.fromHex('#ff7f0e'),
+            PdfColor.fromHex('#2ca02c'),
+            PdfColor.fromHex('#d62728'),
+            PdfColor.fromHex('#9467bd'),
         ];
         if (props.width) {
             this.width = props.width;
@@ -1606,12 +1572,12 @@ export class Chart extends BaseWidget {
 
         // Draw chart background
         graphics.save();
-        graphics.setFillColor(this.parseColor('#ffffff'));
+        graphics.setFillColor(PdfColor.fromHex('#ffffff'));
         graphics.drawRect(0, 0, context.size.width, context.size.height);
         graphics.fillPath();
 
         // Draw chart border
-        graphics.setStrokeColor(this.parseColor('#e0e0e0'));
+        graphics.setStrokeColor(PdfColor.fromHex('#e0e0e0'));
         graphics.setLineWidth(1);
         graphics.drawRect(
             chartArea.x,
@@ -1627,7 +1593,7 @@ export class Chart extends BaseWidget {
             const titleFontSize = 16;
 
             graphics.save();
-            graphics.setFillColor(this.parseColor('#333333'));
+            graphics.setFillColor(PdfColor.fromHex('#333333'));
             graphics.scale(1, -1); // Flip for text
 
             // Center title - use accurate measurement if available
@@ -1662,7 +1628,7 @@ export class Chart extends BaseWidget {
             const axisFontSize = 12;
 
             graphics.save();
-            graphics.setFillColor(this.parseColor('#666666'));
+            graphics.setFillColor(PdfColor.fromHex('#666666'));
             graphics.scale(1, -1);
 
             let labelWidth = this.xAxis.title.length * axisFontSize * 0.55; // Fallback
@@ -1695,7 +1661,7 @@ export class Chart extends BaseWidget {
             const axisFontSize = 12;
 
             graphics.save();
-            graphics.setFillColor(this.parseColor('#666666'));
+            graphics.setFillColor(PdfColor.fromHex('#666666'));
             graphics.translate(15, chartArea.y + chartArea.height / 2);
             graphics.rotate(-Math.PI / 2); // Rotate for vertical text
             graphics.scale(1, -1);
@@ -1728,22 +1694,6 @@ export class Chart extends BaseWidget {
         graphics.restore();
 
         // Series rendering would be handled by specific chart implementations
-    }
-
-    /**
-     * Parse color string to color object
-     */
-    protected parseColor(colorStr: string): IPdfColor {
-        // Simple hex color parser
-        if (colorStr.startsWith('#')) {
-            const hex = colorStr.slice(1);
-            const r = parseInt(hex.slice(0, 2), 16) / 255;
-            const g = parseInt(hex.slice(2, 4), 16) / 255;
-            const b = parseInt(hex.slice(4, 6), 16) / 255;
-            return { red: r, green: g, blue: b };
-        }
-        // Default to black
-        return { red: 0, green: 0, blue: 0 };
     }
 }
 
@@ -1804,8 +1754,8 @@ export class BarChart extends Chart {
             const seriesColor =
                 series.color ??
                 this.colors[seriesIndex % this.colors.length] ??
-                '#1f77b4';
-            graphics.setFillColor(this.parseColor(seriesColor));
+                PdfColor.fromHex('#1f77b4');
+            graphics.setFillColor(seriesColor);
 
             series.data.forEach((point, pointIndex) => {
                 // Calculate bar position and size
@@ -1828,7 +1778,7 @@ export class BarChart extends Chart {
                 const label = String(point.y);
 
                 graphics.save();
-                graphics.setFillColor(this.parseColor('#333333'));
+                graphics.setFillColor(PdfColor.fromHex('#333333'));
                 graphics.scale(1, -1); // Flip for text
 
                 // Position label above bar - use accurate measurement if available
@@ -1911,8 +1861,8 @@ export class LineChart extends Chart {
             const seriesColor =
                 series.color ??
                 this.colors[seriesIndex % this.colors.length] ??
-                '#1f77b4';
-            graphics.setStrokeColor(this.parseColor(seriesColor));
+                PdfColor.fromHex('#1f77b4');
+            graphics.setStrokeColor(seriesColor);
             graphics.setLineWidth(this.lineWidth);
 
             if (series.data.length > 1) {
@@ -1951,7 +1901,7 @@ export class LineChart extends Chart {
 
             // Draw markers if enabled
             if (this.marker !== LineMarker.None) {
-                graphics.setFillColor(this.parseColor(seriesColor));
+                graphics.setFillColor(seriesColor);
                 const markerSize = 4;
 
                 series.data.forEach((point, pointIndex) => {
@@ -2007,7 +1957,7 @@ export class LineChart extends Chart {
                     const label = String(point.y);
 
                     graphics.save();
-                    graphics.setFillColor(this.parseColor('#333333'));
+                    graphics.setFillColor(PdfColor.fromHex('#333333'));
                     graphics.scale(1, -1); // Flip for text
 
                     let labelWidth = label.length * labelFontSize * 0.55; // Fallback
@@ -2104,7 +2054,7 @@ export const DataUtils = {
     createSeries: (
         name: string,
         data: Array<{ x: number | string; y: number }>,
-        color?: string
+        color?: PdfColor
     ): ChartDataSeries => {
         const series: ChartDataSeries = {
             name,
@@ -2120,7 +2070,7 @@ export const DataUtils = {
     arrayToSeries: (
         name: string,
         values: number[],
-        color?: string
+        color?: PdfColor
     ): ChartDataSeries => {
         const series: ChartDataSeries = {
             name,

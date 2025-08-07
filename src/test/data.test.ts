@@ -10,6 +10,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 
 // Import consolidated widget system
+import { PdfColor } from '@/core/pdf';
 import type { Layout } from '@/types.js';
 import {
     Table,
@@ -18,7 +19,7 @@ import {
     BarChart,
     LineChart,
     DataUtils,
-    TextWidget,
+    Txt,
     Container,
     BarOrientation,
     LineMarker,
@@ -31,24 +32,24 @@ describe('Data Visualization Systems', () => {
     beforeEach(() => {
         const mockTheme = {
             colorScheme: {
-                primary: '#1976d2',
-                secondary: '#dc004e',
-                background: '#ffffff',
-                surface: '#f5f5f5',
-                onBackground: '#000000',
-                onSurface: '#000000',
-                onPrimary: '#ffffff',
-                onSecondary: '#ffffff',
-                error: '#d32f2f',
-                success: '#388e3c',
-                warning: '#f57c00',
-                info: '#1976d2',
+                primary: PdfColor.fromHex('#1976d2'),
+                secondary: PdfColor.fromHex('#dc004e'),
+                background: PdfColor.fromHex('#ffffff'),
+                surface: PdfColor.fromHex('#f5f5f5'),
+                onBackground: PdfColor.fromHex('#000000'),
+                onSurface: PdfColor.fromHex('#000000'),
+                onPrimary: PdfColor.fromHex('#ffffff'),
+                onSecondary: PdfColor.fromHex('#ffffff'),
+                error: PdfColor.fromHex('#d32f2f'),
+                success: PdfColor.fromHex('#388e3c'),
+                warning: PdfColor.fromHex('#f57c00'),
+                info: PdfColor.fromHex('#1976d2'),
             },
             spacing: { xs: 2, sm: 4, md: 8, lg: 16, xl: 24, xxl: 32 },
             defaultTextStyle: {
                 fontSize: 12,
                 fontFamily: 'Helvetica',
-                color: '#000000',
+                color: PdfColor.black,
             },
             cornerRadius: { none: 0, small: 4, medium: 8, large: 16 },
         };
@@ -110,10 +111,10 @@ describe('Data Visualization Systems', () => {
             const table = new Table({
                 data: simpleData,
                 borders: {
-                    top: { width: 1, color: '#000000' },
-                    right: { width: 1, color: '#000000' },
-                    bottom: { width: 1, color: '#000000' },
-                    left: { width: 1, color: '#000000' },
+                    top: { width: 1, color: PdfColor.fromHex('#000000') },
+                    right: { width: 1, color: PdfColor.fromHex('#000000') },
+                    bottom: { width: 1, color: PdfColor.fromHex('#000000') },
+                    left: { width: 1, color: PdfColor.fromHex('#000000') },
                 },
             });
 
@@ -139,9 +140,9 @@ describe('Data Visualization Systems', () => {
         it('should create individual table rows', () => {
             const row = new TableRow({
                 children: [
-                    new TextWidget('Cell 1'),
-                    new TextWidget('Cell 2'),
-                    new TextWidget('Cell 3'),
+                    new Txt('Cell 1'),
+                    new Txt('Cell 2'),
+                    new Txt('Cell 3'),
                 ],
             });
 

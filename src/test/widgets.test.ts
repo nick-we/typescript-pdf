@@ -17,7 +17,7 @@ import {
     WidgetUtils,
 
     // Text widgets
-    TextWidget,
+    Txt,
     RichText,
     TextAlign,
     TextOverflow,
@@ -127,7 +127,7 @@ describe('Widget Systems', () => {
 
     describe('Text Widget System', () => {
         it('should render basic text', () => {
-            const text = new TextWidget('Hello World');
+            const text = new Txt('Hello World');
             const layout = text.layout(mockLayoutContext);
 
             expect(layout.size.width).toBeGreaterThan(0);
@@ -136,13 +136,13 @@ describe('Widget Systems', () => {
         });
 
         it('should handle text alignment', () => {
-            const leftText = new TextWidget('Left', {
+            const leftText = new Txt('Left', {
                 textAlign: TextAlign.Left,
             });
-            const centerText = new TextWidget('Center', {
+            const centerText = new Txt('Center', {
                 textAlign: TextAlign.Center,
             });
-            const rightText = new TextWidget('Right', {
+            const rightText = new Txt('Right', {
                 textAlign: TextAlign.Right,
             });
 
@@ -156,10 +156,10 @@ describe('Widget Systems', () => {
         });
 
         it('should handle text overflow', () => {
-            const clipText = new TextWidget('Long text', {
+            const clipText = new Txt('Long text', {
                 overflow: TextOverflow.Clip,
             });
-            const ellipsisText = new TextWidget('Long text', {
+            const ellipsisText = new Txt('Long text', {
                 overflow: TextOverflow.Ellipsis,
             });
 
@@ -191,9 +191,9 @@ describe('Widget Systems', () => {
         });
 
         it('should use text styles properly', () => {
-            const h1Text = new TextWidget('Heading', { style: TextStyles.h1 });
-            const bodyText = new TextWidget('Body', { style: TextStyles.body });
-            const captionText = new TextWidget('Caption', {
+            const h1Text = new Txt('Heading', { style: TextStyles.h1 });
+            const bodyText = new Txt('Body', { style: TextStyles.body });
+            const captionText = new Txt('Caption', {
                 style: TextStyles.caption,
             });
 
@@ -235,7 +235,7 @@ describe('Widget Systems', () => {
 
     describe('Layout Widget System', () => {
         it('should create containers with padding', () => {
-            const child = new TextWidget('Child');
+            const child = new Txt('Child');
             const container = new Container({
                 child,
                 padding: Layout.EdgeInsets.all(16),
@@ -250,7 +250,7 @@ describe('Widget Systems', () => {
         });
 
         it('should create containers with margin', () => {
-            const child = new TextWidget('Child');
+            const child = new Txt('Child');
             const container = new Container({
                 child,
                 margin: Layout.EdgeInsets.all(20),
@@ -265,7 +265,7 @@ describe('Widget Systems', () => {
         });
 
         it('should handle container alignment', () => {
-            const child = new TextWidget('Child');
+            const child = new Txt('Child');
             const centered = new Container({
                 child,
                 alignment: Layout.Alignment.Center,
@@ -285,9 +285,9 @@ describe('Widget Systems', () => {
         it('should create stacks with positioned children', () => {
             const stack = new Stack({
                 children: [
-                    new TextWidget('Background'),
+                    new Txt('Background'),
                     new Positioned({
-                        child: new TextWidget('Positioned'),
+                        child: new Txt('Positioned'),
                         top: 10,
                         left: 20,
                     }),
@@ -300,7 +300,7 @@ describe('Widget Systems', () => {
         });
 
         it('should use layout utility shortcuts', () => {
-            const child = new TextWidget('Test');
+            const child = new Txt('Test');
 
             const padded = LayoutUtils.padded(child, 16);
             const centered = LayoutUtils.centered(child);
@@ -320,9 +320,9 @@ describe('Widget Systems', () => {
         it('should create horizontal layouts (Row)', () => {
             const row = new Row({
                 children: [
-                    new TextWidget('Item 1'),
-                    new TextWidget('Item 2'),
-                    new TextWidget('Item 3'),
+                    new Txt('Item 1'),
+                    new Txt('Item 2'),
+                    new Txt('Item 3'),
                 ],
                 mainAxisAlignment: FlexTypes.MainAxisAlignment.SpaceBetween,
             });
@@ -335,9 +335,9 @@ describe('Widget Systems', () => {
         it('should create vertical layouts (Column)', () => {
             const column = new Column({
                 children: [
-                    new TextWidget('Line 1'),
-                    new TextWidget('Line 2'),
-                    new TextWidget('Line 3'),
+                    new Txt('Line 1'),
+                    new Txt('Line 2'),
+                    new Txt('Line 3'),
                 ],
                 crossAxisAlignment: FlexTypes.CrossAxisAlignment.Center,
             });
@@ -349,7 +349,7 @@ describe('Widget Systems', () => {
 
         it('should handle flexible children', () => {
             const flexible = new Flexible({
-                child: new TextWidget('Flexible'),
+                child: new Txt('Flexible'),
                 flex: 2,
             });
 
@@ -362,7 +362,7 @@ describe('Widget Systems', () => {
 
         it('should handle expanded children', () => {
             const expanded = new Expanded({
-                child: new TextWidget('Expanded'),
+                child: new Txt('Expanded'),
                 flex: 3,
             });
 
@@ -371,16 +371,12 @@ describe('Widget Systems', () => {
         });
 
         it('should use flex utility functions', () => {
-            const children = [
-                new TextWidget('A'),
-                new TextWidget('B'),
-                new TextWidget('C'),
-            ];
+            const children = [new Txt('A'), new Txt('B'), new Txt('C')];
 
             const row = FlexUtils.row(children);
             const column = FlexUtils.column(children);
-            const flexible = FlexUtils.flexible(new TextWidget('Flex'));
-            const expanded = FlexUtils.expanded(new TextWidget('Expand'));
+            const flexible = FlexUtils.flexible(new Txt('Flex'));
+            const expanded = FlexUtils.expanded(new Txt('Expand'));
 
             expect(row).toBeInstanceOf(Row);
             expect(column).toBeInstanceOf(Column);
@@ -391,13 +387,13 @@ describe('Widget Systems', () => {
         it('should handle complex flex layouts', () => {
             const complexRow = new Row({
                 children: [
-                    new TextWidget('Fixed'),
+                    new Txt('Fixed'),
                     new Flexible({
-                        child: new TextWidget('Flexible'),
+                        child: new Txt('Flexible'),
                         flex: 1,
                     }),
                     new Expanded({
-                        child: new TextWidget('Expanded'),
+                        child: new Txt('Expanded'),
                         flex: 2,
                     }),
                 ],
@@ -518,7 +514,7 @@ describe('Widget Systems', () => {
     describe('Theme Widget System', () => {
         it('should provide theme to descendants', () => {
             const customTheme = PrebuiltThemes.modern();
-            const child = new TextWidget('Themed text');
+            const child = new Txt('Themed text');
             const theme = new Theme({
                 child,
                 data: customTheme,
@@ -534,7 +530,7 @@ describe('Widget Systems', () => {
                 fontWeight: ThemeTypes.FontWeight.Bold,
             });
 
-            const child = new TextWidget('Styled text');
+            const child = new Txt('Styled text');
             const defaultTextStyle = new DefaultTextStyle({
                 child,
                 style: textStyle,
@@ -579,16 +575,16 @@ describe('Widget Systems', () => {
                 padding: Layout.EdgeInsets.all(20),
                 child: new Column({
                     children: [
-                        new TextWidget('Title', { style: TextStyles.h1 }),
+                        new Txt('Title', { style: TextStyles.h1 }),
                         LayoutUtils.padded(
                             new Row({
                                 children: [
                                     new Flexible({
-                                        child: new TextWidget('Left'),
+                                        child: new Txt('Left'),
                                         flex: 1,
                                     }),
                                     new Expanded({
-                                        child: new TextWidget('Right'),
+                                        child: new Txt('Right'),
                                         flex: 2,
                                     }),
                                 ],
@@ -623,8 +619,8 @@ describe('Widget Systems', () => {
                         style: ThemeUtils.textStyle({ fontSize: 14 }),
                         child: new Column({
                             children: [
-                                new TextWidget('Themed text 1'),
-                                new TextWidget('Themed text 2'),
+                                new Txt('Themed text 1'),
+                                new Txt('Themed text 2'),
                                 new RichText({
                                     spans: [
                                         { text: 'Rich ' },
@@ -651,9 +647,9 @@ describe('Widget Systems', () => {
         it('should maintain proper widget lifecycle', () => {
             const widgets = [
                 new EmptyWidget(),
-                new TextWidget('Test'),
-                new Container({ child: new TextWidget('Container') }),
-                new Row({ children: [new TextWidget('Row')] }),
+                new Txt('Test'),
+                new Container({ child: new Txt('Container') }),
+                new Row({ children: [new Txt('Row')] }),
                 new Table({ data: [['Table']] }),
             ];
 

@@ -14,11 +14,12 @@ import { describe, it, expect } from 'vitest';
 
 // Import our restructured system
 
-import { Document } from '@/core/index.js';
-import { Layout, Theme as ThemeTypes } from '@/types.js';
+import { Document, TextAlign } from '@/core/index.js';
+import { PdfColor } from '@/core/pdf';
+import { Flex, Layout, Theme as ThemeTypes } from '@/types.js';
 import {
     Container,
-    TextWidget,
+    Txt,
     Row,
     Column,
     Stack,
@@ -31,6 +32,7 @@ import {
     LayoutUtils,
     FlexUtils,
     DataUtils,
+    LineMarker,
 } from '@/widgets/index.js';
 
 // Test output directory
@@ -57,8 +59,8 @@ describe('PDF Visual Validation Tests', () => {
             width: 500,
             height: 600,
             decoration: {
-                color: '#f0f0f0',
-                border: { width: 2, color: '#333333' },
+                color: PdfColor.fromHex('#f0f0f0'),
+                border: { width: 2, color: PdfColor.fromHex('#333333') },
             },
             padding: Layout.EdgeInsets.all(20),
             child: new Column({
@@ -69,7 +71,7 @@ describe('PDF Visual Validation Tests', () => {
                         width: 460,
                         height: 120,
                         decoration: {
-                            color: '#ff6b6b',
+                            color: PdfColor.fromHex('#ff6b6b'),
                             borderRadius: {
                                 topLeft: 10,
                                 topRight: 10,
@@ -78,11 +80,11 @@ describe('PDF Visual Validation Tests', () => {
                             },
                         },
                         alignment: Layout.Alignment.Center,
-                        child: new TextWidget('Red Container - Centered Text', {
+                        child: new Txt('Red Container - Centered Text', {
                             style: {
                                 fontSize: 18,
                                 fontWeight: ThemeTypes.FontWeight.Bold,
-                                color: '#ffffff',
+                                color: PdfColor.fromHex('#ffffff'),
                             },
                         }),
                     }),
@@ -92,7 +94,7 @@ describe('PDF Visual Validation Tests', () => {
                         width: 460,
                         height: 120,
                         decoration: {
-                            color: '#4dabf7',
+                            color: PdfColor.fromHex('#4dabf7'),
                             borderRadius: {
                                 topLeft: 15,
                                 topRight: 15,
@@ -101,10 +103,10 @@ describe('PDF Visual Validation Tests', () => {
                             },
                         },
                         padding: Layout.EdgeInsets.all(15),
-                        child: new TextWidget('Blue Container with Padding', {
+                        child: new Txt('Blue Container with Padding', {
                             style: {
                                 fontSize: 14,
-                                color: '#ffffff',
+                                color: PdfColor.fromHex('#ffffff'),
                             },
                             textAlign: 'center' as any,
                         }),
@@ -115,7 +117,7 @@ describe('PDF Visual Validation Tests', () => {
                         width: 460,
                         height: 120,
                         decoration: {
-                            color: '#51cf66',
+                            color: PdfColor.fromHex('#51cf66'),
                             borderRadius: {
                                 topLeft: 8,
                                 topRight: 8,
@@ -131,18 +133,18 @@ describe('PDF Visual Validation Tests', () => {
                             mainAxisAlignment: 'spaceBetween' as any,
                             crossAxisAlignment: 'center' as any,
                             children: [
-                                new TextWidget('Left Side', {
+                                new Txt('Left Side', {
                                     style: {
                                         fontSize: 16,
                                         fontWeight: ThemeTypes.FontWeight.Bold,
-                                        color: '#ffffff',
+                                        color: PdfColor.fromHex('#ffffff'),
                                     },
                                 }),
                                 new Container({
                                     width: 60,
                                     height: 60,
                                     decoration: {
-                                        color: '#ffffff',
+                                        color: PdfColor.fromHex('#ffffff'),
                                         borderRadius: {
                                             topLeft: 30,
                                             topRight: 30,
@@ -151,18 +153,18 @@ describe('PDF Visual Validation Tests', () => {
                                         },
                                     },
                                     alignment: Layout.Alignment.Center,
-                                    child: new TextWidget('•', {
+                                    child: new Txt('•', {
                                         style: {
                                             fontSize: 24,
-                                            color: '#51cf66',
+                                            color: PdfColor.fromHex('#51cf66'),
                                         },
                                     }),
                                 }),
-                                new TextWidget('Right Side', {
+                                new Txt('Right Side', {
                                     style: {
                                         fontSize: 16,
                                         fontWeight: ThemeTypes.FontWeight.Bold,
-                                        color: '#ffffff',
+                                        color: PdfColor.fromHex('#ffffff'),
                                     },
                                 }),
                             ],
@@ -199,7 +201,7 @@ describe('PDF Visual Validation Tests', () => {
                     new Container({
                         padding: Layout.EdgeInsets.all(20),
                         decoration: {
-                            color: '#2c3e50',
+                            color: PdfColor.fromHex('#2c3e50'),
                             borderRadius: {
                                 topLeft: 8,
                                 topRight: 8,
@@ -207,41 +209,41 @@ describe('PDF Visual Validation Tests', () => {
                                 bottomRight: 8,
                             },
                         },
-                        child: new TextWidget('Typography Showcase', {
+                        child: new Txt('Typography Showcase', {
                             style: {
                                 fontSize: 28,
                                 fontWeight: ThemeTypes.FontWeight.Bold,
-                                color: '#ffffff',
+                                color: PdfColor.fromHex('#ffffff'),
                             },
-                            textAlign: 'center' as any,
+                            textAlign: TextAlign.Center,
                         }),
                     }),
 
                     LayoutUtils.padded(
                         new Column({
-                            crossAxisAlignment: 'start' as any,
+                            crossAxisAlignment: Flex.CrossAxisAlignment.Start,
                             children: [
-                                new TextWidget('Heading 1 - Large Text', {
+                                new Txt('Heading 1 - Large Text', {
                                     style: {
                                         fontSize: 24,
                                         fontWeight: ThemeTypes.FontWeight.Bold,
-                                        color: '#2c3e50',
+                                        color: PdfColor.fromHex('#2c3e50'),
                                     },
                                 }),
-                                new TextWidget('Heading 2 - Medium Text', {
+                                new Txt('Heading 2 - Medium Text', {
                                     style: {
                                         fontSize: 20,
                                         fontWeight: ThemeTypes.FontWeight.Bold,
-                                        color: '#34495e',
+                                        color: PdfColor.fromHex('#34495e'),
                                     },
                                 }),
-                                new TextWidget(
+                                new Txt(
                                     'Body text with proper spacing. This demonstrates text flow.',
                                     {
                                         style: {
                                             fontSize: 12,
                                             lineSpacing: 1.6,
-                                            color: '#2c3e50',
+                                            color: PdfColor.fromHex('#2c3e50'),
                                         },
                                     }
                                 ),
@@ -251,7 +253,7 @@ describe('PDF Visual Validation Tests', () => {
                                     width: 500,
                                     padding: Layout.EdgeInsets.all(15),
                                     decoration: {
-                                        color: '#ecf0f1',
+                                        color: PdfColor.fromHex('#ecf0f1'),
                                         borderRadius: {
                                             topLeft: 5,
                                             topRight: 5,
@@ -261,36 +263,33 @@ describe('PDF Visual Validation Tests', () => {
                                     },
                                     child: new Column({
                                         children: [
-                                            new TextWidget(
-                                                'Left Aligned Text',
-                                                {
-                                                    textAlign: 'left' as any,
-                                                    style: {
-                                                        fontSize: 14,
-                                                        color: '#2c3e50',
-                                                    },
-                                                }
-                                            ),
-                                            new TextWidget(
-                                                'Center Aligned Text',
-                                                {
-                                                    textAlign: 'center' as any,
-                                                    style: {
-                                                        fontSize: 14,
-                                                        color: '#2c3e50',
-                                                    },
-                                                }
-                                            ),
-                                            new TextWidget(
-                                                'Right Aligned Text',
-                                                {
-                                                    textAlign: 'right' as any,
-                                                    style: {
-                                                        fontSize: 14,
-                                                        color: '#2c3e50',
-                                                    },
-                                                }
-                                            ),
+                                            new Txt('Left Aligned Text', {
+                                                textAlign: TextAlign.Left,
+                                                style: {
+                                                    fontSize: 14,
+                                                    color: PdfColor.fromHex(
+                                                        '#2c3e50'
+                                                    ),
+                                                },
+                                            }),
+                                            new Txt('Center Aligned Text', {
+                                                textAlign: TextAlign.Center,
+                                                style: {
+                                                    fontSize: 14,
+                                                    color: PdfColor.fromHex(
+                                                        '#2c3e50'
+                                                    ),
+                                                },
+                                            }),
+                                            new Txt('Right Aligned Text', {
+                                                textAlign: TextAlign.Right,
+                                                style: {
+                                                    fontSize: 14,
+                                                    color: PdfColor.fromHex(
+                                                        '#2c3e50'
+                                                    ),
+                                                },
+                                            }),
                                         ],
                                     }),
                                 }),
@@ -336,11 +335,11 @@ describe('PDF Visual Validation Tests', () => {
                     // Title
                     new Container({
                         alignment: Layout.Alignment.Center,
-                        child: new TextWidget('Sales Report', {
+                        child: new Txt('Sales Report', {
                             style: {
                                 fontSize: 26,
                                 fontWeight: ThemeTypes.FontWeight.Bold,
-                                color: '#2c3e50',
+                                color: PdfColor.fromHex('#2c3e50'),
                             },
                         }),
                     }),
@@ -349,23 +348,26 @@ describe('PDF Visual Validation Tests', () => {
                         new Container({
                             padding: Layout.EdgeInsets.all(10),
                             decoration: {
-                                color: '#f8f9fa',
+                                color: PdfColor.fromHex('#f8f9fa'),
                                 borderRadius: {
                                     topLeft: 8,
                                     topRight: 8,
                                     bottomLeft: 8,
                                     bottomRight: 8,
                                 },
-                                border: { width: 1, color: '#dee2e6' },
+                                border: {
+                                    width: 1,
+                                    color: PdfColor.fromHex('#dee2e6'),
+                                },
                             },
                             child: new Column({
                                 children: [
-                                    new TextWidget('Monthly Performance', {
+                                    new Txt('Monthly Performance', {
                                         style: {
                                             fontSize: 16,
                                             fontWeight:
                                                 ThemeTypes.FontWeight.Bold,
-                                            color: '#495057',
+                                            color: PdfColor.fromHex('#495057'),
                                         },
                                     }),
                                     LayoutUtils.padded(
@@ -374,15 +376,21 @@ describe('PDF Visual Validation Tests', () => {
                                             borders: {
                                                 top: {
                                                     width: 1,
-                                                    color: '#dee2e6',
+                                                    color: PdfColor.fromHex(
+                                                        '#dee2e6'
+                                                    ),
                                                 },
                                                 bottom: {
                                                     width: 1,
-                                                    color: '#dee2e6',
+                                                    color: PdfColor.fromHex(
+                                                        '#dee2e6'
+                                                    ),
                                                 },
                                                 horizontal: {
                                                     width: 0.5,
-                                                    color: '#e9ecef',
+                                                    color: PdfColor.fromHex(
+                                                        '#e9ecef'
+                                                    ),
                                                 },
                                             },
                                             columnWidths: [
@@ -407,33 +415,40 @@ describe('PDF Visual Validation Tests', () => {
                     new Container({
                         padding: Layout.EdgeInsets.all(20),
                         decoration: {
-                            color: '#e3f2fd',
+                            color: PdfColor.fromHex('#e3f2fd'),
                             borderRadius: {
                                 topLeft: 10,
                                 topRight: 10,
                                 bottomLeft: 10,
                                 bottomRight: 10,
                             },
-                            border: { width: 1, color: '#bbdefb' },
+                            border: {
+                                width: 1,
+                                color: PdfColor.fromHex('#bbdefb'),
+                            },
                         },
                         child: new Row({
-                            mainAxisAlignment: 'spaceEvenly' as any,
+                            mainAxisAlignment:
+                                Flex.MainAxisAlignment.SpaceEvenly,
                             children: [
                                 new Column({
-                                    crossAxisAlignment: 'center' as any,
+                                    crossAxisAlignment:
+                                        Flex.CrossAxisAlignment.Center,
                                     children: [
-                                        new TextWidget('Total Revenue', {
+                                        new Txt('Total Revenue', {
                                             style: {
                                                 fontSize: 12,
-                                                color: '#666',
+                                                color: PdfColor.fromHex('#666'),
                                             },
                                         }),
-                                        new TextWidget('$205,500', {
+                                        new Txt('$205,500', {
                                             style: {
                                                 fontSize: 20,
                                                 fontWeight:
                                                     ThemeTypes.FontWeight.Bold,
-                                                color: '#1976d2',
+                                                color: PdfColor.fromHex(
+                                                    '#1976d2'
+                                                ),
                                             },
                                         }),
                                     ],
@@ -441,18 +456,20 @@ describe('PDF Visual Validation Tests', () => {
                                 new Column({
                                     crossAxisAlignment: 'center' as any,
                                     children: [
-                                        new TextWidget('Avg Growth', {
+                                        new Txt('Avg Growth', {
                                             style: {
                                                 fontSize: 12,
-                                                color: '#666',
+                                                color: PdfColor.fromHex('#666'),
                                             },
                                         }),
-                                        new TextWidget('+14%', {
+                                        new Txt('+14%', {
                                             style: {
                                                 fontSize: 20,
                                                 fontWeight:
                                                     ThemeTypes.FontWeight.Bold,
-                                                color: '#388e3c',
+                                                color: PdfColor.fromHex(
+                                                    '#388e3c'
+                                                ),
                                             },
                                         }),
                                     ],
@@ -490,7 +507,7 @@ describe('PDF Visual Validation Tests', () => {
                     new Container({
                         height: 60,
                         decoration: {
-                            color: '#2c3e50',
+                            color: PdfColor.fromHex('#2c3e50'),
                             borderRadius: {
                                 topLeft: 5,
                                 topRight: 5,
@@ -499,11 +516,11 @@ describe('PDF Visual Validation Tests', () => {
                             },
                         },
                         alignment: Layout.Alignment.Center,
-                        child: new TextWidget('Responsive Layout Demo', {
+                        child: new Txt('Responsive Layout Demo', {
                             style: {
                                 fontSize: 20,
                                 fontWeight: ThemeTypes.FontWeight.Bold,
-                                color: '#ffffff',
+                                color: PdfColor.fromHex('#ffffff'),
                             },
                         }),
                     }),
@@ -519,7 +536,7 @@ describe('PDF Visual Validation Tests', () => {
                                             right: 5,
                                         }),
                                         decoration: {
-                                            color: '#e74c3c',
+                                            color: PdfColor.fromHex('#e74c3c'),
                                             borderRadius: {
                                                 topLeft: 5,
                                                 topRight: 5,
@@ -528,12 +545,12 @@ describe('PDF Visual Validation Tests', () => {
                                             },
                                         },
                                         alignment: Layout.Alignment.Center,
-                                        child: new TextWidget('Column 1', {
+                                        child: new Txt('Column 1', {
                                             style: {
                                                 fontSize: 14,
                                                 fontWeight:
                                                     ThemeTypes.FontWeight.Bold,
-                                                color: '#fff',
+                                                color: PdfColor.fromHex('#fff'),
                                             },
                                         }),
                                     })
@@ -545,7 +562,7 @@ describe('PDF Visual Validation Tests', () => {
                                             horizontal: 5,
                                         }),
                                         decoration: {
-                                            color: '#f39c12',
+                                            color: PdfColor.fromHex('#f39c12'),
                                             borderRadius: {
                                                 topLeft: 5,
                                                 topRight: 5,
@@ -554,12 +571,12 @@ describe('PDF Visual Validation Tests', () => {
                                             },
                                         },
                                         alignment: Layout.Alignment.Center,
-                                        child: new TextWidget('Column 2', {
+                                        child: new Txt('Column 2', {
                                             style: {
                                                 fontSize: 14,
                                                 fontWeight:
                                                     ThemeTypes.FontWeight.Bold,
-                                                color: '#fff',
+                                                color: PdfColor.fromHex('#fff'),
                                             },
                                         }),
                                     })
@@ -571,7 +588,7 @@ describe('PDF Visual Validation Tests', () => {
                                             left: 5,
                                         }),
                                         decoration: {
-                                            color: '#27ae60',
+                                            color: PdfColor.fromHex('#27ae60'),
                                             borderRadius: {
                                                 topLeft: 5,
                                                 topRight: 5,
@@ -580,12 +597,12 @@ describe('PDF Visual Validation Tests', () => {
                                             },
                                         },
                                         alignment: Layout.Alignment.Center,
-                                        child: new TextWidget('Column 3', {
+                                        child: new Txt('Column 3', {
                                             style: {
                                                 fontSize: 14,
                                                 fontWeight:
                                                     ThemeTypes.FontWeight.Bold,
-                                                color: '#fff',
+                                                color: PdfColor.fromHex('#fff'),
                                             },
                                         }),
                                     })
@@ -605,7 +622,7 @@ describe('PDF Visual Validation Tests', () => {
                                         right: 10,
                                     }),
                                     decoration: {
-                                        color: '#3498db',
+                                        color: PdfColor.fromHex('#3498db'),
                                         borderRadius: {
                                             topLeft: 5,
                                             topRight: 5,
@@ -615,24 +632,29 @@ describe('PDF Visual Validation Tests', () => {
                                     },
                                     padding: Layout.EdgeInsets.all(15),
                                     child: new Column({
-                                        crossAxisAlignment: 'start' as any,
+                                        crossAxisAlignment:
+                                            Flex.CrossAxisAlignment.Start,
                                         children: [
-                                            new TextWidget('Main Content', {
+                                            new Txt('Main Content', {
                                                 style: {
                                                     fontSize: 16,
                                                     fontWeight:
                                                         ThemeTypes.FontWeight
                                                             .Bold,
-                                                    color: '#fff',
+                                                    color: PdfColor.fromHex(
+                                                        '#fff'
+                                                    ),
                                                 },
                                             }),
                                             LayoutUtils.padded(
-                                                new TextWidget(
+                                                new Txt(
                                                     'This takes up 2/3 of available space.',
                                                     {
                                                         style: {
                                                             fontSize: 10,
-                                                            color: '#fff',
+                                                            color: PdfColor.fromHex(
+                                                                '#fff'
+                                                            ),
                                                             lineSpacing: 1.4,
                                                         },
                                                     }
@@ -650,7 +672,7 @@ describe('PDF Visual Validation Tests', () => {
                                 new Container({
                                     height: 120,
                                     decoration: {
-                                        color: '#9b59b6',
+                                        color: PdfColor.fromHex('#9b59b6'),
                                         borderRadius: {
                                             topLeft: 5,
                                             topRight: 5,
@@ -660,21 +682,26 @@ describe('PDF Visual Validation Tests', () => {
                                     },
                                     alignment: Layout.Alignment.Center,
                                     child: new Column({
-                                        mainAxisAlignment: 'center' as any,
+                                        mainAxisAlignment:
+                                            Flex.MainAxisAlignment.Center,
                                         children: [
-                                            new TextWidget('Sidebar', {
+                                            new Txt('Sidebar', {
                                                 style: {
                                                     fontSize: 14,
                                                     fontWeight:
                                                         ThemeTypes.FontWeight
                                                             .Bold,
-                                                    color: '#fff',
+                                                    color: PdfColor.fromHex(
+                                                        '#fff'
+                                                    ),
                                                 },
                                             }),
-                                            new TextWidget('1/3 width', {
+                                            new Txt('1/3 width', {
                                                 style: {
                                                     fontSize: 10,
-                                                    color: '#fff',
+                                                    color: PdfColor.fromHex(
+                                                        '#fff'
+                                                    ),
                                                 },
                                             }),
                                         ],
@@ -715,7 +742,7 @@ describe('PDF Visual Validation Tests', () => {
                 { x: 'Q3', y: 135000 },
                 { x: 'Q4', y: 162000 },
             ],
-            '#3498db'
+            PdfColor.fromHex('#3498db')
         );
 
         const profitData = DataUtils.createSeries(
@@ -726,7 +753,7 @@ describe('PDF Visual Validation Tests', () => {
                 { x: 'Q3', y: 48000 },
                 { x: 'Q4', y: 61000 },
             ],
-            '#e74c3c'
+            PdfColor.fromHex('#e74c3c')
         );
 
         const trendData = DataUtils.createSeries(
@@ -739,7 +766,7 @@ describe('PDF Visual Validation Tests', () => {
                 { x: 4, y: 125 },
                 { x: 5, y: 142 },
             ],
-            '#27ae60'
+            PdfColor.fromHex('#27ae60')
         );
 
         const content = new Container({
@@ -750,11 +777,11 @@ describe('PDF Visual Validation Tests', () => {
                     new Container({
                         alignment: Layout.Alignment.Center,
                         padding: Layout.EdgeInsets.only({ bottom: 20 }),
-                        child: new TextWidget('Chart Visualization Test', {
+                        child: new Txt('Chart Visualization Test', {
                             style: {
                                 fontSize: 24,
                                 fontWeight: ThemeTypes.FontWeight.Bold,
-                                color: '#2c3e50',
+                                color: PdfColor.fromHex('#2c3e50'),
                             },
                         }),
                     }),
@@ -764,14 +791,17 @@ describe('PDF Visual Validation Tests', () => {
                         height: 280,
                         margin: Layout.EdgeInsets.only({ bottom: 20 }),
                         decoration: {
-                            color: '#f8f9fa',
+                            color: PdfColor.fromHex('#f8f9fa'),
                             borderRadius: {
                                 topLeft: 8,
                                 topRight: 8,
                                 bottomLeft: 8,
                                 bottomRight: 8,
                             },
-                            border: { width: 1, color: '#dee2e6' },
+                            border: {
+                                width: 1,
+                                color: PdfColor.fromHex('#dee2e6'),
+                            },
                         },
                         padding: Layout.EdgeInsets.all(10),
                         child: new BarChart({
@@ -788,10 +818,10 @@ describe('PDF Visual Validation Tests', () => {
                             width: 540,
                             height: 260,
                             colors: [
-                                '#3498db',
-                                '#e74c3c',
-                                '#f39c12',
-                                '#27ae60',
+                                PdfColor.fromHex('#3498db'),
+                                PdfColor.fromHex('#e74c3c'),
+                                PdfColor.fromHex('#f39c12'),
+                                PdfColor.fromHex('#27ae60'),
                             ],
                         }),
                     }),
@@ -801,14 +831,17 @@ describe('PDF Visual Validation Tests', () => {
                         height: 280,
                         margin: Layout.EdgeInsets.only({ bottom: 15 }),
                         decoration: {
-                            color: '#f0f8ff',
+                            color: PdfColor.fromHex('#f0f8ff'),
                             borderRadius: {
                                 topLeft: 8,
                                 topRight: 8,
                                 bottomLeft: 8,
                                 bottomRight: 8,
                             },
-                            border: { width: 1, color: '#b3d9ff' },
+                            border: {
+                                width: 1,
+                                color: PdfColor.fromHex('#b3d9ff'),
+                            },
                         },
                         padding: Layout.EdgeInsets.all(10),
                         child: new LineChart({
@@ -824,9 +857,9 @@ describe('PDF Visual Validation Tests', () => {
                             },
                             width: 540,
                             height: 260,
-                            marker: 'circle' as any,
+                            marker: LineMarker.Circle,
                             lineWidth: 2,
-                            colors: ['#27ae60'],
+                            colors: [PdfColor.fromHex('#27ae60')],
                         }),
                     }),
 
@@ -834,35 +867,36 @@ describe('PDF Visual Validation Tests', () => {
                     new Container({
                         padding: Layout.EdgeInsets.all(15),
                         decoration: {
-                            color: '#fff3cd',
+                            color: PdfColor.fromHex('#fff3cd'),
                             borderRadius: {
                                 topLeft: 6,
                                 topRight: 6,
                                 bottomLeft: 6,
                                 bottomRight: 6,
                             },
-                            border: { width: 1, color: '#ffeaa7' },
+                            border: {
+                                width: 1,
+                                color: PdfColor.fromHex('#ffeaa7'),
+                            },
                         },
                         child: new Column({
                             children: [
-                                new TextWidget(
-                                    'Chart Text Positioning Validation',
-                                    {
-                                        style: {
-                                            fontSize: 14,
-                                            fontWeight:
-                                                ThemeTypes.FontWeight.Bold,
-                                            color: '#856404',
-                                        },
-                                    }
-                                ),
+                                new Txt('Chart Text Positioning Validation', {
+                                    style: {
+                                        fontSize: 14,
+                                        fontWeight: ThemeTypes.FontWeight.Bold,
+                                        color: PdfColor.fromHex('#856404'),
+                                    },
+                                }),
                                 LayoutUtils.padded(
-                                    new TextWidget(
+                                    new Txt(
                                         'This test validates that all text elements in charts render correctly:\n• Chart titles are centered at the top\n• X-axis labels appear at the bottom\n• Y-axis labels are rotated vertically on the left\n• Value labels are positioned above bars/near markers\n• All text respects the PDF coordinate system transformation',
                                         {
                                             style: {
                                                 fontSize: 11,
-                                                color: '#856404',
+                                                color: PdfColor.fromHex(
+                                                    '#856404'
+                                                ),
                                                 lineSpacing: 1.4,
                                             },
                                         }
@@ -896,13 +930,13 @@ describe('PDF Visual Validation Tests', () => {
         const doc = new Document();
 
         const page = doc.addPage({
-            format: 'A4' as any,
+            format: 'A4',
             margins: Layout.EdgeInsets.all(20),
         });
 
         // Create colored test widgets to make positioning issues visible
         const createColoredBox = (
-            color: string,
+            color: PdfColor,
             text: string,
             size: number = 80
         ) =>
@@ -911,14 +945,14 @@ describe('PDF Visual Validation Tests', () => {
                 height: size,
                 decoration: {
                     color,
-                    border: { width: 2, color: '#000000' },
+                    border: { width: 2, color: PdfColor.fromHex('#000000') },
                 },
                 alignment: Layout.Alignment.Center,
-                child: new TextWidget(text, {
+                child: new Txt(text, {
                     style: {
                         fontSize: 10,
                         fontWeight: ThemeTypes.FontWeight.Bold,
-                        color: '#ffffff',
+                        color: PdfColor.fromHex('#ffffff'),
                     },
                 }),
             });
@@ -930,11 +964,11 @@ describe('PDF Visual Validation Tests', () => {
                 mainAxisSpacing: 30,
                 children: [
                     // Title
-                    new TextWidget('Layout Widget Positioning Test', {
+                    new Txt('Layout Widget Positioning Test', {
                         style: {
                             fontSize: 20,
                             fontWeight: ThemeTypes.FontWeight.Bold,
-                            color: '#2c3e50',
+                            color: PdfColor.fromHex('#2c3e50'),
                         },
                     }),
 
@@ -943,13 +977,13 @@ describe('PDF Visual Validation Tests', () => {
                         crossAxisAlignment: 'start' as any,
                         mainAxisSpacing: 10,
                         children: [
-                            new TextWidget(
+                            new Txt(
                                 '1. Container Widget (Expected: GREEN at center)',
                                 {
                                     style: {
                                         fontSize: 14,
                                         fontWeight: ThemeTypes.FontWeight.Bold,
-                                        color: '#333',
+                                        color: PdfColor.fromHex('#333'),
                                     },
                                 }
                             ),
@@ -957,11 +991,18 @@ describe('PDF Visual Validation Tests', () => {
                                 width: 200,
                                 height: 100,
                                 decoration: {
-                                    color: '#f0f0f0',
-                                    border: { width: 1, color: '#999' },
+                                    color: PdfColor.fromHex('#f0f0f0'),
+                                    border: {
+                                        width: 1,
+                                        color: PdfColor.fromHex('#999'),
+                                    },
                                 },
                                 alignment: Layout.Alignment.Center,
-                                child: createColoredBox('#27ae60', 'OK', 60),
+                                child: createColoredBox(
+                                    PdfColor.fromHex('#27ae60'),
+                                    'OK',
+                                    60
+                                ),
                             }),
                         ],
                     }),
@@ -971,28 +1012,34 @@ describe('PDF Visual Validation Tests', () => {
                         crossAxisAlignment: 'start' as any,
                         mainAxisSpacing: 10,
                         children: [
-                            new TextWidget(
+                            new Txt(
                                 '2. Stack Widget (Expected: BLUE centered, RED top-right)',
                                 {
                                     style: {
                                         fontSize: 14,
                                         fontWeight: ThemeTypes.FontWeight.Bold,
-                                        color: '#333',
+                                        color: PdfColor.fromHex('#333'),
                                     },
                                 }
                             ),
-                            new TextWidget(
+                            new Txt(
                                 '   → If broken: both boxes at top-left corner overlapping',
                                 {
-                                    style: { fontSize: 12, color: '#666' },
+                                    style: {
+                                        fontSize: 12,
+                                        color: PdfColor.fromHex('#666'),
+                                    },
                                 }
                             ),
                             new Container({
                                 width: 200,
                                 height: 100,
                                 decoration: {
-                                    color: '#f0f0f0',
-                                    border: { width: 1, color: '#999' },
+                                    color: PdfColor.fromHex('#f0f0f0'),
+                                    border: {
+                                        width: 1,
+                                        color: PdfColor.fromHex('#999'),
+                                    },
                                 },
                                 child: new Stack({
                                     fit: 'expand' as any,
@@ -1000,7 +1047,7 @@ describe('PDF Visual Validation Tests', () => {
                                         new Container({
                                             alignment: Layout.Alignment.Center,
                                             child: createColoredBox(
-                                                '#3498db',
+                                                PdfColor.fromHex('#3498db'),
                                                 'CENTER',
                                                 50
                                             ),
@@ -1009,7 +1056,7 @@ describe('PDF Visual Validation Tests', () => {
                                             top: 10,
                                             right: 10,
                                             child: createColoredBox(
-                                                '#e74c3c',
+                                                PdfColor.fromHex('#e74c3c'),
                                                 'TOP-R',
                                                 30
                                             ),
@@ -1025,36 +1072,54 @@ describe('PDF Visual Validation Tests', () => {
                         crossAxisAlignment: 'start' as any,
                         mainAxisSpacing: 10,
                         children: [
-                            new TextWidget(
+                            new Txt(
                                 '3. Row Widget (Expected: 3 boxes in horizontal line)',
                                 {
                                     style: {
                                         fontSize: 14,
                                         fontWeight: ThemeTypes.FontWeight.Bold,
-                                        color: '#333',
+                                        color: PdfColor.fromHex('#333'),
                                     },
                                 }
                             ),
-                            new TextWidget(
+                            new Txt(
                                 '   → If broken: all 3 boxes stacked at left edge',
                                 {
-                                    style: { fontSize: 12, color: '#666' },
+                                    style: {
+                                        fontSize: 12,
+                                        color: PdfColor.fromHex('#666'),
+                                    },
                                 }
                             ),
                             new Container({
                                 width: 300,
                                 height: 80,
                                 decoration: {
-                                    color: '#f0f0f0',
-                                    border: { width: 1, color: '#999' },
+                                    color: PdfColor.fromHex('#f0f0f0'),
+                                    border: {
+                                        width: 1,
+                                        color: PdfColor.fromHex('#999'),
+                                    },
                                 },
                                 child: new Row({
                                     mainAxisAlignment: 'spaceEvenly' as any,
                                     crossAxisAlignment: 'center' as any,
                                     children: [
-                                        createColoredBox('#e67e22', '1', 50),
-                                        createColoredBox('#9b59b6', '2', 50),
-                                        createColoredBox('#1abc9c', '3', 50),
+                                        createColoredBox(
+                                            PdfColor.fromHex('#e67e22'),
+                                            '1',
+                                            50
+                                        ),
+                                        createColoredBox(
+                                            PdfColor.fromHex('#9b59b6'),
+                                            '2',
+                                            50
+                                        ),
+                                        createColoredBox(
+                                            PdfColor.fromHex('#1abc9c'),
+                                            '3',
+                                            50
+                                        ),
                                     ],
                                 }),
                             }),
@@ -1066,36 +1131,54 @@ describe('PDF Visual Validation Tests', () => {
                         crossAxisAlignment: 'start' as any,
                         mainAxisSpacing: 10,
                         children: [
-                            new TextWidget(
+                            new Txt(
                                 '4. Column Widget (Expected: 3 boxes in vertical line)',
                                 {
                                     style: {
                                         fontSize: 14,
                                         fontWeight: ThemeTypes.FontWeight.Bold,
-                                        color: '#333',
+                                        color: PdfColor.fromHex('#333'),
                                     },
                                 }
                             ),
-                            new TextWidget(
+                            new Txt(
                                 '   → If broken: all 3 boxes stacked at top edge',
                                 {
-                                    style: { fontSize: 12, color: '#666' },
+                                    style: {
+                                        fontSize: 12,
+                                        color: PdfColor.fromHex('#666'),
+                                    },
                                 }
                             ),
                             new Container({
                                 width: 100,
                                 height: 200,
                                 decoration: {
-                                    color: '#f0f0f0',
-                                    border: { width: 1, color: '#999' },
+                                    color: PdfColor.fromHex('#f0f0f0'),
+                                    border: {
+                                        width: 1,
+                                        color: PdfColor.fromHex('#999'),
+                                    },
                                 },
                                 child: new Column({
                                     mainAxisAlignment: 'spaceEvenly' as any,
                                     crossAxisAlignment: 'center' as any,
                                     children: [
-                                        createColoredBox('#f39c12', 'A', 40),
-                                        createColoredBox('#8e44ad', 'B', 40),
-                                        createColoredBox('#16a085', 'C', 40),
+                                        createColoredBox(
+                                            PdfColor.fromHex('#f39c12'),
+                                            'A',
+                                            40
+                                        ),
+                                        createColoredBox(
+                                            PdfColor.fromHex('#8e44ad'),
+                                            'B',
+                                            40
+                                        ),
+                                        createColoredBox(
+                                            PdfColor.fromHex('#16a085'),
+                                            'C',
+                                            40
+                                        ),
                                     ],
                                 }),
                             }),
@@ -1106,32 +1189,37 @@ describe('PDF Visual Validation Tests', () => {
                     new Container({
                         padding: Layout.EdgeInsets.all(15),
                         decoration: {
-                            color: '#fff3cd',
+                            color: PdfColor.fromHex('#fff3cd'),
                             borderRadius: {
                                 topLeft: 8,
                                 topRight: 8,
                                 bottomLeft: 8,
                                 bottomRight: 8,
                             },
-                            border: { width: 1, color: '#ffeaa7' },
+                            border: {
+                                width: 1,
+                                color: PdfColor.fromHex('#ffeaa7'),
+                            },
                         },
                         child: new Column({
                             crossAxisAlignment: 'start' as any,
                             children: [
-                                new TextWidget('Expected Results:', {
+                                new Txt('Expected Results:', {
                                     style: {
                                         fontSize: 14,
                                         fontWeight: ThemeTypes.FontWeight.Bold,
-                                        color: '#856404',
+                                        color: PdfColor.fromHex('#856404'),
                                     },
                                 }),
                                 LayoutUtils.padded(
-                                    new TextWidget(
+                                    new Txt(
                                         '• Container: GREEN box should be centered (✓ Working)\n• Stack: BLUE centered + RED at top-right (❌ Broken)\n• Row: 3 boxes spread horizontally (❌ Broken)\n• Column: 3 boxes spread vertically (❌ Broken)',
                                         {
                                             style: {
                                                 fontSize: 11,
-                                                color: '#856404',
+                                                color: PdfColor.fromHex(
+                                                    '#856404'
+                                                ),
                                                 lineSpacing: 1.4,
                                             },
                                         }
@@ -1178,11 +1266,11 @@ describe('PDF Visual Validation Tests', () => {
                 mainAxisSpacing: 20,
                 children: [
                     // Title
-                    new TextWidget('BorderRadius Validation Test', {
+                    new Txt('BorderRadius Validation Test', {
                         style: {
                             fontSize: 24,
                             fontWeight: ThemeTypes.FontWeight.Bold,
-                            color: '#2c3e50',
+                            color: PdfColor.fromHex('#2c3e50'),
                         },
                     }),
 
@@ -1191,16 +1279,13 @@ describe('PDF Visual Validation Tests', () => {
                         crossAxisAlignment: 'start' as any,
                         mainAxisSpacing: 10,
                         children: [
-                            new TextWidget(
-                                '1. Different Border Radius Values',
-                                {
-                                    style: {
-                                        fontSize: 16,
-                                        fontWeight: ThemeTypes.FontWeight.Bold,
-                                        color: '#333',
-                                    },
-                                }
-                            ),
+                            new Txt('1. Different Border Radius Values', {
+                                style: {
+                                    fontSize: 16,
+                                    fontWeight: ThemeTypes.FontWeight.Bold,
+                                    color: PdfColor.fromHex('#333'),
+                                },
+                            }),
                             new Row({
                                 mainAxisAlignment: 'spaceEvenly' as any,
                                 children: [
@@ -1208,7 +1293,7 @@ describe('PDF Visual Validation Tests', () => {
                                         width: 100,
                                         height: 80,
                                         decoration: {
-                                            color: '#e74c3c',
+                                            color: PdfColor.fromHex('#e74c3c'),
                                             borderRadius: {
                                                 topLeft: 0,
                                                 topRight: 0,
@@ -1217,10 +1302,10 @@ describe('PDF Visual Validation Tests', () => {
                                             },
                                         },
                                         alignment: Layout.Alignment.Center,
-                                        child: new TextWidget('No\nRadius', {
+                                        child: new Txt('No\nRadius', {
                                             style: {
                                                 fontSize: 10,
-                                                color: '#fff',
+                                                color: PdfColor.fromHex('#fff'),
                                             },
                                         }),
                                     }),
@@ -1228,7 +1313,7 @@ describe('PDF Visual Validation Tests', () => {
                                         width: 100,
                                         height: 80,
                                         decoration: {
-                                            color: '#3498db',
+                                            color: PdfColor.fromHex('#3498db'),
                                             borderRadius: {
                                                 topLeft: 5,
                                                 topRight: 5,
@@ -1237,10 +1322,10 @@ describe('PDF Visual Validation Tests', () => {
                                             },
                                         },
                                         alignment: Layout.Alignment.Center,
-                                        child: new TextWidget('5px\nRadius', {
+                                        child: new Txt('5px\nRadius', {
                                             style: {
                                                 fontSize: 10,
-                                                color: '#fff',
+                                                color: PdfColor.fromHex('#fff'),
                                             },
                                         }),
                                     }),
@@ -1248,7 +1333,7 @@ describe('PDF Visual Validation Tests', () => {
                                         width: 100,
                                         height: 80,
                                         decoration: {
-                                            color: '#27ae60',
+                                            color: PdfColor.fromHex('#27ae60'),
                                             borderRadius: {
                                                 topLeft: 15,
                                                 topRight: 15,
@@ -1257,10 +1342,10 @@ describe('PDF Visual Validation Tests', () => {
                                             },
                                         },
                                         alignment: Layout.Alignment.Center,
-                                        child: new TextWidget('15px\nRadius', {
+                                        child: new Txt('15px\nRadius', {
                                             style: {
                                                 fontSize: 10,
-                                                color: '#fff',
+                                                color: PdfColor.fromHex('#fff'),
                                             },
                                         }),
                                     }),
@@ -1268,7 +1353,7 @@ describe('PDF Visual Validation Tests', () => {
                                         width: 100,
                                         height: 80,
                                         decoration: {
-                                            color: '#f39c12',
+                                            color: PdfColor.fromHex('#f39c12'),
                                             borderRadius: {
                                                 topLeft: 40,
                                                 topRight: 40,
@@ -1277,12 +1362,14 @@ describe('PDF Visual Validation Tests', () => {
                                             },
                                         },
                                         alignment: Layout.Alignment.Center,
-                                        child: new TextWidget(
+                                        child: new Txt(
                                             '40px\nRadius\n(Circle)',
                                             {
                                                 style: {
                                                     fontSize: 9,
-                                                    color: '#fff',
+                                                    color: PdfColor.fromHex(
+                                                        '#fff'
+                                                    ),
                                                 },
                                             }
                                         ),
@@ -1297,11 +1384,11 @@ describe('PDF Visual Validation Tests', () => {
                         crossAxisAlignment: 'start' as any,
                         mainAxisSpacing: 10,
                         children: [
-                            new TextWidget('2. Individual Corner Radius', {
+                            new Txt('2. Individual Corner Radius', {
                                 style: {
                                     fontSize: 16,
                                     fontWeight: ThemeTypes.FontWeight.Bold,
-                                    color: '#333',
+                                    color: PdfColor.fromHex('#333'),
                                 },
                             }),
                             new Row({
@@ -1311,7 +1398,7 @@ describe('PDF Visual Validation Tests', () => {
                                         width: 100,
                                         height: 80,
                                         decoration: {
-                                            color: '#9b59b6',
+                                            color: PdfColor.fromHex('#9b59b6'),
                                             borderRadius: {
                                                 topLeft: 20,
                                                 topRight: 0,
@@ -1320,21 +1407,18 @@ describe('PDF Visual Validation Tests', () => {
                                             },
                                         },
                                         alignment: Layout.Alignment.Center,
-                                        child: new TextWidget(
-                                            'Top-Left\nOnly',
-                                            {
-                                                style: {
-                                                    fontSize: 10,
-                                                    color: '#fff',
-                                                },
-                                            }
-                                        ),
+                                        child: new Txt('Top-Left\nOnly', {
+                                            style: {
+                                                fontSize: 10,
+                                                color: PdfColor.fromHex('#fff'),
+                                            },
+                                        }),
                                     }),
                                     new Container({
                                         width: 100,
                                         height: 80,
                                         decoration: {
-                                            color: '#1abc9c',
+                                            color: PdfColor.fromHex('#1abc9c'),
                                             borderRadius: {
                                                 topLeft: 0,
                                                 topRight: 20,
@@ -1343,10 +1427,10 @@ describe('PDF Visual Validation Tests', () => {
                                             },
                                         },
                                         alignment: Layout.Alignment.Center,
-                                        child: new TextWidget('Right\nSide', {
+                                        child: new Txt('Right\nSide', {
                                             style: {
                                                 fontSize: 10,
-                                                color: '#fff',
+                                                color: PdfColor.fromHex('#fff'),
                                             },
                                         }),
                                     }),
@@ -1354,7 +1438,7 @@ describe('PDF Visual Validation Tests', () => {
                                         width: 100,
                                         height: 80,
                                         decoration: {
-                                            color: '#e67e22',
+                                            color: PdfColor.fromHex('#e67e22'),
                                             borderRadius: {
                                                 topLeft: 15,
                                                 topRight: 15,
@@ -1363,10 +1447,10 @@ describe('PDF Visual Validation Tests', () => {
                                             },
                                         },
                                         alignment: Layout.Alignment.Center,
-                                        child: new TextWidget('Top\nOnly', {
+                                        child: new Txt('Top\nOnly', {
                                             style: {
                                                 fontSize: 10,
-                                                color: '#fff',
+                                                color: PdfColor.fromHex('#fff'),
                                             },
                                         }),
                                     }),
@@ -1374,7 +1458,7 @@ describe('PDF Visual Validation Tests', () => {
                                         width: 100,
                                         height: 80,
                                         decoration: {
-                                            color: '#34495e',
+                                            color: PdfColor.fromHex('#34495e'),
                                             borderRadius: {
                                                 topLeft: 10,
                                                 topRight: 20,
@@ -1383,10 +1467,10 @@ describe('PDF Visual Validation Tests', () => {
                                             },
                                         },
                                         alignment: Layout.Alignment.Center,
-                                        child: new TextWidget('Mixed\nRadius', {
+                                        child: new Txt('Mixed\nRadius', {
                                             style: {
                                                 fontSize: 10,
-                                                color: '#fff',
+                                                color: PdfColor.fromHex('#fff'),
                                             },
                                         }),
                                     }),
@@ -1400,24 +1484,22 @@ describe('PDF Visual Validation Tests', () => {
                         crossAxisAlignment: 'start' as any,
                         mainAxisSpacing: 10,
                         children: [
-                            new TextWidget(
-                                '3. Border + BorderRadius Combination',
-                                {
-                                    style: {
-                                        fontSize: 16,
-                                        fontWeight: ThemeTypes.FontWeight.Bold,
-                                        color: '#333',
-                                    },
-                                }
-                            ),
+                            new Txt('3. Border + BorderRadius Combination', {
+                                style: {
+                                    fontSize: 16,
+                                    fontWeight: ThemeTypes.FontWeight.Bold,
+                                    color: PdfColor.fromHex('#333'),
+                                },
+                            }),
                             new Row({
-                                mainAxisAlignment: 'spaceEvenly' as any,
+                                mainAxisAlignment:
+                                    Flex.MainAxisAlignment.SpaceEvenly,
                                 children: [
                                     new Container({
                                         width: 120,
                                         height: 80,
                                         decoration: {
-                                            color: '#ffffff',
+                                            color: PdfColor.fromHex('#ffffff'),
                                             borderRadius: {
                                                 topLeft: 10,
                                                 topRight: 10,
@@ -1426,25 +1508,26 @@ describe('PDF Visual Validation Tests', () => {
                                             },
                                             border: {
                                                 width: 2,
-                                                color: '#e74c3c',
+                                                color: PdfColor.fromHex(
+                                                    '#e74c3c'
+                                                ),
                                             },
                                         },
                                         alignment: Layout.Alignment.Center,
-                                        child: new TextWidget(
-                                            'Border +\nRadius',
-                                            {
-                                                style: {
-                                                    fontSize: 10,
-                                                    color: '#e74c3c',
-                                                },
-                                            }
-                                        ),
+                                        child: new Txt('Border +\nRadius', {
+                                            style: {
+                                                fontSize: 10,
+                                                color: PdfColor.fromHex(
+                                                    '#e74c3c'
+                                                ),
+                                            },
+                                        }),
                                     }),
                                     new Container({
                                         width: 120,
                                         height: 80,
                                         decoration: {
-                                            color: '#f8f9fa',
+                                            color: PdfColor.fromHex('#f8f9fa'),
                                             borderRadius: {
                                                 topLeft: 20,
                                                 topRight: 20,
@@ -1453,16 +1536,20 @@ describe('PDF Visual Validation Tests', () => {
                                             },
                                             border: {
                                                 width: 3,
-                                                color: '#3498db',
+                                                color: PdfColor.fromHex(
+                                                    '#3498db'
+                                                ),
                                             },
                                         },
                                         alignment: Layout.Alignment.Center,
-                                        child: new TextWidget(
+                                        child: new Txt(
                                             'Thick Border\n+ Circle',
                                             {
                                                 style: {
                                                     fontSize: 10,
-                                                    color: '#3498db',
+                                                    color: PdfColor.fromHex(
+                                                        '#3498db'
+                                                    ),
                                                 },
                                             }
                                         ),
@@ -1471,7 +1558,7 @@ describe('PDF Visual Validation Tests', () => {
                                         width: 120,
                                         height: 80,
                                         decoration: {
-                                            color: '#27ae60',
+                                            color: PdfColor.fromHex('#27ae60'),
                                             borderRadius: {
                                                 topLeft: 0,
                                                 topRight: 15,
@@ -1480,19 +1567,18 @@ describe('PDF Visual Validation Tests', () => {
                                             },
                                             border: {
                                                 width: 1,
-                                                color: '#ffffff',
+                                                color: PdfColor.fromHex(
+                                                    '#ffffff'
+                                                ),
                                             },
                                         },
                                         alignment: Layout.Alignment.Center,
-                                        child: new TextWidget(
-                                            'Diagonal\nRadius',
-                                            {
-                                                style: {
-                                                    fontSize: 10,
-                                                    color: '#fff',
-                                                },
-                                            }
-                                        ),
+                                        child: new Txt('Diagonal\nRadius', {
+                                            style: {
+                                                fontSize: 10,
+                                                color: PdfColor.fromHex('#fff'),
+                                            },
+                                        }),
                                     }),
                                 ],
                             }),
@@ -1503,32 +1589,37 @@ describe('PDF Visual Validation Tests', () => {
                     new Container({
                         padding: Layout.EdgeInsets.all(15),
                         decoration: {
-                            color: '#d4edda',
+                            color: PdfColor.fromHex('#d4edda'),
                             borderRadius: {
                                 topLeft: 8,
                                 topRight: 8,
                                 bottomLeft: 8,
                                 bottomRight: 8,
                             },
-                            border: { width: 1, color: '#c3e6cb' },
+                            border: {
+                                width: 1,
+                                color: PdfColor.fromHex('#c3e6cb'),
+                            },
                         },
                         child: new Column({
                             crossAxisAlignment: 'start' as any,
                             children: [
-                                new TextWidget('Expected Results:', {
+                                new Txt('Expected Results:', {
                                     style: {
                                         fontSize: 14,
                                         fontWeight: ThemeTypes.FontWeight.Bold,
-                                        color: '#155724',
+                                        color: PdfColor.fromHex('#155724'),
                                     },
                                 }),
                                 LayoutUtils.padded(
-                                    new TextWidget(
+                                    new Txt(
                                         '✅ All containers should have properly rounded corners\n✅ Different radius values should be visually distinct\n✅ Individual corner radius should work correctly\n✅ Borders should follow the rounded shape\n✅ This green container should also have rounded corners',
                                         {
                                             style: {
                                                 fontSize: 11,
-                                                color: '#155724',
+                                                color: PdfColor.fromHex(
+                                                    '#155724'
+                                                ),
                                                 lineSpacing: 1.4,
                                             },
                                         }

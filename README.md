@@ -64,7 +64,7 @@ Automatic page breaks with headers, footers, and consistent formatting:
 
 ```typescript
 import { writeFile } from 'fs/promises';
-import { Document, TextWidget, Container, Layout } from 'typescript-pdf';
+import { Document, Txt, Container, Layout } from 'typescript-pdf';
 
 const doc = new Document();
 doc.addPage({
@@ -75,7 +75,7 @@ doc.addPage({
             borderRadius: BorderRadiusUtils.circular(4),
         },
         padding: Layout.EdgeInsets.all(20),
-        child: new TextWidget('Hello World!', {
+        child: new Txt('Hello World!', {
             style: { fontSize: 24, color: '#1976d2' }
         })
     })
@@ -92,15 +92,15 @@ console.log('✅ Successfully saved PDF to hello-world.pdf');
 ### Business Report with Table
 
 ```typescript
-import { Document, MultiPage, Table, TextWidget, Container, DataUtils, Theme } from 'typescript-pdf';
+import { Document, MultiPage, Table, Txt, Container, DataUtils, Theme } from 'typescript-pdf';
 
 const doc = new Document();
 doc.addPage({
   build: () => new MultiPage({
-    header: (pageNum, total) => new TextWidget(`Page ${pageNum} of ${total}`),
+    header: (pageNum, total) => new Txt(`Page ${pageNum} of ${total}`),
     children: [
       new Container({
-        child: new TextWidget('Q4 Financial Report', {
+        child: new Txt('Q4 Financial Report', {
           style: { fontSize: 28, fontWeight: Theme.FontWeight.Bold }
         })
       }),
@@ -211,7 +211,7 @@ const pdfBytes = await doc.save();
 - `Expanded` - Fill available space in flex layouts
 
 ### **Text & Typography**
-- `TextWidget` - Styled text rendering with font fallbacks
+- `Txt` - Styled text rendering with font fallbacks
 - `RichText` - Multi-span text with different styles
 - Text overflow modes: Clip, Ellipsis, Visible
 - Font system with intelligent fallbacks

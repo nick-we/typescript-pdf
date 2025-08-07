@@ -8,9 +8,10 @@
 import { describe, test, expect } from 'vitest';
 
 import { Document } from '@/core/document.js';
+import { PdfColor } from '@/core/pdf';
 import { Layout, defaultTheme } from '@/types.js';
 import { Container } from '@/widgets/layout.js';
-import { TextWidget, TextOverflow, TextAlign } from '@/widgets/text.js';
+import { Txt, TextOverflow, TextAlign } from '@/widgets/text.js';
 
 describe('Text Overflow Validation - Fixed Behavior', () => {
     const mockTheme = defaultTheme;
@@ -27,8 +28,8 @@ describe('Text Overflow Validation - Fixed Behavior', () => {
         ];
 
         testCases.forEach(({ width, expectedLines }) => {
-            const text = new TextWidget(longText, {
-                style: { fontSize: 12, color: '#000000' },
+            const text = new Txt(longText, {
+                style: { fontSize: 12, color: PdfColor.black },
                 softWrap: true,
                 overflow: TextOverflow.Clip,
             });
@@ -62,8 +63,8 @@ describe('Text Overflow Validation - Fixed Behavior', () => {
         const longText =
             'This is a very long single line text that should be truncated with ellipsis';
 
-        const text = new TextWidget(longText, {
-            style: { fontSize: 14, color: '#000000' },
+        const text = new Txt(longText, {
+            style: { fontSize: 14, color: PdfColor.black },
             softWrap: false, // Single line
             overflow: TextOverflow.Ellipsis,
         });
@@ -94,8 +95,8 @@ describe('Text Overflow Validation - Fixed Behavior', () => {
         const longText =
             'Line 1 content here. Line 2 content here. Line 3 content here. Line 4 content here. Line 5 content here. Line 6 content here.';
 
-        const text = new TextWidget(longText, {
-            style: { fontSize: 12, color: '#000000' },
+        const text = new Txt(longText, {
+            style: { fontSize: 12, color: PdfColor.black },
             softWrap: true,
             maxLines: 3,
             overflow: TextOverflow.Ellipsis,
@@ -129,8 +130,8 @@ describe('Text Overflow Validation - Fixed Behavior', () => {
         const longText =
             'This text should be visible even if it exceeds container bounds';
 
-        const text = new TextWidget(longText, {
-            style: { fontSize: 12, color: '#000000' },
+        const text = new Txt(longText, {
+            style: { fontSize: 12, color: PdfColor.black },
             softWrap: false,
             overflow: TextOverflow.Visible,
         });
@@ -163,8 +164,8 @@ describe('Text Overflow Validation - Fixed Behavior', () => {
         const alignments = [TextAlign.Left, TextAlign.Center, TextAlign.Right];
 
         alignments.forEach(alignment => {
-            const textWidget = new TextWidget(text, {
-                style: { fontSize: 12, color: '#000000' },
+            const txt = new Txt(text, {
+                style: { fontSize: 12, color: PdfColor.black },
                 textAlign: alignment,
                 softWrap: true,
                 overflow: TextOverflow.Clip,
@@ -181,7 +182,7 @@ describe('Text Overflow Validation - Fixed Behavior', () => {
                 theme: mockTheme,
             };
 
-            const result = textWidget.layout(layoutContext);
+            const result = txt.layout(layoutContext);
 
             console.log(
                 `${alignment} alignment: ${result.size.width}x${result.size.height}`
@@ -200,8 +201,8 @@ describe('Text Overflow Validation - Fixed Behavior', () => {
             width: 600,
             height: 700,
             decoration: {
-                color: '#ffffff',
-                border: { width: 2, color: '#000000' },
+                color: PdfColor.fromHex('#ffffff'),
+                border: { width: 2, color: PdfColor.fromHex('#000000') },
             },
             child: new Container({
                 width: 560,
@@ -213,8 +214,11 @@ describe('Text Overflow Validation - Fixed Behavior', () => {
                         width: 520,
                         height: 620,
                         decoration: {
-                            color: '#f8f9fa',
-                            border: { width: 1, color: '#cccccc' },
+                            color: PdfColor.fromHex('#f8f9fa'),
+                            border: {
+                                width: 1,
+                                color: PdfColor.fromHex('#cccccc'),
+                            },
                         },
                         alignment: Layout.Alignment.TopLeft,
                         child: new Container({
@@ -227,16 +231,21 @@ describe('Text Overflow Validation - Fixed Behavior', () => {
                                     width: 200,
                                     height: 120,
                                     decoration: {
-                                        color: '#e8f5e8',
-                                        border: { width: 1, color: '#4caf50' },
+                                        color: PdfColor.fromHex('#e8f5e8'),
+                                        border: {
+                                            width: 1,
+                                            color: PdfColor.fromHex('#4caf50'),
+                                        },
                                     },
                                     alignment: Layout.Alignment.TopLeft,
-                                    child: new TextWidget(
+                                    child: new Txt(
                                         '✅ FIXED: This long text now properly wraps within the green container boundaries instead of overflowing. The text measurement correctly calculates multiple lines.',
                                         {
                                             style: {
                                                 fontSize: 9,
-                                                color: '#2e7d32',
+                                                color: PdfColor.fromHex(
+                                                    '#2e7d32'
+                                                ),
                                             },
                                             softWrap: true,
                                             overflow: TextOverflow.Clip,
@@ -273,8 +282,8 @@ describe('Text Overflow Validation - Fixed Behavior', () => {
 
     test('Edge cases handled correctly', () => {
         // Test empty text
-        const emptyText = new TextWidget('', {
-            style: { fontSize: 12, color: '#000000' },
+        const emptyText = new Txt('', {
+            style: { fontSize: 12, color: PdfColor.black },
         });
 
         const layoutContext = {
@@ -294,8 +303,8 @@ describe('Text Overflow Validation - Fixed Behavior', () => {
         expect(emptyResult.size.height).toBeLessThanOrEqual(12 * 1.2);
 
         // Test very narrow container
-        const narrowText = new TextWidget('A very long word', {
-            style: { fontSize: 12, color: '#000000' },
+        const narrowText = new Txt('A very long word', {
+            style: { fontSize: 12, color: PdfColor.black },
             softWrap: true,
         });
 

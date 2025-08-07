@@ -7,6 +7,7 @@
  * @packageDocumentation
  */
 
+import { PdfColor } from '@/core/pdf';
 import type { Layout } from '@/types.js';
 import { Theme as ThemeTypes } from '@/types.js';
 import { BaseWidget, type Widget, type WidgetProps } from '@/widgets/base.js';
@@ -171,7 +172,7 @@ export const ThemeUtils = {
             fontFamily: 'Helvetica',
             fontWeight: ThemeTypes.FontWeight.Normal,
             fontStyle: ThemeTypes.FontStyle.Normal,
-            color: '#000000',
+            color: PdfColor.fromHex('#000000'),
             ...options,
         };
     },
@@ -183,18 +184,18 @@ export const ThemeUtils = {
         options: Partial<ThemeTypes.ColorScheme>
     ): ThemeTypes.ColorScheme {
         return {
-            primary: '#1976d2',
-            secondary: '#dc004e',
-            background: '#ffffff',
-            surface: '#f5f5f5',
-            onBackground: '#000000',
-            onSurface: '#000000',
-            onPrimary: '#ffffff',
-            onSecondary: '#ffffff',
-            error: '#d32f2f',
-            success: '#388e3c',
-            warning: '#f57c00',
-            info: '#1976d2',
+            primary: PdfColor.fromHex('#1976d2'),
+            secondary: PdfColor.fromHex('#dc004e'),
+            background: PdfColor.fromHex('#ffffff'),
+            surface: PdfColor.fromHex('#f5f5f5'),
+            onBackground: PdfColor.fromHex('#000000'),
+            onSurface: PdfColor.fromHex('#000000'),
+            onPrimary: PdfColor.fromHex('#ffffff'),
+            onSecondary: PdfColor.fromHex('#ffffff'),
+            error: PdfColor.fromHex('#d32f2f'),
+            success: PdfColor.fromHex('#388e3c'),
+            warning: PdfColor.fromHex('#f57c00'),
+            info: PdfColor.fromHex('#1976d2'),
             ...options,
         };
     },
@@ -238,7 +239,7 @@ export const TextStyles = {
     caption: ThemeUtils.textStyle({
         fontSize: 10,
         fontWeight: ThemeTypes.FontWeight.Normal,
-        color: '#666666',
+        color: PdfColor.fromHex('#666666'),
     }),
 
     /** Label text */
@@ -259,35 +260,37 @@ export const ColorSchemes = {
     professional: ThemeTypes.ColorSchemes.professional,
 
     /** Create a monochrome color scheme */
-    monochrome: (baseColor: string = '#333333'): ThemeTypes.ColorScheme => ({
+    monochrome: (
+        baseColor: PdfColor = PdfColor.fromHex('#333333')
+    ): ThemeTypes.ColorScheme => ({
         primary: baseColor,
         secondary: baseColor,
-        background: '#ffffff',
-        surface: '#f8f9fa',
+        background: PdfColor.fromHex('#ffffff'),
+        surface: PdfColor.fromHex('#f8f9fa'),
         onBackground: baseColor,
         onSurface: baseColor,
-        onPrimary: '#ffffff',
-        onSecondary: '#ffffff',
-        error: '#dc3545',
-        success: '#28a745',
-        warning: '#ffc107',
-        info: '#17a2b8',
+        onPrimary: PdfColor.fromHex('#ffffff'),
+        onSecondary: PdfColor.fromHex('#ffffff'),
+        error: PdfColor.fromHex('#dc3545'),
+        success: PdfColor.fromHex('#28a745'),
+        warning: PdfColor.fromHex('#ffc107'),
+        info: PdfColor.fromHex('#17a2b8'),
     }),
 
     /** Create a blue color scheme */
     blue: (): ThemeTypes.ColorScheme => ({
-        primary: '#007bff',
-        secondary: '#6c757d',
-        background: '#ffffff',
-        surface: '#f8f9fa',
-        onBackground: '#212529',
-        onSurface: '#212529',
-        onPrimary: '#ffffff',
-        onSecondary: '#ffffff',
-        error: '#dc3545',
-        success: '#28a745',
-        warning: '#ffc107',
-        info: '#17a2b8',
+        primary: PdfColor.fromHex('#007bff'),
+        secondary: PdfColor.fromHex('#6c757d'),
+        background: PdfColor.fromHex('#ffffff'),
+        surface: PdfColor.fromHex('#f8f9fa'),
+        onBackground: PdfColor.fromHex('#212529'),
+        onSurface: PdfColor.fromHex('#212529'),
+        onPrimary: PdfColor.fromHex('#ffffff'),
+        onSecondary: PdfColor.fromHex('#ffffff'),
+        error: PdfColor.fromHex('#dc3545'),
+        success: PdfColor.fromHex('#28a745'),
+        warning: PdfColor.fromHex('#ffc107'),
+        info: PdfColor.fromHex('#17a2b8'),
     }),
 };
 
@@ -311,51 +314,51 @@ export const PrebuiltThemes = {
     /** Clean, minimal light theme */
     minimal: (): ThemeTypes.ThemeData =>
         ThemeUtils.custom({
-            primary: '#2c3e50',
-            secondary: '#95a5a6',
-            background: '#ffffff',
-            surface: '#ffffff',
-            onBackground: '#2c3e50',
-            onSurface: '#2c3e50',
-            onPrimary: '#ffffff',
-            onSecondary: '#ffffff',
-            error: '#e74c3c',
-            success: '#27ae60',
-            warning: '#f39c12',
-            info: '#3498db',
+            primary: PdfColor.fromHex('#2c3e50'),
+            secondary: PdfColor.fromHex('#95a5a6'),
+            background: PdfColor.fromHex('#ffffff'),
+            surface: PdfColor.fromHex('#ffffff'),
+            onBackground: PdfColor.fromHex('#2c3e50'),
+            onSurface: PdfColor.fromHex('#2c3e50'),
+            onPrimary: PdfColor.fromHex('#ffffff'),
+            onSecondary: PdfColor.fromHex('#ffffff'),
+            error: PdfColor.fromHex('#e74c3c'),
+            success: PdfColor.fromHex('#27ae60'),
+            warning: PdfColor.fromHex('#f39c12'),
+            info: PdfColor.fromHex('#3498db'),
         }),
 
     /** Corporate/business theme */
     corporate: (): ThemeTypes.ThemeData =>
         ThemeUtils.custom({
-            primary: '#1f4e79',
-            secondary: '#5b9bd5',
-            background: '#ffffff',
-            surface: '#f2f2f2',
-            onBackground: '#1f4e79',
-            onSurface: '#1f4e79',
-            onPrimary: '#ffffff',
-            onSecondary: '#ffffff',
-            error: '#c5504b',
-            success: '#70ad47',
-            warning: '#ffc000',
-            info: '#5b9bd5',
+            primary: PdfColor.fromHex('#1f4e79'),
+            secondary: PdfColor.fromHex('#5b9bd5'),
+            background: PdfColor.fromHex('#ffffff'),
+            surface: PdfColor.fromHex('#f2f2f2'),
+            onBackground: PdfColor.fromHex('#1f4e79'),
+            onSurface: PdfColor.fromHex('#1f4e79'),
+            onPrimary: PdfColor.fromHex('#ffffff'),
+            onSecondary: PdfColor.fromHex('#ffffff'),
+            error: PdfColor.fromHex('#c5504b'),
+            success: PdfColor.fromHex('#70ad47'),
+            warning: PdfColor.fromHex('#ffc000'),
+            info: PdfColor.fromHex('#5b9bd5'),
         }),
 
     /** Modern, vibrant theme */
     modern: (): ThemeTypes.ThemeData =>
         ThemeUtils.custom({
-            primary: '#6c5ce7',
-            secondary: '#fd79a8',
-            background: '#ffffff',
-            surface: '#f8f9fa',
-            onBackground: '#2d3436',
-            onSurface: '#2d3436',
-            onPrimary: '#ffffff',
-            onSecondary: '#ffffff',
-            error: '#e17055',
-            success: '#00b894',
-            warning: '#fdcb6e',
-            info: '#74b9ff',
+            primary: PdfColor.fromHex('#6c5ce7'),
+            secondary: PdfColor.fromHex('#fd79a8'),
+            background: PdfColor.fromHex('#ffffff'),
+            surface: PdfColor.fromHex('#f8f9fa'),
+            onBackground: PdfColor.fromHex('#2d3436'),
+            onSurface: PdfColor.fromHex('#2d3436'),
+            onPrimary: PdfColor.fromHex('#ffffff'),
+            onSecondary: PdfColor.fromHex('#ffffff'),
+            error: PdfColor.fromHex('#e17055'),
+            success: PdfColor.fromHex('#00b894'),
+            warning: PdfColor.fromHex('#fdcb6e'),
+            info: PdfColor.fromHex('#74b9ff'),
         }),
 };

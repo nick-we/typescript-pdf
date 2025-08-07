@@ -48,11 +48,11 @@ For the best experience, ensure your `tsconfig.json` includes:
 Create a simple test to verify everything is working:
 
 ```typescript
-import { Document, TextWidget } from 'typescript-pdf';
+import { Document, Txt } from 'typescript-pdf';
 
 const doc = new Document();
 doc.addPage({
-  build: () => new TextWidget('Hello, TypeScript PDF!')
+  build: () => new Txt('Hello, TypeScript PDF!')
 });
 
 console.log('Installation successful!');

@@ -9,14 +9,14 @@
 
 import { describe, it, expect, beforeEach } from 'vitest';
 
-import { Document } from '@/core/index.js';
+import { Document, PdfColor } from '@/core/index.js';
 import {
     createTestLayoutContext,
     type TestPageFormat,
 } from '@/test/test-utils.js';
 import { Layout, Theme as ThemeTypes, Flex as FlexTypes } from '@/types.js';
 import {
-    TextWidget,
+    Txt,
     Container,
     Row,
     Column,
@@ -70,7 +70,7 @@ describe('System Integration', () => {
                             // Header
                             new Container({
                                 alignment: Layout.Alignment.Center,
-                                child: new TextWidget('Annual Report 2023', {
+                                child: new Txt('Annual Report 2023', {
                                     style: {
                                         fontSize: 24,
                                         fontWeight: ThemeTypes.FontWeight.Bold,
@@ -86,7 +86,7 @@ describe('System Integration', () => {
                                 style: { fontSize: 14, lineSpacing: 1.4 },
                                 child: new Column({
                                     children: [
-                                        new TextWidget('Executive Summary', {
+                                        new Txt('Executive Summary', {
                                             style: {
                                                 fontSize: 18,
                                                 fontWeight:
@@ -94,7 +94,7 @@ describe('System Integration', () => {
                                             },
                                         }),
                                         LayoutUtils.padded(
-                                            new TextWidget(
+                                            new Txt(
                                                 'This report presents our company performance for the fiscal year 2023, highlighting key achievements and growth metrics.'
                                             ),
                                             Layout.EdgeInsets.only({
@@ -147,11 +147,15 @@ describe('System Integration', () => {
                                             borders: {
                                                 top: {
                                                     width: 1,
-                                                    color: '#cccccc',
+                                                    color: PdfColor.fromHex(
+                                                        '#cccccc'
+                                                    ),
                                                 },
                                                 bottom: {
                                                     width: 1,
-                                                    color: '#cccccc',
+                                                    color: PdfColor.fromHex(
+                                                        '#cccccc'
+                                                    ),
                                                 },
                                             },
                                         })
@@ -183,23 +187,19 @@ describe('System Integration', () => {
                     child: new Column({
                         mainAxisAlignment: FlexTypes.MainAxisAlignment.Center,
                         children: [
-                            new TextWidget('Company Overview', {
+                            new Txt('Company Overview', {
                                 style: {
                                     fontSize: 28,
                                     fontWeight: ThemeTypes.FontWeight.Bold,
                                 },
                             }),
                             LayoutUtils.padded(
-                                new TextWidget(
-                                    'Confidential Internal Document',
-                                    {
-                                        style: {
-                                            fontSize: 14,
-                                            fontStyle:
-                                                ThemeTypes.FontStyle.Italic,
-                                        },
-                                    }
-                                ),
+                                new Txt('Confidential Internal Document', {
+                                    style: {
+                                        fontSize: 14,
+                                        fontStyle: ThemeTypes.FontStyle.Italic,
+                                    },
+                                }),
                                 Layout.EdgeInsets.only({ top: 20 })
                             ),
                         ],
@@ -218,7 +218,7 @@ describe('System Integration', () => {
                             // Main content
                             new Column({
                                 children: [
-                                    new TextWidget('Financial Overview', {
+                                    new Txt('Financial Overview', {
                                         style: {
                                             fontSize: 20,
                                             fontWeight:
@@ -251,8 +251,11 @@ describe('System Integration', () => {
                             new Positioned({
                                 bottom: 20,
                                 right: 20,
-                                child: new TextWidget('Page 2', {
-                                    style: { fontSize: 10, color: '#666666' },
+                                child: new Txt('Page 2', {
+                                    style: {
+                                        fontSize: 10,
+                                        color: PdfColor.fromHex('#666666'),
+                                    },
                                 }),
                             }),
                         ],
@@ -307,15 +310,13 @@ describe('System Integration', () => {
                             new Row({
                                 children: [
                                     FlexUtils.flexible(
-                                        new TextWidget(
-                                            `Row ${i + 1} - Column 1`
-                                        ),
+                                        new Txt(`Row ${i + 1} - Column 1`),
                                         { flex: 1 }
                                     ),
                                     FlexUtils.flexible(
                                         new Container({
                                             padding: Layout.EdgeInsets.all(5),
-                                            child: new TextWidget(
+                                            child: new Txt(
                                                 `Row ${i + 1} - Column 2`
                                             ),
                                         }),
@@ -324,13 +325,13 @@ describe('System Integration', () => {
                                     FlexUtils.flexible(
                                         new Stack({
                                             children: [
-                                                new TextWidget(
+                                                new Txt(
                                                     `Row ${i + 1} - Column 3`
                                                 ),
                                                 new Positioned({
                                                     top: 0,
                                                     right: 0,
-                                                    child: new TextWidget('*'),
+                                                    child: new Txt('*'),
                                                 }),
                                             ],
                                         }),
@@ -356,13 +357,13 @@ describe('System Integration', () => {
                 padding: Layout.EdgeInsets.all(10),
                 child: new Row({
                     children: [
-                        FlexUtils.flexible(new TextWidget('Consistent 1'), {
+                        FlexUtils.flexible(new Txt('Consistent 1'), {
                             flex: 1,
                         }),
-                        FlexUtils.flexible(new TextWidget('Consistent 2'), {
+                        FlexUtils.flexible(new Txt('Consistent 2'), {
                             flex: 2,
                         }),
-                        FlexUtils.flexible(new TextWidget('Consistent 3'), {
+                        FlexUtils.flexible(new Txt('Consistent 3'), {
                             flex: 1,
                         }),
                     ],
@@ -416,9 +417,7 @@ describe('System Integration', () => {
         });
 
         it('should handle extreme constraint scenarios', () => {
-            const widget = new TextWidget(
-                'Test content for extreme constraints'
-            );
+            const widget = new Txt('Test content for extreme constraints');
 
             const extremeConstraints = [
                 // Very small constraints
@@ -456,7 +455,7 @@ describe('System Integration', () => {
 
         it('should handle circular references and deep nesting safely', () => {
             // Test deep nesting (shouldn't cause stack overflow)
-            let deepWidget: Widget = new TextWidget('Deep Content');
+            let deepWidget: Widget = new Txt('Deep Content');
 
             for (let i = 0; i < 100; i++) {
                 deepWidget = new Container({
@@ -492,7 +491,7 @@ describe('System Integration', () => {
                                 mainAxisAlignment:
                                     FlexTypes.MainAxisAlignment.SpaceBetween,
                                 children: [
-                                    new TextWidget('INVOICE', {
+                                    new Txt('INVOICE', {
                                         style: {
                                             fontSize: 28,
                                             fontWeight:
@@ -503,15 +502,9 @@ describe('System Integration', () => {
                                         crossAxisAlignment:
                                             FlexTypes.CrossAxisAlignment.End,
                                         children: [
-                                            new TextWidget(
-                                                'Invoice #: INV-2023-001'
-                                            ),
-                                            new TextWidget(
-                                                'Date: March 15, 2023'
-                                            ),
-                                            new TextWidget(
-                                                'Due: April 15, 2023'
-                                            ),
+                                            new Txt('Invoice #: INV-2023-001'),
+                                            new Txt('Date: March 15, 2023'),
+                                            new Txt('Due: April 15, 2023'),
                                         ],
                                     }),
                                 ],
@@ -529,7 +522,7 @@ describe('System Integration', () => {
                                                 FlexTypes.CrossAxisAlignment
                                                     .Start,
                                             children: [
-                                                new TextWidget('From:', {
+                                                new Txt('From:', {
                                                     style: {
                                                         fontWeight:
                                                             ThemeTypes
@@ -537,15 +530,9 @@ describe('System Integration', () => {
                                                                 .Bold,
                                                     },
                                                 }),
-                                                new TextWidget(
-                                                    'Your Company Name'
-                                                ),
-                                                new TextWidget(
-                                                    '123 Business St.'
-                                                ),
-                                                new TextWidget(
-                                                    'City, State 12345'
-                                                ),
+                                                new Txt('Your Company Name'),
+                                                new Txt('123 Business St.'),
+                                                new Txt('City, State 12345'),
                                             ],
                                         })
                                     ),
@@ -555,7 +542,7 @@ describe('System Integration', () => {
                                                 FlexTypes.CrossAxisAlignment
                                                     .Start,
                                             children: [
-                                                new TextWidget('To:', {
+                                                new Txt('To:', {
                                                     style: {
                                                         fontWeight:
                                                             ThemeTypes
@@ -563,13 +550,9 @@ describe('System Integration', () => {
                                                                 .Bold,
                                                     },
                                                 }),
-                                                new TextWidget(
-                                                    'Client Company'
-                                                ),
-                                                new TextWidget(
-                                                    '456 Client Ave.'
-                                                ),
-                                                new TextWidget(
+                                                new Txt('Client Company'),
+                                                new Txt('456 Client Ave.'),
+                                                new Txt(
                                                     'Client City, State 67890'
                                                 ),
                                             ],
@@ -585,8 +568,14 @@ describe('System Integration', () => {
                             new Table({
                                 data: invoiceData,
                                 borders: {
-                                    top: { width: 1, color: '#000000' },
-                                    bottom: { width: 1, color: '#000000' },
+                                    top: {
+                                        width: 1,
+                                        color: PdfColor.fromHex('#000000'),
+                                    },
+                                    bottom: {
+                                        width: 1,
+                                        color: PdfColor.fromHex('#000000'),
+                                    },
                                 },
                             }),
 
@@ -605,24 +594,17 @@ describe('System Integration', () => {
                                                 FlexTypes.CrossAxisAlignment
                                                     .End,
                                             children: [
-                                                new TextWidget(
-                                                    'Subtotal: $5,150'
-                                                ),
-                                                new TextWidget(
-                                                    'Tax (8.5%): $437.75'
-                                                ),
-                                                new TextWidget(
-                                                    'TOTAL: $5,587.75',
-                                                    {
-                                                        style: {
-                                                            fontSize: 16,
-                                                            fontWeight:
-                                                                ThemeTypes
-                                                                    .FontWeight
-                                                                    .Bold,
-                                                        },
-                                                    }
-                                                ),
+                                                new Txt('Subtotal: $5,150'),
+                                                new Txt('Tax (8.5%): $437.75'),
+                                                new Txt('TOTAL: $5,587.75', {
+                                                    style: {
+                                                        fontSize: 16,
+                                                        fontWeight:
+                                                            ThemeTypes
+                                                                .FontWeight
+                                                                .Bold,
+                                                    },
+                                                }),
                                             ],
                                         }),
                                     }),
@@ -646,7 +628,7 @@ describe('System Integration', () => {
                         // Title
                         new Container({
                             alignment: Layout.Alignment.Center,
-                            child: new TextWidget('Executive Dashboard', {
+                            child: new Txt('Executive Dashboard', {
                                 style: {
                                     fontSize: 24,
                                     fontWeight: ThemeTypes.FontWeight.Bold,
@@ -664,7 +646,7 @@ describe('System Integration', () => {
                                         padding: Layout.EdgeInsets.all(15),
                                         child: new Column({
                                             children: [
-                                                new TextWidget('Revenue', {
+                                                new Txt('Revenue', {
                                                     style: {
                                                         fontWeight:
                                                             ThemeTypes
@@ -672,10 +654,12 @@ describe('System Integration', () => {
                                                                 .Bold,
                                                     },
                                                 }),
-                                                new TextWidget('$125,000', {
+                                                new Txt('$125,000', {
                                                     style: {
                                                         fontSize: 20,
-                                                        color: '#2e7d32',
+                                                        color: PdfColor.fromHex(
+                                                            '#2e7d32'
+                                                        ),
                                                     },
                                                 }),
                                             ],
@@ -685,7 +669,7 @@ describe('System Integration', () => {
                                         padding: Layout.EdgeInsets.all(15),
                                         child: new Column({
                                             children: [
-                                                new TextWidget('Orders', {
+                                                new Txt('Orders', {
                                                     style: {
                                                         fontWeight:
                                                             ThemeTypes
@@ -693,10 +677,12 @@ describe('System Integration', () => {
                                                                 .Bold,
                                                     },
                                                 }),
-                                                new TextWidget('1,247', {
+                                                new Txt('1,247', {
                                                     style: {
                                                         fontSize: 20,
-                                                        color: '#1976d2',
+                                                        color: PdfColor.fromHex(
+                                                            '#1976d2'
+                                                        ),
                                                     },
                                                 }),
                                             ],
@@ -706,7 +692,7 @@ describe('System Integration', () => {
                                         padding: Layout.EdgeInsets.all(15),
                                         child: new Column({
                                             children: [
-                                                new TextWidget('Growth', {
+                                                new Txt('Growth', {
                                                     style: {
                                                         fontWeight:
                                                             ThemeTypes
@@ -714,10 +700,12 @@ describe('System Integration', () => {
                                                                 .Bold,
                                                     },
                                                 }),
-                                                new TextWidget('+18.5%', {
+                                                new Txt('+18.5%', {
                                                     style: {
                                                         fontSize: 20,
-                                                        color: '#388e3c',
+                                                        color: PdfColor.fromHex(
+                                                            '#388e3c'
+                                                        ),
                                                     },
                                                 }),
                                             ],
@@ -780,7 +768,7 @@ describe('System Integration', () => {
             for (let i = 0; i < 1000; i++) {
                 widgets.push(
                     new Container({
-                        child: new TextWidget(`Widget ${i}`),
+                        child: new Txt(`Widget ${i}`),
                     })
                 );
             }
@@ -809,11 +797,10 @@ describe('System Integration', () => {
                     new Container({
                         child: new Row({
                             children: [
-                                new TextWidget(`Concurrent ${i}`),
-                                FlexUtils.flexible(
-                                    new TextWidget('Flex content'),
-                                    { flex: 1 }
-                                ),
+                                new Txt(`Concurrent ${i}`),
+                                FlexUtils.flexible(new Txt('Flex content'), {
+                                    flex: 1,
+                                }),
                             ],
                         }),
                     })

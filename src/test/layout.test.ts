@@ -12,6 +12,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 
 // Import consolidated systems
+import { PdfColor } from '@/core/pdf';
 import { Layout, Geometry, Flex as FlexTypes } from '@/types.js';
 import {
     Container,
@@ -21,7 +22,7 @@ import {
     Column,
     Flexible,
     Expanded,
-    TextWidget,
+    Txt,
 } from '@/widgets/index.js';
 
 describe('Layout Systems', () => {
@@ -30,24 +31,24 @@ describe('Layout Systems', () => {
     beforeEach(() => {
         const mockTheme = {
             colorScheme: {
-                primary: '#1976d2',
-                secondary: '#dc004e',
-                background: '#ffffff',
-                surface: '#f5f5f5',
-                onBackground: '#000000',
-                onSurface: '#000000',
-                onPrimary: '#ffffff',
-                onSecondary: '#ffffff',
-                error: '#d32f2f',
-                success: '#388e3c',
-                warning: '#f57c00',
-                info: '#1976d2',
+                primary: PdfColor.fromHex('#1976d2'),
+                secondary: PdfColor.fromHex('#dc004e'),
+                background: PdfColor.fromHex('#ffffff'),
+                surface: PdfColor.fromHex('#f5f5f5'),
+                onBackground: PdfColor.fromHex('#000000'),
+                onSurface: PdfColor.fromHex('#000000'),
+                onPrimary: PdfColor.fromHex('#ffffff'),
+                onSecondary: PdfColor.fromHex('#ffffff'),
+                error: PdfColor.fromHex('#d32f2f'),
+                success: PdfColor.fromHex('#388e3c'),
+                warning: PdfColor.fromHex('#f57c00'),
+                info: PdfColor.fromHex('#1976d2'),
             },
             spacing: { xs: 2, sm: 4, md: 8, lg: 16, xl: 24, xxl: 32 },
             defaultTextStyle: {
                 fontSize: 12,
                 fontFamily: 'Helvetica',
-                color: '#000000',
+                color: PdfColor.fromHex('#000000'),
             },
             cornerRadius: { none: 0, small: 4, medium: 8, large: 16 },
         };
@@ -270,7 +271,7 @@ describe('Layout Systems', () => {
 
     describe('Container Layout', () => {
         it('should layout container with padding', () => {
-            const child = new TextWidget('Content');
+            const child = new Txt('Content');
             const container = new Container({
                 child,
                 padding: Layout.EdgeInsets.all(16),
@@ -284,7 +285,7 @@ describe('Layout Systems', () => {
         });
 
         it('should layout container with margin', () => {
-            const child = new TextWidget('Content');
+            const child = new Txt('Content');
             const container = new Container({
                 child,
                 margin: Layout.EdgeInsets.all(20),
@@ -296,7 +297,7 @@ describe('Layout Systems', () => {
         });
 
         it('should layout container with fixed dimensions', () => {
-            const child = new TextWidget('Content');
+            const child = new Txt('Content');
             const container = new Container({
                 child,
                 width: 150,
@@ -309,7 +310,7 @@ describe('Layout Systems', () => {
         });
 
         it('should handle container alignment', () => {
-            const child = new TextWidget('Small');
+            const child = new Txt('Small');
             const container = new Container({
                 child,
                 width: 200,
@@ -327,9 +328,9 @@ describe('Layout Systems', () => {
         it('should layout stack with positioned children', () => {
             const stack = new Stack({
                 children: [
-                    new TextWidget('Background'),
+                    new Txt('Background'),
                     new Positioned({
-                        child: new TextWidget('Positioned'),
+                        child: new Txt('Positioned'),
                         top: 10,
                         left: 20,
                         width: 100,
@@ -348,7 +349,7 @@ describe('Layout Systems', () => {
                 children: [
                     new Container({ width: 200, height: 150 }),
                     new Positioned({
-                        child: new TextWidget('Overlay'),
+                        child: new Txt('Overlay'),
                         top: 0,
                         left: 0,
                     }),
@@ -411,11 +412,7 @@ describe('Layout Systems', () => {
         it('should handle main axis alignment', () => {
             const row = new Row({
                 mainAxisAlignment: FlexTypes.MainAxisAlignment.SpaceBetween,
-                children: [
-                    new TextWidget('Start'),
-                    new TextWidget('Middle'),
-                    new TextWidget('End'),
-                ],
+                children: [new Txt('Start'), new Txt('Middle'), new Txt('End')],
             });
 
             const layout = row.layout(mockLayoutContext);
@@ -458,7 +455,7 @@ describe('Layout Systems', () => {
             const startTime = performance.now();
 
             const widget = new Container({
-                child: new TextWidget('Performance test'),
+                child: new Txt('Performance test'),
                 padding: Layout.EdgeInsets.all(10),
             });
 
@@ -472,9 +469,9 @@ describe('Layout Systems', () => {
         it('should handle repeated layouts consistently', () => {
             const widget = new Row({
                 children: [
-                    new TextWidget('Item 1'),
-                    new TextWidget('Item 2'),
-                    new TextWidget('Item 3'),
+                    new Txt('Item 1'),
+                    new Txt('Item 2'),
+                    new Txt('Item 3'),
                 ],
             });
 
@@ -494,13 +491,11 @@ describe('Layout Systems', () => {
         it('should solve simple constraint propagation with padding', () => {
             const container = new Container({
                 padding: Layout.EdgeInsets.all(20),
-                child: new TextWidget('Content'),
+                child: new Txt('Content'),
             });
 
             const layout = container.layout(mockLayoutContext);
-            const childLayout = new TextWidget('Content').layout(
-                mockLayoutContext
-            );
+            const childLayout = new Txt('Content').layout(mockLayoutContext);
 
             // Container should be larger than child due to padding
             expect(layout.size.width).toBeGreaterThan(childLayout.size.width);
@@ -510,9 +505,9 @@ describe('Layout Systems', () => {
         it('should distribute flex space correctly', () => {
             const row = new Row({
                 children: [
-                    new Flexible({ child: new TextWidget('Flex 1'), flex: 1 }),
-                    new Flexible({ child: new TextWidget('Flex 2'), flex: 2 }),
-                    new Flexible({ child: new TextWidget('Flex 3'), flex: 1 }),
+                    new Flexible({ child: new Txt('Flex 1'), flex: 1 }),
+                    new Flexible({ child: new Txt('Flex 2'), flex: 2 }),
+                    new Flexible({ child: new Txt('Flex 3'), flex: 1 }),
                 ],
             });
 
@@ -528,7 +523,7 @@ describe('Layout Systems', () => {
             const oversizedWidget = new Container({
                 width: 1000, // Larger than max constraint of 600
                 height: 1000, // Larger than max constraint of 800
-                child: new TextWidget('Oversized'),
+                child: new Txt('Oversized'),
             });
 
             const layout = oversizedWidget.layout(mockLayoutContext);
@@ -613,10 +608,7 @@ describe('Layout Systems', () => {
                         new Row({
                             mainAxisAlignment:
                                 FlexTypes.MainAxisAlignment.SpaceBetween,
-                            children: [
-                                new TextWidget('Left'),
-                                new TextWidget('Right'),
-                            ],
+                            children: [new Txt('Left'), new Txt('Right')],
                         }),
                         new Expanded({
                             child: new Stack({
@@ -625,12 +617,12 @@ describe('Layout Systems', () => {
                                         width: 300,
                                         height: 200,
                                         alignment: Layout.Alignment.Center,
-                                        child: new TextWidget('Background'),
+                                        child: new Txt('Background'),
                                     }),
                                     new Positioned({
                                         top: 10,
                                         right: 10,
-                                        child: new TextWidget('Overlay'),
+                                        child: new Txt('Overlay'),
                                     }),
                                 ],
                             }),
@@ -650,11 +642,11 @@ describe('Layout Systems', () => {
                 child: new Row({
                     children: [
                         new Flexible({
-                            child: new TextWidget('Flex 1'),
+                            child: new Txt('Flex 1'),
                             flex: 1,
                         }),
                         new Flexible({
-                            child: new TextWidget('Flex 2'),
+                            child: new Txt('Flex 2'),
                             flex: 2,
                         }),
                     ],
@@ -677,7 +669,7 @@ describe('Layout Systems', () => {
             ];
 
             const widget = new Container({
-                child: new TextWidget('Flexible content'),
+                child: new Txt('Flexible content'),
             });
 
             scenarios.forEach(constraints => {

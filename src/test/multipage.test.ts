@@ -15,6 +15,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 
 import { Document } from '@/core/document.js';
+import { PdfColor } from '@/core/pdf';
 import {
     createMockDocument,
     createMockPdfPage,
@@ -28,7 +29,7 @@ import {
     PageBreakBehavior,
     MultiPageUtils,
 } from '@/widgets/multipage.js';
-import { TextWidget } from '@/widgets/text.js';
+import { Txt } from '@/widgets/text.js';
 
 describe('MultiPage Widget', () => {
     let mockLayoutContext: Layout.LayoutContext;
@@ -65,7 +66,7 @@ describe('MultiPage Widget', () => {
     describe('Basic Construction', () => {
         it('should create MultiPage widget with minimal props', () => {
             const multipage = new MultiPage({
-                children: [new TextWidget('Test content')],
+                children: [new Txt('Test content')],
             });
 
             expect(multipage).toBeDefined();
@@ -74,11 +75,11 @@ describe('MultiPage Widget', () => {
 
         it('should create MultiPage widget with all props', () => {
             const header = (pageNum: number, totalPages: number) =>
-                new TextWidget(`Page ${pageNum} of ${totalPages}`);
-            const footer = new TextWidget('Footer text');
+                new Txt(`Page ${pageNum} of ${totalPages}`);
+            const footer = new Txt('Footer text');
 
             const multipage = new MultiPage({
-                children: [new TextWidget('Test content')],
+                children: [new Txt('Test content')],
                 header,
                 footer,
                 pageBreakBehavior: PageBreakBehavior.Avoid,
@@ -106,7 +107,7 @@ describe('MultiPage Widget', () => {
     describe('Page Layout Calculation', () => {
         it('should calculate correct page dimensions', () => {
             const multipage = new MultiPage({
-                children: [new TextWidget('Test')],
+                children: [new Txt('Test')],
                 pageSize: { width: 400, height: 600 },
             });
 
@@ -117,7 +118,7 @@ describe('MultiPage Widget', () => {
 
         it('should use A4 dimensions by default', () => {
             const multipage = new MultiPage({
-                children: [new TextWidget('Test')],
+                children: [new Txt('Test')],
             });
 
             const result = multipage.layout(mockLayoutContext);
@@ -127,7 +128,7 @@ describe('MultiPage Widget', () => {
 
         it('should account for margins in content area calculation', () => {
             const multipage = new MultiPage({
-                children: [new TextWidget('Test')],
+                children: [new Txt('Test')],
                 pageMargins: Layout.EdgeInsets.all(100),
                 pageSize: { width: 400, height: 600 },
             });
@@ -142,7 +143,7 @@ describe('MultiPage Widget', () => {
     describe('Content Measurement', () => {
         it('should measure single widget correctly', () => {
             const multipage = new MultiPage({
-                children: [new TextWidget('Single line of text')],
+                children: [new Txt('Single line of text')],
             });
 
             const result = multipage.layout(mockLayoutContext);
@@ -154,10 +155,10 @@ describe('MultiPage Widget', () => {
         it('should measure multiple widgets', () => {
             const multipage = new MultiPage({
                 children: [
-                    new TextWidget('First widget'),
-                    new TextWidget('Second widget'),
+                    new Txt('First widget'),
+                    new Txt('Second widget'),
                     new Container({
-                        child: new TextWidget('Third widget in container'),
+                        child: new Txt('Third widget in container'),
                         padding: Layout.EdgeInsets.all(20),
                     }),
                 ],
@@ -171,13 +172,13 @@ describe('MultiPage Widget', () => {
         it('should handle widgets with different sizes', () => {
             const multipage = new MultiPage({
                 children: [
-                    new TextWidget('Short'),
+                    new Txt('Short'),
                     new Container({
                         child: new Column({
                             children: [
-                                new TextWidget('Tall'),
-                                new TextWidget('Widget'),
-                                new TextWidget('Content'),
+                                new Txt('Tall'),
+                                new Txt('Widget'),
+                                new Txt('Content'),
                             ],
                         }),
                         padding: Layout.EdgeInsets.all(50),
@@ -194,7 +195,7 @@ describe('MultiPage Widget', () => {
     describe('Page Break Detection', () => {
         it('should create single page for small content', () => {
             const multipage = new MultiPage({
-                children: [new TextWidget('Small content')],
+                children: [new Txt('Small content')],
             });
 
             // Mock the internal methods to inspect page count
@@ -226,7 +227,7 @@ describe('MultiPage Widget', () => {
                 { length: 50 },
                 (_, i) =>
                     new Container({
-                        child: new TextWidget(
+                        child: new Txt(
                             `Large content item ${i + 1} with enough text to make it tall`
                         ),
                         padding: Layout.EdgeInsets.all(20),
@@ -265,7 +266,7 @@ describe('MultiPage Widget', () => {
                 { length: 100 },
                 (_, i) =>
                     new Container({
-                        child: new TextWidget(`Content ${i}`),
+                        child: new Txt(`Content ${i}`),
                         padding: Layout.EdgeInsets.all(30),
                     })
             );
@@ -299,9 +300,9 @@ describe('MultiPage Widget', () => {
 
     describe('Header and Footer Support', () => {
         it('should support static header widget', () => {
-            const header = new TextWidget('Static Header');
+            const header = new Txt('Static Header');
             const multipage = new MultiPage({
-                children: [new TextWidget('Content')],
+                children: [new Txt('Content')],
                 header,
             });
 
@@ -313,10 +314,10 @@ describe('MultiPage Widget', () => {
 
         it('should support dynamic header function', () => {
             const header = (pageNum: number, totalPages: number) =>
-                new TextWidget(`Page ${pageNum} of ${totalPages}`);
+                new Txt(`Page ${pageNum} of ${totalPages}`);
 
             const multipage = new MultiPage({
-                children: [new TextWidget('Content')],
+                children: [new Txt('Content')],
                 header,
             });
 
@@ -326,11 +327,11 @@ describe('MultiPage Widget', () => {
         });
 
         it('should support both header and footer', () => {
-            const header = new TextWidget('Header Text');
-            const footer = new TextWidget('Footer Text');
+            const header = new Txt('Header Text');
+            const footer = new Txt('Footer Text');
 
             const multipage = new MultiPage({
-                children: [new TextWidget('Content')],
+                children: [new Txt('Content')],
                 header,
                 footer,
             });
@@ -350,7 +351,7 @@ describe('MultiPage Widget', () => {
             };
 
             const multipage = new MultiPage({
-                children: [new TextWidget('Content')],
+                children: [new Txt('Content')],
                 header: problematicHeader as any,
             });
 
@@ -364,10 +365,7 @@ describe('MultiPage Widget', () => {
     describe('Page Break Behavior', () => {
         it('should respect Avoid behavior', () => {
             const multipage = new MultiPage({
-                children: [
-                    new TextWidget('Widget 1'),
-                    new TextWidget('Widget 2'),
-                ],
+                children: [new Txt('Widget 1'), new Txt('Widget 2')],
                 pageBreakBehavior: PageBreakBehavior.Avoid,
             });
 
@@ -378,10 +376,7 @@ describe('MultiPage Widget', () => {
 
         it('should respect Auto behavior', () => {
             const multipage = new MultiPage({
-                children: [
-                    new TextWidget('Widget 1'),
-                    new TextWidget('Widget 2'),
-                ],
+                children: [new Txt('Widget 1'), new Txt('Widget 2')],
                 pageBreakBehavior: PageBreakBehavior.Auto,
             });
 
@@ -392,10 +387,7 @@ describe('MultiPage Widget', () => {
 
         it('should respect Always behavior', () => {
             const multipage = new MultiPage({
-                children: [
-                    new TextWidget('Widget 1'),
-                    new TextWidget('Widget 2'),
-                ],
+                children: [new Txt('Widget 1'), new Txt('Widget 2')],
                 pageBreakBehavior: PageBreakBehavior.Always,
             });
 
@@ -408,7 +400,7 @@ describe('MultiPage Widget', () => {
     describe('Painting and Rendering', () => {
         it('should paint single page correctly', () => {
             const multipage = new MultiPage({
-                children: [new TextWidget('Simple content')],
+                children: [new Txt('Simple content')],
             });
 
             multipage.layout(mockLayoutContext);
@@ -421,7 +413,7 @@ describe('MultiPage Widget', () => {
 
         it('should handle paint without layout', () => {
             const multipage = new MultiPage({
-                children: [new TextWidget('Content')],
+                children: [new Txt('Content')],
             });
 
             // Paint without layout should handle gracefully
@@ -435,7 +427,7 @@ describe('MultiPage Widget', () => {
                 { length: 20 },
                 (_, i) =>
                     new Container({
-                        child: new TextWidget(`Item ${i + 1}`),
+                        child: new Txt(`Item ${i + 1}`),
                         padding: Layout.EdgeInsets.all(25),
                     })
             );
@@ -478,7 +470,7 @@ describe('MultiPage Widget', () => {
                 child: new Column({
                     children: Array.from(
                         { length: 100 },
-                        (_, i) => new TextWidget(`Line ${i}`)
+                        (_, i) => new Txt(`Line ${i}`)
                     ),
                 }),
                 padding: Layout.EdgeInsets.all(50),
@@ -507,7 +499,7 @@ describe('MultiPage Widget', () => {
             };
 
             const multipage = new MultiPage({
-                children: [new TextWidget('Test')],
+                children: [new Txt('Test')],
             });
 
             // Should handle zero constraints gracefully
@@ -528,7 +520,7 @@ describe('MultiPage Widget', () => {
             };
 
             const multipage = new MultiPage({
-                children: [new TextWidget('Test')],
+                children: [new Txt('Test')],
             });
 
             const result = multipage.layout(infiniteConstraintContext);
@@ -546,10 +538,7 @@ describe('MultiPage Widget', () => {
             };
 
             const multipage = new MultiPage({
-                children: [
-                    problematicWidget as any,
-                    new TextWidget('Good widget'),
-                ],
+                children: [problematicWidget as any, new Txt('Good widget')],
             });
 
             // Should handle widget failures gracefully
@@ -562,7 +551,7 @@ describe('MultiPage Widget', () => {
     describe('MultiPageUtils', () => {
         it('should create simple header/footer multipage', () => {
             const multipage = MultiPageUtils.withSimpleHeaderFooter(
-                [new TextWidget('Content')],
+                [new Txt('Content')],
                 'Header: {page} of {total}',
                 'Footer text'
             );
@@ -576,7 +565,7 @@ describe('MultiPage Widget', () => {
 
         it('should create report-style multipage', () => {
             const multipage = MultiPageUtils.forReport(
-                [new TextWidget('Report content')],
+                [new Txt('Report content')],
                 {
                     title: 'Test Report',
                     showPageNumbers: true,
@@ -592,24 +581,18 @@ describe('MultiPage Widget', () => {
         });
 
         it('should create report without title', () => {
-            const multipage = MultiPageUtils.forReport(
-                [new TextWidget('Content')],
-                {
-                    showPageNumbers: true,
-                }
-            );
+            const multipage = MultiPageUtils.forReport([new Txt('Content')], {
+                showPageNumbers: true,
+            });
 
             expect(multipage).toBeInstanceOf(MultiPage);
         });
 
         it('should create report without page numbers', () => {
-            const multipage = MultiPageUtils.forReport(
-                [new TextWidget('Content')],
-                {
-                    title: 'Report Title',
-                    showPageNumbers: false,
-                }
-            );
+            const multipage = MultiPageUtils.forReport([new Txt('Content')], {
+                title: 'Report Title',
+                showPageNumbers: false,
+            });
 
             expect(multipage).toBeInstanceOf(MultiPage);
         });
@@ -619,21 +602,21 @@ describe('MultiPage Widget', () => {
         it('should handle mixed widget types', () => {
             const multipage = new MultiPage({
                 children: [
-                    new TextWidget('Text widget'),
+                    new Txt('Text widget'),
                     new Container({
-                        child: new TextWidget('Container widget'),
-                        decoration: { color: '#f0f0f0' },
+                        child: new Txt('Container widget'),
+                        decoration: { color: PdfColor.fromHex('#f0f0f0') },
                     }),
                     new Row({
                         children: [
-                            new TextWidget('Row item 1'),
-                            new TextWidget('Row item 2'),
+                            new Txt('Row item 1'),
+                            new Txt('Row item 2'),
                         ],
                     }),
                     new Column({
                         children: [
-                            new TextWidget('Column item 1'),
-                            new TextWidget('Column item 2'),
+                            new Txt('Column item 1'),
+                            new Txt('Column item 2'),
                         ],
                     }),
                 ],
@@ -650,7 +633,7 @@ describe('MultiPage Widget', () => {
                     new Container({
                         child: new Container({
                             child: new Container({
-                                child: new TextWidget('Deeply nested text'),
+                                child: new Txt('Deeply nested text'),
                                 padding: Layout.EdgeInsets.all(5),
                             }),
                             padding: Layout.EdgeInsets.all(10),

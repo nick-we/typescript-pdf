@@ -8,9 +8,10 @@
 import { describe, test, expect } from 'vitest';
 
 import { Document } from '@/core/document.js';
+import { PdfColor } from '@/core/pdf';
 import { Layout, defaultTheme } from '@/types.js';
 import { Container } from '@/widgets/layout.js';
-import { TextWidget } from '@/widgets/text.js';
+import { Txt } from '@/widgets/text.js';
 
 describe('Container Alignment Showcase - Final Validation', () => {
     test('Generate comprehensive alignment demonstration PDF', () => {
@@ -21,8 +22,8 @@ describe('Container Alignment Showcase - Final Validation', () => {
             width: 600,
             height: 500,
             decoration: {
-                color: '#f8f9fa',
-                border: { width: 2, color: '#000000' },
+                color: PdfColor.fromHex('#f8f9fa'),
+                border: { width: 2, color: PdfColor.fromHex('#000000') },
             },
             child: new Container({
                 width: 560,
@@ -32,8 +33,11 @@ describe('Container Alignment Showcase - Final Validation', () => {
                     width: 450,
                     height: 300,
                     decoration: {
-                        color: '#ffffff',
-                        border: { width: 1, color: '#cccccc' },
+                        color: PdfColor.fromHex('#ffffff'),
+                        border: {
+                            width: 1,
+                            color: PdfColor.fromHex('#cccccc'),
+                        },
                     },
                     child: new Container({
                         width: 420,
@@ -46,13 +50,16 @@ describe('Container Alignment Showcase - Final Validation', () => {
                                 height: 100,
                                 alignment: Layout.Alignment.Center,
                                 decoration: {
-                                    color: '#e3f2fd',
-                                    border: { width: 1, color: '#1976d2' },
+                                    color: PdfColor.fromHex('#e3f2fd'),
+                                    border: {
+                                        width: 1,
+                                        color: PdfColor.fromHex('#1976d2'),
+                                    },
                                 },
-                                child: new TextWidget('✅ CENTERED', {
+                                child: new Txt('✅ CENTERED', {
                                     style: {
                                         fontSize: 16,
-                                        color: '#1976d2',
+                                        color: PdfColor.fromHex('#1976d2'),
                                         fontWeight: 700,
                                     },
                                 }),
@@ -104,15 +111,12 @@ describe('Container Alignment Showcase - Final Validation', () => {
                 width: containerSize.width,
                 height: containerSize.height,
                 alignment,
-                child: new TextWidget(
-                    (name.split(' ')[0] ?? 'TEST').toUpperCase(),
-                    {
-                        style: {
-                            fontSize: name.includes('Small') ? 12 : 16,
-                            color: '#000000',
-                        },
-                    }
-                ),
+                child: new Txt((name.split(' ')[0] ?? 'TEST').toUpperCase(), {
+                    style: {
+                        fontSize: name.includes('Small') ? 12 : 16,
+                        color: PdfColor.fromHex('#000000'),
+                    },
+                }),
             });
 
             const layoutContext = {
@@ -139,8 +143,8 @@ describe('Container Alignment Showcase - Final Validation', () => {
     });
 
     test('Verify child widgets use intrinsic sizing', () => {
-        const text = new TextWidget('INTRINSIC', {
-            style: { fontSize: 14, color: '#000000' },
+        const text = new Txt('INTRINSIC', {
+            style: { fontSize: 14, color: PdfColor.fromHex('#000000') },
         });
 
         // Give text widget loose constraints

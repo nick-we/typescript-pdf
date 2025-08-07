@@ -14,7 +14,7 @@ import { Layout, Theme, Flex } from '@/types.js';
 import { BaseWidget, type Widget, type WidgetProps } from '@/widgets/base.js';
 import { Row } from '@/widgets/flex.js';
 import { Container } from '@/widgets/layout.js';
-import { TextWidget } from '@/widgets/text.js';
+import { Txt } from '@/widgets/text.js';
 
 /**
  * Page break behavior options
@@ -909,7 +909,7 @@ export const MultiPageUtils = {
 
         if (headerText) {
             header = (pageNum, totalPages) => {
-                return new TextWidget(
+                return new Txt(
                     headerText
                         .replace('{page}', String(pageNum))
                         .replace('{total}', String(totalPages))
@@ -918,7 +918,7 @@ export const MultiPageUtils = {
         }
 
         if (footerText) {
-            footer = new TextWidget(footerText);
+            footer = new Txt(footerText);
         }
 
         const props: MultiPageProps = { children };
@@ -960,22 +960,20 @@ export const MultiPageUtils = {
                             mainAxisAlignment:
                                 Flex.MainAxisAlignment.SpaceBetween,
                             children: [
-                                new TextWidget(title),
-                                new TextWidget(
-                                    `Page ${pageNum} of ${totalPages}`
-                                ),
+                                new Txt(title),
+                                new Txt(`Page ${pageNum} of ${totalPages}`),
                             ],
                         }),
                         padding: Layout.EdgeInsets.symmetric({ vertical: 8 }),
                     });
                 } else if (title) {
                     return new Container({
-                        child: new TextWidget(title),
+                        child: new Txt(title),
                         padding: Layout.EdgeInsets.symmetric({ vertical: 8 }),
                     });
                 }
                 return new Container({
-                    child: new TextWidget(`Page ${pageNum} of ${totalPages}`),
+                    child: new Txt(`Page ${pageNum} of ${totalPages}`),
                     padding: Layout.EdgeInsets.symmetric({ vertical: 8 }),
                     alignment: Layout.Alignment.CenterRight,
                 });
