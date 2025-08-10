@@ -14,6 +14,8 @@ import { describe, it, expect } from 'vitest';
 
 // Import our restructured system
 
+import { initializeGlobalTextMeasurement } from '@/core/accurate-text-measurement.js';
+import { FontSystem } from '@/core/fonts.js';
 import { Document, TextAlign } from '@/core/index.js';
 import { PdfColor } from '@/core/pdf';
 import { Flex, Layout, Theme as ThemeTypes } from '@/types.js';
@@ -33,6 +35,10 @@ import {
     FlexUtils,
     DataUtils,
     LineMarker,
+    MultiPage,
+    PageBreakBehavior,
+    MultiPageUtils,
+    StackFit,
 } from '@/widgets/index.js';
 
 // Test output directory
@@ -50,7 +56,7 @@ describe('PDF Visual Validation Tests', () => {
         const doc = new Document();
 
         const page = doc.addPage({
-            format: 'A4' as any,
+            format: 'A4',
             margins: Layout.EdgeInsets.all(40),
         });
 
@@ -64,7 +70,7 @@ describe('PDF Visual Validation Tests', () => {
             },
             padding: Layout.EdgeInsets.all(20),
             child: new Column({
-                mainAxisAlignment: 'spaceEvenly' as any,
+                mainAxisAlignment: Flex.MainAxisAlignment.SpaceEvenly,
                 children: [
                     // Red container
                     new Container({
@@ -108,7 +114,7 @@ describe('PDF Visual Validation Tests', () => {
                                 fontSize: 14,
                                 color: PdfColor.fromHex('#ffffff'),
                             },
-                            textAlign: 'center' as any,
+                            textAlign: TextAlign.Center,
                         }),
                     }),
 
@@ -130,8 +136,9 @@ describe('PDF Visual Validation Tests', () => {
                             vertical: 10,
                         }),
                         child: new Row({
-                            mainAxisAlignment: 'spaceBetween' as any,
-                            crossAxisAlignment: 'center' as any,
+                            mainAxisAlignment:
+                                Flex.MainAxisAlignment.SpaceBetween,
+                            crossAxisAlignment: Flex.CrossAxisAlignment.Center,
                             children: [
                                 new Txt('Left Side', {
                                     style: {
@@ -188,14 +195,14 @@ describe('PDF Visual Validation Tests', () => {
         const doc = new Document();
 
         const page = doc.addPage({
-            format: 'A4' as any,
+            format: 'A4',
             margins: Layout.EdgeInsets.all(30),
         });
 
         const content = new Theme({
             data: PrebuiltThemes.corporate(),
             child: new Column({
-                crossAxisAlignment: 'stretch' as any,
+                crossAxisAlignment: Flex.CrossAxisAlignment.Stretch,
                 children: [
                     // Header
                     new Container({
@@ -315,7 +322,7 @@ describe('PDF Visual Validation Tests', () => {
         const doc = new Document();
 
         const page = doc.addPage({
-            format: 'A4' as any,
+            format: 'A4',
             margins: Layout.EdgeInsets.all(25),
         });
 
@@ -454,7 +461,8 @@ describe('PDF Visual Validation Tests', () => {
                                     ],
                                 }),
                                 new Column({
-                                    crossAxisAlignment: 'center' as any,
+                                    crossAxisAlignment:
+                                        Flex.CrossAxisAlignment.Center,
                                     children: [
                                         new Txt('Avg Growth', {
                                             style: {
@@ -495,7 +503,7 @@ describe('PDF Visual Validation Tests', () => {
         const doc = new Document();
 
         const page = doc.addPage({
-            format: 'A4' as any,
+            format: 'A4',
             margins: Layout.EdgeInsets.all(15),
         });
 
@@ -729,7 +737,7 @@ describe('PDF Visual Validation Tests', () => {
         const doc = new Document();
 
         const page = doc.addPage({
-            format: 'A4' as any,
+            format: 'A4',
             margins: Layout.EdgeInsets.all(20),
         });
 
@@ -960,7 +968,7 @@ describe('PDF Visual Validation Tests', () => {
         const content = new Container({
             padding: Layout.EdgeInsets.all(20),
             child: new Column({
-                crossAxisAlignment: 'start' as any,
+                crossAxisAlignment: Flex.CrossAxisAlignment.Start,
                 mainAxisSpacing: 30,
                 children: [
                     // Title
@@ -974,7 +982,7 @@ describe('PDF Visual Validation Tests', () => {
 
                     // 1. Container test (SHOULD WORK - baseline)
                     new Column({
-                        crossAxisAlignment: 'start' as any,
+                        crossAxisAlignment: Flex.CrossAxisAlignment.Start,
                         mainAxisSpacing: 10,
                         children: [
                             new Txt(
@@ -1009,7 +1017,7 @@ describe('PDF Visual Validation Tests', () => {
 
                     // 2. Stack test (EXPECTED TO BE BROKEN)
                     new Column({
-                        crossAxisAlignment: 'start' as any,
+                        crossAxisAlignment: Flex.CrossAxisAlignment.Start,
                         mainAxisSpacing: 10,
                         children: [
                             new Txt(
@@ -1042,7 +1050,7 @@ describe('PDF Visual Validation Tests', () => {
                                     },
                                 },
                                 child: new Stack({
-                                    fit: 'expand' as any,
+                                    fit: StackFit.Expand,
                                     children: [
                                         new Container({
                                             alignment: Layout.Alignment.Center,
@@ -1069,7 +1077,7 @@ describe('PDF Visual Validation Tests', () => {
 
                     // 3. Row test (EXPECTED TO BE BROKEN)
                     new Column({
-                        crossAxisAlignment: 'start' as any,
+                        crossAxisAlignment: Flex.CrossAxisAlignment.Start,
                         mainAxisSpacing: 10,
                         children: [
                             new Txt(
@@ -1102,8 +1110,10 @@ describe('PDF Visual Validation Tests', () => {
                                     },
                                 },
                                 child: new Row({
-                                    mainAxisAlignment: 'spaceEvenly' as any,
-                                    crossAxisAlignment: 'center' as any,
+                                    mainAxisAlignment:
+                                        Flex.MainAxisAlignment.SpaceEvenly,
+                                    crossAxisAlignment:
+                                        Flex.CrossAxisAlignment.Center,
                                     children: [
                                         createColoredBox(
                                             PdfColor.fromHex('#e67e22'),
@@ -1128,7 +1138,7 @@ describe('PDF Visual Validation Tests', () => {
 
                     // 4. Column test (EXPECTED TO BE BROKEN)
                     new Column({
-                        crossAxisAlignment: 'start' as any,
+                        crossAxisAlignment: Flex.CrossAxisAlignment.Start,
                         mainAxisSpacing: 10,
                         children: [
                             new Txt(
@@ -1161,8 +1171,10 @@ describe('PDF Visual Validation Tests', () => {
                                     },
                                 },
                                 child: new Column({
-                                    mainAxisAlignment: 'spaceEvenly' as any,
-                                    crossAxisAlignment: 'center' as any,
+                                    mainAxisAlignment:
+                                        Flex.MainAxisAlignment.SpaceEvenly,
+                                    crossAxisAlignment:
+                                        Flex.CrossAxisAlignment.Center,
                                     children: [
                                         createColoredBox(
                                             PdfColor.fromHex('#f39c12'),
@@ -1202,7 +1214,7 @@ describe('PDF Visual Validation Tests', () => {
                             },
                         },
                         child: new Column({
-                            crossAxisAlignment: 'start' as any,
+                            crossAxisAlignment: Flex.CrossAxisAlignment.Start,
                             children: [
                                 new Txt('Expected Results:', {
                                     style: {
@@ -1255,14 +1267,14 @@ describe('PDF Visual Validation Tests', () => {
         const doc = new Document();
 
         const page = doc.addPage({
-            format: 'A4' as any,
+            format: 'A4',
             margins: Layout.EdgeInsets.all(20),
         });
 
         const content = new Container({
             padding: Layout.EdgeInsets.all(20),
             child: new Column({
-                crossAxisAlignment: 'start' as any,
+                crossAxisAlignment: Flex.CrossAxisAlignment.Start,
                 mainAxisSpacing: 20,
                 children: [
                     // Title
@@ -1276,7 +1288,7 @@ describe('PDF Visual Validation Tests', () => {
 
                     // Row 1: Different radius values
                     new Column({
-                        crossAxisAlignment: 'start' as any,
+                        crossAxisAlignment: Flex.CrossAxisAlignment.Start,
                         mainAxisSpacing: 10,
                         children: [
                             new Txt('1. Different Border Radius Values', {
@@ -1287,7 +1299,8 @@ describe('PDF Visual Validation Tests', () => {
                                 },
                             }),
                             new Row({
-                                mainAxisAlignment: 'spaceEvenly' as any,
+                                mainAxisAlignment:
+                                    Flex.MainAxisAlignment.SpaceEvenly,
                                 children: [
                                     new Container({
                                         width: 100,
@@ -1381,7 +1394,7 @@ describe('PDF Visual Validation Tests', () => {
 
                     // Row 2: Different corner combinations
                     new Column({
-                        crossAxisAlignment: 'start' as any,
+                        crossAxisAlignment: Flex.CrossAxisAlignment.Start,
                         mainAxisSpacing: 10,
                         children: [
                             new Txt('2. Individual Corner Radius', {
@@ -1392,7 +1405,8 @@ describe('PDF Visual Validation Tests', () => {
                                 },
                             }),
                             new Row({
-                                mainAxisAlignment: 'spaceEvenly' as any,
+                                mainAxisAlignment:
+                                    Flex.MainAxisAlignment.SpaceEvenly,
                                 children: [
                                     new Container({
                                         width: 100,
@@ -1481,7 +1495,7 @@ describe('PDF Visual Validation Tests', () => {
 
                     // Row 3: Border + BorderRadius
                     new Column({
-                        crossAxisAlignment: 'start' as any,
+                        crossAxisAlignment: Flex.CrossAxisAlignment.Start,
                         mainAxisSpacing: 10,
                         children: [
                             new Txt('3. Border + BorderRadius Combination', {
@@ -1602,7 +1616,7 @@ describe('PDF Visual Validation Tests', () => {
                             },
                         },
                         child: new Column({
-                            crossAxisAlignment: 'start' as any,
+                            crossAxisAlignment: Flex.CrossAxisAlignment.Start,
                             children: [
                                 new Txt('Expected Results:', {
                                     style: {
@@ -1648,5 +1662,287 @@ describe('PDF Visual Validation Tests', () => {
         console.log(
             `   - Expected: All containers should have properly rounded corners`
         );
+    });
+});
+
+/* Additional consolidated visual tests appended by test-suite consolidation */
+
+describe('MultiPage Visual Generation - Consolidated', () => {
+    it('should generate a basic multi-page document with header and footer', async () => {
+        const doc = new Document();
+
+        const content = Array.from(
+            { length: 16 },
+            (_, i) =>
+                new Container({
+                    child: new Column({
+                        children: [
+                            new Txt(`Section ${i + 1}`, {
+                                style: {
+                                    fontSize: 16,
+                                    fontWeight: ThemeTypes.FontWeight.Bold,
+                                    color: PdfColor.fromHex('#2c3e50'),
+                                },
+                            }),
+                            new Txt(
+                                `This is content for section ${i + 1}. ` +
+                                    `Lorem ipsum dolor sit amet, consectetur adipiscing elit. ` +
+                                    `Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.`,
+                                { style: { fontSize: 12, lineSpacing: 1.4 } }
+                            ),
+                        ],
+                    }),
+                    padding: Layout.EdgeInsets.all(12),
+                    margin: Layout.EdgeInsets.only({ bottom: 12 }),
+                    decoration: {
+                        border: {
+                            width: 1,
+                            color: PdfColor.fromHex('#e0e0e0'),
+                        },
+                        color: PdfColor.fromHex('#f8f9fa'),
+                    },
+                })
+        );
+
+        const header = (pageNum: number, totalPages: number) =>
+            new Container({
+                padding: Layout.EdgeInsets.symmetric({
+                    horizontal: 20,
+                    vertical: 8,
+                }),
+                child: new Row({
+                    mainAxisAlignment: Flex.MainAxisAlignment.SpaceBetween,
+                    children: [
+                        new Txt('MultiPage Visual Doc', {
+                            style: {
+                                fontSize: 12,
+                                fontWeight: ThemeTypes.FontWeight.Bold,
+                            },
+                        }),
+                        new Txt(`Page ${pageNum} of ${totalPages}`, {
+                            style: { fontSize: 10 },
+                        }),
+                    ],
+                }),
+                decoration: {
+                    color: PdfColor.fromHex('#ecf0f1'),
+                    border: { width: 1, color: PdfColor.fromHex('#bdc3c7') },
+                },
+            });
+
+        const footer = new Container({
+            alignment: Layout.Alignment.Center,
+            padding: Layout.EdgeInsets.all(6),
+            child: new Txt('© MultiPage Visual Test', {
+                style: { fontSize: 10, color: PdfColor.fromHex('#95a5a6') },
+            }),
+        });
+
+        const mp = MultiPageUtils.forReport(
+            [
+                new Container({
+                    padding: Layout.EdgeInsets.only({ bottom: 12 }),
+                    child: new Txt('Report Title', {
+                        style: {
+                            fontSize: 18,
+                            fontWeight: ThemeTypes.FontWeight.Bold,
+                        },
+                    }),
+                }),
+                ...content,
+            ],
+            {
+                title: 'Consolidated Visual Report',
+                showPageNumbers: true,
+                margins: Layout.EdgeInsets.all(40),
+            }
+        );
+
+        // Override header/footer for this test to validate both paths
+        const mpWithHeaderFooter = new MultiPage({
+            children: [mp],
+            header,
+            footer,
+            pageBreakBehavior: PageBreakBehavior.Auto,
+            pageMargins: Layout.EdgeInsets.all(40),
+        });
+
+        doc.addPage({ format: 'A4', build: () => mpWithHeaderFooter });
+
+        const bytes = await doc.save();
+        const out = join(TEST_OUTPUT_DIR, 'visual-multipage-basic.pdf');
+        writeFileSync(out, bytes);
+        expect(bytes.length).toBeGreaterThan(100);
+        console.log(`✅ Generated: ${out}`);
+    });
+
+    it('should generate a utility-based multipage report', async () => {
+        const doc = new Document();
+
+        const reportContent = [
+            new Container({
+                child: new Column({
+                    children: [
+                        new Txt('EXECUTIVE SUMMARY', {
+                            style: {
+                                fontSize: 16,
+                                fontWeight: ThemeTypes.FontWeight.Bold,
+                            },
+                        }),
+                        new Txt(
+                            'This report demonstrates the MultiPageUtils.forReport functionality with consolidated tests.',
+                            { style: { fontSize: 11, lineSpacing: 1.5 } }
+                        ),
+                    ],
+                }),
+                padding: Layout.EdgeInsets.all(16),
+                margin: Layout.EdgeInsets.only({ bottom: 16 }),
+                decoration: {
+                    color: PdfColor.fromHex('#e8f4fd'),
+                    border: { width: 1, color: PdfColor.fromHex('#3498db') },
+                },
+            }),
+            ...Array.from(
+                { length: 8 },
+                (_, i) =>
+                    new Container({
+                        child: new Txt(
+                            `Content block ${i + 1} — demonstrating paging and layout.`
+                        ),
+                        padding: Layout.EdgeInsets.all(10),
+                        margin: Layout.EdgeInsets.only({ bottom: 10 }),
+                        decoration: { color: PdfColor.fromHex('#ffffff') },
+                    })
+            ),
+        ];
+
+        const mp = MultiPageUtils.forReport(reportContent, {
+            title: 'Consolidated MultiPage Utils Report',
+            showPageNumbers: true,
+            margins: Layout.EdgeInsets.all(50),
+        });
+
+        doc.addPage({ format: 'A4', build: () => mp });
+
+        const bytes = doc.save();
+        const out = join(TEST_OUTPUT_DIR, 'visual-multipage-utils.pdf');
+        writeFileSync(out, bytes);
+        expect(bytes.length).toBeGreaterThan(100);
+        console.log(`✅ Generated: ${out}`);
+    });
+});
+
+describe('Accurate Text Measurement - Visual (Consolidated)', () => {
+    it('should generate a comparison page demonstrating wrapping/truncation', async () => {
+        // Initialize global measurement (lightweight mock)
+        const mockPdfDocument = {
+            genSerial: () => 1,
+            objects: { add: () => {} },
+        };
+        const fontSystem = new FontSystem(mockPdfDocument);
+        initializeGlobalTextMeasurement(fontSystem);
+
+        const doc = new Document();
+        const page = doc.addPage({
+            format: 'A4',
+            margins: Layout.EdgeInsets.all(24),
+        });
+
+        const longText =
+            'This is a longer text that demonstrates improved wrapping and truncation when using accurate font metrics.';
+        const containerWidth = 260;
+
+        const content = new Column({
+            crossAxisAlignment: Flex.CrossAxisAlignment.Start,
+            children: [
+                new Txt('Accurate Text Measurement - Visual Comparison', {
+                    style: {
+                        fontSize: 16,
+                        fontWeight: ThemeTypes.FontWeight.Bold,
+                    },
+                }),
+                LayoutUtils.padded(
+                    new Column({
+                        crossAxisAlignment: Flex.CrossAxisAlignment.Start,
+                        children: [
+                            new Container({
+                                width: containerWidth,
+                                padding: Layout.EdgeInsets.all(8),
+                                decoration: {
+                                    border: {
+                                        width: 1,
+                                        color: PdfColor.fromHex('#e74c3c'),
+                                    },
+                                },
+                                child: new Column({
+                                    crossAxisAlignment:
+                                        Flex.CrossAxisAlignment.Start,
+                                    children: [
+                                        new Txt('OLD (approximate) - Clip', {
+                                            style: {
+                                                fontSize: 9,
+                                                color: PdfColor.fromHex(
+                                                    '#e74c3c'
+                                                ),
+                                                fontWeight:
+                                                    ThemeTypes.FontWeight.Bold,
+                                            },
+                                        }),
+                                        new Txt(longText, {
+                                            style: {
+                                                fontSize: 12,
+                                                fontFamily: 'Helvetica',
+                                            },
+                                            softWrap: true,
+                                        }),
+                                    ],
+                                }),
+                            }),
+                            new Container({
+                                width: containerWidth,
+                                padding: Layout.EdgeInsets.all(8),
+                                decoration: {
+                                    border: {
+                                        width: 1,
+                                        color: PdfColor.fromHex('#27ae60'),
+                                    },
+                                },
+                                child: new Column({
+                                    crossAxisAlignment:
+                                        Flex.CrossAxisAlignment.Start,
+                                    children: [
+                                        new Txt('NEW (accurate) - Clip', {
+                                            style: {
+                                                fontSize: 9,
+                                                color: PdfColor.fromHex(
+                                                    '#27ae60'
+                                                ),
+                                                fontWeight:
+                                                    ThemeTypes.FontWeight.Bold,
+                                            },
+                                        }),
+                                        new Txt(longText, {
+                                            style: {
+                                                fontSize: 12,
+                                                fontFamily: 'Helvetica',
+                                            },
+                                            softWrap: true,
+                                        }),
+                                    ],
+                                }),
+                            }),
+                        ],
+                    }),
+                    Layout.EdgeInsets.only({ top: 10 })
+                ),
+            ],
+        });
+
+        page.renderWidget(content);
+        const bytes = await doc.save();
+        const out = join(TEST_OUTPUT_DIR, 'visual-accurate-text.pdf');
+        writeFileSync(out, bytes);
+        expect(bytes.length).toBeGreaterThan(100);
+        console.log(`✅ Generated: ${out}`);
     });
 });

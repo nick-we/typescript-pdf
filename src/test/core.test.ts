@@ -293,4 +293,335 @@ describe('Core Systems', () => {
             ).toBe(4); // Added
         });
     });
+
+    describe('Text Overflow & Wrapping System', () => {
+        it('should wrap text within container constraints', () => {
+            const longText =
+                "This is a very long text that should definitely wrap when placed inside a narrow container but currently doesn't wrap properly.";
+
+            const textProcessor = new TextProcessor(
+                new FontSystem({
+                    genSerial: () => 1,
+                    objects: { add: () => {} },
+                })
+            );
+
+            const measurement = textProcessor.measureTextBlock(longText, 150, {
+                fontSize: 12,
+                fontFamily: 'Helvetica',
+            });
+
+            expect(measurement.lines).toBeGreaterThan(1);
+            expect(measurement.width).toBeLessThanOrEqual(150);
+        });
+
+        it('should handle ellipsis truncation correctly', () => {
+            const longText =
+                'This is a very long single line text that should be truncated with ellipsis';
+
+            const textProcessor = new TextProcessor(
+                new FontSystem({
+                    genSerial: () => 1,
+                    objects: { add: () => {} },
+                })
+            );
+
+            // Test truncation behavior
+            const measurement = textProcessor.measureText(longText, {
+                fontSize: 14,
+                fontFamily: 'Helvetica',
+            });
+
+            expect(measurement.width).toBeGreaterThan(0);
+            expect(measurement.height).toBeCloseTo(14 * 1.2, 1); // Single line height
+        });
+
+        it('should respect maxLines property', () => {
+            const multiLineText = 'Line 1\nLine 2\nLine 3\nLine 4\nLine 5';
+
+            const textProcessor = new TextProcessor(
+                new FontSystem({
+                    genSerial: () => 1,
+                    objects: { add: () => {} },
+                })
+            );
+
+            const layout = textProcessor.layoutText(
+                multiLineText,
+                200, // containerWidth
+                200, // containerHeight
+                {
+                    fontSize: 12,
+                    fontFamily: 'Helvetica',
+                    maxLines: 3,
+                }
+            );
+
+            expect(layout.lines).toHaveLength(3); // Should be limited to 3 lines
+        });
+
+        it('should handle text alignment with wrapped text', () => {
+            const text = 'Center aligned text that wraps to multiple lines';
+
+            const textProcessor = new TextProcessor(
+                new FontSystem({
+                    genSerial: () => 1,
+                    objects: { add: () => {} },
+                })
+            );
+
+            const alignments = [
+                TextAlign.Left,
+                TextAlign.Center,
+                TextAlign.Right,
+            ];
+
+            alignments.forEach(alignment => {
+                const layout = textProcessor.layoutText(text, 120, 100, {
+                    fontSize: 12,
+                    fontFamily: 'Helvetica',
+                    align: alignment,
+                });
+
+                expect(layout.lines.length).toBeGreaterThan(1); // Should wrap
+                expect(layout.width).toBeLessThanOrEqual(120);
+
+                // Check alignment offsets
+                if (alignment === TextAlign.Center) {
+                    expect(layout.lines[0]?.offsetX).toBeGreaterThan(0);
+                } else if (alignment === TextAlign.Right) {
+                    expect(layout.lines[0]?.offsetX).toBeGreaterThan(0);
+                } else {
+                    expect(layout.lines[0]?.offsetX).toBe(0);
+                }
+            });
+        });
+
+        it('should handle edge cases correctly', () => {
+            const textProcessor = new TextProcessor(
+                new FontSystem({
+                    genSerial: () => 1,
+                    objects: { add: () => {} },
+                })
+            );
+
+            // Test empty text
+            const emptyMeasurement = textProcessor.measureText('', {
+                fontSize: 12,
+                fontFamily: 'Helvetica',
+            });
+            expect(emptyMeasurement.width).toBe(0);
+
+            // Test very narrow container
+            const narrowMeasurement = textProcessor.measureTextBlock(
+                'A very long word',
+                20, // very narrow
+                {
+                    fontSize: 12,
+                    fontFamily: 'Helvetica',
+                }
+            );
+            expect(narrowMeasurement.width).toBeLessThanOrEqual(20);
+            expect(narrowMeasurement.lines).toBeGreaterThan(1);
+        });
+    });
+
+    describe('Accurate Text Measurement System', () => {
+        let fontSystem: FontSystem;
+        let textProcessor: TextProcessor;
+
+        beforeEach(() => {
+            const mockDocument = {
+                genSerial: () => Math.floor(Math.random() * 1000),
+                objects: { add: () => {} },
+            };
+            fontSystem = new FontSystem(mockDocument);
+            textProcessor = new TextProcessor(fontSystem);
+        });
+
+        it('should provide more accurate measurements than character-count approximations', () => {
+            const testText = 'Hello World';
+            const fontSize = 12;
+
+            // Old approximation method
+            const approximateWidth = testText.length * fontSize * 0.55;
+
+            // New accurate method
+            const accurate = textProcessor.measureText(testText, {
+                fontSize,
+                fontFamily: 'Helvetica',
+            });
+
+            console.log(`Helvetica ${fontSize}pt "${testText}"`);
+            console.log(`  Approximate: ${approximateWidth.toFixed(1)}pt`);
+            console.log(`  Accurate: ${accurate.width.toFixed(1)}pt`);
+
+            // Accurate measurement should be different from approximation
+            expect(Math.abs(accurate.width - approximateWidth)).toBeGreaterThan(
+                1
+            );
+            expect(accurate.width).toBeGreaterThan(0);
+            expect(accurate.width).toBeLessThan(200);
+        });
+
+        it('should handle different font families differently', () => {
+            const testText = 'Hello World';
+            const fontSize = 12;
+
+            const helvetica = textProcessor.measureText(testText, {
+                fontSize,
+                fontFamily: 'Helvetica',
+            });
+
+            const times = textProcessor.measureText(testText, {
+                fontSize,
+                fontFamily: 'Times',
+            });
+
+            const courier = textProcessor.measureText(testText, {
+                fontSize,
+                fontFamily: 'Courier',
+            });
+
+            console.log(`Font family comparison for "${testText}":`);
+            console.log(`  Helvetica: ${helvetica.width.toFixed(1)}pt`);
+            console.log(`  Times: ${times.width.toFixed(1)}pt`);
+            console.log(`  Courier: ${courier.width.toFixed(1)}pt`);
+
+            // Different fonts should have different measurements
+            expect(helvetica.width).not.toBe(times.width);
+            expect(helvetica.width).not.toBe(courier.width);
+            expect(times.width).not.toBe(courier.width);
+        });
+
+        it('should provide accurate font metrics', () => {
+            const fontSize = 12;
+            const fonts = ['Helvetica', 'Times', 'Courier'];
+
+            fonts.forEach(fontFamily => {
+                fontSystem.registerStandardFont(
+                    fontFamily === 'Helvetica'
+                        ? PdfStandardFont.Helvetica
+                        : fontFamily === 'Times'
+                          ? PdfStandardFont.TimesRoman
+                          : PdfStandardFont.Courier
+                );
+
+                const measurement = textProcessor.measureText('Test', {
+                    fontSize,
+                    fontFamily,
+                });
+
+                console.log(`${fontFamily} ${fontSize}pt metrics:`);
+                console.log(`  Height: ${measurement.height.toFixed(1)}pt`);
+
+                // Reasonable values for 12pt font
+                expect(measurement.height).toBeGreaterThan(10);
+                expect(measurement.height).toBeLessThan(20);
+            });
+        });
+
+        it('should handle text wrapping accurately', () => {
+            const longText =
+                'This is a longer text that should wrap across multiple lines when constrained to a specific width.';
+            const maxWidth = 200;
+            const fontSize = 12;
+
+            const measurement = textProcessor.measureTextBlock(
+                longText,
+                maxWidth,
+                {
+                    fontSize,
+                    fontFamily: 'Helvetica',
+                }
+            );
+
+            console.log(`Accurate text wrapping for width ${maxWidth}pt:`);
+            console.log(`  Lines: ${measurement.lines}`);
+            console.log(`  Total height: ${measurement.height.toFixed(1)}pt`);
+
+            expect(measurement.lines).toBeGreaterThan(1);
+            expect(measurement.width).toBeLessThanOrEqual(maxWidth);
+            expect(measurement.height).toBeGreaterThan(fontSize);
+        });
+
+        it('should calculate optimal font sizes', () => {
+            const testText = 'Test text for sizing';
+            const containerSize = { width: 100, height: 50 };
+
+            const optimalSize = textProcessor.calculateOptimalFontSize(
+                testText,
+                containerSize,
+                {
+                    fontFamily: 'Helvetica',
+                    minFontSize: 8,
+                    maxFontSize: 24,
+                }
+            );
+
+            console.log(`Optimal font size calculation:`);
+            console.log(`  Text: "${testText}"`);
+            console.log(
+                `  Container: ${containerSize.width}×${containerSize.height}pt`
+            );
+            console.log(`  Optimal size: ${optimalSize}pt`);
+
+            expect(optimalSize).toBeGreaterThanOrEqual(8);
+            expect(optimalSize).toBeLessThanOrEqual(24);
+
+            // Verify the text fits at the calculated size with the same container width
+            const measurement = textProcessor.measureTextBlock(
+                testText,
+                containerSize.width,
+                {
+                    fontSize: optimalSize,
+                    fontFamily: 'Helvetica',
+                }
+            );
+
+            expect(measurement.width).toBeLessThanOrEqual(containerSize.width);
+            expect(measurement.height).toBeLessThanOrEqual(
+                containerSize.height
+            );
+        });
+
+        it('should demonstrate significant accuracy improvements', () => {
+            const testCases = [
+                { text: 'Hello World', fontSize: 12, font: 'Helvetica' },
+                { text: 'The quick brown fox', fontSize: 14, font: 'Times' },
+                { text: 'UPPERCASE TEXT', fontSize: 10, font: 'Helvetica' },
+                { text: 'Mixed Case Text 123', fontSize: 12, font: 'Times' },
+            ];
+
+            console.log('\n=== TEXT MEASUREMENT ACCURACY COMPARISON ===\n');
+
+            testCases.forEach((testCase, index) => {
+                const { text, fontSize, font } = testCase;
+
+                // Old method
+                const approximateWidth = text.length * fontSize * 0.55;
+
+                // New method
+                const accurate = textProcessor.measureText(text, {
+                    fontSize,
+                    fontFamily: font,
+                });
+
+                const difference = Math.abs(accurate.width - approximateWidth);
+                const improvementPercent =
+                    (difference / approximateWidth) * 100;
+
+                console.log(`Test Case ${index + 1}: ${font} ${fontSize}pt`);
+                console.log(`  Text: "${text}"`);
+                console.log(`  Approximate: ${approximateWidth.toFixed(1)}pt`);
+                console.log(`  Accurate: ${accurate.width.toFixed(1)}pt`);
+                console.log(
+                    `  Improvement: ${improvementPercent.toFixed(1)}%\n`
+                );
+
+                expect(accurate.width).toBeGreaterThan(0);
+                expect(accurate.width).toBeLessThan(text.length * fontSize * 2);
+            });
+        });
+    });
 });

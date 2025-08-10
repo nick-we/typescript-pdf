@@ -31,7 +31,6 @@ export enum TextAlign {
 export enum TextOverflow {
     Clip = 'clip',
     Ellipsis = 'ellipsis',
-    Fade = 'fade',
     Visible = 'visible',
 }
 

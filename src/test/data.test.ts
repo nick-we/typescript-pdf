@@ -11,6 +11,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 
 // Import consolidated widget system
 import { PdfColor } from '@/core/pdf';
+import { createMockPaintContext } from '@/test/mock-interfaces.js';
 import type { Layout } from '@/types.js';
 import {
     Table,
@@ -24,6 +25,7 @@ import {
     BarOrientation,
     LineMarker,
     TableColumnWidthType,
+    TextOverflow,
 } from '@/widgets/index.js';
 
 describe('Data Visualization Systems', () => {
@@ -573,6 +575,299 @@ describe('Data Visualization Systems', () => {
             // Data integrity check
             expect(tableData.length - 1).toBe(sourceData.length); // -1 for header
             expect(chartSeries.data.length).toBe(sourceData.length);
+        });
+    });
+});
+
+describe('Table Text Overflow System - Consolidated', () => {
+    // Reuse the typed mock paint context used across table tests
+    const createTestPaintContext = () =>
+        createMockPaintContext({
+            size: { width: 400, height: 300 },
+        });
+
+    const shortText = 'Short';
+    const mediumText = 'Medium length content';
+    const longText =
+        'This is a very long text that will definitely exceed the normal cell width and should trigger overflow behavior';
+    const veryLongText =
+        'This is an extremely long text content that spans multiple lines and should definitely test the limits of our text overflow system with various behaviors including clipping ellipsis and visible modes';
+
+    describe('TextOverflow.Clip', () => {
+        it('clips text at cell boundaries using PDF clipping regions', () => {
+            const table = new Table({
+                data: [
+                    ['Short', 'Medium text', longText],
+                    [shortText, mediumText, veryLongText],
+                ],
+                columnWidths: [
+                    DataUtils.columnWidths.fixed(80),
+                    DataUtils.columnWidths.fixed(120),
+                    DataUtils.columnWidths.fixed(100),
+                ],
+                textOverflow: TextOverflow.Clip,
+                borders: DataUtils.borders.all({
+                    width: 1,
+                    color: PdfColor.fromHex('#cccccc'),
+                }),
+            });
+
+            const context = createTestPaintContext();
+            let clipRegionSet = false;
+            let clipRegionCleared = false;
+
+            // Track clipping calls
+            context.graphics!.setClippingRect = () => {
+                clipRegionSet = true;
+            };
+            context.graphics!.clearClipping = () => {
+                clipRegionCleared = true;
+            };
+
+            // Layout and paint
+            const layoutResult = table.layout({
+                constraints: {
+                    minWidth: 0,
+                    maxWidth: 400,
+                    minHeight: 0,
+                    maxHeight: 300,
+                },
+                theme: context.theme,
+            } as any);
+
+            expect(layoutResult.size.width).toBeGreaterThan(0);
+            expect(layoutResult.size.height).toBeGreaterThan(0);
+
+            table.paint(context);
+
+            // Verify clipping was used
+            expect(clipRegionSet).toBe(true);
+            expect(clipRegionCleared).toBe(true);
+        });
+
+        it('respects maxLines parameter when clipping', () => {
+            const table = new Table({
+                data: [[veryLongText]],
+                columnWidths: [DataUtils.columnWidths.fixed(150)],
+                textOverflow: TextOverflow.Clip,
+                maxLines: 2,
+            });
+
+            const context = createTestPaintContext();
+            let linesRendered = 0;
+
+            // Count text rendering calls
+            const originalDraw = context.graphics!.drawString;
+            context.graphics!.drawString = (font, fontSize, text, x, y) => {
+                linesRendered++;
+                return originalDraw?.(font, fontSize, text, x, y);
+            };
+
+            table.paint(context);
+
+            // Should render at most 2 lines
+            expect(linesRendered).toBeLessThanOrEqual(2);
+        });
+    });
+
+    describe('TextOverflow.Ellipsis', () => {
+        it('truncates with ellipsis when exceeding boundaries', () => {
+            const table = new Table({
+                data: [[longText]],
+                columnWidths: [DataUtils.columnWidths.fixed(50)], // Force overflow
+                textOverflow: TextOverflow.Ellipsis,
+            });
+
+            const context = createTestPaintContext();
+            let ellipsisUsed = false;
+
+            const originalDrawString = context.graphics!.drawString;
+            context.graphics!.drawString = (font, fontSize, text, x, y) => {
+                if (text.includes('…')) {
+                    ellipsisUsed = true;
+                }
+                return originalDrawString?.(font, fontSize, text, x, y);
+            };
+
+            table.paint(context);
+
+            expect(ellipsisUsed).toBe(true);
+        });
+    });
+
+    describe('TextOverflow.Visible', () => {
+        it('allows text to extend beyond cell boundaries (no clipping)', () => {
+            const table = new Table({
+                data: [[longText, shortText]],
+                columnWidths: [
+                    DataUtils.columnWidths.fixed(50),
+                    DataUtils.columnWidths.fixed(100),
+                ],
+                textOverflow: TextOverflow.Visible,
+            });
+
+            const context = createTestPaintContext();
+            let clippingUsed = false;
+
+            context.graphics!.setClippingRect = () => {
+                clippingUsed = true;
+            };
+
+            table.paint(context);
+
+            expect(clippingUsed).toBe(false);
+        });
+
+        it('still respects maxLines even with visible overflow', () => {
+            const table = new Table({
+                data: [[veryLongText]],
+                columnWidths: [DataUtils.columnWidths.fixed(80)],
+                textOverflow: TextOverflow.Visible,
+                maxLines: 3,
+            });
+
+            const context = createTestPaintContext();
+            let linesRendered = 0;
+
+            const originalDraw = context.graphics!.drawString;
+            context.graphics!.drawString = (font, fontSize, text, x, y) => {
+                linesRendered++;
+                return originalDraw?.(font, fontSize, text, x, y);
+            };
+
+            table.paint(context);
+
+            expect(linesRendered).toBeLessThanOrEqual(3);
+        });
+    });
+
+    describe('Per-Row Overrides', () => {
+        it('TableRow overrides table-level text overflow', () => {
+            const table = new Table({
+                textOverflow: TextOverflow.Clip,
+                columnWidths: [DataUtils.columnWidths.fixed(40)], // Force overflow
+                children: [
+                    new TableRow({
+                        children: [new Txt(longText)],
+                        textOverflow: TextOverflow.Ellipsis,
+                    }),
+                    new TableRow({
+                        children: [new Txt(longText)],
+                        textOverflow: TextOverflow.Visible,
+                    }),
+                    new TableRow({
+                        children: [new Txt(longText)],
+                        // Uses table default (Clip)
+                    }),
+                ],
+            });
+
+            const context = createTestPaintContext();
+            let ellipsisUsed = false;
+            let clippingUsed = false;
+
+            const originalDraw = context.graphics!.drawString;
+            context.graphics!.drawString = (font, fontSize, text, x, y) => {
+                if (text.includes('…')) {
+                    ellipsisUsed = true;
+                }
+                return originalDraw?.(font, fontSize, text, x, y);
+            };
+            context.graphics!.setClippingRect = () => {
+                clippingUsed = true;
+            };
+
+            table.paint(context);
+
+            expect(ellipsisUsed).toBe(true);
+            expect(clippingUsed).toBe(true);
+        });
+
+        it('TableRow can override maxLines independently', () => {
+            const table = new Table({
+                maxLines: 1, // Table default
+                columnWidths: [DataUtils.columnWidths.fixed(100)],
+                children: [
+                    new TableRow({
+                        children: [new Txt(veryLongText)],
+                        maxLines: 3, // Override to 3 lines
+                    }),
+                    new TableRow({
+                        children: [new Txt(veryLongText)],
+                        // Uses table default (1)
+                    }),
+                ],
+            });
+
+            const context = createTestPaintContext();
+
+            expect(() => {
+                table.paint(context);
+            }).not.toThrow();
+        });
+    });
+
+    describe('Mixed Content & Width Strategies', () => {
+        it('works with different column width types under overflow', () => {
+            const table = new Table({
+                data: [[longText, longText, longText, longText]],
+                columnWidths: [
+                    DataUtils.columnWidths.fixed(80),
+                    DataUtils.columnWidths.flex(),
+                    DataUtils.columnWidths.fraction(0.2),
+                    DataUtils.columnWidths.intrinsic(),
+                ],
+                textOverflow: TextOverflow.Ellipsis,
+            });
+
+            const context = createTestPaintContext();
+
+            expect(() => {
+                const layoutResult = table.layout({
+                    constraints: {
+                        minWidth: 0,
+                        maxWidth: 400,
+                        minHeight: 0,
+                        maxHeight: 300,
+                    },
+                    theme: context.theme,
+                } as any);
+
+                expect(layoutResult.size.width).toBeGreaterThan(0);
+                table.paint(context);
+            }).not.toThrow();
+        });
+    });
+
+    describe('Performance (Smoke)', () => {
+        it('renders a larger table with overflow handling within reasonable time', () => {
+            const largeData: string[][] = [];
+            for (let i = 0; i < 30; i++) {
+                largeData.push([
+                    `Row ${i} Col 1: ${longText}`,
+                    `Row ${i} Col 2: ${veryLongText}`,
+                    `Row ${i} Col 3: ${mediumText}`,
+                ]);
+            }
+
+            const table = new Table({
+                data: largeData,
+                columnWidths: [
+                    DataUtils.columnWidths.fixed(100),
+                    DataUtils.columnWidths.fixed(120),
+                    DataUtils.columnWidths.fixed(80),
+                ],
+                textOverflow: TextOverflow.Ellipsis,
+            });
+
+            const context = createTestPaintContext();
+
+            const startTime = performance.now();
+            expect(() => table.paint(context)).not.toThrow();
+            const renderTime = performance.now() - startTime;
+
+            // Keep test under strict budget to avoid flakes
+            expect(renderTime).toBeLessThan(1500);
         });
     });
 });

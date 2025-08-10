@@ -75,14 +75,7 @@ export class Page {
         this.document = document;
 
         // Set page size
-        if (options.format) {
-            this.size = PAGE_FORMATS[options.format];
-        } else {
-            this.size = {
-                width: options.width ?? 612,
-                height: options.height ?? 792,
-            };
-        }
+        this.size = PAGE_FORMATS[options.format ?? 'A4'];
 
         // MARGIN FIX: Reduce default page margins to match MultiPage widget (20pts)
         this.margins = options.margins ?? {

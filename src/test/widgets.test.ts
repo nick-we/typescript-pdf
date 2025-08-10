@@ -50,6 +50,9 @@ import {
     DefaultTextStyle,
     ThemeUtils,
     PrebuiltThemes,
+    MultiPage,
+    PageBreakBehavior,
+    MultiPageUtils,
 } from '@/widgets/index.js';
 
 describe('Widget Systems', () => {
@@ -668,6 +671,338 @@ describe('Widget Systems', () => {
                 expect(() => {
                     widget.paint(mockPaintContext);
                 }).not.toThrow();
+            });
+        });
+
+        describe('MultiPage Widget System', () => {
+            it('should create MultiPage widget with minimal props', () => {
+                const multipage = new MultiPage({
+                    children: [new Txt('Test content')],
+                });
+
+                expect(multipage).toBeDefined();
+                expect(multipage.debugLabel).toBeUndefined();
+            });
+
+            it('should create MultiPage widget with all props', () => {
+                const header = (pageNum: number, totalPages: number) =>
+                    new Txt(`Page ${pageNum} of ${totalPages}`);
+                const footer = new Txt('Footer text');
+
+                const multipage = new MultiPage({
+                    children: [new Txt('Test content')],
+                    header,
+                    footer,
+                    pageBreakBehavior: PageBreakBehavior.Avoid,
+                    pageMargins: Layout.EdgeInsets.all(50),
+                    maxPages: 10,
+                    pageSize: { width: 400, height: 600 },
+                    debugLabel: 'TestMultiPage',
+                });
+
+                expect(multipage).toBeDefined();
+                expect(multipage.debugLabel).toBe('TestMultiPage');
+            });
+
+            it('should handle empty children array', () => {
+                const multipage = new MultiPage({
+                    children: [],
+                });
+
+                const result = multipage.layout(mockLayoutContext);
+                expect(result.size.width).toBeGreaterThan(0);
+                expect(result.size.height).toBeGreaterThan(0);
+            });
+
+            it('should calculate correct page dimensions', () => {
+                const multipage = new MultiPage({
+                    children: [new Txt('Test')],
+                    pageSize: { width: 400, height: 600 },
+                });
+
+                const result = multipage.layout(mockLayoutContext);
+                expect(result.size.width).toBe(400);
+                expect(result.size.height).toBe(600);
+            });
+
+            it('should use A4 dimensions by default', () => {
+                const multipage = new MultiPage({
+                    children: [new Txt('Test')],
+                });
+
+                const result = multipage.layout(mockLayoutContext);
+                expect(result.size.width).toBe(595); // A4 width
+                expect(result.size.height).toBe(842); // A4 height
+            });
+
+            it('should account for margins in content area calculation', () => {
+                const multipage = new MultiPage({
+                    children: [new Txt('Test')],
+                    pageMargins: Layout.EdgeInsets.all(100),
+                    pageSize: { width: 400, height: 600 },
+                });
+
+                // Layout should succeed despite smaller content area
+                const result = multipage.layout(mockLayoutContext);
+                expect(result.size.width).toBe(400);
+                expect(result.size.height).toBe(600);
+            });
+
+            it('should measure single widget correctly', () => {
+                const multipage = new MultiPage({
+                    children: [new Txt('Single line of text')],
+                });
+
+                const result = multipage.layout(mockLayoutContext);
+                expect(result.size.width).toBeGreaterThan(0);
+                expect(result.size.height).toBeGreaterThan(0);
+                expect(result.needsRepaint).toBe(true);
+            });
+
+            it('should measure multiple widgets', () => {
+                const multipage = new MultiPage({
+                    children: [
+                        new Txt('First widget'),
+                        new Txt('Second widget'),
+                        new Container({
+                            child: new Txt('Third widget in container'),
+                            padding: Layout.EdgeInsets.all(20),
+                        }),
+                    ],
+                });
+
+                const result = multipage.layout(mockLayoutContext);
+                expect(result.size.width).toBeGreaterThan(0);
+                expect(result.size.height).toBeGreaterThan(0);
+            });
+
+            it('should support static header widget', () => {
+                const header = new Txt('Static Header');
+                const multipage = new MultiPage({
+                    children: [new Txt('Content')],
+                    header,
+                });
+
+                // Should layout successfully with header
+                const result = multipage.layout(mockLayoutContext);
+                expect(result.size.width).toBeGreaterThan(0);
+                expect(result.size.height).toBeGreaterThan(0);
+            });
+
+            it('should support dynamic header function', () => {
+                const header = (pageNum: number, totalPages: number) =>
+                    new Txt(`Page ${pageNum} of ${totalPages}`);
+
+                const multipage = new MultiPage({
+                    children: [new Txt('Content')],
+                    header,
+                });
+
+                const result = multipage.layout(mockLayoutContext);
+                expect(result.size.width).toBeGreaterThan(0);
+                expect(result.size.height).toBeGreaterThan(0);
+            });
+
+            it('should support both header and footer', () => {
+                const header = new Txt('Header Text');
+                const footer = new Txt('Footer Text');
+
+                const multipage = new MultiPage({
+                    children: [new Txt('Content')],
+                    header,
+                    footer,
+                });
+
+                const result = multipage.layout(mockLayoutContext);
+                expect(result.size.width).toBeGreaterThan(0);
+                expect(result.size.height).toBeGreaterThan(0);
+            });
+
+            it('should respect different page break behaviors', () => {
+                const testBehaviors = [
+                    PageBreakBehavior.Avoid,
+                    PageBreakBehavior.Auto,
+                    PageBreakBehavior.Always,
+                ];
+
+                testBehaviors.forEach(behavior => {
+                    const multipage = new MultiPage({
+                        children: [new Txt('Widget 1'), new Txt('Widget 2')],
+                        pageBreakBehavior: behavior,
+                    });
+
+                    const result = multipage.layout(mockLayoutContext);
+                    expect(result.size.width).toBeGreaterThan(0);
+                    expect(result.size.height).toBeGreaterThan(0);
+                });
+            });
+
+            it('should paint single page correctly', () => {
+                const multipage = new MultiPage({
+                    children: [new Txt('Simple content')],
+                });
+
+                multipage.layout(mockLayoutContext);
+
+                // Should not throw when painting
+                expect(() => {
+                    multipage.paint(mockPaintContext);
+                }).not.toThrow();
+            });
+
+            it('should handle paint without layout', () => {
+                const multipage = new MultiPage({
+                    children: [new Txt('Content')],
+                });
+
+                // Paint without layout should handle gracefully
+                expect(() => {
+                    multipage.paint(mockPaintContext);
+                }).not.toThrow();
+            });
+
+            it('should handle very large single widget', () => {
+                const largeWidget = new Container({
+                    child: new Column({
+                        children: Array.from(
+                            { length: 20 },
+                            (_, i) => new Txt(`Line ${i}`)
+                        ),
+                    }),
+                    padding: Layout.EdgeInsets.all(50),
+                });
+
+                const multipage = new MultiPage({
+                    children: [largeWidget],
+                    pageSize: { width: 400, height: 200 }, // Small page
+                });
+
+                // Should handle large widget gracefully
+                expect(() => {
+                    multipage.layout(mockLayoutContext);
+                }).not.toThrow();
+            });
+
+            it('should handle zero-size constraints', () => {
+                const zeroConstraintContext = {
+                    ...mockLayoutContext,
+                    constraints: {
+                        minWidth: 0,
+                        maxWidth: 0,
+                        minHeight: 0,
+                        maxHeight: 0,
+                    },
+                };
+
+                const multipage = new MultiPage({
+                    children: [new Txt('Test')],
+                });
+
+                // Should handle zero constraints gracefully
+                expect(() => {
+                    multipage.layout(zeroConstraintContext);
+                }).not.toThrow();
+            });
+
+            it('should handle infinite constraints', () => {
+                const infiniteConstraintContext = {
+                    ...mockLayoutContext,
+                    constraints: {
+                        minWidth: 0,
+                        maxWidth: Number.POSITIVE_INFINITY,
+                        minHeight: 0,
+                        maxHeight: Number.POSITIVE_INFINITY,
+                    },
+                };
+
+                const multipage = new MultiPage({
+                    children: [new Txt('Test')],
+                });
+
+                const result = multipage.layout(infiniteConstraintContext);
+                // Should default to A4 size for infinite constraints
+                expect(result.size.width).toBe(595);
+                expect(result.size.height).toBe(842);
+            });
+
+            it('should create simple header/footer multipage with MultiPageUtils', () => {
+                const multipage = MultiPageUtils.withSimpleHeaderFooter(
+                    [new Txt('Content')],
+                    'Header: {page} of {total}',
+                    'Footer text'
+                );
+
+                expect(multipage).toBeInstanceOf(MultiPage);
+
+                const result = multipage.layout(mockLayoutContext);
+                expect(result.size.width).toBeGreaterThan(0);
+                expect(result.size.height).toBeGreaterThan(0);
+            });
+
+            it('should create report-style multipage with MultiPageUtils', () => {
+                const multipage = MultiPageUtils.forReport(
+                    [new Txt('Report content')],
+                    {
+                        title: 'Test Report',
+                        showPageNumbers: true,
+                        margins: Layout.EdgeInsets.all(50),
+                    }
+                );
+
+                expect(multipage).toBeInstanceOf(MultiPage);
+
+                const result = multipage.layout(mockLayoutContext);
+                expect(result.size.width).toBeGreaterThan(0);
+                expect(result.size.height).toBeGreaterThan(0);
+            });
+
+            it('should handle mixed widget types', () => {
+                const multipage = new MultiPage({
+                    children: [
+                        new Txt('Text widget'),
+                        new Container({
+                            child: new Txt('Container widget'),
+                            decoration: { color: PdfColor.fromHex('#f0f0f0') },
+                        }),
+                        new Row({
+                            children: [
+                                new Txt('Row item 1'),
+                                new Txt('Row item 2'),
+                            ],
+                        }),
+                        new Column({
+                            children: [
+                                new Txt('Column item 1'),
+                                new Txt('Column item 2'),
+                            ],
+                        }),
+                    ],
+                });
+
+                const result = multipage.layout(mockLayoutContext);
+                expect(result.size.width).toBeGreaterThan(0);
+                expect(result.size.height).toBeGreaterThan(0);
+            });
+
+            it('should handle nested containers', () => {
+                const multipage = new MultiPage({
+                    children: [
+                        new Container({
+                            child: new Container({
+                                child: new Container({
+                                    child: new Txt('Deeply nested text'),
+                                    padding: Layout.EdgeInsets.all(5),
+                                }),
+                                padding: Layout.EdgeInsets.all(10),
+                            }),
+                            padding: Layout.EdgeInsets.all(15),
+                        }),
+                    ],
+                });
+
+                const result = multipage.layout(mockLayoutContext);
+                expect(result.size.width).toBeGreaterThan(0);
+                expect(result.size.height).toBeGreaterThan(0);
             });
         });
     });

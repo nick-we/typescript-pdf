@@ -690,5 +690,263 @@ describe('Layout Systems', () => {
                 );
             });
         });
+
+        describe('Container Alignment System - Consolidated', () => {
+            it('should calculate center position correctly with AlignmentUtils', () => {
+                // Test the core alignment calculation logic
+                const containerSize = { width: 200, height: 100 };
+                const childSize = { width: 50, height: 30 };
+
+                const centerPosition = Layout.AlignmentUtils.resolve(
+                    Layout.Alignment.Center,
+                    containerSize,
+                    childSize
+                );
+
+                // Expected center position:
+                // x = (containerWidth - childWidth) / 2 = (200 - 50) / 2 = 75
+                // y = (containerHeight - childHeight) / 2 = (100 - 30) / 2 = 35
+                expect(centerPosition.x).toBe(75);
+                expect(centerPosition.y).toBe(35);
+            });
+
+            it('should handle container center alignment in layout phase', () => {
+                const txt = new Txt('CENTERED', {
+                    style: { fontSize: 16, color: PdfColor.fromHex('#000000') },
+                });
+
+                const container = new Container({
+                    width: 200,
+                    height: 100,
+                    alignment: Layout.Alignment.Center,
+                    decoration: {
+                        color: PdfColor.fromHex('#f0f0f0'),
+                        border: {
+                            width: 1,
+                            color: PdfColor.fromHex('#000000'),
+                        },
+                    },
+                    child: txt,
+                });
+
+                const context: Layout.LayoutContext = {
+                    constraints: {
+                        minWidth: 0,
+                        maxWidth: 300,
+                        minHeight: 0,
+                        maxHeight: 200,
+                    },
+                    textDirection: 'ltr',
+                    theme: mockLayoutContext.theme,
+                };
+
+                const result = container.layout(context);
+
+                // Verify layout result
+                expect(result.size.width).toBe(200);
+                expect(result.size.height).toBe(100);
+                expect(result.needsRepaint).toBe(true);
+            });
+
+            it('should validate alignment behavior with different child sizes', () => {
+                const testCases = [
+                    {
+                        name: 'Small text in large container',
+                        containerSize: { width: 200, height: 150 },
+                        alignment: Layout.Alignment.Center,
+                    },
+                    {
+                        name: 'Medium text in medium container',
+                        containerSize: { width: 120, height: 80 },
+                        alignment: Layout.Alignment.Center,
+                    },
+                ];
+
+                testCases.forEach(({ name, containerSize, alignment }) => {
+                    const container = new Container({
+                        width: containerSize.width,
+                        height: containerSize.height,
+                        alignment,
+                        child: new Txt(
+                            (name.split(' ')[0] ?? 'TEST').toUpperCase(),
+                            {
+                                style: {
+                                    fontSize: name.includes('Small') ? 12 : 16,
+                                    color: PdfColor.fromHex('#000000'),
+                                },
+                            }
+                        ),
+                    });
+
+                    const layoutContext = {
+                        constraints: {
+                            minWidth: 0,
+                            maxWidth: containerSize.width,
+                            minHeight: 0,
+                            maxHeight: containerSize.height,
+                        },
+                        textDirection: 'ltr' as const,
+                        theme: mockLayoutContext.theme,
+                    };
+
+                    const result = container.layout(layoutContext);
+
+                    // Container should maintain its explicit size
+                    expect(result.size.width).toBe(containerSize.width);
+                    expect(result.size.height).toBe(containerSize.height);
+                });
+            });
+
+            it('should verify child widgets use intrinsic sizing', () => {
+                const text = new Txt('INTRINSIC', {
+                    style: { fontSize: 14, color: PdfColor.fromHex('#000000') },
+                });
+
+                // Give text widget loose constraints
+                const layoutContext = {
+                    constraints: {
+                        minWidth: 0,
+                        maxWidth: 300,
+                        minHeight: 0,
+                        maxHeight: 200,
+                    },
+                    textDirection: 'ltr' as const,
+                    theme: mockLayoutContext.theme,
+                };
+
+                const result = text.layout(layoutContext);
+
+                // Text should size to content, not fill available space
+                expect(result.size.width).toBeLessThan(100); // "INTRINSIC" shouldn't be 300px wide
+                expect(result.size.height).toBeLessThan(50); // Text shouldn't be 200px tall
+                expect(result.size.width).toBeGreaterThan(0);
+                expect(result.size.height).toBeGreaterThan(0);
+            });
+        });
+
+        describe('Container-Text Integration - Consolidated', () => {
+            it('should handle unconstrained container with long text', () => {
+                // ISSUE: Container without width constraint, text defaults to fallback width
+                const longText =
+                    "This is a very long text that should wrap properly within the container's available space and not use the arbitrary 1000px default width";
+
+                const text = new Txt(longText, { softWrap: true });
+                const container = new Container({ child: text });
+
+                // Container with infinite maxWidth constraint
+                const infiniteConstraintContext: Layout.LayoutContext = {
+                    ...mockLayoutContext,
+                    constraints: {
+                        minWidth: 0,
+                        maxWidth: Number.POSITIVE_INFINITY,
+                        minHeight: 0,
+                        maxHeight: Number.POSITIVE_INFINITY,
+                    },
+                };
+
+                const containerResult = container.layout(
+                    infiniteConstraintContext
+                );
+
+                // Container should not be unreasonably wide
+                expect(containerResult.size.width).toBeLessThan(1000); // Reasonable width
+                expect(containerResult.size.width).toBeGreaterThan(0);
+            });
+
+            it('should properly constrain text within fixed-width container', () => {
+                const longText =
+                    "This text should wrap within the container's specified width";
+
+                const text = new Txt(longText, { softWrap: true });
+                const container = new Container({
+                    child: text,
+                    width: 200,
+                    padding: Layout.EdgeInsets.all(10),
+                });
+
+                const result = container.layout(mockLayoutContext);
+
+                // Container should be exactly 200px wide
+                expect(result.size.width).toBe(200);
+
+                // Text should have been measured with (200 - 20) = 180px available width
+                expect(result.size.height).toBeGreaterThan(0);
+            });
+
+            it('should handle very narrow containers correctly', () => {
+                const text = new Txt('Long text content', {
+                    softWrap: true,
+                });
+                const container = new Container({
+                    child: text,
+                    width: 50,
+                    padding: Layout.EdgeInsets.all(5),
+                });
+
+                const result = container.layout(mockLayoutContext);
+
+                // Container should be exactly 50px wide
+                expect(result.size.width).toBe(50);
+
+                // Text should have been forced to wrap in very narrow space (40px available)
+                expect(result.size.height).toBeGreaterThan(30); // Should be tall due to wrapping
+            });
+
+            it('should handle nested containers with text', () => {
+                const text = new Txt('Nested container text', {
+                    softWrap: true,
+                });
+                const innerContainer = new Container({
+                    child: text,
+                    padding: Layout.EdgeInsets.all(5),
+                    width: 100,
+                });
+                const outerContainer = new Container({
+                    child: innerContainer,
+                    padding: Layout.EdgeInsets.all(10),
+                    width: 150,
+                });
+
+                const result = outerContainer.layout(mockLayoutContext);
+
+                // Outer container should be 150px wide
+                expect(result.size.width).toBe(150);
+                expect(result.size.height).toBeGreaterThan(0);
+            });
+
+            it('should handle empty text in containers', () => {
+                const text = new Txt('', { softWrap: true });
+                const container = new Container({
+                    child: text,
+                    padding: Layout.EdgeInsets.all(10),
+                    width: 100,
+                });
+
+                const result = container.layout(mockLayoutContext);
+
+                // Container should still have specified width
+                expect(result.size.width).toBe(100);
+
+                // Height should be minimal (just padding + minimal text height)
+                expect(result.size.height).toBeGreaterThan(20); // At least padding
+                expect(result.size.height).toBeLessThan(50); // But not too much
+            });
+
+            it('should handle very long single word', () => {
+                const longWord = 'Supercalifragilisticexpialidocious';
+                const text = new Txt(longWord, { softWrap: true });
+                const container = new Container({
+                    child: text,
+                    width: 50,
+                    padding: Layout.EdgeInsets.all(5),
+                });
+
+                const result = container.layout(mockLayoutContext);
+
+                // Container maintains width
+                expect(result.size.width).toBe(50);
+                expect(result.size.height).toBeGreaterThan(0);
+            });
+        });
     });
 });

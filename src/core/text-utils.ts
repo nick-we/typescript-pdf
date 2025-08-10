@@ -236,63 +236,95 @@ export class TextProcessor {
     }
 
     /**
-     * Break text into lines with simple word wrapping
+     * Break text into lines with simple word wrapping and explicit line breaks
      */
     private breakIntoLines(
         text: string,
         maxWidth: number,
         options: TextMeasurementOptions
     ): TextLine[] {
-        const words = text.split(/\s+/).filter(word => word.length > 0);
         const lines: TextLine[] = [];
         const lineHeight = options.fontSize * (options.lineHeight ?? 1.2);
 
-        let currentLine: string[] = [];
-        let currentWidth = 0;
+        // First, split by explicit line breaks (\n)
+        const explicitLines = text.split('\n');
+
         let lineY = 0;
 
-        for (const word of words) {
-            const wordWidth = this.measureText(word, options).width;
-            const spaceWidth = this.measureText(' ', options).width;
-            const additionalWidth = currentLine.length > 0 ? spaceWidth : 0;
-
-            if (
-                currentWidth + additionalWidth + wordWidth <= maxWidth ||
-                currentLine.length === 0
-            ) {
-                // Word fits on current line
-                currentLine.push(word);
-                currentWidth += additionalWidth + wordWidth;
-            } else {
-                // Word doesn't fit, finish current line and start new one
-                if (currentLine.length > 0) {
-                    const lineText = currentLine.join(' ');
-                    lines.push({
-                        text: lineText,
-                        width: this.measureText(lineText, options).width,
-                        height: lineHeight,
-                        offsetX: 0,
-                        offsetY: lineY,
-                    });
-                    lineY += lineHeight;
-                }
-
-                // Start new line with current word
-                currentLine = [word];
-                currentWidth = wordWidth;
+        for (const explicitLine of explicitLines) {
+            if (!explicitLine.trim()) {
+                // Empty line
+                lines.push({
+                    text: '',
+                    width: 0,
+                    height: lineHeight,
+                    offsetX: 0,
+                    offsetY: lineY,
+                });
+                lineY += lineHeight;
+                continue;
             }
-        }
 
-        // Add final line if there are remaining words
-        if (currentLine.length > 0) {
-            const lineText = currentLine.join(' ');
-            lines.push({
-                text: lineText,
-                width: this.measureText(lineText, options).width,
-                height: lineHeight,
-                offsetX: 0,
-                offsetY: lineY,
-            });
+            // Split this line into words for wrapping
+            const words = explicitLine
+                .split(/\s+/)
+                .filter(word => word.length > 0);
+            let currentLine: string[] = [];
+            let currentWidth = 0;
+
+            for (const word of words) {
+                const wordWidth = this.measureText(word, options).width;
+                const spaceWidth = this.measureText(' ', options).width;
+                const additionalWidth = currentLine.length > 0 ? spaceWidth : 0;
+
+                // Check if word fits, or if we need to force it (empty line case)
+                if (
+                    currentWidth + additionalWidth + wordWidth <= maxWidth ||
+                    currentLine.length === 0
+                ) {
+                    // Word fits on current line
+                    currentLine.push(word);
+                    currentWidth += additionalWidth + wordWidth;
+                } else {
+                    // Word doesn't fit, finish current line and start new one
+                    if (currentLine.length > 0) {
+                        const lineText = currentLine.join(' ');
+                        const actualWidth = Math.min(
+                            this.measureText(lineText, options).width,
+                            maxWidth
+                        );
+                        lines.push({
+                            text: lineText,
+                            width: actualWidth,
+                            height: lineHeight,
+                            offsetX: 0,
+                            offsetY: lineY,
+                        });
+                        lineY += lineHeight;
+                    }
+
+                    // Start new line with current word (handle overflow case)
+                    currentLine = [word];
+                    currentWidth = Math.min(wordWidth, maxWidth);
+                }
+            }
+
+            // Add final line if there are remaining words
+            if (currentLine.length > 0) {
+                const lineText = currentLine.join(' ');
+                const actualWidth = Math.min(
+                    this.measureText(lineText, options).width,
+                    maxWidth
+                );
+                lines.push({
+                    text: lineText,
+                    width: actualWidth,
+                    height: lineHeight,
+                    offsetX: 0,
+                    offsetY: lineY,
+                });
+                lineY += lineHeight;
+            }
         }
 
         return lines;
@@ -361,7 +393,7 @@ export class TextProcessor {
             maxFontSize?: number;
         }
     ): number {
-        const minSize = options.minFontSize ?? 8;
+        const minSize = options.minFontSize ?? 4;
         const maxSize = options.maxFontSize ?? 72;
 
         let low = minSize;
@@ -389,7 +421,31 @@ export class TextProcessor {
             }
         }
 
-        return optimalSize;
+        // Final verification: ensure the chosen size actually fits
+        let verifiedSize = optimalSize;
+        let attempts = 0;
+        const maxAttempts = 10;
+
+        while (verifiedSize >= minSize && attempts < maxAttempts) {
+            const verifyOptions = { ...options, fontSize: verifiedSize };
+            const verifyMeasurement = this.measureTextBlock(
+                text,
+                bounds.width,
+                verifyOptions
+            );
+
+            if (
+                verifyMeasurement.width <= bounds.width &&
+                verifyMeasurement.height <= bounds.height
+            ) {
+                return verifiedSize;
+            }
+
+            verifiedSize = Math.max(minSize, verifiedSize - 1);
+            attempts++;
+        }
+
+        return verifiedSize;
     }
 }
 

@@ -7,7 +7,7 @@
  * @packageDocumentation
  */
 
-import { TextDirection } from '@/core/document.js';
+import { PAGE_FORMATS, TextDirection } from '@/core/document.js';
 import { widgetLogger } from '@/core/logger.js';
 import type { Geometry } from '@/types.js';
 import { Layout, Theme, Flex } from '@/types.js';
@@ -129,10 +129,6 @@ export class MultiPage extends BaseWidget {
     private contentChunks?: ContentChunk[];
     private totalPages: number = 0;
 
-    // CRITICAL FIX: Store actual page dimensions extracted from paint context
-    private actualPageSize?: Geometry.Size;
-    private actualPageMargins?: Layout.EdgeInsets;
-
     constructor(props: MultiPageProps) {
         super(props);
 
@@ -191,12 +187,9 @@ export class MultiPage extends BaseWidget {
             return;
         }
 
-        // CRITICAL FIX: Extract actual page dimensions from paint context
-        this.extractActualPageDimensions(context);
-
         widgetLogger.info(`MultiPage: Painting ${this.totalPages} pages`);
         widgetLogger.debug(
-            `  - Using actual page size: ${this.actualPageSize?.width}x${this.actualPageSize?.height}`
+            `  - Using actual page size: ${this.pageSize?.width ?? PAGE_FORMATS.A4.width}x${this.pageSize?.height ?? PAGE_FORMATS.A4.height}`
         );
 
         // Paint the first page in the current context
@@ -211,45 +204,6 @@ export class MultiPage extends BaseWidget {
         // Create additional pages through document integration
         if (this.totalPages > 1 && this.canCreateAdditionalPages(context)) {
             this.createAdditionalPages(context);
-        }
-    }
-
-    /**
-     * CRITICAL FIX: Extract actual page dimensions from paint context
-     */
-    private extractActualPageDimensions(context: Layout.PaintContext): void {
-        // Use proper type extension for extended context properties
-        const extendedContext = context as Layout.PaintContext & {
-            pageSize?: Geometry.Size;
-            pageMargins?: Layout.EdgeInsets;
-        };
-
-        // Extract page size from paint context (provided by Page.renderWidget)
-        if (extendedContext.pageSize) {
-            this.actualPageSize = { ...extendedContext.pageSize };
-            widgetLogger.debug(
-                `  - Extracted actual page size: ${this.actualPageSize?.width}x${this.actualPageSize?.height}`
-            );
-        } else {
-            // Fallback: use user-provided pageSize or default
-            this.actualPageSize = this.pageSize ?? { width: 612, height: 792 }; // Letter default
-            widgetLogger.warn(
-                `  - No page size in context, using fallback: ${this.actualPageSize?.width}x${this.actualPageSize?.height}`
-            );
-        }
-
-        // Extract page margins from paint context
-        if (extendedContext.pageMargins) {
-            this.actualPageMargins = { ...extendedContext.pageMargins };
-            widgetLogger.debug(
-                `  - Extracted actual page margins: ${JSON.stringify(this.actualPageMargins)}`
-            );
-        } else {
-            // Fallback: use user-provided margins or defaults
-            this.actualPageMargins = this.pageMargins;
-            widgetLogger.debug(
-                `  - No page margins in context, using fallback: ${JSON.stringify(this.actualPageMargins)}`
-            );
         }
     }
 
@@ -270,8 +224,8 @@ export class MultiPage extends BaseWidget {
         if (
             !this.contentChunks ||
             !this.pageLayout ||
-            !this.actualPageSize ||
-            !this.actualPageMargins ||
+            !this.pageSize ||
+            !this.pageMargins ||
             !context.document
         ) {
             return;
@@ -298,11 +252,10 @@ export class MultiPage extends BaseWidget {
             );
 
             try {
-                // CRITICAL FIX: Create new page with ACTUAL dimensions from first page
                 document.addPage({
-                    width: this.actualPageSize.width,
-                    height: this.actualPageSize.height,
-                    margins: this.actualPageMargins,
+                    width: this.pageSize.width,
+                    height: this.pageSize.height,
+                    margins: this.pageMargins,
                     build: () => {
                         // Return a widget that renders this chunk's content
                         return this.createPageWidget(chunk, pageNumber);
@@ -345,26 +298,14 @@ export class MultiPage extends BaseWidget {
      * MARGIN FIX: Improved positioning and eliminated double margin application
      */
     private calculatePageLayout(context: Layout.LayoutContext): PageLayout {
-        // CRITICAL FIX: Use actual page size if available (from paint context), otherwise fallback to provided or default
-        const pageSize = this.actualPageSize ??
-            this.pageSize ?? {
-                width:
-                    context.constraints.maxWidth === Number.POSITIVE_INFINITY
-                        ? 612 // Changed from A4 to Letter default to match Document default
-                        : context.constraints.maxWidth,
-                height:
-                    context.constraints.maxHeight === Number.POSITIVE_INFINITY
-                        ? 792 // Changed from A4 to Letter default to match Document default
-                        : context.constraints.maxHeight,
-            };
-
+        const pageSize = this.pageSize ?? PAGE_FORMATS.A4;
         widgetLogger.debug(
-            `MultiPage: Page size ${pageSize.width}x${pageSize.height} (actual: ${!!this.actualPageSize})`
+            `MultiPage: Page size ${pageSize.width}x${pageSize.height} (actual: ${!!this.pageSize})`
         );
 
         // MARGIN FIX: Use smaller header/footer margins separate from content margins
         const headerFooterMargin = 10; // Small margin for headers/footers from page edge
-        const contentMargins = this.actualPageMargins ?? this.pageMargins;
+        const contentMargins = this.pageMargins;
 
         // Calculate available areas
         let headerHeight = 0;
@@ -463,11 +404,8 @@ export class MultiPage extends BaseWidget {
                 : headerFooter;
 
         // Create loose constraints for measurement using actual dimensions when available
-        const pageWidth =
-            this.actualPageSize?.width ??
-            this.pageSize?.width ??
-            context.constraints.maxWidth;
-        const margins = this.actualPageMargins ?? this.pageMargins;
+        const pageWidth = this.pageSize?.width ?? context.constraints.maxWidth;
+        const margins = this.pageMargins;
 
         const measureConstraints: Layout.BoxConstraints = {
             minWidth: 0,

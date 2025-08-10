@@ -8,7 +8,7 @@
  */
 
 import { PdfColor } from '@/core/pdf';
-import { TextUtils } from '@/core/text-utils.js';
+import { TextOverflow, TextUtils } from '@/core/text-utils.js';
 import type {
     IGraphicsContext,
     IUniversalFont,
@@ -33,18 +33,6 @@ export enum TableCellVerticalAlignment {
     Top = 'top',
     Middle = 'middle',
     Bottom = 'bottom',
-}
-
-/**
- * Text overflow behavior for table cells
- */
-export enum TextOverflow {
-    /** Clip text at cell boundaries (hard cutoff) */
-    Clip = 'clip',
-    /** Truncate text with ellipsis (...) when it exceeds boundaries */
-    Ellipsis = 'ellipsis',
-    /** Allow text to extend beyond cell boundaries */
-    Visible = 'visible',
 }
 
 /**
