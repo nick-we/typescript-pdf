@@ -1,4 +1,4 @@
-# [1.1.0](https://github.com/nick-we/typescript-pdf/compare/v1.0.2...v1.1.0) (2025-08-07)
+# [0.6.1](https://github.com/nick-we/typescript-pdf/compare/v1.0.2...v1.1.0) (2025-08-07)
 
 
 ### Bug Fixes
@@ -11,14 +11,14 @@
 
 * bump version to 0.6.1 ([a10e23d](https://github.com/nick-we/typescript-pdf/commit/a10e23dd310d8c87eaed6c5adcc1a9a9664711bf))
 
-## [1.0.2](https://github.com/nick-we/typescript-pdf/compare/v1.0.1...v1.0.2) (2025-08-05)
+## [0.5.1](https://github.com/nick-we/typescript-pdf/compare/v1.0.1...v1.0.2) (2025-08-05)
 
 
 ### Bug Fixes
 
 * disable github pages temporarily in release.yml ([d74dab2](https://github.com/nick-we/typescript-pdf/commit/d74dab2133d08bdcabcda0e1d0fcf9faf7277441))
 
-## [1.0.1](https://github.com/nick-we/typescript-pdf/compare/v1.0.0...v1.0.1) (2025-08-05)
+## [0.5.0](https://github.com/nick-we/typescript-pdf/compare/v1.0.0...v1.0.1) (2025-08-05)
 
 
 ### Bug Fixes
@@ -26,7 +26,7 @@
 * .releaserc ([5e90c5d](https://github.com/nick-we/typescript-pdf/commit/5e90c5d164222ab59d183bc0325b19e7f5034996))
 * added npm token to repo secrets ([116595d](https://github.com/nick-we/typescript-pdf/commit/116595de27dfad62908dd34825740356968d02a6))
 
-# 1.0.0 (2025-08-05)
+# 0.5.0 (2025-08-05)
 
 
 ### Bug Fixes
