@@ -228,6 +228,7 @@ export class MultiPage extends BaseWidget {
             !this.pageMargins ||
             !context.document
         ) {
+            widgetLogger.warn('MultiPage: Missing required context for page creation');
             return;
         }
 
@@ -252,6 +253,7 @@ export class MultiPage extends BaseWidget {
             );
 
             try {
+                // SIMPLE APPROACH: Use standard document.addPage method
                 document.addPage({
                     width: this.pageSize.width,
                     height: this.pageSize.height,
@@ -261,6 +263,8 @@ export class MultiPage extends BaseWidget {
                         return this.createPageWidget(chunk, pageNumber);
                     },
                 });
+
+                widgetLogger.info(`  - Successfully created page ${pageNumber}`);
             } catch (error) {
                 widgetLogger.error(
                     `MultiPage: Failed to create page ${pageNumber}:`,
@@ -620,6 +624,7 @@ export class MultiPage extends BaseWidget {
 
     /**
      * Paint a single page with its content, header, and footer
+     * COORDINATE FIX: Simplified coordinate system and proper content positioning
      */
     private paintPage(
         context: Layout.PaintContext,
@@ -661,15 +666,8 @@ export class MultiPage extends BaseWidget {
             );
         }
 
-        // Paint page content
-        if (graphics) {
-            graphics.save();
-            graphics.translate(
-                this.pageLayout.contentArea.x,
-                this.pageLayout.contentArea.y
-            );
-        }
-
+        // COORDINATE FIX: Use simplified content area positioning
+        // Paint page content with proper positioning
         let currentY = 0;
         for (let i = 0; i < chunk.widgets.length; i++) {
             const widget = chunk.widgets[i];
@@ -684,13 +682,17 @@ export class MultiPage extends BaseWidget {
             const widgetHeight =
                 this.contentMeasurement?.widgetHeights[widgetIndex] ?? 0;
 
-            // Translate to widget position
+            // COORDINATE FIX: Use absolute positioning within content area
             if (graphics) {
                 graphics.save();
-                graphics.translate(0, currentY);
+                // Position widget within content area with proper coordinate transformation
+                graphics.translate(
+                    this.pageLayout.contentArea.x,
+                    this.pageLayout.contentArea.y + currentY
+                );
             }
 
-            // Create paint context for this widget
+            // Create paint context for this widget with proper textMeasurement
             const widgetContext: Layout.PaintContext = {
                 ...context,
                 size: {
@@ -710,7 +712,6 @@ export class MultiPage extends BaseWidget {
         }
 
         if (graphics) {
-            graphics.restore(); // Content area translation
             graphics.restore(); // Page graphics state
         }
     }
@@ -746,46 +747,46 @@ export class MultiPage extends BaseWidget {
 
         // HEADER FIX: Create layout context and layout the widget
         const defaultTextMeasurement: Layout.LayoutContext['textMeasurement'] =
-            {
-                measureTextWidth: (text: string, fontSize: number) =>
-                    text.length * fontSize * 0.6,
-                wrapTextAccurate: (text: string, _maxWidth: number) => [text],
-                truncateTextAccurate: (text: string, _maxWidth: number) => text,
-                getFontMetrics: (fontSize: number) => ({
-                    height: fontSize * 1.2,
-                    baseline: fontSize * 0.8,
-                    ascender: fontSize * 0.8,
-                    descender: fontSize * 0.2,
-                }),
-                measureCharWidth: (char: string, fontSize: number) =>
-                    fontSize * 0.6,
-                measureTextWithWrapping: (
-                    text: string,
-                    _maxWidth: number,
-                    options: { fontSize: number }
-                ) => ({
-                    width: text.length * options.fontSize * 0.6,
-                    height: options.fontSize * 1.2,
-                    baseline: options.fontSize * 0.8,
-                    lineCount: 1,
-                    actualLines: [text],
-                }),
-                getTextBounds: (
-                    text: string,
-                    _maxWidth: number,
-                    options: { fontSize: number }
-                ) => ({
-                    width: text.length * options.fontSize * 0.6,
-                    height: options.fontSize * 1.2,
-                }),
-                clearCache: () => {
-                    /* no-op */
-                },
-                getCacheStats: () => ({
-                    measurementCache: 0,
-                    fontMetricsCache: 0,
-                }),
-            };
+        {
+            measureTextWidth: (text: string, fontSize: number) =>
+                text.length * fontSize * 0.6,
+            wrapTextAccurate: (text: string, _maxWidth: number) => [text],
+            truncateTextAccurate: (text: string, _maxWidth: number) => text,
+            getFontMetrics: (fontSize: number) => ({
+                height: fontSize * 1.2,
+                baseline: fontSize * 0.8,
+                ascender: fontSize * 0.8,
+                descender: fontSize * 0.2,
+            }),
+            measureCharWidth: (char: string, fontSize: number) =>
+                fontSize * 0.6,
+            measureTextWithWrapping: (
+                text: string,
+                _maxWidth: number,
+                options: { fontSize: number }
+            ) => ({
+                width: text.length * options.fontSize * 0.6,
+                height: options.fontSize * 1.2,
+                baseline: options.fontSize * 0.8,
+                lineCount: 1,
+                actualLines: [text],
+            }),
+            getTextBounds: (
+                text: string,
+                _maxWidth: number,
+                options: { fontSize: number }
+            ) => ({
+                width: text.length * options.fontSize * 0.6,
+                height: options.fontSize * 1.2,
+            }),
+            clearCache: () => {
+                /* no-op */
+            },
+            getCacheStats: () => ({
+                measurementCache: 0,
+                fontMetricsCache: 0,
+            }),
+        };
 
         const layoutContext: Layout.LayoutContext = {
             constraints: layoutConstraints,

@@ -1686,8 +1686,8 @@ describe('MultiPage Visual Generation - Consolidated', () => {
                             }),
                             new Txt(
                                 `This is content for section ${i + 1}. ` +
-                                    `Lorem ipsum dolor sit amet, consectetur adipiscing elit. ` +
-                                    `Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.`,
+                                `Lorem ipsum dolor sit amet, consectetur adipiscing elit. ` +
+                                `Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.`,
                                 { style: { fontSize: 12, lineSpacing: 1.4 } }
                             ),
                         ],
@@ -1706,6 +1706,9 @@ describe('MultiPage Visual Generation - Consolidated', () => {
 
         const header = (pageNum: number, totalPages: number) =>
             new Container({
+                margin: Layout.EdgeInsets.only({
+                    bottom: 20,
+                }),
                 padding: Layout.EdgeInsets.symmetric({
                     horizontal: 20,
                     vertical: 8,
@@ -1730,105 +1733,43 @@ describe('MultiPage Visual Generation - Consolidated', () => {
                 },
             });
 
-        const footer = new Container({
-            alignment: Layout.Alignment.Center,
-            padding: Layout.EdgeInsets.all(6),
-            child: new Txt('© MultiPage Visual Test', {
-                style: { fontSize: 10, color: PdfColor.fromHex('#95a5a6') },
+        const footer = (pageNum: number, totalPages: number) =>
+            new Container({
+                alignment: Layout.Alignment.Center,
+                padding: Layout.EdgeInsets.all(6),
+                child: new Txt('© MultiPage Visual Test', {
+                    style: { fontSize: 10, color: PdfColor.fromHex('#95a5a6') },
+                }),
+            });
+
+        // Add title section
+        const titleContent = new Container({
+            padding: Layout.EdgeInsets.only({ bottom: 20 }),
+            child: new Txt('MultiPage Visual Test Report', {
+                style: {
+                    fontSize: 20,
+                    fontWeight: ThemeTypes.FontWeight.Bold,
+                    color: PdfColor.fromHex('#2c3e50'),
+                },
             }),
+            alignment: Layout.Alignment.Center,
         });
 
-        const mp = MultiPageUtils.forReport(
-            [
-                new Container({
-                    padding: Layout.EdgeInsets.only({ bottom: 12 }),
-                    child: new Txt('Report Title', {
-                        style: {
-                            fontSize: 18,
-                            fontWeight: ThemeTypes.FontWeight.Bold,
-                        },
-                    }),
-                }),
-                ...content,
-            ],
-            {
-                title: 'Consolidated Visual Report',
-                showPageNumbers: true,
-                margins: Layout.EdgeInsets.all(40),
-            }
-        );
-
-        // Override header/footer for this test to validate both paths
-        const mpWithHeaderFooter = new MultiPage({
-            children: [mp],
+        // USE THE NEW DOCUMENT-LEVEL APPROACH (not the old widget approach)
+        doc.addMultiPage({
+            children: [titleContent, ...content],
             header,
             footer,
-            pageBreakBehavior: PageBreakBehavior.Auto,
             pageMargins: Layout.EdgeInsets.all(40),
+            format: 'A4',
         });
 
-        doc.addPage({ format: 'A4', build: () => mpWithHeaderFooter });
-
-        const bytes = await doc.save();
+        const bytes = doc.save();
         const out = join(TEST_OUTPUT_DIR, 'visual-multipage-basic.pdf');
         writeFileSync(out, bytes);
         expect(bytes.length).toBeGreaterThan(100);
         console.log(`✅ Generated: ${out}`);
-    });
-
-    it('should generate a utility-based multipage report', async () => {
-        const doc = new Document();
-
-        const reportContent = [
-            new Container({
-                child: new Column({
-                    children: [
-                        new Txt('EXECUTIVE SUMMARY', {
-                            style: {
-                                fontSize: 16,
-                                fontWeight: ThemeTypes.FontWeight.Bold,
-                            },
-                        }),
-                        new Txt(
-                            'This report demonstrates the MultiPageUtils.forReport functionality with consolidated tests.',
-                            { style: { fontSize: 11, lineSpacing: 1.5 } }
-                        ),
-                    ],
-                }),
-                padding: Layout.EdgeInsets.all(16),
-                margin: Layout.EdgeInsets.only({ bottom: 16 }),
-                decoration: {
-                    color: PdfColor.fromHex('#e8f4fd'),
-                    border: { width: 1, color: PdfColor.fromHex('#3498db') },
-                },
-            }),
-            ...Array.from(
-                { length: 8 },
-                (_, i) =>
-                    new Container({
-                        child: new Txt(
-                            `Content block ${i + 1} — demonstrating paging and layout.`
-                        ),
-                        padding: Layout.EdgeInsets.all(10),
-                        margin: Layout.EdgeInsets.only({ bottom: 10 }),
-                        decoration: { color: PdfColor.fromHex('#ffffff') },
-                    })
-            ),
-        ];
-
-        const mp = MultiPageUtils.forReport(reportContent, {
-            title: 'Consolidated MultiPage Utils Report',
-            showPageNumbers: true,
-            margins: Layout.EdgeInsets.all(50),
-        });
-
-        doc.addPage({ format: 'A4', build: () => mp });
-
-        const bytes = doc.save();
-        const out = join(TEST_OUTPUT_DIR, 'visual-multipage-utils.pdf');
-        writeFileSync(out, bytes);
-        expect(bytes.length).toBeGreaterThan(100);
-        console.log(`✅ Generated: ${out}`);
+        console.log(`📄 Using new document-level addMultiPage approach (not widget)`);
     });
 });
 
@@ -1837,7 +1778,7 @@ describe('Accurate Text Measurement - Visual (Consolidated)', () => {
         // Initialize global measurement (lightweight mock)
         const mockPdfDocument = {
             genSerial: () => 1,
-            objects: { add: () => {} },
+            objects: { add: () => { } },
         };
         const fontSystem = new FontSystem(mockPdfDocument);
         initializeGlobalTextMeasurement(fontSystem);
